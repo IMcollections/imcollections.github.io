@@ -1,0 +1,17 @@
+{
+  "name": "IM Collections",
+  "short_name": "IM Collections",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "description": "IM Collections online store",
+  "icons": [
+    {
+      "src": "IM-logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

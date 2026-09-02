@@ -1,10 +1,16 @@
-const CACHE_NAME = "im-collections-v2";
+const CACHE_NAME = "im-collections-v3";
 
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
   "./IM-logo.jpg",
-  "./manifest.json"
+  "./manifest.json",
+  "./Clothing.html",
+  "./Shoes.html",
+  "./Bags.html",
+  "./Electronics.html",
+  "./Toys.html",
+  "./accessories.html"
 ];
 
 self.addEventListener("install", event => {

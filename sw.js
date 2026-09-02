@@ -10,7 +10,7 @@ const FILES_TO_CACHE = [
   "./Bags.html",
   "./Electronics.html",
   "./Toys.html",
-  "./accessories.html"
+  "./Accessories.html"
 ];
 
 self.addEventListener("install", event => {

@@ -3,12 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="IM Collections">
 
   <title>IM Collections | Style. Tech. Everything You Need.</title>
 
   <meta
     name="description"
-    content="Shop IM Collections for premium bags, electronics, gadgets, watches, shoes, clothes and apparel."
+    content="Shop IM Collections for bags, shoes, clothes, accessories, electronics and Toys."
   />
 
   <style>
@@ -425,7 +430,7 @@
       top: -67px;
     }
 
-    .display-watch {
+    .display-accessories {
       width: 105px;
       height: 105px;
       border-radius: 50%;
@@ -695,7 +700,7 @@
       top: -50px;
     }
 
-    .art-watch {
+    .art-accessories {
       width: 190px;
       height: 190px;
       border-radius: 50%;
@@ -724,7 +729,7 @@
       position: relative;
     }
 
-    .art-phone::after {
+    .art-drone::after {
       content: "IM";
       position: absolute;
       inset: 0;
@@ -1590,7 +1595,7 @@
         left: 50px;
       }
 
-      .display-watch {
+      .display-accessories {
         width: 80px;
         height: 80px;
         right: 10px;
@@ -1764,6 +1769,12 @@
       <nav class="desktop-nav">
         <a href="#new">New Arrivals</a>
         <a href="#categories">Shop</a>
+      <a href="Accessories.html">Accessories</a>
+<a href="Bags.html">Bags</a>
+<a href="Shoes.html">Shoes</a>
+<a href="Electronics.html">Electronics</a>
+<a href="Clothing.html">Clothing</a>
+<a href="Toys.html">Toys</a>
         <a href="#featured">Best Sellers</a>
         <a href="#sale">Sale</a>
       </nav>
@@ -1827,6 +1838,12 @@
       <div class="mobile-menu-links">
         <a href="#new">New Arrivals</a>
         <a href="#categories">Shop All</a>
+    <a href="Accessories.html">Accessories</a>
+<a href="Bags.html">Bags</a>
+<a href="Shoes.html">Shoes</a>
+<a href="Electronics.html">Electronics</a>
+<a href="Clothing.html">Clothing</a>
+<a href="Toys.html">Toys</a>
         <a href="#featured">Best Sellers</a>
         <a href="#sale">Sale</a>
         <a href="#newsletter">Join IM</a>
@@ -1879,7 +1896,7 @@
 
           <div class="display-card display-bag"></div>
 
-          <div class="display-card display-watch"></div>
+          <div class="display-card display-accessories"></div>
 
           <div class="display-card display-shoe"></div>
 
@@ -1998,22 +2015,22 @@
           href="#featured"
           onclick="filterProducts('Electronics')"
         >
-          <div class="category-visual">TECH</div>
+          <div class="category-visual">Electronics</div>
           <div class="category-info">
-            <h3>Gadgets</h3>
-            <span>Smart essentials</span>
+            <h3>Electronics</h3>
+            <span>Latest Gadgets</span>
           </div>
         </a>
 
         <a
           class="category-card"
           href="#featured"
-          onclick="filterProducts('Watches')"
+          onclick="filterProducts('Accessories')"
         >
           <div class="category-visual">TIME</div>
           <div class="category-info">
-            <h3>Watches</h3>
-            <span>Make time yours</span>
+            <h3>Accessories</h3>
+            <span>Personal Accessories</span>
           </div>
         </a>
 
@@ -2034,7 +2051,7 @@
           href="#featured"
           onclick="filterProducts('Clothing')"
         >
-          <div class="category-visual">IM</div>
+          <div class="category-visual">Fashion</div>
           <div class="category-info">
             <h3>Clothing</h3>
             <span>Wear your confidence</span>
@@ -2044,12 +2061,12 @@
         <a
           class="category-card"
           href="#featured"
-          onclick="filterProducts('Apparel')"
+          onclick="filterProducts('Toys')"
         >
-          <div class="category-visual">STYLE</div>
+          <div class="category-visual">FUNKO</div>
           <div class="category-info">
-            <h3>Apparel</h3>
-            <span>Complete the fit</span>
+            <h3>Toys</h3>
+            <span>Amazing Toys</span>
           </div>
         </a>
 
@@ -2074,7 +2091,7 @@
         <h2>Trending Now</h2>
 
         <p>
-          Our most wanted pieces, gadgets and accessories.
+          Our most wanted pieces, electronics and accessories.
         </p>
 
       </div>
@@ -2101,14 +2118,14 @@
             class="filter-btn"
             data-filter="Electronics"
           >
-            Gadgets
+            Electronics
           </button>
 
           <button
             class="filter-btn"
-            data-filter="Watches"
+            data-filter="Accessories"
           >
-            Watches
+            Accessories
           </button>
 
           <button
@@ -2123,6 +2140,13 @@
             data-filter="Clothing"
           >
             Clothing
+          </button>
+
+         <button
+            class="filter-btn"
+            data-filter="Toys"
+          >
+            Toys
           </button>
 
         </div>
@@ -2185,7 +2209,7 @@
   </section>
 
   <!-- =======================================================
-       WHY IM
+       WHY IM Collections
        ======================================================== -->
 
   <section class="section">
@@ -2373,9 +2397,11 @@
         <a href="#featured">New Arrivals</a>
         <a href="#featured">Best Sellers</a>
         <a href="#categories">Bags</a>
-        <a href="#categories">Gadgets</a>
-        <a href="#categories">Watches</a>
+        <a href="#categories">Electronics</a>
+        <a href="#categories">Accessories</a>
         <a href="#categories">Shoes</a>
+<a href="#categories">Clothing</a>
+<a href="#categories">Toys</a>
 
       </div>
 
@@ -2393,7 +2419,7 @@
 
       <div class="footer-column">
 
-        <h4>About IM</h4>
+        <h4>About IM Collections</h4>
 
         <a href="#">Our Story</a>
         <a href="#">Privacy Policy</a>
@@ -2411,7 +2437,9 @@
       </div>
 
       <div class="socials">
-        <a href="#">Instagram</a>
+        <a href="https://www.instagram.com/im_coll3cti0ns/" target="_blank" rel="noopener">
+    Instagram
+</a>
         <a href="#">Facebook</a>
         <a href="#">TikTok</a>
       </div>
@@ -2560,8 +2588,8 @@
       {
         id: 2,
         name: "IM Classic Gold Watch",
-        category: "Watches",
-        price: 129.99,
+        category: "Accessories",
+        price: 69.99,
         oldPrice: 179.99,
         badge: "Sale",
         rating: "★★★★★",
@@ -2585,13 +2613,13 @@
 
       {
         id: 4,
-        name: "IM Smart Phone Case",
+        name: "IM Drone",
         category: "Electronics",
-        price: 29.99,
-        oldPrice: null,
+        price: 99.99,
+        oldPrice: 349.99,
         badge: "New",
         rating: "★★★★★",
-        art: "art-phone",
+        art: "art-drone",
         description:
           "A premium protective case with a sleek finish and signature IM styling."
       },
@@ -2638,18 +2666,30 @@
       {
         id: 8,
         name: "IM Premium Timepiece",
-        category: "Watches",
+        category: "Electronics",
         price: 149.99,
         oldPrice: 199.99,
         badge: "Limited",
         rating: "★★★★★",
-        art: "art-watch",
+        art: "art-electronics",
+                description:
+            "A premium-inspired timepiece..."
+    },
+
+    {
+        id: 9,
+        name: "IM Classic Leather Bag",
+        category: "Bags",
+        price: 129.99,
+        oldPrice: 159.99,
+        badge: "New",
+        rating: "★★★★★",
+        art: "art-bag",
         description:
-          "A premium-inspired timepiece designed to become the finishing touch to any outfit."
-      }
-
-    ];
-
+            "A stylish and versatile leather bag for everyday use."
+    }
+ ];
+      
     let cart = [];
     let currentFilter = "All";
 
@@ -3379,7 +3419,14 @@
 
     renderProducts("All");
     updateCart();
-
+// Register IM Collections service worker
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js")
+      .then(() => console.log("IM Collections PWA ready"))
+      .catch((error) => console.error("PWA registration failed:", error));
+  });
+}
   </script>
 
 </body>

@@ -3292,9 +3292,13 @@
                   ♡
                 </button>
 
-                <div class="product-art">
-                  <div class="${product.art}"></div>
-                </div>
+               <div class="product-art">
+    ${
+        product.image
+            ? `<img src="${product.image}" alt="${product.name}">`
+            : `<div class="${product.art}"></div>`
+    }
+</div>
 
                 <button
                   class="quick-view"

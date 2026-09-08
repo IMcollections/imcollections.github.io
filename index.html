@@ -2659,6 +2659,7 @@
         id: 4,
         name: "IM Drone",
         category: "Electronics",
+        image: "drone1.jpg",
         price: 99.99,
         oldPrice: 349.99,
         badge: "New",
@@ -2672,6 +2673,7 @@
         id: 5,
         name: "IM Essential Hoodie",
         category: "Clothing",
+        image: "hoodie1.jpg",
         price: 64.99,
         oldPrice: 84.99,
         badge: "Sale",
@@ -2869,11 +2871,13 @@
 
         `)
         .join("");
-    }
+}
 
-    /* =======================================================
-       FILTER
-       ======================================================== */
+renderProducts();
+
+/* =========================================
+   FILTER
+========================================= */
 
     document
       .querySelectorAll(".filter-btn")

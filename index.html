@@ -3009,10 +3009,14 @@ renderProducts();
             <div class="cart-item">
 
               <div class="cart-thumb">
-                <div class="product-art">
-                  <div class="${item.art}"></div>
-                </div>
-              </div>
+    <div class="product-art">
+        ${
+            item.image
+                ? `<img src="${item.image}" alt="${item.name}">`
+                : `<div class="${item.art}"></div>`
+        }
+    </div>
+</div>
 
               <div>
 
@@ -3177,12 +3181,15 @@ renderProducts();
         .textContent =
           `$${product.price.toFixed(2)}`;
 
-      document.getElementById("modalImage")
-        .innerHTML = `
-          <div class="product-art">
-            <div class="${product.art}"></div>
-          </div>
-        `;
+    document.getElementById("modalImage").innerHTML = `
+    <div class="product-art">
+        ${
+            product.image
+                ? `<img src="${product.image}" alt="${product.name}">`
+                : `<div class="${product.art}"></div>`
+        }
+    </div>
+`;
 
       document.getElementById("modalAdd")
         .onclick = () => {

@@ -1,4 +1,4 @@
-const CACHE_NAME = "im-collections-v3";
+const CACHE_NAME = "im-collections-v4";
 
 const FILES_TO_CACHE = [
   "./",
@@ -39,8 +39,7 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("fetch", event => {
   event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      return cachedResponse || fetch(event.request);
-    })
+    fetch(event.request)
+      .catch(() => caches.match(event.request))
   );
 });

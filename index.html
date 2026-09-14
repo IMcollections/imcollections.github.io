@@ -13,7 +13,7 @@
 
   <meta
     name="description"
-    content="Shop IM Collections for bags, shoes, clothes, accessories, electronics and many more."
+    content="Shop IM Collections for bags, shoes, clothes, accessories, electronics and Toys."
   />
 
   <style>
@@ -719,7 +719,7 @@
       box-shadow: 0 25px 35px rgba(0,0,0,0.18);
     }
 
-    .art-camera {
+    .art-phone {
       width: 135px;
       height: 240px;
       border-radius: 25px;
@@ -1577,8 +1577,7 @@
       }
 
       .hero-inner {
-    min-height: auto;
-    grid-template-columns: 1fr;
+        min-height: auto;
       }
 
       .hero h1 {
@@ -1717,7 +1716,7 @@
         transform: rotate(-9deg) scale(0.75);
       }
 
-      .art-drone {
+      .art-phone {
         transform: scale(0.75);
       }
 
@@ -1725,36 +1724,6 @@
         transform: scale(0.75);
       }
     }
-/* TEMP HERO TEST */
-.hero,
-.hero-inner,
-.hero-copy,
-.hero-display {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-.hero {
-  min-height: 500px !important;
-  background: #eeeeee !important;
-}
-
-.hero-copy {
-  position: relative !important;
-  z-index: 999 !important;
-  color: #000000 !important;
-  padding: 40px 20px !important;
-}
-
-.hero h1,
-.hero p,
-.hero .eyebrow {
-  color: #000000 !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-  
   </style>
 </head>
 
@@ -1800,7 +1769,7 @@
       <nav class="desktop-nav">
         <a href="#new">New Arrivals</a>
         <a href="#categories">Shop</a>
-      <a href="#featured" onclick="filterProducts('Accessories')">Accessories</a>
+      <a href="Accessories.html">Accessories</a>
 <a href="Bags.html">Bags</a>
 <a href="Shoes.html">Shoes</a>
 <a href="Electronics.html">Electronics</a>
@@ -1869,7 +1838,7 @@
       <div class="mobile-menu-links">
         <a href="#new">New Arrivals</a>
         <a href="#categories">Shop All</a>
-        <a href="#featured" onclick="filterProducts('Accessories')">Accessories</a>
+    <a href="Accessories.html">Accessories</a>
 <a href="Bags.html">Bags</a>
 <a href="Shoes.html">Shoes</a>
 <a href="Electronics.html">Electronics</a>
@@ -1877,9 +1846,10 @@
 <a href="Toys.html">Toys</a>
         <a href="#featured">Best Sellers</a>
         <a href="#sale">Sale</a>
-        <a href="#newsletter">Join IM Collections</a>
+        <a href="#newsletter">Join IM</a>
       </div>
 
+    </div>
   </div>
 
   <!-- =======================================================
@@ -1893,7 +1863,7 @@
       <div class="hero-copy">
 
         <div class="eyebrow">
-          The IM Collections
+          The IM Collections Edit
         </div>
 
         <h1>
@@ -1929,12 +1899,6 @@
           <div class="display-card display-accessories"></div>
 
           <div class="display-card display-shoe"></div>
-
-         <div class="display-card display-clothing"></div> 
-
-                <div class="display-card display-toys"></div>
-
-                <div class="display-card display-electronics"></div>
 
         </div>
 
@@ -2106,17 +2070,7 @@
           </div>
         </a>
 
-       <a
-          class="category-card"
-          href="#featured"
-          onclick="filterProducts('Sale')"
-        >
-          <div class="category-visual">Discounted</div>
-          <div class="category-info">
-            <h3>Sale</h3>
-            <span>Slightly Used</span>
-          </div>
-        </a>
+      </div>
 
     </div>
 
@@ -2195,17 +2149,10 @@
             Toys
           </button>
 
-       <button
-            class="filter-btn"
-            data-filter="Sale"
-          >
-            Sale
-          </button>
-
         </div>
 
         <div class="product-count" id="productCount">
-          9 products
+          8 products
         </div>
 
       </div>
@@ -2271,7 +2218,7 @@
 
       <div class="section-heading">
 
-        <div class="eyebrow">The IM Collections Difference</div>
+        <div class="eyebrow">The IM Difference</div>
 
         <h2>More Than A Store</h2>
 
@@ -2295,7 +2242,7 @@
 
         <div class="feature-card">
           <div class="feature-number">02</div>
-          <h3>Style Meets Technology</h3>
+          <h3>Style Meets Tech</h3>
           <p>
             Shop fashion and modern gadgets side by side,
             making it easy to build your complete lifestyle.
@@ -2342,7 +2289,7 @@
             and design are amazing."
           </p>
           <div class="review-author">
-            — Eve Ana
+            — Verified Customer
           </div>
         </div>
 
@@ -2353,7 +2300,7 @@
             Everything arrived beautifully packaged."
           </p>
           <div class="review-author">
-            — Justin Brown
+            — Verified Customer
           </div>
         </div>
 
@@ -2364,7 +2311,7 @@
             gadgets together. Love IM Collections."
           </p>
           <div class="review-author">
-            — William Scott
+            — Verified Customer
           </div>
         </div>
 
@@ -2386,7 +2333,7 @@
         Join IM Collections
       </div>
 
-      <h2>Get 20% Off Your First Order</h2>
+      <h2>Get 10% Off Your First Order</h2>
 
       <p>
         Sign up for new arrivals, exclusive offers and
@@ -2455,7 +2402,6 @@
         <a href="#categories">Shoes</a>
 <a href="#categories">Clothing</a>
 <a href="#categories">Toys</a>
-<a href="#categories">Sale</a>
 
       </div>
 
@@ -2637,7 +2583,6 @@
         id: 1,
         name: "IM Signature Travel Bag",
         category: "Bags",
-        image: "travelbag1.jpg",
         price: 89.99,
         oldPrice: 119.99,
         badge: "Best Seller",
@@ -2649,38 +2594,35 @@
 
       {
         id: 2,
-        name: "Invicta Pro Diver Currentwave Men's Watch - 43mm Steel Gold (30022)",
+        name: "INVICTA Watch",
         category: "Accessories",
         image: "watch1.jpg",
         price: 59.99,
-        oldPrice: 109.99,
+        oldPrice: 149.99,
         badge: "Sale",
         rating: "★★★★★",
         art: "art-watch",
         description:
-          "This impressive Invicta Pro Diver watch features a precise Quartz movement and finished by a strong steel, gold, stainless steel band, and it offers 100 m water resistance."
+          "A sophisticated statement watch featuring a classic silver and gold design."
       },
 
       {
         id: 3,
-        name: "IM Air Jordan 1 Mid 'Black Fire Red'",
+        name: "IM Urban Runner",
         category: "Shoes",
-        image: "shoes1.jpg",
-        price: 99.99,
-        oldPrice: 129.99,
+        price: 79.99,
+        oldPrice: 99.99,
         badge: "New",
-        size: "9.5M",
-        rating: "★★★★★",
+        rating: "★★★★☆",
         art: "art-shoe",
         description:
-          "The mid-top pair is crafted from panels of black, red and white leather for a refined take on the iconic sneaker silhouette."
+          "A versatile everyday sneaker combining comfort with a clean modern silhouette."
       },
 
       {
         id: 4,
         name: "IM Drone",
         category: "Electronics",
-        image: "drone1.jpg",
         price: 99.99,
         oldPrice: 349.99,
         badge: "New",
@@ -2694,7 +2636,6 @@
         id: 5,
         name: "IM Essential Hoodie",
         category: "Clothing",
-        image: "hoodie1.jpg",
         price: 64.99,
         oldPrice: 84.99,
         badge: "Sale",
@@ -2708,11 +2649,10 @@
         id: 6,
         name: "IM Wireless Earbuds",
         category: "Electronics",
-        image: "earbuds1.jpg",
-        price: 39.99,
+        price: 59.99,
         oldPrice: 79.99,
         badge: "Best Seller",
-        rating: "★★★★★",
+        rating: "★★★★☆",
         art: "art-earbuds",
         description:
           "Compact wireless earbuds built for everyday listening and convenience."
@@ -2722,9 +2662,8 @@
         id: 7,
         name: "IM Executive Carry Bag",
         category: "Bags",
-        image: "carrybag1.jpg",
         price: 109.99,
-        oldPrice: 199.99,
+        oldPrice: null,
         badge: "New",
         rating: "★★★★★",
         art: "art-bag",
@@ -2734,32 +2673,29 @@
 
       {
         id: 8,
-        name: "IM Premium Home Camera",
+        name: "IM Premium Timepiece",
         category: "Electronics",
-        image: "homecamera1.jpg",
         price: 149.99,
         oldPrice: 199.99,
         badge: "Limited",
         rating: "★★★★★",
         art: "art-electronics",
                 description:
-            "A surveillance system where video signals are transmitted privately and not publicly"
+            "A premium-inspired timepiece..."
     },
 
     {
         id: 9,
- name: "IM Kids Spider-Man Backpack",
-    category: "Bags",
-    image: "backpack1.jpg",
-    price: 19.99,
-    oldPrice: 29.99,
-    badge: "New",
-    rating: "★★★★★",
-    art: "art-bag",
-    description:
-        "A versatile backpack for school, outdoor, and everyday adventures."
-}
-      
+        name: "IM Classic Leather Bag",
+        category: "Bags",
+        price: 129.99,
+        oldPrice: 159.99,
+        badge: "New",
+        rating: "★★★★★",
+        art: "art-bag",
+        description:
+            "A stylish and versatile leather bag for everyday use."
+    }
  ];
       
     let cart = [];
@@ -2893,13 +2829,11 @@
 
         `)
         .join("");
-}
+    }
 
-renderProducts();
-
-/* =========================================
-   FILTER
-========================================= */
+    /* =======================================================
+       FILTER
+       ======================================================== */
 
     document
       .querySelectorAll(".filter-btn")
@@ -3039,14 +2973,10 @@ renderProducts();
             <div class="cart-item">
 
               <div class="cart-thumb">
-    <div class="product-art">
-        ${
-            item.image
-                ? `<img src="${item.image}" alt="${item.name}">`
-                : `<div class="${item.art}"></div>`
-        }
-    </div>
-</div>
+                <div class="product-art">
+                  <div class="${item.art}"></div>
+                </div>
+              </div>
 
               <div>
 
@@ -3211,15 +3141,12 @@ renderProducts();
         .textContent =
           `$${product.price.toFixed(2)}`;
 
-    document.getElementById("modalImage").innerHTML = `
-    <div class="product-art">
-        ${
-            product.image
-                ? `<img src="${product.image}" alt="${product.name}">`
-                : `<div class="${product.art}"></div>`
-        }
-    </div>
-`;
+      document.getElementById("modalImage")
+        .innerHTML = `
+          <div class="product-art">
+            <div class="${product.art}"></div>
+          </div>
+        `;
 
       document.getElementById("modalAdd")
         .onclick = () => {
@@ -3365,13 +3292,9 @@ renderProducts();
                   ♡
                 </button>
 
-               <div class="product-art">
-    ${
-        product.image
-            ? `<img src="${product.image}" alt="${product.name}">`
-            : `<div class="${product.art}"></div>`
-    }
-</div>
+                <div class="product-art">
+                  <div class="${product.art}"></div>
+                </div>
 
                 <button
                   class="quick-view"
@@ -3449,7 +3372,7 @@ renderProducts();
         event.target.reset();
 
         showToast(
-          "Welcome to IM Collections!" + 
+          "Welcome to IM Collections!"
           "when Fashions & Lifestyles meets Savings!"
         );
 

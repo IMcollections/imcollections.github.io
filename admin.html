@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>IM Collections Admin</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     * {
@@ -42,7 +45,7 @@
       background: #fff;
       border-radius: 16px;
       padding: 20px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 20px rgba(0,0,0,.08);
       margin-bottom: 20px;
     }
 
@@ -53,7 +56,6 @@
       text-align: center;
       cursor: pointer;
       background: #fafafa;
-      transition: 0.2s;
     }
 
     .drop-zone.dragover {
@@ -85,7 +87,7 @@
 
     .preview-grid img {
       width: 100%;
-      aspect-ratio: 1 / 1;
+      aspect-ratio: 1;
       object-fit: cover;
       border-radius: 10px;
       border: 1px solid #ddd;
@@ -127,7 +129,6 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-top: 5px;
     }
 
     .checkbox-row input {
@@ -138,23 +139,33 @@
       width: 100%;
       padding: 15px;
       margin-top: 20px;
-      border: none;
+      border: 0;
       border-radius: 12px;
       background: #111;
-      color: white;
+      color: #fff;
       font-size: 17px;
       font-weight: 700;
       cursor: pointer;
     }
 
-    .save-btn:active {
-      transform: scale(0.99);
+    .save-btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
     }
 
     .message {
       margin-top: 15px;
       text-align: center;
       font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .success {
+      color: #138a36;
+    }
+
+    .error {
+      color: #c62828;
     }
 
     @media (max-width: 600px) {
@@ -175,282 +186,582 @@
 
 <body>
 
-  <div class="admin-wrap">
+<div class="admin-wrap">
 
-    <div class="admin-header">
-      <h1>IM Collections</h1>
-      <p>Product Admin</p>
+  <div class="admin-header">
+    <h1>IM Collections</h1>
+    <p>Product Admin</p>
+  </div>
+
+  <div class="card">
+
+    <h2 style="margin-bottom:15px;">Add Product</h2>
+
+    <div class="drop-zone" id="dropZone">
+      <strong>Drag & Drop Product Photos Here</strong>
+      <span>or tap here to choose photos from your phone</span>
     </div>
 
-    <div class="card">
+    <input
+      type="file"
+      id="imageInput"
+      accept="image/*"
+      multiple
+    />
 
-      <h2 style="margin-bottom:15px;">Add Product</h2>
-
-      <div class="drop-zone" id="dropZone">
-        <strong>Drag & Drop Product Photos Here</strong>
-        <span>or tap here to choose photos from your phone</span>
-      </div>
-
-      <input
-        type="file"
-        id="imageInput"
-        accept="image/*"
-        multiple
-      />
-
-      <div class="preview-grid" id="previewGrid"></div>
-
-    </div>
-
-    <div class="card">
-
-      <div class="form-grid">
-
-        <div class="full">
-          <label for="productName">Product Name</label>
-          <input
-            type="text"
-            id="productName"
-            placeholder="Example: Coach Leather Handbag"
-          />
-        </div>
-
-        <div>
-          <label for="price">Price</label>
-          <input
-            type="number"
-            id="price"
-            placeholder="49.99"
-            step="0.01"
-          />
-        </div>
-
-        <div>
-          <label for="oldPrice">Old Price / Original Price</label>
-          <input
-            type="number"
-            id="oldPrice"
-            placeholder="79.99"
-            step="0.01"
-          />
-        </div>
-
-        <div>
-          <label for="category">Category</label>
-
-          <select id="category">
-            <option value="">Select Category</option>
-            <option value="Bags">Bags</option>
-            <option value="Watches">Watches</option>
-            <option value="Shoes">Shoes</option>
-            <option value="Clothing">Clothing</option>
-            <option value="Apparel">Apparel</option>
-            <option value="Electronics">Gadgets / Electronics</option>
-            <option value="Accessories">Accessories</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="size">Size</label>
-          <input
-            type="text"
-            id="size"
-            placeholder="Example: M, XL, 9.5"
-          />
-        </div>
-
-        <div>
-          <label for="condition">Condition</label>
-
-          <select id="condition">
-            <option value="">Select Condition</option>
-            <option value="New">New</option>
-            <option value="Like New">Like New</option>
-            <option value="Excellent">Excellent</option>
-            <option value="Good">Good</option>
-            <option value="Pre-Owned">Pre-Owned</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="quantity">Quantity</label>
-          <input
-            type="number"
-            id="quantity"
-            value="1"
-            min="0"
-          />
-        </div>
-
-        <div>
-          <label for="badge">Badge</label>
-
-          <select id="badge">
-            <option value="">No Badge</option>
-            <option value="New">New</option>
-            <option value="Sale">Sale</option>
-            <option value="Limited">Limited</option>
-            <option value="Best Seller">Best Seller</option>
-          </select>
-        </div>
-
-        <div class="full">
-          <label for="description">Description</label>
-
-          <textarea
-            id="description"
-            placeholder="Describe your product..."
-          ></textarea>
-        </div>
-
-        <div class="full checkbox-row">
-          <input type="checkbox" id="featured" />
-          <label for="featured" style="margin:0;">
-            Featured Product
-          </label>
-        </div>
-
-      </div>
-
-      <button class="save-btn" id="saveProduct">
-        Save Product
-      </button>
-
-      <div class="message" id="message"></div>
-
-    </div>
+    <div class="preview-grid" id="previewGrid"></div>
 
   </div>
 
-  <script>
+  <div class="card">
 
-    const dropZone = document.getElementById("dropZone");
-    const imageInput = document.getElementById("imageInput");
-    const previewGrid = document.getElementById("previewGrid");
-    const saveProduct = document.getElementById("saveProduct");
-    const message = document.getElementById("message");
+    <div class="form-grid">
 
-    let selectedImages = [];
+      <div class="full">
+        <label>Product Name</label>
+        <input
+          type="text"
+          id="productName"
+          placeholder="Example: Coach Leather Handbag"
+        />
+      </div>
 
-    dropZone.addEventListener("click", function () {
-      imageInput.click();
-    });
+      <div>
+        <label>Price</label>
+        <input
+          type="number"
+          id="price"
+          placeholder="49.99"
+          step="0.01"
+        />
+      </div>
 
-    imageInput.addEventListener("change", function (event) {
-      handleFiles(event.target.files);
-    });
+      <div>
+        <label>Old Price / Original Price</label>
+        <input
+          type="number"
+          id="oldPrice"
+          placeholder="79.99"
+          step="0.01"
+        />
+      </div>
 
-    dropZone.addEventListener("dragover", function (event) {
-      event.preventDefault();
-      dropZone.classList.add("dragover");
-    });
+      <div>
+        <label>Category</label>
 
-    dropZone.addEventListener("dragleave", function () {
-      dropZone.classList.remove("dragover");
-    });
+        <select id="category">
+          <option value="">Select Category</option>
+          <option value="Bags">Bags</option>
+          <option value="Watches">Watches</option>
+          <option value="Shoes">Shoes</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Apparel">Apparel</option>
+          <option value="Electronics">Gadgets / Electronics</option>
+          <option value="Accessories">Accessories</option>
+          <option value="Toys">Toys</option>
+        </select>
+      </div>
 
-    dropZone.addEventListener("drop", function (event) {
-      event.preventDefault();
-      dropZone.classList.remove("dragover");
+      <div>
+        <label>Size</label>
+        <input
+          type="text"
+          id="size"
+          placeholder="Example: M, XL, 9.5"
+        />
+      </div>
 
-      handleFiles(event.dataTransfer.files);
-    });
+      <div>
+        <label>Condition</label>
 
-    function handleFiles(files) {
+        <select id="condition">
+          <option value="">Select Condition</option>
+          <option value="New">New</option>
+          <option value="Like New">Like New</option>
+          <option value="Excellent">Excellent</option>
+          <option value="Good">Good</option>
+          <option value="Pre-Owned">Pre-Owned</option>
+        </select>
+      </div>
 
-      selectedImages = Array.from(files);
+      <div>
+        <label>Quantity</label>
+        <input
+          type="number"
+          id="quantity"
+          value="1"
+          min="0"
+        />
+      </div>
 
-      previewGrid.innerHTML = "";
+      <div>
+        <label>Badge</label>
 
-      selectedImages.forEach(function (file) {
+        <select id="badge">
+          <option value="">No Badge</option>
+          <option value="New">New</option>
+          <option value="Sale">Sale</option>
+          <option value="Limited">Limited</option>
+          <option value="Best Seller">Best Seller</option>
+        </select>
+      </div>
 
-        if (!file.type.startsWith("image/")) {
-          return;
+      <div class="full">
+        <label>Description</label>
+
+        <textarea
+          id="description"
+          placeholder="Describe your product..."
+        ></textarea>
+      </div>
+
+      <div class="full checkbox-row">
+
+        <input
+          type="checkbox"
+          id="featured"
+        />
+
+        <label for="featured" style="margin:0;">
+          Featured Product
+        </label>
+
+      </div>
+
+    </div>
+
+    <button class="save-btn" id="saveProduct">
+      Save Product
+    </button>
+
+    <div class="message" id="message"></div>
+
+  </div>
+
+</div>
+
+<script>
+
+const SUPABASE_URL =
+  "https://vqzjegneplzeoqxcqfeu.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_QDvKrAHvvopp_fuunxTxEA_4v6TD4Jk";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+const dropZone =
+  document.getElementById("dropZone");
+
+const imageInput =
+  document.getElementById("imageInput");
+
+const previewGrid =
+  document.getElementById("previewGrid");
+
+const saveButton =
+  document.getElementById("saveProduct");
+
+const message =
+  document.getElementById("message");
+
+let selectedImages = [];
+
+
+/* =========================
+   IMAGE SELECT
+========================= */
+
+dropZone.addEventListener("click", () => {
+  imageInput.click();
+});
+
+imageInput.addEventListener("change", event => {
+  handleFiles(event.target.files);
+});
+
+dropZone.addEventListener("dragover", event => {
+  event.preventDefault();
+  dropZone.classList.add("dragover");
+});
+
+dropZone.addEventListener("dragleave", () => {
+  dropZone.classList.remove("dragover");
+});
+
+dropZone.addEventListener("drop", event => {
+
+  event.preventDefault();
+
+  dropZone.classList.remove("dragover");
+
+  handleFiles(event.dataTransfer.files);
+
+});
+
+
+function handleFiles(files) {
+
+  const incoming =
+    Array.from(files)
+      .filter(file =>
+        file.type.startsWith("image/")
+      );
+
+  selectedImages = incoming;
+
+  previewGrid.innerHTML = "";
+
+  selectedImages.forEach(file => {
+
+    const reader = new FileReader();
+
+    reader.onload = event => {
+
+      const img =
+        document.createElement("img");
+
+      img.src = event.target.result;
+
+      previewGrid.appendChild(img);
+
+    };
+
+    reader.readAsDataURL(file);
+
+  });
+
+}
+
+
+/* =========================
+   UPLOAD IMAGE
+========================= */
+
+async function uploadImage(file) {
+
+  const extension =
+    file.name.split(".").pop() || "jpg";
+
+  const safeExtension =
+    extension.toLowerCase();
+
+  const fileName =
+    `${Date.now()}-${crypto.randomUUID()}.${safeExtension}`;
+
+  const {
+    error: uploadError
+  } =
+    await supabaseClient
+      .storage
+      .from("product-images")
+      .upload(
+        fileName,
+        file,
+        {
+          cacheControl: "3600",
+          upsert: false
         }
+      );
 
-        const reader = new FileReader();
+  if (uploadError) {
+    throw uploadError;
+  }
 
-        reader.onload = function (event) {
+  const {
+    data
+  } =
+    supabaseClient
+      .storage
+      .from("product-images")
+      .getPublicUrl(fileName);
 
-          const img = document.createElement("img");
+  return data.publicUrl;
 
-          img.src = event.target.result;
+}
 
-          previewGrid.appendChild(img);
 
-        };
+/* =========================
+   SAVE PRODUCT
+========================= */
 
-        reader.readAsDataURL(file);
+saveButton.addEventListener(
+  "click",
+  async () => {
 
-      });
+    message.className = "message";
+    message.textContent = "";
 
+    const name =
+      document
+        .getElementById("productName")
+        .value
+        .trim();
+
+    const priceValue =
+      document
+        .getElementById("price")
+        .value;
+
+    const oldPriceValue =
+      document
+        .getElementById("oldPrice")
+        .value;
+
+    const category =
+      document
+        .getElementById("category")
+        .value;
+
+    const size =
+      document
+        .getElementById("size")
+        .value
+        .trim();
+
+    const condition =
+      document
+        .getElementById("condition")
+        .value;
+
+    const quantity =
+      Number(
+        document
+          .getElementById("quantity")
+          .value || 1
+      );
+
+    const badge =
+      document
+        .getElementById("badge")
+        .value;
+
+    const description =
+      document
+        .getElementById("description")
+        .value
+        .trim();
+
+    const featured =
+      document
+        .getElementById("featured")
+        .checked;
+
+
+    if (!name) {
+      showError("Please enter a product name.");
+      return;
     }
 
-    saveProduct.addEventListener("click", function () {
+    if (!priceValue) {
+      showError("Please enter a price.");
+      return;
+    }
 
-      const product = {
+    if (!category) {
+      showError("Please select a category.");
+      return;
+    }
 
-        name:
-          document.getElementById("productName").value.trim(),
+    if (selectedImages.length === 0) {
+      showError(
+        "Please choose at least one product photo."
+      );
+      return;
+    }
 
-        price:
-          document.getElementById("price").value,
 
-        oldPrice:
-          document.getElementById("oldPrice").value,
+    saveButton.disabled = true;
 
-        category:
-          document.getElementById("category").value,
+    saveButton.textContent =
+      "Uploading photos...";
+
+    message.textContent =
+      "Please wait while your product is uploaded.";
+
+
+    try {
+
+      const imageUrls = [];
+
+
+      for (
+        const imageFile of selectedImages
+      ) {
+
+        const publicUrl =
+          await uploadImage(imageFile);
+
+        imageUrls.push(publicUrl);
+
+      }
+
+
+      saveButton.textContent =
+        "Saving product...";
+
+
+      const productData = {
+
+        name: name,
+
+        price: Number(priceValue),
+
+        old_price:
+          oldPriceValue
+            ? Number(oldPriceValue)
+            : null,
+
+        category: category,
 
         size:
-          document.getElementById("size").value.trim(),
+          size || null,
 
         condition:
-          document.getElementById("condition").value,
+          condition || null,
 
-        quantity:
-          document.getElementById("quantity").value,
+        quantity: quantity,
 
         badge:
-          document.getElementById("badge").value,
+          badge || null,
 
         description:
-          document.getElementById("description").value.trim(),
+          description || null,
 
-        featured:
-          document.getElementById("featured").checked
+        featured: featured,
+
+        image_urls: imageUrls
 
       };
 
-      if (!product.name) {
-        message.textContent = "Please enter a product name.";
-        return;
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+          .from("products")
+          .insert([productData])
+          .select();
+
+
+      if (error) {
+        throw error;
       }
 
-      if (!product.price) {
-        message.textContent = "Please enter a price.";
-        return;
-      }
 
-      if (!product.category) {
-        message.textContent = "Please select a category.";
-        return;
-      }
+      console.log(
+        "Product saved:",
+        data
+      );
 
-      if (selectedImages.length === 0) {
-        message.textContent = "Please add at least one product photo.";
-        return;
-      }
 
-      console.log("Product ready to save:", product);
-      console.log("Images:", selectedImages);
+      message.className =
+        "message success";
 
       message.textContent =
-        "Product is ready. Database connection comes in Step 3.";
+        "✅ Product uploaded successfully!";
 
-    });
 
-  </script>
+      resetForm();
+
+
+    } catch (error) {
+
+      console.error(error);
+
+      message.className =
+        "message error";
+
+      message.textContent =
+        "❌ " +
+        (
+          error.message ||
+          "Something went wrong."
+        );
+
+    } finally {
+
+      saveButton.disabled = false;
+
+      saveButton.textContent =
+        "Save Product";
+
+    }
+
+  }
+);
+
+
+/* =========================
+   RESET
+========================= */
+
+function resetForm() {
+
+  document
+    .getElementById("productName")
+    .value = "";
+
+  document
+    .getElementById("price")
+    .value = "";
+
+  document
+    .getElementById("oldPrice")
+    .value = "";
+
+  document
+    .getElementById("category")
+    .value = "";
+
+  document
+    .getElementById("size")
+    .value = "";
+
+  document
+    .getElementById("condition")
+    .value = "";
+
+  document
+    .getElementById("quantity")
+    .value = "1";
+
+  document
+    .getElementById("badge")
+    .value = "";
+
+  document
+    .getElementById("description")
+    .value = "";
+
+  document
+    .getElementById("featured")
+    .checked = false;
+
+  imageInput.value = "";
+
+  selectedImages = [];
+
+  previewGrid.innerHTML = "";
+
+}
+
+
+function showError(text) {
+
+  message.className =
+    "message error";
+
+  message.textContent = text;
+
+}
+
+</script>
 
 </body>
 </html>

@@ -2590,7 +2590,7 @@
   <!-- =======================================================
        JAVASCRIPT
        ======================================================== -->
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
 
     /* =======================================================
@@ -2738,7 +2738,123 @@
             "A stylish and versatile leather bag for everyday use."
     }
  ];
-      
+      /* =======================================================
+   SUPABASE PRODUCTS
+   ======================================================== */
+
+const SUPABASE_URL =
+  "https://vqzjegneplzeoqxcqfeu.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_QDvKrAHvvopp_fuunxTxEA_4v6TD4Jk";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+async function loadSupabaseProducts() {
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("products")
+    .select("*")
+    .order("created_at", {
+      ascending: false
+    });
+
+  if (error) {
+
+    console.error(
+      "Supabase product error:",
+      error
+    );
+
+    renderProducts("All");
+    return;
+  }
+
+  const onlineProducts =
+    (data || []).map(product => {
+
+      let images = [];
+
+      if (Array.isArray(product.image_urls)) {
+        images = product.image_urls;
+      }
+
+      return {
+
+        /*
+          Add 1000000 so Supabase IDs do not
+          conflict with your existing product IDs.
+        */
+        id:
+          1000000 + Number(product.id),
+
+        name:
+          product.name || "Product",
+
+        category:
+          product.category || "Accessories",
+
+        image:
+          images.length > 0
+            ? images[0]
+            : null,
+
+        images:
+          images,
+
+        price:
+          Number(product.price) || 0,
+
+        oldPrice:
+          product.old_price !== null &&
+          product.old_price !== undefined
+            ? Number(product.old_price)
+            : null,
+
+        badge:
+          product.badge || "",
+
+        rating:
+          "★★★★★",
+
+        art:
+          "art-bag",
+
+        description:
+          product.description || "",
+
+        size:
+          product.size || "",
+
+        condition:
+          product.condition || "",
+
+        quantity:
+          product.quantity ?? 1,
+
+        featured:
+          Boolean(product.featured)
+
+      };
+
+    });
+
+  /*
+    Put newly uploaded products FIRST,
+    then keep all your existing products.
+  */
+  products.unshift(...onlineProducts);
+
+  renderProducts("All");
+
+}
     let cart = [];
     let currentFilter = "All";
 
@@ -3474,8 +3590,8 @@
        INITIALIZE
        ======================================================== */
 
-    renderProducts("All");
-    updateCart();
+    loadSupabaseProducts();
+updateCart();
 // Register IM Collections service worker
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

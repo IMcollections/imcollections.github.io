@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IM Collections Admin</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f5f5;
+      color: #111;
+      padding: 20px;
+    }
+
+    .admin-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .admin-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .admin-header h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+
+    .admin-header p {
+      color: #666;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    .drop-zone {
+      border: 2px dashed #999;
+      border-radius: 14px;
+      padding: 35px 20px;
+      text-align: center;
+      cursor: pointer;
+      background: #fafafa;
+      transition: 0.2s;
+    }
+
+    .drop-zone.dragover {
+      border-color: #111;
+      background: #eee;
+    }
+
+    .drop-zone strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .drop-zone span {
+      color: #777;
+      font-size: 14px;
+    }
+
+    #imageInput {
+      display: none;
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .preview-grid img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 5px;
+    }
+
+    .checkbox-row input {
+      width: auto;
+    }
+
+    .save-btn {
+      width: 100%;
+      padding: 15px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 12px;
+      background: #111;
+      color: white;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .save-btn:active {
+      transform: scale(0.99);
+    }
+
+    .message {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .full {
+        grid-column: auto;
+      }
+
+      .preview-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="admin-wrap">
+
+    <div class="admin-header">
+      <h1>IM Collections</h1>
+      <p>Product Admin</p>
+    </div>
+
+    <div class="card">
+
+      <h2 style="margin-bottom:15px;">Add Product</h2>
+
+      <div class="drop-zone" id="dropZone">
+        <strong>Drag & Drop Product Photos Here</strong>
+        <span>or tap here to choose photos from your phone</span>
+      </div>
+
+      <input
+        type="file"
+        id="imageInput"
+        accept="image/*"
+        multiple
+      />
+
+      <div class="preview-grid" id="previewGrid"></div>
+
+    </div>
+
+    <div class="card">
+
+      <div class="form-grid">
+
+        <div class="full">
+          <label for="productName">Product Name</label>
+          <input
+            type="text"
+            id="productName"
+            placeholder="Example: Coach Leather Handbag"
+          />
+        </div>
+
+        <div>
+          <label for="price">Price</label>
+          <input
+            type="number"
+            id="price"
+            placeholder="49.99"
+            step="0.01"
+          />
+        </div>
+
+        <div>
+          <label for="oldPrice">Old Price / Original Price</label>
+          <input
+            type="number"
+            id="oldPrice"
+            placeholder="79.99"
+            step="0.01"
+          />
+        </div>
+
+        <div>
+          <label for="category">Category</label>
+
+          <select id="category">
+            <option value="">Select Category</option>
+            <option value="Bags">Bags</option>
+            <option value="Watches">Watches</option>
+            <option value="Shoes">Shoes</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Apparel">Apparel</option>
+            <option value="Electronics">Gadgets / Electronics</option>
+            <option value="Accessories">Accessories</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="size">Size</label>
+          <input
+            type="text"
+            id="size"
+            placeholder="Example: M, XL, 9.5"
+          />
+        </div>
+
+        <div>
+          <label for="condition">Condition</label>
+
+          <select id="condition">
+            <option value="">Select Condition</option>
+            <option value="New">New</option>
+            <option value="Like New">Like New</option>
+            <option value="Excellent">Excellent</option>
+            <option value="Good">Good</option>
+            <option value="Pre-Owned">Pre-Owned</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="quantity">Quantity</label>
+          <input
+            type="number"
+            id="quantity"
+            value="1"
+            min="0"
+          />
+        </div>
+
+        <div>
+          <label for="badge">Badge</label>
+
+          <select id="badge">
+            <option value="">No Badge</option>
+            <option value="New">New</option>
+            <option value="Sale">Sale</option>
+            <option value="Limited">Limited</option>
+            <option value="Best Seller">Best Seller</option>
+          </select>
+        </div>
+
+        <div class="full">
+          <label for="description">Description</label>
+
+          <textarea
+            id="description"
+            placeholder="Describe your product..."
+          ></textarea>
+        </div>
+
+        <div class="full checkbox-row">
+          <input type="checkbox" id="featured" />
+          <label for="featured" style="margin:0;">
+            Featured Product
+          </label>
+        </div>
+
+      </div>
+
+      <button class="save-btn" id="saveProduct">
+        Save Product
+      </button>
+
+      <div class="message" id="message"></div>
+
+    </div>
+
+  </div>
+
+  <script>
+
+    const dropZone = document.getElementById("dropZone");
+    const imageInput = document.getElementById("imageInput");
+    const previewGrid = document.getElementById("previewGrid");
+    const saveProduct = document.getElementById("saveProduct");
+    const message = document.getElementById("message");
+
+    let selectedImages = [];
+
+    dropZone.addEventListener("click", function () {
+      imageInput.click();
+    });
+
+    imageInput.addEventListener("change", function (event) {
+      handleFiles(event.target.files);
+    });
+
+    dropZone.addEventListener("dragover", function (event) {
+      event.preventDefault();
+      dropZone.classList.add("dragover");
+    });
+
+    dropZone.addEventListener("dragleave", function () {
+      dropZone.classList.remove("dragover");
+    });
+
+    dropZone.addEventListener("drop", function (event) {
+      event.preventDefault();
+      dropZone.classList.remove("dragover");
+
+      handleFiles(event.dataTransfer.files);
+    });
+
+    function handleFiles(files) {
+
+      selectedImages = Array.from(files);
+
+      previewGrid.innerHTML = "";
+
+      selectedImages.forEach(function (file) {
+
+        if (!file.type.startsWith("image/")) {
+          return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+
+          const img = document.createElement("img");
+
+          img.src = event.target.result;
+
+          previewGrid.appendChild(img);
+
+        };
+
+        reader.readAsDataURL(file);
+
+      });
+
+    }
+
+    saveProduct.addEventListener("click", function () {
+
+      const product = {
+
+        name:
+          document.getElementById("productName").value.trim(),
+
+        price:
+          document.getElementById("price").value,
+
+        oldPrice:
+          document.getElementById("oldPrice").value,
+
+        category:
+          document.getElementById("category").value,
+
+        size:
+          document.getElementById("size").value.trim(),
+
+        condition:
+          document.getElementById("condition").value,
+
+        quantity:
+          document.getElementById("quantity").value,
+
+        badge:
+          document.getElementById("badge").value,
+
+        description:
+          document.getElementById("description").value.trim(),
+
+        featured:
+          document.getElementById("featured").checked
+
+      };
+
+      if (!product.name) {
+        message.textContent = "Please enter a product name.";
+        return;
+      }
+
+      if (!product.price) {
+        message.textContent = "Please enter a price.";
+        return;
+      }
+
+      if (!product.category) {
+        message.textContent = "Please select a category.";
+        return;
+      }
+
+      if (selectedImages.length === 0) {
+        message.textContent = "Please add at least one product photo.";
+        return;
+      }
+
+      console.log("Product ready to save:", product);
+      console.log("Images:", selectedImages);
+
+      message.textContent =
+        "Product is ready. Database connection comes in Step 3.";
+
+    });
+
+  </script>
+
+</body>
+</html>

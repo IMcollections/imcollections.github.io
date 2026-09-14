@@ -1837,19 +1837,67 @@
       </div>
 
       <div class="mobile-menu-links">
-        <a href="#new">New Arrivals</a>
-        <a href="#categories">Shop All</a>
-    <a href="Accessories.html">Accessories</a>
-<a href="Bags.html">Bags</a>
-<a href="Shoes.html">Shoes</a>
-<a href="Electronics.html">Electronics</a>
-<a href="Clothing.html">Clothing</a>
-<a href="Toys.html">Toys</a>
-<a href="OpenBox.html">OpenBox</a>
-        <a href="#featured">Best Sellers</a>
-        <a href="#sale">Sale</a>
-        <a href="#newsletter">Join IM Collections</a>
-      </div>
+
+  <a href="#featured"
+     onclick="filterSpecialProducts('new')">
+    New Arrivals
+  </a>
+
+  <a href="#featured"
+     onclick="filterProducts('All')">
+    Shop All
+  </a>
+
+  <a href="#featured"
+     onclick="filterProducts('Accessories')">
+    Accessories
+  </a>
+
+  <a href="#featured"
+     onclick="filterProducts('Bags')">
+    Bags
+  </a>
+
+  <a href="#featured"
+     onclick="filterProducts('Shoes')">
+    Shoes
+  </a>
+
+  <a href="#featured"
+     onclick="filterProducts('Electronics')">
+    Electronics
+  </a>
+
+  <a href="#featured"
+     onclick="filterProducts('Clothing')">
+    Clothing
+  </a>
+
+  <a href="#featured"
+     onclick="filterProducts('Toys')">
+    Toys
+  </a>
+
+  <a href="#featured"
+     onclick="filterProducts('Openbox')">
+    Openbox
+  </a>
+
+  <a href="#featured"
+     onclick="filterSpecialProducts('bestsellers')">
+    Best Sellers
+  </a>
+
+  <a href="#featured"
+     onclick="filterSpecialProducts('sale')">
+    Sale
+  </a>
+
+  <a href="#newsletter">
+    Join IM Collections
+  </a>
+
+</div>
 
     </div>
   </div>
@@ -3013,7 +3061,144 @@ async function loadSupabaseProducts() {
       });
 
     function filterProducts(category) {
+function filterSpecialProducts(type) {
 
+  currentFilter = "All";
+
+  let filtered = [];
+
+  if (type === "new") {
+    filtered = products.filter(product =>
+      product.badge === "New"
+    );
+  }
+
+  if (type === "bestsellers") {
+    filtered = products.filter(product =>
+      product.badge === "Best Seller"
+    );
+  }
+
+  if (type === "sale") {
+    filtered = products.filter(product =>
+      product.badge === "Sale" ||
+      product.oldPrice
+    );
+  }
+
+  productCount.textContent =
+    `${filtered.length} product${filtered.length === 1 ? "" : "s"}`;
+
+  productGrid.innerHTML = filtered
+    .map(product => `
+
+      <article
+        class="product-card"
+        data-category="${product.category}"
+      >
+
+        <div class="product-image">
+
+          ${
+            product.badge
+              ? `
+                <div class="product-badge ${
+                  product.badge === "Sale"
+                    ? "sale"
+                    : ""
+                }">
+                  ${product.badge}
+                </div>
+              `
+              : ""
+          }
+
+          <button
+            class="wishlist"
+            onclick="toggleWishlist(this)"
+            aria-label="Add to wishlist"
+          >
+            ♡
+          </button>
+
+          ${
+            product.image
+              ? `
+                <img
+                  class="product-photo"
+                  src="${product.image}"
+                  alt="${product.name}"
+                  loading="lazy"
+                >
+              `
+              : `
+                <div class="product-art">
+                  <div class="${product.art}"></div>
+                </div>
+              `
+          }
+
+          <button
+            class="quick-view"
+            onclick="openQuickView(${product.id})"
+          >
+            Quick View
+          </button>
+
+        </div>
+
+        <div class="product-info">
+
+          <div class="product-category">
+            ${product.category}
+          </div>
+
+          <div class="product-name">
+            ${product.name}
+          </div>
+
+          <div class="product-rating">
+            ${product.rating || "★★★★★"}
+          </div>
+
+          <div class="product-price">
+
+            <span class="price">
+              $${Number(product.price).toFixed(2)}
+            </span>
+
+            ${
+              product.oldPrice
+                ? `
+                  <span class="old-price">
+                    $${Number(product.oldPrice).toFixed(2)}
+                  </span>
+                `
+                : ""
+            }
+
+          </div>
+
+          <button
+            class="add-button"
+            onclick="addToCart(${product.id})"
+          >
+            Add To Cart
+          </button>
+
+        </div>
+
+      </article>
+
+    `)
+    .join("");
+
+  document
+    .getElementById("featured")
+    .scrollIntoView({
+      behavior: "smooth"
+    });
+}
       const button =
         document.querySelector(
           `.filter-btn[data-filter="${category}"]`

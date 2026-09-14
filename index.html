@@ -13,7 +13,7 @@
 
   <meta
     name="description"
-    content="Shop IM Collections for bags, shoes, clothes, accessories, electronics and Toys."
+    content="Shop IM Collections for bags, shoes, clothes, accessories, electronics and many more."
   />
 
   <style>
@@ -719,7 +719,7 @@
       box-shadow: 0 25px 35px rgba(0,0,0,0.18);
     }
 
-    .art-phone {
+    .art-camera {
       width: 135px;
       height: 240px;
       border-radius: 25px;
@@ -1775,6 +1775,7 @@
 <a href="Electronics.html">Electronics</a>
 <a href="Clothing.html">Clothing</a>
 <a href="Toys.html">Toys</a>
+<a href="OpenBox.html">OpenBox</a>
         <a href="#featured">Best Sellers</a>
         <a href="#sale">Sale</a>
       </nav>
@@ -1844,9 +1845,10 @@
 <a href="Electronics.html">Electronics</a>
 <a href="Clothing.html">Clothing</a>
 <a href="Toys.html">Toys</a>
+<a href="OpenBox.html">OpenBox</a>
         <a href="#featured">Best Sellers</a>
         <a href="#sale">Sale</a>
-        <a href="#newsletter">Join IM</a>
+        <a href="#newsletter">Join IM Collections</a>
       </div>
 
     </div>
@@ -1863,7 +1865,7 @@
       <div class="hero-copy">
 
         <div class="eyebrow">
-          The IM Collections Edit
+          The IM Collections
         </div>
 
         <h1>
@@ -2070,7 +2072,17 @@
           </div>
         </a>
 
-      </div>
+       <a
+          class="category-card"
+          href="#featured"
+          onclick="filterProducts('Open Box')"
+        >
+          <div class="category-visual">Pre-Owned</div>
+          <div class="category-info">
+            <h3>Open Box</h3>
+            <span>Slightly Used</span>
+          </div>
+        </a>
 
     </div>
 
@@ -2149,10 +2161,17 @@
             Toys
           </button>
 
+       <button
+            class="filter-btn"
+            data-filter="Open Box"
+          >
+            Open Box
+          </button>
+
         </div>
 
         <div class="product-count" id="productCount">
-          8 products
+          9 products
         </div>
 
       </div>
@@ -2242,7 +2261,7 @@
 
         <div class="feature-card">
           <div class="feature-number">02</div>
-          <h3>Style Meets Tech</h3>
+          <h3>Style Meets Technology</h3>
           <p>
             Shop fashion and modern gadgets side by side,
             making it easy to build your complete lifestyle.
@@ -2289,7 +2308,7 @@
             and design are amazing."
           </p>
           <div class="review-author">
-            — Verified Customer
+            — Eve Ana
           </div>
         </div>
 
@@ -2300,7 +2319,7 @@
             Everything arrived beautifully packaged."
           </p>
           <div class="review-author">
-            — Verified Customer
+            — Justin Brown
           </div>
         </div>
 
@@ -2311,7 +2330,7 @@
             gadgets together. Love IM Collections."
           </p>
           <div class="review-author">
-            — Verified Customer
+            — William Scott
           </div>
         </div>
 
@@ -2333,7 +2352,7 @@
         Join IM Collections
       </div>
 
-      <h2>Get 10% Off Your First Order</h2>
+      <h2>Get 20% Off Your First Order</h2>
 
       <p>
         Sign up for new arrivals, exclusive offers and
@@ -2402,6 +2421,7 @@
         <a href="#categories">Shoes</a>
 <a href="#categories">Clothing</a>
 <a href="#categories">Toys</a>
+<a href="#categories">Open Box</a>
 
       </div>
 
@@ -2583,6 +2603,7 @@
         id: 1,
         name: "IM Signature Travel Bag",
         category: "Bags",
+        image: "travelbag1.jpg",
         price: 89.99,
         oldPrice: 119.99,
         badge: "Best Seller",
@@ -2593,31 +2614,46 @@
       },
 
       {
+    id: 10,
+    name: "IM Kids Spider-Man Backpack",
+    category: "Bags",
+    image: "backpack1.jpg",
+    price: 19.99,
+    oldPrice: 29.99,
+    badge: "New",
+    rating: "★★★★★",
+    art: "art-bag",
+    description:
+        "A versatile backpack for school, outdoor, and everyday adventures."
+},
+
+      {
         id: 2,
-        name: "INVICTA Watch",
+        name: "Invicta Pro Diver Currentwave Men's Watch - 43mm Steel Gold (30022)",
         category: "Accessories",
         image: "watch1.jpg",
         price: 59.99,
-        oldPrice: 149.99,
+        oldPrice: 109.99,
         badge: "Sale",
         rating: "★★★★★",
         art: "art-watch",
         description:
-          "A sophisticated statement watch featuring a classic silver and gold design."
+          "This impressive Invicta Pro Diver watch features a precise Quartz movement and finished by a strong steel, gold, stainless steel band, and it offers 100 m water resistance."
       },
 
       {
         id: 3,
-        name: "Air Jordan",
+        name: "IM Air Jordan 1 Mid 'Black Fire Red'",
         category: "Shoes",
-        size: "9.5M"
-        price: 79.99,
-        oldPrice: 99.99,
+        image: "shoes1.JPG",
+        price: 99.99,
+        oldPrice: 129.99,
         badge: "New",
+        size: "9.5M",
         rating: "★★★★☆",
         art: "art-shoe",
         description:
-          "A versatile everyday sneaker combining comfort with a clean modern silhouette."
+          "The mid-top pair is crafted from panels of black, red and white leather for a refined take on the iconic sneaker silhouette."
       },
 
       {
@@ -2650,7 +2686,8 @@
         id: 6,
         name: "IM Wireless Earbuds",
         category: "Electronics",
-        price: 59.99,
+        image: "earbuds1.jpg",
+        price: 39.99,
         oldPrice: 79.99,
         badge: "Best Seller",
         rating: "★★★★☆",
@@ -2663,8 +2700,9 @@
         id: 7,
         name: "IM Executive Carry Bag",
         category: "Bags",
+        image: "carrybag1.jpg",
         price: 109.99,
-        oldPrice: null,
+        oldPrice: 199.99,
         badge: "New",
         rating: "★★★★★",
         art: "art-bag",
@@ -2674,8 +2712,9 @@
 
       {
         id: 8,
-        name: "IM Premium Timepiece",
+        name: "IM Premium Home Camera",
         category: "Electronics",
+        image: "homecamera1.jpg",
         price: 149.99,
         oldPrice: 199.99,
         badge: "Limited",
@@ -2689,6 +2728,7 @@
         id: 9,
         name: "IM Classic Leather Bag",
         category: "Bags",
+        image: "leather1.jpg",
         price: 129.99,
         oldPrice: 159.99,
         badge: "New",
@@ -3293,9 +3333,13 @@
                   ♡
                 </button>
 
-                <div class="product-art">
-                  <div class="${product.art}"></div>
-                </div>
+               <div class="product-art">
+    ${
+        product.image
+            ? `<img src="${product.image}" alt="${product.name}">`
+            : `<div class="${product.art}"></div>`
+    }
+</div>
 
                 <button
                   class="quick-view"

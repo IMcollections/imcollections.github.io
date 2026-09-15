@@ -2794,9 +2794,9 @@
       item => item.category.toLowerCase() === category.toLowerCase()
     );
 
-    if (product && product.image) {
+    if (product && (product.image || product.images?.[0])) {
       box.style.backgroundImage =
-        `linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.55)), url("${product.image}")`;
+        `linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.55)), url("${product.image || product.images?.[0]}")`;
 
       box.style.backgroundSize = "cover";
       box.style.backgroundPosition = "center";

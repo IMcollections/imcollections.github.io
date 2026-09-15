@@ -2806,7 +2806,7 @@
   });
 }
 
-loadCategoryImages();
+
       /* =======================================================
    SUPABASE PRODUCTS
    ======================================================== */
@@ -2921,8 +2921,8 @@ async function loadSupabaseProducts() {
   */
   products.unshift(...onlineProducts);
 
-  renderProducts("All");
-
+renderProducts("All");
+loadCategoryImages();
 }
     let cart = [];
     let currentFilter = "All";

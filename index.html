@@ -2053,7 +2053,7 @@
           href="#featured"
           onclick="filterProducts('Bags')"
         >
-          <div class="category-visual">BAG</div>
+          <div class="category-visual" data-category="Bags">BAG</div>
           <div class="category-info">
             <h3>Bags</h3>
             <span>Carry your style</span>
@@ -2065,7 +2065,7 @@
           href="#featured"
           onclick="filterProducts('Electronics')"
         >
-          <div class="category-visual">Electronics</div>
+          <div class="category-visual" data-category="Electronics">Electronics</div>
           <div class="category-info">
             <h3>Electronics</h3>
             <span>Latest Gadgets</span>
@@ -2077,7 +2077,7 @@
           href="#featured"
           onclick="filterProducts('Accessories')"
         >
-          <div class="category-visual">TIME</div>
+          <div class="category-visual" data-category="Accessories">TIME</div>
           <div class="category-info">
             <h3>Accessories</h3>
             <span>Personal Accessories</span>
@@ -2089,7 +2089,7 @@
           href="#featured"
           onclick="filterProducts('Shoes')"
         >
-          <div class="category-visual">STEP</div>
+          <div class="category-visual" data-category="Shoes">STEP</div>
           <div class="category-info">
             <h3>Shoes</h3>
             <span>Step up your look</span>
@@ -2101,7 +2101,7 @@
           href="#featured"
           onclick="filterProducts('Clothing')"
         >
-          <div class="category-visual">Fashion</div>
+          <div class="category-visual" data-category="Clothing">Fashion</div>
           <div class="category-info">
             <h3>Clothing</h3>
             <span>Wear your confidence</span>
@@ -2113,7 +2113,7 @@
           href="#featured"
           onclick="filterProducts('Toys')"
         >
-          <div class="category-visual">FUNKO</div>
+          <div class="category-visual" data-category="Toys">FUNKO</div>
           <div class="category-info">
             <h3>Toys</h3>
             <span>Amazing Toys</span>
@@ -2125,7 +2125,7 @@
           href="#featured"
           onclick="filterProducts('Open Box')"
         >
-          <div class="category-visual">Pre-Owned</div>
+          <div class="category-visual" data-category="Open Box">Pre-Owned</div>
           <div class="category-info">
             <h3>Open Box</h3>
             <span>Slightly Used</span>
@@ -2786,6 +2786,27 @@
             "A stylish and versatile leather bag for everyday use."
     }
  ];
+    function loadCategoryImages() {
+  document.querySelectorAll(".category-visual[data-category]").forEach(box => {
+    const category = box.dataset.category;
+
+    const product = products.find(
+      item => item.category.toLowerCase() === category.toLowerCase()
+    );
+
+    if (product && product.image) {
+      box.style.backgroundImage =
+        `linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.55)), url("${product.image}")`;
+
+      box.style.backgroundSize = "cover";
+      box.style.backgroundPosition = "center";
+      box.style.backgroundRepeat = "no-repeat";
+      box.textContent = "";
+    }
+  });
+}
+
+loadCategoryImages();
       /* =======================================================
    SUPABASE PRODUCTS
    ======================================================== */

@@ -861,11 +861,17 @@ async function editProduct(id) {
     console.error(error);
     return;
   }
-
-  document.getElementById("name").value = data.name || "";
+editingProductId = id;
+  document.getElementById("productName").value = data.name || "";
   document.getElementById("price").value = data.price || "";
   document.getElementById("description").value = data.description || "";
-
+document.getElementById("oldPrice").value = data.old_price || "";
+document.getElementById("category").value = data.category || "";
+document.getElementById("size").value = data.size || "";
+document.getElementById("condition").value = data.condition || "";
+document.getElementById("quantity").value = data.quantity || 1;
+document.getElementById("badge").value = data.badge || "";
+document.getElementById("featured").checked = data.featured || false;
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
   

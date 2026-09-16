@@ -3504,12 +3504,53 @@ function filterSpecialProducts(type) {
         .textContent =
           `$${product.price.toFixed(2)}`;
 
-      const galleryImages =
+     const galleryImages =
   product.images && product.images.length
     ? product.images
     : product.image
       ? [product.image]
       : [];
+
+document.getElementById("modalImage").innerHTML =
+  galleryImages.length
+    ? `
+      <div class="product-gallery">
+        <img
+          id="galleryMainImage"
+          src="${galleryImages[0]}"
+          alt="${product.name}"
+          style="width:100%; max-height:420px; object-fit:contain;"
+        >
+
+        <div style="
+          display:flex;
+          gap:8px;
+          overflow-x:auto;
+          margin-top:12px;
+          padding-bottom:5px;
+        ">
+          ${galleryImages.map((img, index) => `
+            <img
+              src="${img}"
+              alt="${product.name} photo ${index + 1}"
+              onclick="document.getElementById('galleryMainImage').src=this.src"
+              style="
+                width:70px;
+                height:70px;
+                object-fit:cover;
+                cursor:pointer;
+                border:1px solid #ddd;
+              "
+            >
+          `).join("")}
+        </div>
+      </div>
+    `
+    : `
+      <div class="product-art">
+        <div class="${product.art}"></div>
+      </div>
+    `;
 
 document.getElementById("modalImage").innerHTML =
   galleryImages.length

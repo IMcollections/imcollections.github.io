@@ -808,10 +808,38 @@ const productsList =
 productsList.innerHTML = data.map(product => `
   <div class="product-admin-item">
     <strong>${product.name || "Unnamed Product"}</strong><br>
-    <span>$${product.price || "0.00"}</span>
+    <span>$${product.price || "0.00"}</span><br><br>
+
+    <button type="button" onclick="editProduct(${product.id})">
+      Edit
+    </button>
+
+    <button type="button" onclick="deleteProduct(${product.id})">
+      Delete
+    </button>
   </div>
-`).join(""); 
+`).join("");
 }
+
+ async function deleteProduct(id) {
+  const confirmed = confirm("Are you sure you want to delete this product?");
+
+  if (!confirmed) return;
+
+  const { error } = await supabaseClient
+    .from("products")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert("Could not delete product.");
+    console.error(error);
+    return;
+  }
+
+  alert("Product deleted.");
+  loadProducts();
+} 
   loadProducts();
 </script>
 

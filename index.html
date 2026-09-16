@@ -1628,7 +1628,7 @@
       }
 
       .quick-view {
-        display: block;
+        display: none;
       }
 
       .product-toolbar {
@@ -2794,17 +2794,14 @@
       item => item.category.toLowerCase() === category.toLowerCase()
     );
 
-  if (product && product.image) {
-box.style.backgroundImage =
-'linear-gradient(to bottom,
-rgba (0,0,0,0.05), rgba (0,0,0,0.55)), url("${product.image}")*;
-box.style.backgroundSize = "cover";
-box.style.backgroundPosition = "center";
-box.style.backgroundRepeat = "no-
-repeat";
-box.textContent = "";
-  }
-}
+    if (product && product.image) {
+      box.style.backgroundImage =
+        `linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.55)), url("${product.image}")`;
+
+      box.style.backgroundSize = "cover";
+      box.style.backgroundPosition = "center";
+      box.style.backgroundRepeat = "no-repeat";
+      box.textContent = "";
     }
   });
 }

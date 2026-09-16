@@ -504,7 +504,7 @@ async function uploadImage(file) {
 /* =========================
    SAVE PRODUCT
 ========================= */
-
+let editingProductId = null;
 saveButton.addEventListener(
   "click",
   async () => {
@@ -655,14 +655,22 @@ saveButton.addEventListener(
       };
 
 
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .from("products")
-          .insert([productData])
-          .select();
+     let query;
+
+if (editingProductId) {
+  query = supabaseClient
+    .from("products")
+    .update(productData)
+    .eq("id", editingProductId)
+    .select();
+} else {
+  query = supabaseClient
+    .from("products")
+    .insert([productData])
+    .select();
+}
+
+const { data, error } = await query;
 
 
       if (error) {
@@ -684,7 +692,8 @@ saveButton.addEventListener(
 
 
       resetForm();
-
+editingProductId = null;
+      
 
     } catch (error) {
 

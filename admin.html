@@ -776,7 +776,43 @@ function showError(text) {
   message.textContent = text;
 
 }
+/* =========================
+   MANAGE PRODUCTS
+========================= */
 
+const productsList =
+  document.getElementById("productsList");
+
+
+  async function loadProducts() {
+  productsList.innerHTML = "Loading products...";
+
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("*")
+    .order("id", { ascending: false });
+
+  if (error) {
+    productsList.innerHTML = "Could not load products.";
+    console.error(error);
+    return;
+  }
+
+  console.log("Products:", data);
+
+   if (!data || data.length === 0) {
+  productsList.innerHTML = "No products found.";
+  return;
+}
+
+productsList.innerHTML = data.map(product => `
+  <div class="product-admin-item">
+    <strong>${product.name || "Unnamed Product"}</strong><br>
+    <span>$${product.price || "0.00"}</span>
+  </div>
+`).join(""); 
+}
+  loadProducts();
 </script>
 
 </body>

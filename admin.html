@@ -693,8 +693,9 @@ const { data, error } = await query;
 
       resetForm();
 editingProductId = null;
-      
 
+      await loadProducts();
+      
     } catch (error) {
 
       console.error(error);

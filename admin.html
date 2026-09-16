@@ -840,6 +840,26 @@ productsList.innerHTML = data.map(product => `
   alert("Product deleted.");
   loadProducts();
 } 
+async function editProduct(id) {
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    alert("Could not load product.");
+    console.error(error);
+    return;
+  }
+
+  document.getElementById("name").value = data.name || "";
+  document.getElementById("price").value = data.price || "";
+  document.getElementById("description").value = data.description || "";
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+  
   loadProducts();
 </script>
 

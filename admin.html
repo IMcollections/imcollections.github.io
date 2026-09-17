@@ -602,9 +602,22 @@ saveButton.addEventListener(
 
     try {
 
-      const imageUrls = editingProductId
-  ? [...(products.find(p => p.id == editingProductId)?.image_urls || [])]
-  : [];
+      let imageUrls = [];
+
+if (editingProductId) {
+  const { data: existingProduct, error: existingProductError } =
+    await supabaseClient
+      .from("products")
+      .select("image_urls")
+      .eq("id", editingProductId)
+      .single();
+
+  if (existingProductError) {
+    throw existingProductError;
+  }
+
+  imageUrls = [...(existingProduct?.image_urls || [])];
+}
 
 
       for (

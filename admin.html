@@ -583,7 +583,7 @@ saveButton.addEventListener(
       return;
     }
 
-    if (selectedImages.length === 0) {
+    if (!editingProductId && selectedImages.length === 0) {
       showError(
         "Please choose at least one product photo."
       );
@@ -602,7 +602,9 @@ saveButton.addEventListener(
 
     try {
 
-      const imageUrls = [];
+      const imageUrls = editingProductId
+  ? [...(products.find(p => p.id == editingProductId)?.image_urls || [])]
+  : [];
 
 
       for (

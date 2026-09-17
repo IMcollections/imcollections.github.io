@@ -686,7 +686,10 @@ if (editingProductId) {
 }
 
 const { data, error } = await query;
-
+alert(
+  "Editing ID: " + editingProductId +
+  "\nRows returned: " + JSON.stringify(data)
+);
 
       if (error) {
         throw error;

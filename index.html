@@ -2919,7 +2919,7 @@ async function loadSupabaseProducts() {
     Put newly uploaded products FIRST,
     then keep all your existing products.
   */
-  products.unshift(...onlineProducts);
+  products.splice(0, products.length, ...onlineProducts);
 
 renderProducts("All");
 loadCategoryImages();

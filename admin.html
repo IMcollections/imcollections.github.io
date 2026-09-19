@@ -616,8 +616,7 @@ if (editingProductId) {
     throw existingProductError;
   }
 
-  imageUrls = [...(existingProduct?.image_urls || [])];
-}
+ imageUrls = JSON.parse(document.getElementById("existingImages").value || "[]"); 
 
 
       for (
@@ -880,7 +879,35 @@ editingProductId = id;
   const existingImages = Array.isArray(data.image_urls)
   ? data.image_urls
   : [];
+previewGrid.innerHTML = "";
 
+existingImages.forEach((url, index) => {
+  const wrapper = document.createElement("div");
+
+  const img = document.createElement("img");
+  img.src = url;
+  wrapper.appendChild(img);
+
+  const removeButton = document.createElement("button");
+  removeButton.type = "button";
+  removeButton.textContent = "Remove";
+
+removeButton.onclick = () => {
+  const imageIndex = existingImages.indexOf(url);
+
+  if (imageIndex !== -1) {
+    existingImages.splice(imageIndex, 1);
+  }
+
+  document.getElementById("existingImages").value =
+    JSON.stringify(existingImages);
+
+  wrapper.remove();
+};
+
+  wrapper.appendChild(removeButton);
+  previewGrid.appendChild(wrapper);
+});
 document.getElementById("existingImages").value =
   JSON.stringify(existingImages);
   document.getElementById("productName").value = data.name || "";

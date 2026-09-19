@@ -392,7 +392,7 @@ let selectedImages = [];
    IMAGE SELECT
 ========================= */
 
-dropZone.addEventListener("click", () => {
+dropZone?.addEventListener
   imageInput.click();
 });
 
@@ -400,16 +400,16 @@ imageInput.addEventListener("change", event => {
   handleFiles(event.target.files);
 });
 
-dropZone.addEventListener("dragover", event => {
+dropZone?.addEventListener
   event.preventDefault();
   dropZone.classList.add("dragover");
 });
 
-dropZone.addEventListener("dragleave", () => {
+dropZone?.addEventListener
   dropZone.classList.remove("dragover");
 });
 
-dropZone.addEventListener("drop", event => {
+dropZone?.addEventListener
 
   event.preventDefault();
 

@@ -605,18 +605,12 @@ saveButton.addEventListener(
       let imageUrls = [];
 
 if (editingProductId) {
-  const { data: existingProduct, error: existingProductError } =
-    await supabaseClient
-      .from("products")
-      .select("image_urls")
-      .eq("id", editingProductId)
-      .single();
+  const existingImagesValue =
+    document.getElementById("existingImages").value;
 
-  if (existingProductError) {
-    throw existingProductError;
-  }
-
-  imageUrls = [...(existingProduct?.image_urls || [])];
+  imageUrls = existingImagesValue
+    ? JSON.parse(existingImagesValue)
+    : [];
 }
 
 
@@ -887,6 +881,62 @@ document.getElementById("condition").value = data.condition || "";
 document.getElementById("quantity").value = data.quantity || 1;
 document.getElementById("badge").value = data.badge || "";
 document.getElementById("featured").checked = data.featured || false;
+selectedImages = [];
+
+let existingImages =
+  Array.isArray(data.image_urls)
+    ? [...data.image_urls]
+    : [];
+
+let existingImagesInput =
+  document.getElementById("existingImages");
+
+if (!existingImagesInput) {
+  existingImagesInput =
+    document.createElement("input");
+
+  existingImagesInput.type = "hidden";
+  existingImagesInput.id = "existingImages";
+
+  document.body.appendChild(existingImagesInput);
+}
+
+existingImagesInput.value =
+  JSON.stringify(existingImages);
+
+previewGrid.innerHTML = "";
+
+existingImages.forEach(url => {
+  const wrapper =
+    document.createElement("div");
+
+  const img =
+    document.createElement("img");
+
+  img.src = url;
+  wrapper.appendChild(img);
+
+  const removeButton =
+    document.createElement("button");
+
+  removeButton.type = "button";
+  removeButton.textContent = "Remove";
+
+  removeButton.onclick = () => {
+    existingImages =
+      existingImages.filter(
+        imageUrl => imageUrl !== url
+      );
+
+    existingImagesInput.value =
+      JSON.stringify(existingImages);
+
+    wrapper.remove();
+  };
+
+  wrapper.appendChild(removeButton);
+  previewGrid.appendChild(wrapper);
+});  
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
   

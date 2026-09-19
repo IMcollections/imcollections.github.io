@@ -212,7 +212,7 @@
     <div class="preview-grid" id="previewGrid"></div>
 
   </div>
-<input type="hidden" id="existingImages" value="">
+
   <div class="card">
 
     <div class="form-grid">
@@ -392,7 +392,7 @@ let selectedImages = [];
    IMAGE SELECT
 ========================= */
 
-dropZone?.addEventListener
+dropZone.addEventListener("click", () => {
   imageInput.click();
 });
 
@@ -400,16 +400,16 @@ imageInput.addEventListener("change", event => {
   handleFiles(event.target.files);
 });
 
-dropZone?.addEventListener
+dropZone.addEventListener("dragover", event => {
   event.preventDefault();
   dropZone.classList.add("dragover");
 });
 
-dropZone?.addEventListener
+dropZone.addEventListener("dragleave", () => {
   dropZone.classList.remove("dragover");
 });
 
-dropZone?.addEventListener
+dropZone.addEventListener("drop", event => {
 
   event.preventDefault();
 
@@ -616,7 +616,8 @@ if (editingProductId) {
     throw existingProductError;
   }
 
- imageUrls = JSON.parse(document.getElementById("existingImages").value || "[]"); 
+  imageUrls = [...(existingProduct?.image_urls || [])];
+}
 
 
       for (
@@ -876,40 +877,6 @@ async function editProduct(id) {
     return;
   }
 editingProductId = id;
-  const existingImages = Array.isArray(data.image_urls)
-  ? data.image_urls
-  : [];
-previewGrid.innerHTML = "";
-
-existingImages.forEach((url, index) => {
-  const wrapper = document.createElement("div");
-
-  const img = document.createElement("img");
-  img.src = url;
-  wrapper.appendChild(img);
-
-  const removeButton = document.createElement("button");
-  removeButton.type = "button";
-  removeButton.textContent = "Remove";
-
-removeButton.onclick = () => {
-  const imageIndex = existingImages.indexOf(url);
-
-  if (imageIndex !== -1) {
-    existingImages.splice(imageIndex, 1);
-  }
-
-  document.getElementById("existingImages").value =
-    JSON.stringify(existingImages);
-
-  wrapper.remove();
-};
-
-  wrapper.appendChild(removeButton);
-  previewGrid.appendChild(wrapper);
-});
-document.getElementById("existingImages").value =
-  JSON.stringify(existingImages);
   document.getElementById("productName").value = data.name || "";
   document.getElementById("price").value = data.price || "";
   document.getElementById("description").value = data.description || "";

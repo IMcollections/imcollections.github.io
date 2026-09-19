@@ -428,11 +428,11 @@ function handleFiles(files) {
         file.type.startsWith("image/")
       );
 
-  selectedImages = incoming;
+  selectedImages = [...selectedImages, ...incoming];
 
-  previewGrid.innerHTML = "";
+  
 
-  selectedImages.forEach(file => {
+  incoming.forEach(file => {
 
     const reader = new FileReader();
 

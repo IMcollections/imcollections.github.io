@@ -212,7 +212,7 @@
     <div class="preview-grid" id="previewGrid"></div>
 
   </div>
-
+<input type="hidden" id="existingImages" value="">
   <div class="card">
 
     <div class="form-grid">
@@ -877,6 +877,12 @@ async function editProduct(id) {
     return;
   }
 editingProductId = id;
+  const existingImages = Array.isArray(data.image_urls)
+  ? data.image_urls
+  : [];
+
+document.getElementById("existingImages").value =
+  JSON.stringify(existingImages);
   document.getElementById("productName").value = data.name || "";
   document.getElementById("price").value = data.price || "";
   document.getElementById("description").value = data.description || "";

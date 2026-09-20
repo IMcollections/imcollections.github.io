@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Open Box</title>
+</head>
+
+<body>
+  <h1>Open Box</h1>
+
+  <div class="Open Box">
+    <h2>Fashion Open Box</h2>
+    <p>$99.99</p>
+    <button>Open Box</button>
+  </div>
+</body>
+</html>

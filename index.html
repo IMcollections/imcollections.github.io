@@ -1935,7 +1935,7 @@ Free Shipping on Orders Over $100!
           </a>
 
           <a href="#categories" class="btn btn-outline-light">
-            Shop New Arrivals
+            Explore Collections
           </a>
         </div>
 
@@ -2040,8 +2040,7 @@ Free Shipping on Orders Over $100!
 
         <h2>Trending Now</h2>
 
-        <p>
-          From everyday essentials to statement pieces,
+        <p> From everyday essentials to statement pieces,
           discover something made for your lifestyle.
         </p>
 
@@ -2147,13 +2146,11 @@ Free Shipping on Orders Over $100!
 
       <div class="section-heading">
 
-        <div class="eyebrow">Shop IM Collections</div>
+        <div class="eyebrow">Shop at IM Collections</div>
 
         <h2>Find Your Collections</h2>
 
-        <p>
-          From everyday essentials to statement pieces,
-          discover something made for your lifestyle.
+        <p> Our most wanted pieces, electronics and accessories.
         </p>
 
       </div>
@@ -2201,7 +2198,7 @@ Free Shipping on Orders Over $100!
             class="filter-btn"
             data-filter="Electronics"
           >
-            Electronics & Tech
+            Electronics & Gadgets
           </button>
 
          <button
@@ -2278,7 +2275,7 @@ Free Shipping on Orders Over $100!
   </section>
 
   <!-- =======================================================
-       WHY IM Collections
+       WHY IM Collections?
        ======================================================== -->
 
   <section class="section">
@@ -2334,7 +2331,7 @@ Free Shipping on Orders Over $100!
   </section>
 
   <!-- =======================================================
-       REVIEWS
+       REVIEWS ⭐️
        ======================================================== -->
 
   <section class="section reviews">
@@ -2643,175 +2640,11 @@ Free Shipping on Orders Over $100!
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
 
-    /* =======================================================
-       PRODUCT DATA
-       ======================================================== */
-
-    const products = [
-
-      {
-        id: 1,
-        name: "IM Signature Travel Bag",
-        category: "Bags",
-        image: "travelbag1.jpg",
-        price: 89.99,
-        oldPrice: 119.99,
-        badge: "Best Seller",
-        rating: "★★★★★",
-        art: "art-bag",
-        description:
-          "A sleek everyday travel bag designed for style, organization and convenience."
-      },
-
-      {
-    id: 10,
-    name: "IM Kids Spider-Man Backpack",
-    category: "Bags",
-    image: "backpack1.jpg",
-    price: 19.99,
-    oldPrice: 29.99,
-    badge: "New",
-    rating: "★★★★★",
-    art: "art-bag",
-    description:
-        "A versatile backpack for school, outdoor, and everyday adventures."
-},
-
-      {
-        id: 2,
-        name: "Invicta Pro Diver Currentwave Men's Watch - 43mm Steel Gold (30022)",
-        category: "Accessories",
-        image: "watch1.jpg",
-        price: 59.99,
-        oldPrice: 109.99,
-        badge: "Sale",
-        rating: "★★★★★",
-        art: "art-watch",
-        description:
-          "This impressive Invicta Pro Diver watch features a precise Quartz movement and finished by a strong steel, gold, stainless steel band, and it offers 100 m water resistance."
-      },
-
-      {
-        id: 3,
-        name: "IM Air Jordan 1 Mid 'Black Fire Red'",
-        category: "Shoes",
-        image: "shoes1.JPG",
-        price: 99.99,
-        oldPrice: 129.99,
-        badge: "New",
-        size: "9.5M",
-        rating: "★★★★☆",
-        art: "art-shoe",
-        description:
-          "The mid-top pair is crafted from panels of black, red and white leather for a refined take on the iconic sneaker silhouette."
-      },
-
-      {
-        id: 4,
-        name: "IM Drone",
-        category: "Electronics",
-        price: 99.99,
-        oldPrice: 349.99,
-        badge: "New",
-        rating: "★★★★★",
-        art: "art-drone",
-        description:
-          "A premium protective case with a sleek finish and signature IM styling."
-      },
-
-      {
-        id: 5,
-        name: "IM Essential Hoodie",
-        category: "Clothing",
-        price: 64.99,
-        oldPrice: 84.99,
-        badge: "Sale",
-        rating: "★★★★★",
-        art: "art-hoodie",
-        description:
-          "A premium everyday hoodie designed for effortless comfort and style."
-      },
-
-      {
-        id: 6,
-        name: "IM Wireless Earbuds",
-        category: "Electronics",
-        image: "earbuds1.jpg",
-        price: 39.99,
-        oldPrice: 79.99,
-        badge: "Best Seller",
-        rating: "★★★★☆",
-        art: "art-earbuds",
-        description:
-          "Compact wireless earbuds built for everyday listening and convenience."
-      },
-
-      {
-        id: 7,
-        name: "IM Executive Carry Bag",
-        category: "Bags",
-        image: "carrybag1.jpg",
-        price: 109.99,
-        oldPrice: 199.99,
-        badge: "New",
-        rating: "★★★★★",
-        art: "art-bag",
-        description:
-          "A refined carry bag made for work, travel and everyday sophistication."
-      },
-
-      {
-        id: 8,
-        name: "IM Premium Home Camera",
-        category: "Electronics",
-        image: "homecamera1.jpg",
-        price: 149.99,
-        oldPrice: 199.99,
-        badge: "Limited",
-        rating: "★★★★★",
-        art: "art-electronics",
-                description:
-            "A premium-inspired timepiece..."
-    },
-
-    {
-        id: 9,
-        name: "IM Classic Leather Bag",
-        category: "Bags",
-        image: "leather1.jpg",
-        price: 129.99,
-        oldPrice: 159.99,
-        badge: "New",
-        rating: "★★★★★",
-        art: "art-bag",
-        description:
-            "A stylish and versatile leather bag for everyday use."
-    }
- ];
-    function loadCategoryImages() {
-  document.querySelectorAll(".category-visual[data-category]").forEach(box => {
-    const category = box.dataset.category;
-
-    const product = products.find(
-      item => item.category.toLowerCase() === category.toLowerCase()
-    );
-
-    if (product && product.image) {
-      box.style.backgroundImage =
-        `linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.55)), url("${product.image}")`;
-
-      box.style.backgroundSize = "cover";
-      box.style.backgroundPosition = "center";
-      box.style.backgroundRepeat = "no-repeat";
-      box.textContent = "";
-    }
-  });
-}
-
-// loadCategoryImages();
+    
+       
       /* =======================================================
    SUPABASE PRODUCTS
-   ======================================================== */
+   ======================================================= */
 
 const SUPABASE_URL =
   "https://vqzjegneplzeoqxcqfeu.supabase.co";

@@ -1685,6 +1685,39 @@
         transform: scale(0.75);
       }
     }
+    .announcement {
+  position: relative;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+.announcement-message {
+  display: none;
+  width: 100%;
+  font-weight: 700;
+  letter-spacing: 2px;
+  animation: announcementFade 0.6s ease;
+}
+
+.announcement-message.active {
+  display: block;
+}
+
+@keyframes announcementFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
   </style>
 </head>
 
@@ -1695,11 +1728,11 @@
        ======================================================== -->
 
   <div class="announcement">
-    <strong>WELCOME TO IM COLLECTIONS</strong>
-    &nbsp; • &nbsp;
-    Up to 60% Off All Items + Extra 15% Off When You Sign Up
-Free Shipping on Orders Over $100!
-  </div>
+  <span class="announcement-message active">WELCOME TO IM COLLECTIONS</span>
+  <span class="announcement-message">UP TO 60% OFF ALL ITEMS</span>
+  <span class="announcement-message">EXTRA 15% OFF WHEN YOU SIGN UP</span>
+  <span class="announcement-message">FREE SHIPPING ON ORDERS OVER $100!</span>
+</div>
 
   <!-- =======================================================
        HEADER
@@ -3815,6 +3848,21 @@ if ("serviceWorker" in navigator) {
   });
 }
   </script>
+<script>
+  const announcements = document.querySelectorAll(".announcement-message");
+  let announcementIndex = 0;
 
+  setInterval(() => {
+    announcements[announcementIndex].classList.remove("active");
+
+    announcementIndex++;
+
+    if (announcementIndex >= announcements.length) {
+      announcementIndex = 0;
+    }
+
+    announcements[announcementIndex].classList.add("active");
+  }, 3000);
+</script>
 </body>
 </html>

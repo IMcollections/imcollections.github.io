@@ -2437,8 +2437,15 @@ Explore Collections
 
          <h4>My Account</h4>
 
-<a href="Login.html">Login</a>
-        <a href="Register.html">Register</a>
+<div id="accountLinks">
+  <a href="Login.html">Login</a>
+  <a href="Register.html">Register</a>
+</div>
+
+<div id="loggedInAccount" style="display:none;">
+  <a href="#" id="myAccountLink">My Account</a>
+  <a href="#" id="logoutLink">Logout</a>
+</div>
 
   </div>
 
@@ -3875,6 +3882,41 @@ if ("serviceWorker" in navigator) {
 
     announcements[announcementIndex].classList.add("active");
   }, 3000);
+  const accountLinks =
+  document.getElementById("accountLinks");
+
+const loggedInAccount =
+  document.getElementById("loggedInAccount");
+
+const logoutLink =
+  document.getElementById("logoutLink");
+
+async function updateAccountLinks() {
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+  if (session) {
+    accountLinks.style.display = "none";
+    loggedInAccount.style.display = "block";
+  } else {
+    accountLinks.style.display = "block";
+    loggedInAccount.style.display = "none";
+  }
+}
+
+logoutLink.addEventListener(
+  "click",
+  async function(event) {
+    event.preventDefault();
+
+    await supabaseClient.auth.signOut();
+
+    window.location.href = "index.html";
+  }
+);
+
+updateAccountLinks();
 </script>
 </body>
 </html>

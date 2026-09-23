@@ -279,6 +279,35 @@
         supabaseUrl,
         supabaseKey
       );
+    const profileForm = document.getElementById("profileForm");
+const statusMessage = document.getElementById("statusMessage");
+
+const emailInput = document.getElementById("email");
+const fullNameInput = document.getElementById("fullName");
+const phoneInput = document.getElementById("phone");
+const address1Input = document.getElementById("address1");
+const address2Input = document.getElementById("address2");
+const cityInput = document.getElementById("city");
+const stateProvinceInput = document.getElementById("stateProvince");
+const postalCodeInput = document.getElementById("postalCode");
+const countryInput = document.getElementById("country");
+const deliveryNotesInput = document.getElementById("deliveryNotes");
+
+async function loadProfile() {
+  const {
+    data: { user },
+    error: userError
+  } = await supabaseClient.auth.getUser();
+
+  if (userError || !user) {
+    window.location.href = "Login.html";
+    return;
+  }
+
+  emailInput.value = user.email || "";
+}
+
+loadProfile();
   </script>
 </body>
 </html>

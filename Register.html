@@ -1,1 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>Create Account | IM Collections</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      color: #111;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: #050505;
+      color: white;
+      text-align: center;
+      padding: 11px 15px;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    header {
+      background: white;
+      border-bottom: 1px solid #ddd;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .back-home {
+      position: absolute;
+      left: 20px;
+      color: #111;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .logo {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+    }
+
+    .page-wrap {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 45px 20px 60px;
+    }
+
+    .register-card {
+      background: white;
+      border-radius: 14px;
+      padding: 35px 25px;
+      box-shadow: 0 7px 30px rgba(0,0,0,0.08);
+    }
+
+    .register-card h1 {
+      font-family: Georgia, serif;
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 7px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    input {
+      width: 100%;
+      height: 50px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 0 14px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #c9962e;
+    }
+
+    .create-btn {
+      width: 100%;
+      min-height: 52px;
+      border: 0;
+      border-radius: 6px;
+      background: #111;
+      color: white;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+
+    .create-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .message {
+      display: none;
+      margin-top: 18px;
+      padding: 13px;
+      border-radius: 6px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .message.success {
+      display: block;
+      background: #e9f7ec;
+      color: #176c2d;
+      border: 1px solid #b7dfc0;
+    }
+
+    .message.error {
+      display: block;
+      background: #fff0f0;
+      color: #a12020;
+      border: 1px solid #efbcbc;
+    }
+
+    .welcome-offer {
+      background: #fff8e8;
+      border: 1px solid #e3c474;
+      padding: 14px;
+      text-align: center;
+      border-radius: 7px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .welcome-offer strong {
+      color: #9c6b00;
+    }
+
+    .login-text {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .login-text a {
+      color: #111;
+      font-weight: 700;
+    }
+
+    .terms {
+      font-size: 11px;
+      color: #777;
+      text-align: center;
+      line-height: 1.5;
+      margin-top: 18px;
+    }
+
+    footer {
+      text-align: center;
+      color: #888;
+      font-size: 12px;
+      padding: 25px 15px;
+    }
+
+    @media (max-width: 520px) {
+      .page-wrap {
+        padding: 25px 14px 45px;
+      }
+
+      .register-card {
+        padding: 28px 18px;
+      }
+
+      .register-card h1 {
+        font-size: 28px;
+      }
+
+      .back-home {
+        font-size: 12px;
+        left: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="topbar">
+    IM COLLECTIONS • SHOP • SAVE • STYLE
+  </div>
+
+  <header>
+    <a href="index.html" class="back-home">← Shop</a>
+
+    <a href="index.html">
+      <img
+        src="IM-logo.jpg"
+        alt="IM Collections"
+        class="logo"
+      >
+    </a>
+  </header>
+
+  <main class="page-wrap">
+
+    <div class="register-card">
+
+      <h1>Create Account</h1>
+
+      <p class="subtitle">
+        Join IM Collections for faster checkout,
+        special offers and easier order management.
+      </p>
+
+      <div class="welcome-offer">
+        <strong>New Member Offer</strong><br>
+        Register today and receive your
+        15% welcome discount.
+      </div>
+
+      <form id="registerForm">
+
+        <div class="form-group">
+          <label for="fullName">
+            Full Name
+          </label>
+
+          <input
+            type="text"
+            id="fullName"
+            placeholder="Enter your full name"
+            autocomplete="name"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="email">
+            Email Address
+          </label>
+
+          <input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            autocomplete="email"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password">
+            Password
+          </label>
+
+          <input
+            type="password"
+            id="password"
+            placeholder="Create a password"
+            autocomplete="new-password"
+            minlength="6"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">
+            Confirm Password
+          </label>
+
+          <input
+            type="password"
+            id="confirmPassword"
+            placeholder="Enter password again"
+            autocomplete="new-password"
+            minlength="6"
+            required
+          >
+        </div>
+
+        <button
+          type="submit"
+          class="create-btn"
+          id="createAccountBtn"
+        >
+          Create My Account
+        </button>
+
+        <div
+          id="registerMessage"
+          class="message"
+        ></div>
+
+      </form>
+
+      <div class="login-text">
+        Already have an account?
+        <a href="Login.html">Login</a>
+      </div>
+
+      <p class="terms">
+        By creating an account, you agree to
+        IM Collections Terms & Conditions and
+        Privacy Policy.
+      </p>
+
+    </div>
+
+  </main>
+
+  <footer>
+    © 2026 IM Collections. All Rights Reserved.
+  </footer>
+
+
+  <script>
+    const registerForm =
+      document.getElementById("registerForm");
+
+    const registerMessage =
+      document.getElementById("registerMessage");
+
+    registerForm.addEventListener(
+      "submit",
+      function(event) {
+
+        event.preventDefault();
+
+        const fullName =
+          document.getElementById("fullName")
+            .value.trim();
+
+        const email =
+          document.getElementById("email")
+            .value.trim();
+
+        const password =
+          document.getElementById("password")
+            .value;
+
+        const confirmPassword =
+          document.getElementById(
+            "confirmPassword"
+          ).value;
+
+        registerMessage.className =
+          "message";
+
+        registerMessage.textContent = "";
+
+        if (password !== confirmPassword) {
+
+          registerMessage.className =
+            "message error";
+
+          registerMessage.textContent =
+            "Passwords do not match.";
+
+          return;
+        }
+
+        if (password.length < 6) {
+
+          registerMessage.className =
+            "message error";
+
+          registerMessage.textContent =
+            "Password must contain at least 6 characters.";
+
+          return;
+        }
+
+        registerMessage.className =
+          "message success";
+
+        registerMessage.textContent =
+          "Registration form is ready. Next we will connect it to your IM Collections customer database.";
+
+      }
+    );
+  </script>
+
+</body>
+</html>

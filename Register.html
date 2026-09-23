@@ -345,7 +345,7 @@
     © 2026 IM Collections. All Rights Reserved.
   </footer>
 
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const registerForm =
       document.getElementById("registerForm");
@@ -353,9 +353,21 @@
     const registerMessage =
       document.getElementById("registerMessage");
 
+    const supabaseUrl =
+  "https://vqzjegneplzeoqxcqfeu.supabase.co";
+
+const supabaseKey =
+  "sb_publishable_QDvKrAHv";
+
+const supabaseClient =
+  supabase.createClient(
+    supabaseUrl,
+    supabaseKey
+  );
+
     registerForm.addEventListener(
       "submit",
-      function(event) {
+      async function(event) {
 
         event.preventDefault();
 
@@ -403,12 +415,34 @@
           return;
         }
 
-        registerMessage.className =
-          "message success";
+const { data, error } =
+  await supabaseClient.auth.signUp({
+    email: email,
+    password: password,
+    options: {
+      data: {
+        full_name: fullName
+      }
+    }
+  });
 
-        registerMessage.textContent =
-          "Registration form is ready. Next we will connect it to your IM Collections customer database.";
+if (error) {
+  registerMessage.className =
+    "message error";
 
+  registerMessage.textContent =
+    error.message;
+
+  return;
+}
+
+registerMessage.className =
+  "message success";
+
+registerMessage.textContent =
+  "Account created successfully! Please check your email to confirm your account.";
+
+registerForm.reset();
       }
     );
   </script>

@@ -15,8 +15,37 @@
     name="description"
     content="Shop IM Collections for bags, shoes, clothes, accessories, electronics and many more."
   />
-
   <style>
+.header-actions {
+  position: relative;
+}
+
+#headerAccountMenu {
+  position: absolute;
+  top: 52px;
+  right: 42px;
+  width: 180px;
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  border-radius: 8px;
+  padding: 10px 0;
+  z-index: 9999;
+}
+
+#headerAccountMenu a {
+  display: block;
+  padding: 12px 16px;
+  color: #111;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+#headerAccountMenu a:hover {
+  background: #f5f5f5;
+}
+  
     /* =========================================================
        IM COLLECTIONS
        Complete storefront - HTML/CSS/JavaScript
@@ -1784,12 +1813,29 @@
           </svg>
         </button>
 
-        <button class="icon-button" aria-label="Account">
+        <button
+  class="icon-button"
+  id="accountMenuBtn"
+  aria-label="My Account"
+>
           <svg fill="none" viewBox="0 0 24 24">
             <circle cx="12" cy="8" r="3.5" stroke-width="1.6"/>
             <path d="M5 20c.8-4 3-6 7-6s6.2 2 7 6" stroke-width="1.6"/>
           </svg>
         </button>
+        <div id="headerAccountMenu" style="display:none;">
+
+  <div id="headerLoggedOut">
+    <a href="Login.html">Login</a>
+    <a href="Register.html">Register</a>
+  </div>
+
+  <div id="headerLoggedIn" style="display:none;">
+    <a href="#" id="headerMyAccountLink">My Account</a>
+    <a href="#" id="headerLogoutLink">Logout</a>
+  </div>
+
+</div>
 
         <button
           class="icon-button"
@@ -3915,7 +3961,73 @@ logoutLink.addEventListener(
     window.location.href = "index.html";
   }
 );
+const accountMenuBtn =
+  document.getElementById("accountMenuBtn");
 
+const headerAccountMenu =
+  document.getElementById("headerAccountMenu");
+
+const headerLoggedOut =
+  document.getElementById("headerLoggedOut");
+
+const headerLoggedIn =
+  document.getElementById("headerLoggedIn");
+
+const headerLogoutLink =
+  document.getElementById("headerLogoutLink");
+
+async function updateHeaderAccountMenu() {
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+  if (session) {
+    headerLoggedOut.style.display = "none";
+    headerLoggedIn.style.display = "block";
+  } else {
+    headerLoggedOut.style.display = "block";
+    headerLoggedIn.style.display = "none";
+  }
+}
+
+accountMenuBtn.addEventListener(
+  "click",
+  async function(event) {
+    event.stopPropagation();
+
+    await updateHeaderAccountMenu();
+
+    headerAccountMenu.style.display =
+      headerAccountMenu.style.display === "none"
+        ? "block"
+        : "none";
+  }
+);
+
+headerLogoutLink.addEventListener(
+  "click",
+  async function(event) {
+    event.preventDefault();
+
+    await supabaseClient.auth.signOut();
+
+    window.location.href = "index.html";
+  }
+);
+
+document.addEventListener(
+  "click",
+  function(event) {
+    if (
+      !headerAccountMenu.contains(event.target) &&
+      !accountMenuBtn.contains(event.target)
+    ) {
+      headerAccountMenu.style.display = "none";
+    }
+  }
+);
+
+updateHeaderAccountMenu();
 updateAccountLinks();
 </script>
 </body>

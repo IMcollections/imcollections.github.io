@@ -1,1 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account | IM Collections</title>
 
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f7f7f7;
+      color: #222;
+    }
+
+    .account-header {
+      background: #000;
+      color: white;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .account-header img {
+      width: 55px;
+      height: 55px;
+      object-fit: contain;
+      background: white;
+      border-radius: 50%;
+    }
+
+    .account-header a {
+      color: #d4a646;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .account-container {
+      max-width: 720px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    .account-card {
+      background: white;
+      border-radius: 14px;
+      padding: 25px;
+      box-shadow: 0 3px 15px rgba(0,0,0,.08);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 600;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      background: white;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .two-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .save-btn {
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      padding: 14px;
+      background: #000;
+      color: #fff;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .save-btn:hover {
+      background: #333;
+    }
+
+    #statusMessage {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    @media (max-width: 600px) {
+      .two-column {
+        grid-template-columns: 1fr;
+      }
+
+      .account-container {
+        margin: 15px auto;
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="account-header">
+  <img src="IM-logo.jpg" alt="IM Collections">
+  <a href="index.html">← Back to Shop</a>
+</header>
+
+<main class="account-container">
+
+  <div class="account-card">
+
+    <h1>My Account</h1>
+
+    <p class="subtitle">
+      Manage your contact and delivery information.
+    </p>
+
+    <form id="profileForm">
+
+      <div class="form-group">
+        <label for="email">Account Email</label>
+        <input type="email" id="email" readonly>
+      </div>
+
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input
+          type="text"
+          id="fullName"
+          placeholder="First and Last Name"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input
+          type="tel"
+          id="phone"
+          placeholder="Phone Number"
+          required
+        >
+      </div>
+
+      <h2>Delivery Address</h2>
+
+      <div class="form-group">
+        <label for="address1">Street Address</label>
+        <input
+          type="text"
+          id="address1"
+          placeholder="Street address"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="address2">Apartment / Unit</label>
+        <input
+          type="text"
+          id="address2"
+          placeholder="Apartment, suite, unit, etc. (optional)"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="country">Country</label>
+
+        <select id="country" required>
+          <option value="">Select Country</option>
+          <option value="United States">United States</option>
+          <option value="Canada">Canada</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="city">City</label>
+        <input
+          type="text"
+          id="city"
+          placeholder="City"
+          required
+        >
+      </div>
+
+      <div class="two-column">
+
+        <div class="form-group">
+          <label for="stateProvince" id="stateLabel">
+            State / Province
+          </label>
+
+          <input
+            type="text"
+            id="stateProvince"
+            placeholder="State / Province"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="postalCode" id="postalLabel">
+            ZIP / Postal Code
+          </label>
+
+          <input
+            type="text"
+            id="postalCode"
+            placeholder="ZIP / Postal Code"
+            required
+          >
+        </div>
+
+      </div>
+
+      <div class="form-group">
+        <label for="deliveryNotes">
+          Delivery Instructions
+        </label>
+
+        <textarea
+          id="deliveryNotes"
+          placeholder="Gate code, apartment instructions, leave at door, etc. (optional)"
+        ></textarea>
+      </div>
+
+      <button type="submit" class="save-btn">
+        Save Delivery Information
+      </button>
+
+      <div id="statusMessage"></div>
+
+    </form>
+
+  </div>
+
+</main>
+
+</body>
+</html>

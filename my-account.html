@@ -305,6 +305,30 @@ async function loadProfile() {
   }
 
   emailInput.value = user.email || "";
+  const { data: profile, error: profileError } =
+  await supabaseClient
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .maybeSingle();
+
+if (profileError) {
+  statusMessage.textContent =
+    "Unable to load your saved delivery information.";
+  return;
+}
+
+if (profile) {
+  fullNameInput.value = profile.full_name || "";
+  phoneInput.value = profile.phone || "";
+  address1Input.value = profile.address_line1 || "";
+  address2Input.value = profile.address_line2 || "";
+  cityInput.value = profile.city || "";
+  stateProvinceInput.value = profile.state_province || "";
+  postalCodeInput.value = profile.postal_code || "";
+  countryInput.value = profile.country || "";
+  deliveryNotesInput.value = profile.delivery_notes || "";
+}
 }
 
 loadProfile();

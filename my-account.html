@@ -332,6 +332,51 @@ if (profile) {
 }
 
 loadProfile();
+    profileForm.addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  statusMessage.textContent = "Saving...";
+
+  const {
+    data: { user },
+    error: userError
+  } = await supabaseClient.auth.getUser();
+
+  if (userError || !user) {
+    window.location.href = "Login.html";
+    return;
+  }
+
+  const profileData = {
+    id: user.id,
+    email: user.email || "",
+    full_name: fullNameInput.value.trim(),
+    phone: phoneInput.value.trim(),
+    address_line1: address1Input.value.trim(),
+    address_line2: address2Input.value.trim(),
+    city: cityInput.value.trim(),
+    state_province: stateProvinceInput.value.trim(),
+    postal_code: postalCodeInput.value.trim(),
+    country: countryInput.value,
+    delivery_notes: deliveryNotesInput.value.trim(),
+    updated_at: new Date().toISOString()
+  };
+
+  const { error } = await supabaseClient
+    .from("profiles")
+    .upsert(profileData, {
+      onConflict: "id"
+    });
+
+  if (error) {
+    statusMessage.textContent =
+      "Unable to save your delivery information.";
+    return;
+  }
+
+  statusMessage.textContent =
+    "Delivery information saved successfully.";
+});
   </script>
 </body>
 </html>

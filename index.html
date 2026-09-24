@@ -3934,22 +3934,18 @@ document.getElementById("modalImage").innerHTML =
        ======================================================== */
 
     function checkout() {
+  if (cart.length === 0) {
+    showToast("Your cart is empty.");
+    return;
+  }
 
-      if (cart.length === 0) {
+  localStorage.setItem(
+    "imCollectionsCart",
+    JSON.stringify(cart)
+  );
 
-        showToast(
-          "Your cart is empty."
-        );
-
-        return;
-      }
-
-      showToast(
-        "Checkout is ready to be connected to your payment provider."
-      );
-
-    }
-
+  window.location.href = "checkout.html";
+}
     /* =======================================================
        TOAST
        ======================================================== */

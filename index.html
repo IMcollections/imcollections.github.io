@@ -3468,6 +3468,25 @@ function filterSpecialProducts(type) {
       document.getElementById("cartSubtotal")
         .textContent =
           `$${subtotal.toFixed(2)}`;
+      const freeShippingThreshold = 75;
+const remaining = Math.max(0, freeShippingThreshold - subtotal);
+const progress = Math.min((subtotal / freeShippingThreshold) * 100, 100);
+
+const freeShippingMessage =
+  document.getElementById("freeShippingMessage");
+
+const shippingProgressFill =
+  document.getElementById("shippingProgressFill");
+
+if (subtotal >= freeShippingThreshold) {
+  freeShippingMessage.textContent =
+    "You qualify for FREE Standard Shipping!";
+} else {
+  freeShippingMessage.textContent =
+    `You're $${remaining.toFixed(2)} away from FREE Standard Shipping`;
+}
+
+shippingProgressFill.style.width = `${progress}%`;
     }
 
     function changeQuantity(productId, change) {

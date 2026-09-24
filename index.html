@@ -1221,12 +1221,14 @@
       right: 0;
       top: 0;
       width: min(440px, 92%);
-      height: 100%;
+      height: auto;
+      max-height: 100%;
       background: white;
       transform: translateX(100%);
       transition: 0.3s ease;
       display: flex;
       flex-direction: column;
+      overflow-y: auto;
     }
 
     .cart-overlay.active .cart-drawer {

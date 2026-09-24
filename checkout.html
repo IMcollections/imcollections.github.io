@@ -1,1 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>Checkout | IM Collections</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f7f7f7;
+      color: #111;
+    }
+
+    .checkout-header {
+      background: #000;
+      color: #fff;
+      text-align: center;
+      padding: 14px 20px;
+      letter-spacing: 2px;
+      font-size: 13px;
+    }
+
+    .logo-area {
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo-area img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+    }
+
+    .back-link {
+      color: #111;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .checkout-container {
+      max-width: 900px;
+      margin: 25px auto;
+      padding: 0 18px 40px;
+    }
+
+    .checkout-title {
+      font-family: Georgia, serif;
+      font-size: 34px;
+      margin-bottom: 22px;
+    }
+
+    .checkout-grid {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 24px;
+    }
+
+    .checkout-box {
+      background: #fff;
+      border: 1px solid #e2e2e2;
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+
+    .checkout-box h2 {
+      margin-top: 0;
+      font-size: 20px;
+    }
+
+    .order-item {
+      display: grid;
+      grid-template-columns: 80px 1fr auto;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid #eee;
+      align-items: start;
+    }
+
+    .order-item img {
+      width: 80px;
+      height: 95px;
+      object-fit: cover;
+    }
+
+    .order-name {
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .order-quantity {
+      color: #777;
+      font-size: 13px;
+    }
+
+    .order-price {
+      font-weight: 700;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 9px 0;
+    }
+
+    .summary-total {
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid #ddd;
+      margin-top: 12px;
+      padding-top: 16px;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .free-shipping {
+      margin-top: 12px;
+      padding: 12px;
+      background: #f4f4f4;
+      font-weight: 700;
+    }
+
+    .discount-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .discount-row input {
+      flex: 1;
+      padding: 13px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+
+    .discount-row button {
+      border: 0;
+      background: #222;
+      color: #fff;
+      padding: 0 18px;
+      font-weight: 700;
+    }
+
+    .payment-box {
+      margin-top: 18px;
+    }
+
+    .payment-button {
+      width: 100%;
+      min-height: 56px;
+      border: 0;
+      background: #111;
+      color: white;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 15px;
+    }
+
+    .secure-note {
+      color: #666;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    #checkoutMessage {
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 720px) {
+      .checkout-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .checkout-title {
+        font-size: 30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="checkout-header">
+    IM COLLECTIONS • SECURE CHECKOUT
+  </div>
+
+  <div class="logo-area">
+    <a href="index.html" class="back-link">
+      ← Continue Shopping
+    </a>
+
+    <img src="IM-logo.jpg" alt="IM Collections">
+  </div>
+
+  <main class="checkout-container">
+
+    <h1 class="checkout-title">Checkout</h1>
+
+    <div class="checkout-grid">
+
+      <section>
+
+        <div class="checkout-box">
+          <h2>Delivery Information</h2>
+
+          <p>
+            Your saved delivery information will appear here before payment.
+          </p>
+
+          <a href="my-account.html">
+            Review Delivery Information
+          </a>
+        </div>
+
+        <div class="checkout-box payment-box">
+          <h2>Payment</h2>
+
+          <p class="secure-note">
+            Your payment will be completed through our secure payment provider.
+          </p>
+
+          <button
+            type="button"
+            class="payment-button"
+            id="paymentButton"
+          >
+            Continue to Secure Payment
+          </button>
+
+          <div id="checkoutMessage"></div>
+        </div>
+
+      </section>
+
+
+      <aside class="checkout-box">
+
+        <h2>Order Summary</h2>
+
+        <div id="checkoutItems"></div>
+
+        <div class="discount-row">
+          <input
+            type="text"
+            id="discountCode"
+            placeholder="Discount code"
+          >
+
+          <button type="button" id="applyDiscount">
+            Apply
+          </button>
+        </div>
+
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <strong id="checkoutSubtotal">$0.00</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>Standard Shipping</span>
+          <strong id="checkoutShipping">—</strong>
+        </div>
+
+        <div class="free-shipping" id="shippingMessage"></div>
+
+        <div class="summary-total">
+          <span>Total</span>
+          <span id="checkoutTotal">$0.00</span>
+        </div>
+
+      </aside>
+
+    </div>
+
+  </main>
+
+
+  <script>
+    const checkoutCart =
+      JSON.parse(
+        localStorage.getItem("imCollectionsCart") || "[]"
+      );
+
+    const checkoutItems =
+      document.getElementById("checkoutItems");
+
+    const checkoutSubtotal =
+      document.getElementById("checkoutSubtotal");
+
+    const checkoutShipping =
+      document.getElementById("checkoutShipping");
+
+    const checkoutTotal =
+      document.getElementById("checkoutTotal");
+
+    const shippingMessage =
+      document.getElementById("shippingMessage");
+
+
+    if (checkoutCart.length === 0) {
+
+      checkoutItems.innerHTML =
+        "<p>Your cart is empty.</p>";
+
+    } else {
+
+      checkoutItems.innerHTML =
+        checkoutCart.map(item => `
+
+          <div class="order-item">
+
+            <img
+              src="${item.image}"
+              alt="${item.name}"
+            >
+
+            <div>
+              <div class="order-name">
+                ${item.name}
+              </div>
+
+              <div class="order-quantity">
+                Quantity: ${item.quantity}
+              </div>
+            </div>
+
+            <div class="order-price">
+              $${(item.price * item.quantity).toFixed(2)}
+            </div>
+
+          </div>
+
+        `).join("");
+    }
+
+
+    const subtotal =
+      checkoutCart.reduce(
+        (total, item) =>
+          total + item.price * item.quantity,
+        0
+      );
+
+
+    checkoutSubtotal.textContent =
+      `$${subtotal.toFixed(2)}`;
+
+
+    if (subtotal >= 75) {
+
+      checkoutShipping.textContent = "FREE";
+
+      shippingMessage.textContent =
+        "✓ You qualify for FREE Standard Shipping!";
+
+    } else {
+
+      checkoutShipping.textContent =
+        "Calculated at payment";
+
+      const remaining = 75 - subtotal;
+
+      shippingMessage.textContent =
+        `You're $${remaining.toFixed(2)} away from FREE Standard Shipping`;
+    }
+
+
+    checkoutTotal.textContent =
+      `$${subtotal.toFixed(2)}`;
+
+
+    document
+      .getElementById("paymentButton")
+      .addEventListener("click", function () {
+
+        document.getElementById(
+          "checkoutMessage"
+        ).textContent =
+          "Secure payment connection is being configured.";
+
+      });
+  </script>
+
+</body>
+</html>

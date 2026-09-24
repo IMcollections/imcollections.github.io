@@ -3,63 +3,84 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Account | IM Collections</title>
+
+  <title>Login | IM Collections</title>
 
   <style>
     * {
       box-sizing: border-box;
-    }
-    
-    body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f7f7f7;
-      color: #222;
+      padding: 0;
     }
 
-    .account-header {
-      background: #000;
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      color: #111;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: #050505;
       color: white;
-      padding: 18px 20px;
+      text-align: center;
+      padding: 11px 15px;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    header {
+      background: white;
+      border-bottom: 1px solid #ddd;
+      padding: 15px 20px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
+      position: relative;
     }
 
-    .account-header img {
-      width: 55px;
-      height: 55px;
-      object-fit: contain;
-      background: white;
-      border-radius: 50%;
-    }
-
-    .account-header a {
-      color: #d4a646;
+    .back-home {
+      position: absolute;
+      left: 20px;
+      color: #111;
       text-decoration: none;
-      font-weight: bold;
+      font-size: 14px;
+      font-weight: 600;
     }
 
-    .account-container {
-      max-width: 720px;
-      margin: 30px auto;
-      padding: 20px;
+    .logo {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
     }
 
-    .account-card {
+    .page-wrap {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 45px 20px 60px;
+    }
+
+    .login-card {
       background: white;
       border-radius: 14px;
-      padding: 25px;
-      box-shadow: 0 3px 15px rgba(0,0,0,.08);
+      padding: 35px 25px;
+      box-shadow: 0 7px 30px rgba(0,0,0,0.08);
     }
 
-    h1 {
-      margin-top: 0;
+    .login-card h1 {
+      font-family: Georgia, serif;
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 8px;
     }
 
     .subtitle {
+      text-align: center;
       color: #666;
-      margin-bottom: 25px;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 30px;
     }
 
     .form-group {
@@ -68,62 +89,117 @@
 
     label {
       display: block;
+      font-size: 12px;
+      font-weight: 700;
       margin-bottom: 7px;
-      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
     }
 
-    input,
-    select,
-    textarea {
+    input {
       width: 100%;
-      padding: 13px;
+      height: 50px;
       border: 1px solid #ccc;
-      border-radius: 8px;
+      border-radius: 6px;
+      padding: 0 14px;
       font-size: 16px;
-      background: white;
+      outline: none;
     }
 
-    textarea {
-      min-height: 90px;
-      resize: vertical;
+    input:focus {
+      border-color: #c9962e;
     }
 
-    .two-column {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-    }
-
-    .save-btn {
+    .login-btn {
       width: 100%;
-      border: none;
-      border-radius: 8px;
-      padding: 14px;
-      background: #000;
-      color: #fff;
-      font-size: 16px;
-      font-weight: bold;
+      min-height: 52px;
+      border: 0;
+      border-radius: 6px;
+      background: #111;
+      color: white;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 8px;
       cursor: pointer;
     }
 
-    .save-btn:hover {
-      background: #333;
+    .login-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
-    #statusMessage {
-      margin-top: 15px;
+    .message {
+      display: none;
+      margin-top: 18px;
+      padding: 13px;
+      border-radius: 6px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .message.success {
+      display: block;
+      background: #e9f7ec;
+      color: #176c2d;
+      border: 1px solid #b7dfc0;
+    }
+
+    .message.error {
+      display: block;
+      background: #fff0f0;
+      color: #a12020;
+      border: 1px solid #efbcbc;
+    }
+
+    .register-text {
       text-align: center;
-      font-weight: 600;
+      margin-top: 24px;
+      font-size: 14px;
+      color: #666;
     }
 
-    @media (max-width: 600px) {
-      .two-column {
-        grid-template-columns: 1fr;
+    .register-text a {
+      color: #111;
+      font-weight: 700;
+    }
+
+    .forgot {
+      text-align: right;
+      margin-top: -6px;
+      margin-bottom: 16px;
+    }
+
+    .forgot a {
+      color: #666;
+      font-size: 12px;
+      text-decoration: none;
+    }
+
+    footer {
+      text-align: center;
+      color: #888;
+      font-size: 12px;
+      padding: 25px 15px;
+    }
+
+    @media (max-width: 520px) {
+      .page-wrap {
+        padding: 25px 14px 45px;
       }
 
-      .account-container {
-        margin: 15px auto;
-        padding: 12px;
+      .login-card {
+        padding: 28px 18px;
+      }
+
+      .login-card h1 {
+        font-size: 28px;
+      }
+
+      .back-home {
+        font-size: 12px;
+        left: 14px;
       }
     }
   </style>
@@ -131,142 +207,98 @@
 
 <body>
 
-<header class="account-header">
-  <img src="IM-logo.jpg" alt="IM Collections">
-  <a href="index.html">← Back to Shop</a>
-</header>
-
-<main class="account-container">
-
-  <div class="account-card">
-
-    <h1>My Account</h1>
-
-    <p class="subtitle">
-      Manage your contact and delivery information.
-    </p>
-
-    <form id="profileForm">
-
-      <div class="form-group">
-        <label for="email">Account Email</label>
-        <input type="email" id="email" readonly>
-      </div>
-
-      <div class="form-group">
-        <label for="fullName">Full Name</label>
-        <input
-          type="text"
-          id="fullName"
-          placeholder="First and Last Name"
-          required
-        >
-      </div>
-
-      <div class="form-group">
-        <label for="phone">Phone Number</label>
-        <input
-          type="tel"
-          id="phone"
-          placeholder="Phone Number"
-          required
-        >
-      </div>
-
-      <h2>Delivery Address</h2>
-
-      <div class="form-group">
-        <label for="address1">Street Address</label>
-        <input
-          type="text"
-          id="address1"
-          placeholder="Street address"
-          required
-        >
-      </div>
-
-      <div class="form-group">
-        <label for="address2">Apartment / Unit</label>
-        <input
-          type="text"
-          id="address2"
-          placeholder="Apartment, suite, unit, etc. (optional)"
-        >
-      </div>
-
-      <div class="form-group">
-        <label for="country">Country</label>
-
-        <select id="country" required>
-          <option value="">Select Country</option>
-          <option value="United States">United States</option>
-          <option value="Canada">Canada</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="city">City</label>
-        <input
-          type="text"
-          id="city"
-          placeholder="City"
-          required
-        >
-      </div>
-
-      <div class="two-column">
-
-        <div class="form-group">
-          <label for="stateProvince" id="stateLabel">
-            State / Province
-          </label>
-
-          <input
-            type="text"
-            id="stateProvince"
-            placeholder="State / Province"
-            required
-          >
-        </div>
-
-        <div class="form-group">
-          <label for="postalCode" id="postalLabel">
-            ZIP / Postal Code
-          </label>
-
-          <input
-            type="text"
-            id="postalCode"
-            placeholder="ZIP / Postal Code"
-            required
-          >
-        </div>
-
-      </div>
-
-      <div class="form-group">
-        <label for="deliveryNotes">
-          Delivery Instructions
-        </label>
-
-        <textarea
-          id="deliveryNotes"
-          placeholder="Gate code, apartment instructions, leave at door, etc. (optional)"
-        ></textarea>
-      </div>
-
-      <button type="submit" class="save-btn">
-        Save Delivery Information
-      </button>
-
-      <div id="statusMessage"></div>
-
-    </form>
-
+  <div class="topbar">
+    IM COLLECTIONS • WELCOME BACK
   </div>
 
-</main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <header>
+    <a href="index.html" class="back-home">← Shop</a>
+
+    <a href="index.html">
+      <img
+        src="IM-logo.jpg"
+        alt="IM Collections"
+        class="logo"
+      >
+    </a>
+  </header>
+
+  <main class="page-wrap">
+
+    <div class="login-card">
+
+      <h1>Login</h1>
+
+      <p class="subtitle">
+        Sign in to your IM Collections account.
+      </p>
+
+      <form id="loginForm">
+
+        <div class="form-group">
+          <label for="email">
+            Email Address
+          </label>
+
+          <input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            autocomplete="email"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password">
+            Password
+          </label>
+
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+
+    <div class="forgot">
+  <a href="#" id="forgotPasswordLink">
+    Forgot password?
+  </a>
+</div>
+
+        <button
+          type="submit"
+          class="login-btn"
+          id="loginBtn"
+        >
+          Login To My Account
+        </button>
+
+        <div
+          id="loginMessage"
+          class="message"
+        ></div>
+
+      </form>
+
+      <div class="register-text">
+        Don't have an account?
+        <a href="Register.html">Register</a>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer>
+    © 2026 IM Collections. All Rights Reserved.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
     const supabaseUrl =
       "https://vqzjegneplzeoqxcqfeu.supabase.co";
@@ -279,107 +311,92 @@
         supabaseUrl,
         supabaseKey
       );
-    const profileForm = document.getElementById("profileForm");
-const statusMessage = document.getElementById("statusMessage");
 
-const emailInput = document.getElementById("email");
-const fullNameInput = document.getElementById("fullName");
-const phoneInput = document.getElementById("phone");
-const address1Input = document.getElementById("address1");
-const address2Input = document.getElementById("address2");
-const cityInput = document.getElementById("city");
-const stateProvinceInput = document.getElementById("stateProvince");
-const postalCodeInput = document.getElementById("postalCode");
-const countryInput = document.getElementById("country");
-const deliveryNotesInput = document.getElementById("deliveryNotes");
+    const loginForm =
+      document.getElementById("loginForm");
 
-async function loadProfile() {
-  const {
-    data: { user },
-    error: userError
-  } = await supabaseClient.auth.getUser();
+    const loginMessage =
+      document.getElementById("loginMessage");
 
-  if (userError || !user) {
-    window.location.href = "Login.html";
-    return;
-  }
-
-  emailInput.value = user.email || "";
-  const { data: profile, error: profileError } =
-  await supabaseClient
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .maybeSingle();
-
-if (profileError) {
-  statusMessage.textContent =
-    "Unable to load your saved delivery information.";
-  return;
-}
-
-if (profile) {
-  fullNameInput.value = profile.full_name || "";
-  phoneInput.value = profile.phone || "";
-  address1Input.value = profile.address_line1 || "";
-  address2Input.value = profile.address_line2 || "";
-  cityInput.value = profile.city || "";
-  stateProvinceInput.value = profile.state_province || "";
-  postalCodeInput.value = profile.postal_code || "";
-  countryInput.value = profile.country || "";
-  deliveryNotesInput.value = profile.delivery_notes || "";
-}
-}
-
-loadProfile();
-    profileForm.addEventListener("submit", async function(event) {
+const forgotPasswordLink =
+  document.getElementById("forgotPasswordLink");
+forgotPasswordLink.addEventListener("click", async function(event) {
   event.preventDefault();
 
-  statusMessage.textContent = "Saving...";
+  const email = document.getElementById("email").value.trim();
 
-  const {
-    data: { user },
-    error: userError
-  } = await supabaseClient.auth.getUser();
-
-  if (userError || !user) {
-    window.location.href = "Login.html";
+  if (!email) {
+    loginMessage.className = "message error";
+    loginMessage.textContent =
+      "Please enter your email address first.";
     return;
   }
 
-  const profileData = {
-    id: user.id,
-    email: user.email || "",
-    full_name: fullNameInput.value.trim(),
-    phone: phoneInput.value.trim(),
-    address_line1: address1Input.value.trim(),
-    address_line2: address2Input.value.trim(),
-    city: cityInput.value.trim(),
-    state_province: stateProvinceInput.value.trim(),
-    postal_code: postalCodeInput.value.trim(),
-    country: countryInput.value,
-    delivery_notes: deliveryNotesInput.value.trim(),
-    updated_at: new Date().toISOString()
-  };
-
-  const { error } = await supabaseClient
-    .from("profiles")
-    .upsert(profileData, {
-      onConflict: "id"
+  const { error } =
+    await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo:
+        "https://imcollections.github.io/reset-password.html"
     });
 
   if (error) {
-    statusMessage.textContent =
-      "Unable to save your delivery information.";
+    loginMessage.className = "message error";
+    loginMessage.textContent = error.message;
     return;
   }
 
-  statusMessage.textContent =
-    "Delivery information saved successfully.";
-      setTimeout(() => {
-  window.location.href = "index.html";
-}, 1500);
+  loginMessage.className = "message success";
+  loginMessage.textContent =
+    "Password reset email sent. Please check your inbox.";
 });
+    loginForm.addEventListener(
+      "submit",
+      async function(event) {
+
+        event.preventDefault();
+
+        const email =
+          document.getElementById("email")
+            .value.trim();
+
+        const password =
+          document.getElementById("password")
+            .value;
+
+        loginMessage.className =
+          "message";
+
+        loginMessage.textContent = "";
+
+        const { data, error } =
+          await supabaseClient.auth
+            .signInWithPassword({
+              email: email,
+              password: password
+            });
+
+        if (error) {
+          loginMessage.className =
+            "message error";
+
+          loginMessage.textContent =
+            error.message;
+
+          return;
+        }
+
+        loginMessage.className =
+          "message success";
+
+        loginMessage.textContent =
+          "Login successful! Redirecting...";
+
+        setTimeout(() => {
+          window.location.href =
+            "index.html";
+        }, 800);
+      }
+    );
   </script>
+
 </body>
 </html>

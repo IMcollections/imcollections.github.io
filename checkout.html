@@ -188,6 +188,36 @@
         font-size: 30px;
       }
     }
+    .guest-form {
+  display: grid;
+  gap: 8px;
+}
+
+.guest-form label {
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+.guest-form input {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #ccc;
+  padding: 12px;
+  font-size: 15px;
+  background: #fff;
+}
+
+.account-option {
+  margin-top: 18px;
+  font-size: 14px;
+  color: #666;
+}
+
+.account-option a {
+  color: #111;
+  font-weight: 700;
+}
   </style>
 </head>
 
@@ -213,17 +243,48 @@
 
       <section>
 
-        <div class="checkout-box">
-          <h2>Delivery Information</h2>
+      <div class="checkout-box">
+  <h2>Contact & Delivery Information</h2>
 
-          <p>
-            Your saved delivery information will appear here before payment.
-          </p>
+  <p>
+    You can checkout as a guest. No account is required.
+    Want 15% additiona for the whole cart? Sign-up now!
+  </p>
 
-          <a href="my-account.html">
-            Review Delivery Information
-          </a>
-        </div>
+  <div class="guest-form">
+
+    <label>Email Address</label>
+    <input type="email" id="guestEmail" placeholder="Email address" required>
+
+    <label>Full Name</label>
+    <input type="text" id="guestName" placeholder="First and Last Name" required>
+
+    <label>Phone Number</label>
+    <input type="tel" id="guestPhone" placeholder="Phone number">
+
+    <label>Street Address</label>
+    <input type="text" id="guestAddress" placeholder="Street address" required>
+
+    <label>Apartment / Unit</label>
+    <input type="text" id="guestAddress2" placeholder="Apartment, suite, unit, etc. (optional)">
+
+    <label>City</label>
+    <input type="text" id="guestCity" placeholder="City" required>
+
+    <label>State</label>
+    <input type="text" id="guestState" placeholder="State" required>
+
+    <label>ZIP Code</label>
+    <input type="text" id="guestZip" placeholder="ZIP / Postal Code" required>
+
+  </div>
+
+  <p class="account-option">
+    Already a member?
+    <a href="Login.html">Sign in</a>
+    to use your saved delivery information.
+  </p>
+</div>
 
         <div class="checkout-box payment-box">
           <h2>Payment</h2>
@@ -378,8 +439,50 @@
     }
 
 
-    checkoutTotal.textContent =
-      `$${subtotal.toFixed(2)}`;
+    let discountAmount = 0;
+
+function updateCheckoutTotal() {
+  const total = Math.max(0, subtotal - discountAmount);
+
+  checkoutTotal.textContent =
+    `$${total.toFixed(2)}`;
+}
+
+updateCheckoutTotal();
+
+document
+  .getElementById("applyDiscount")
+  .addEventListener("click", function () {
+
+    const code =
+      document
+        .getElementById("discountCode")
+        .value
+        .trim()
+        .toUpperCase();
+
+    const message =
+      document.getElementById("checkoutMessage");
+
+    if (code === "COLLECT15") {
+      discountAmount = subtotal * 0.15;
+
+      updateCheckoutTotal();
+
+      message.style.color = "green";
+      message.textContent =
+        `COLLECT15 applied! You saved $${discountAmount.toFixed(2)}.`;
+
+    } else {
+      discountAmount = 0;
+
+      updateCheckoutTotal();
+
+      message.style.color = "#b00020";
+      message.textContent =
+        "Invalid discount code.";
+    }
+  });
 
 
     document
@@ -392,6 +495,7 @@
           "Secure payment connection is being configured.";
 
       });
+
   </script>
 
 </body>

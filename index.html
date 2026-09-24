@@ -1260,25 +1260,21 @@
       padding: 70px 20px;
     }
 
-    .cart-item {
-      display: grid;
-      grid-template-columns: 80px 1fr auto;
-      gap: 14px;
-      padding: 15px 0;
-      border-bottom: 1px solid var(--border);
-    }
+  .cart-item {
+  display: grid;
+  grid-template-columns: 90px 1fr auto;
+  gap: 14px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: start;
+}
 
-    .cart-thumb {
-      width: 80px;
-      height: 90px;
-      background: var(--cream);
-      display: grid;
-      place-items: center;
-    }
-
-    .cart-thumb .product-art {
-      transform: scale(0.42);
-    }
+   .cart-thumb {
+  width: 90px;
+  height: 110px;
+  background: var(--cream);
+  overflow: hidden;
+}
 
     .cart-item-name {
       font-weight: 700;
@@ -1291,35 +1287,41 @@
       color: var(--gray);
     }
 
-    .quantity {
-      display: flex;
-      align-items: center;
-      margin-top: 10px;
-      border: 1px solid var(--border);
-      width: fit-content;
-    }
+  .quantity {
+  display: flex;
+  align-items: center;
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  width: fit-content;
+  height: 34px;
+}
 
-    .quantity button {
-      border: 0;
-      background: white;
-      width: 27px;
-      height: 27px;
-    }
+.quantity button {
+  border: 0;
+  background: white;
+  width: 34px;
+  height: 32px;
+  font-size: 18px;
+  cursor: pointer;
+}
 
-    .quantity span {
-      width: 27px;
-      text-align: center;
-      font-size: 12px;
-    }
+.quantity span {
+  width: 32px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+}
 
-    .remove-item {
-      border: 0;
-      background: transparent;
-      color: #999;
-      font-size: 11px;
-      text-decoration: underline;
-      align-self: start;
-    }
+.remove-item {
+  border: 0;
+  background: transparent;
+  color: #777;
+  font-size: 12px;
+  text-decoration: underline;
+  align-self: start;
+  padding-top: 4px;
+  cursor: pointer;
+}
 
     .cart-footer {
       border-top: 1px solid var(--border);
@@ -3411,7 +3413,6 @@ function filterSpecialProducts(type) {
     class="cart-product-image"
   >
 </div>
-              </div>
 
               <div>
 

@@ -246,10 +246,17 @@
       <div class="checkout-box">
   <h2>Contact & Delivery Information</h2>
 
-  <p>
-    Guest Checkout - No account required.
-    Want 15% OFF for the whole cart? Sign-up now!
-  </p>
+        <p class="account-option">
+  For faster checkout,
+  <a href="Login.html">Sign In</a>
+  or
+  <a href="Register.html">Sign Up</a>.
+</p>
+
+ <p>
+  Guest Checkout – No account required.<br>
+  Want 15% OFF your first order? Sign up and use code COLLECT15.
+</p>
 
   <div class="guest-form">
 
@@ -286,26 +293,7 @@
   </p>
 </div>
 
-        <div class="checkout-box payment-box">
-          <h2>Payment</h2>
-
-          <p class="secure-note">
-            Your payment will be completed through our secure payment provider.
-          </p>
-
-          <button
-            type="button"
-            class="payment-button"
-            id="paymentButton"
-          >
-            Continue to Secure Payment
-          </button>
-
-          <div id="checkoutMessage"></div>
-        </div>
-
       </section>
-
 
       <aside class="checkout-box">
 
@@ -352,9 +340,27 @@
           <span id="checkoutTotal">$0.00</span>
         </div>
 
-      </aside>
+     </aside>
 
-    </div>
+<div class="checkout-box payment-box">
+  <h2>Payment</h2>
+
+  <p class="secure-note">
+    Your payment will be completed through our secure payment provider.
+  </p>
+
+  <button
+    type="button"
+    class="payment-button"
+    id="paymentButton"
+  >
+    Continue to Secure Payment
+  </button>
+
+  <div id="checkoutMessage"></div>
+</div>
+
+</div>
 
   </main>
 
@@ -450,8 +456,7 @@ const supabaseClient =
 
     } else {
 
-      checkoutShipping.textContent =
-        "Calculated at payment";
+      checkoutShipping.textContent = "$8.99";
 
       const remaining = 75 - subtotal;
 
@@ -463,7 +468,37 @@ const supabaseClient =
     let discountAmount = 0;
 
 function updateCheckoutTotal() {
-  const total = Math.max(0, subtotal - discountAmount);
+
+  const discountedSubtotal =
+    Math.max(0, subtotal - discountAmount);
+
+  const shippingCost =
+    subtotal >= 75 ? 0 : 8.99;
+
+  const taxRate = 0.0925;
+
+  const taxableAmount =
+    discountedSubtotal + shippingCost;
+
+  const estimatedTax =
+    taxableAmount * taxRate;
+
+  const total =
+    taxableAmount + estimatedTax;
+
+  document.getElementById("checkoutDiscount")
+    .textContent =
+    `-$${discountAmount.toFixed(2)}`;
+
+  document.getElementById("checkoutShipping")
+    .textContent =
+    shippingCost === 0
+      ? "FREE"
+      : `$${shippingCost.toFixed(2)}`;
+
+  document.getElementById("checkoutTax")
+    .textContent =
+    `$${estimatedTax.toFixed(2)}`;
 
   checkoutTotal.textContent =
     `$${total.toFixed(2)}`;

@@ -324,8 +324,11 @@
     <label>Email Address</label>
     <input type="email" id="guestEmail" placeholder="Email address" required>
 
-    <label>Full Name</label>
-    <input type="text" id="guestName" placeholder="First and Last Name" required>
+    <label>First Name</label>
+    <input type="text" id="guestName" placeholder="First Name" required>
+
+    <label>Last Name</label>
+    <input type="text" id="guestName" placeholder="Last Name" required>
 
     <label>Phone Number</label>
     <input type="tel" id="guestPhone" placeholder="Phone number">
@@ -435,8 +438,7 @@
 
     <span>
       I confirm that I have read and understand the
-      <a href="terms.html" target="_blank">Terms & Conditions</a>
-,
+      <a href="terms.html" target="_blank">Terms & Conditions</a>,
       <a href="privacy.html" target="_blank">Privacy Policy</a> and
        <a href="cookie.html" target="_blank">Cookie Policy</a>
     </span>
@@ -450,7 +452,7 @@
   class="back-to-top"
   id="backToTopButton"
 >
-  ↑ Back to Top
+  ↑ Back to Top ↑ 
 </button>
       
 </div>
@@ -740,7 +742,7 @@ document
 if (!acceptPolicies.checked) {
   message.style.color = "#b00020";
   message.textContent =
-    "Please accept the Terms & Conditions and Privacy Policy before paying.";
+    "Please accept the Terms & Conditions, Privacy Policy and Cookie Policy before paying.";
   return;
 }
 

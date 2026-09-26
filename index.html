@@ -3005,7 +3005,10 @@ async function loadSupabaseProducts() {
 renderProducts("All");
 loadCategoryImages();
 }
-    let cart = [];
+   let cart =
+  JSON.parse(
+    localStorage.getItem("imCollectionsCart") || "[]"
+  );
     let currentFilter = "All";
 
     /* =======================================================

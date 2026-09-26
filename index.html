@@ -3528,6 +3528,11 @@ shippingProgressFill.style.width = `${progress}%`;
 
       }
 
+localStorage.setItem(
+  "imCollectionsCart",
+  JSON.stringify(cart)
+);
+      
       updateCart();
     }
 
@@ -3538,6 +3543,11 @@ shippingProgressFill.style.width = `${progress}%`;
           product => product.id !== productId
         );
 
+localStorage.setItem(
+  "imCollectionsCart",
+  JSON.stringify(cart)
+);
+      
       updateCart();
 
       showToast("Item removed from cart");

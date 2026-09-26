@@ -237,18 +237,36 @@
 
   <main class="checkout-container">
 
-    <h1 class="checkout-title">Guest Checkout?</h1>
-<p> No Account required. <br>
-    <h1 class="checkout-title">Faster Checkout?</h1>
-  <a href="Login.html">Sign In</a>
-  or
-  <a href="Register.html">Register</a>.
-</p>
-
     <div class="checkout-grid">
- <p>
-  For additional 15% OFF? Sign up and use our code COLLECT15. FREE Shipping for orders over $75.
-</p>
+
+  <section>
+
+    <div class="checkout-box">
+
+      <div class="contact-heading-row">
+        <h2>Contact</h2>
+
+        <div class="contact-account-links">
+          <a href="Login.html">Sign In</a>
+          <span>/</span>
+          <a href="Register.html">Register</a>
+        </div>
+      </div>
+
+      <label>Email Address</label>
+      <input
+        type="email"
+        id="guestEmail"
+        placeholder="Email address"
+        required
+      >
+
+      <p class="guest-note">
+        Guest checkout is available. Sign in or register for faster checkout
+        and access member offers.
+      </p>
+
+      <!-- Full Name, Phone, Address, etc. continue here -->
 
       <section>
 
@@ -281,13 +299,19 @@
     <label>ZIP Code</label>
     <input type="text" id="guestZip" placeholder="ZIP / Postal Code" required>
 
+<div class="save-checkout-info">
+  <label>
+    <input type="checkbox" id="saveCheckoutInfo">
+    Save my information for faster checkout next time
+  </label>
+
+  <p>
+    Optional for guest checkout. You can continue without creating an account.
+  </p>
+</div>
+    
   </div>
 
-  <p class="account-option">
-    Already a member?
-    <a href="Login.html">Sign in</a>
-    to use your saved delivery information.
-  </p>
 </div>
 
       </section>
@@ -347,6 +371,17 @@
 
   <div id="card-container"></div>
 
+<label class="legal-confirm">
+  <input type="checkbox" id="acceptPolicies">
+
+  <span>
+    I confirm that I have read and agree to the
+    <a href="terms.html" target="_blank">Terms & Conditions</a>
+    and
+    <a href="privacy.html" target="_blank">Privacy Policy</a>.
+  </span>  
+</label>
+        
   <button
     type="button"
     class="payment-button"
@@ -637,6 +672,16 @@ document
 
     const message =
       document.getElementById("checkoutMessage");
+
+    const acceptPolicies =
+  document.getElementById("acceptPolicies");
+
+if (!acceptPolicies.checked) {
+  message.style.color = "#b00020";
+  message.textContent =
+    "Please accept the Terms & Conditions and Privacy Policy before paying.";
+  return;
+}
 
     if (!squareCard) {
       message.textContent =

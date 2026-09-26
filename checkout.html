@@ -336,19 +336,28 @@
           <span>Total</span>
           <span id="checkoutTotal">$0.00</span>
         </div>
+        
+     </aside>
+      <div class="checkout-box payment-box">
+  <h2>Payment</h2>
+
+  <p class="secure-note">
+    Pay securely with credit or debit card.
+  </p>
+
+  <div id="card-container"></div>
 
   <button
     type="button"
     class="payment-button"
     id="paymentButton"
   >
-    Continue to Secure Payment
+    Pay Now
   </button>
 
   <div id="checkoutMessage"></div>
-     </aside>
+</div>
 
-  <div id="checkoutMessage"></div>
 </div>
 
 </div>
@@ -356,6 +365,12 @@
   </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <script
+  type="text/javascript"
+  src="https://sandbox.web.squarecdn.com/v1/square.js">
+</script>
+  
   <script>
     const supabaseUrl =
   "https://vqzjegneplzeoqxcqfeu.supabase.co";
@@ -368,6 +383,36 @@ const supabaseClient =
     supabaseUrl,
     supabaseKey
   );
+
+    const squareAppId =
+  "sandbox-sq0idb-c7snyR_ZJ25r9nRUu7ZvqA";
+
+const squareLocationId =
+  "LG5NFQWF";
+
+let squareCard;
+
+async function initializeSquareCard() {
+  if (!window.Square) {
+    throw new Error("Square.js failed to load.");
+  }
+
+  const payments =
+    Square.payments(
+      squareAppId,
+      squareLocationId
+    );
+
+  squareCard = await payments.card();
+
+  await squareCard.attach("#card-container");
+}
+
+document.addEventListener(
+  "DOMContentLoaded",
+  initializeSquareCard
+);
+    
     const checkoutCart =
       JSON.parse(
         localStorage.getItem("imCollectionsCart") || "[]"
@@ -586,21 +631,42 @@ document
   });
 
 
-    document
-      .getElementById("paymentButton")
-      .addEventListener("click", function () {
+document
+  .getElementById("paymentButton")
+  .addEventListener("click", async function () {
 
-        document.getElementById(
-          "checkoutMessage"
-        ).textContent =
-          "Secure payment connection is being configured.";
+    const message =
+      document.getElementById("checkoutMessage");
 
-      });
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    if (!squareCard) {
+      message.textContent =
+        "Payment form is still loading. Please try again.";
+      return;
+    }
 
-<script
-  src="https://sandbox.web.squarecdn.com/v1/square.js">
-</script>
+    try {
+      const result = await squareCard.tokenize();
+
+      if (result.status !== "OK") {
+        message.textContent =
+          "Please check your card information and try again.";
+        return;
+      }
+
+      const paymentToken = result.token;
+
+      message.textContent =
+        "Card secured. Connecting payment...";
+
+      console.log("Square payment token created:", paymentToken);
+
+    } catch (error) {
+      console.error(error);
+
+      message.textContent =
+        "Unable to prepare payment. Please try again.";
+    }
+  });
 
 </body>
 </html>

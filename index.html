@@ -3376,9 +3376,14 @@ function filterSpecialProducts(type) {
 
       }
 
-      updateCart();
+    localStorage.setItem(
+  "imCollectionsCart",
+  JSON.stringify(cart)
+);
 
-      openCart();
+updateCart();
+
+openCart();
 
       showToast(
         `${product.name} added to your cart`

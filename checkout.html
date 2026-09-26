@@ -266,6 +266,48 @@
         and access member offers.
       </p>
 
+        <button
+    type="button"
+    class="order-summary-toggle"
+    id="bottomSummaryToggle"
+    aria-expanded="true"
+  >
+    <span>Order Summary</span>
+    <span id="bottomSummaryArrow">⌃</span>
+  </button>
+
+  <div id="bottomSummaryContent">
+
+    <div id="bottomCheckoutItems"></div>
+
+    <div class="summary-row">
+      <span>Subtotal</span>
+      <strong id="bottomSubtotal">$0.00</strong>
+    </div>
+
+    <div class="summary-row">
+      <span>Discount</span>
+      <strong id="bottomDiscount">-$0.00</strong>
+    </div>
+
+    <div class="summary-row">
+      <span>Standard Shipping</span>
+      <strong id="bottomShipping">$0.00</strong>
+    </div>
+
+    <div class="summary-row">
+      <span>Estimated Tax</span>
+      <strong id="bottomTax">$0.00</strong>
+    </div>
+
+    <div class="summary-total">
+      <span>Total</span>
+      <strong id="bottomTotal">$0.00</strong>
+    </div>
+
+  </div>
+</aside>
+
       <!-- Full Name, Phone, Address, etc. continue here -->
 
       <section>
@@ -398,48 +440,6 @@
 
   <div id="checkoutMessage"></div>
 </div>
-
-  <button
-    type="button"
-    class="order-summary-toggle"
-    id="bottomSummaryToggle"
-    aria-expanded="true"
-  >
-    <span>Order Summary</span>
-    <span id="bottomSummaryArrow">⌃</span>
-  </button>
-
-  <div id="bottomSummaryContent">
-
-    <div id="bottomCheckoutItems"></div>
-
-    <div class="summary-row">
-      <span>Subtotal</span>
-      <strong id="bottomSubtotal">$0.00</strong>
-    </div>
-
-    <div class="summary-row">
-      <span>Discount</span>
-      <strong id="bottomDiscount">-$0.00</strong>
-    </div>
-
-    <div class="summary-row">
-      <span>Standard Shipping</span>
-      <strong id="bottomShipping">$0.00</strong>
-    </div>
-
-    <div class="summary-row">
-      <span>Estimated Tax</span>
-      <strong id="bottomTax">$0.00</strong>
-    </div>
-
-    <div class="summary-total">
-      <span>Total</span>
-      <strong id="bottomTotal">$0.00</strong>
-    </div>
-
-  </div>
-</aside>
 
 <button
   type="button"

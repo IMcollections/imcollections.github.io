@@ -393,6 +393,58 @@
   <div id="checkoutMessage"></div>
 </div>
 
+<aside class="checkout-box bottom-order-summary">
+
+  <button
+    type="button"
+    class="order-summary-toggle"
+    id="bottomSummaryToggle"
+    aria-expanded="true"
+  >
+    <span>Order Summary</span>
+    <span id="bottomSummaryArrow">⌃</span>
+  </button>
+
+  <div id="bottomSummaryContent">
+
+    <div id="bottomCheckoutItems"></div>
+
+    <div class="summary-row">
+      <span>Subtotal</span>
+      <strong id="bottomSubtotal">$0.00</strong>
+    </div>
+
+    <div class="summary-row">
+      <span>Discount</span>
+      <strong id="bottomDiscount">-$0.00</strong>
+    </div>
+
+    <div class="summary-row">
+      <span>Standard Shipping</span>
+      <strong id="bottomShipping">$0.00</strong>
+    </div>
+
+    <div class="summary-row">
+      <span>Estimated Tax</span>
+      <strong id="bottomTax">$0.00</strong>
+    </div>
+
+    <div class="summary-total">
+      <span>Total</span>
+      <strong id="bottomTotal">$0.00</strong>
+    </div>
+
+  </div>
+</aside>
+
+<button
+  type="button"
+  class="back-to-top"
+  id="backToTopButton"
+>
+  ↑ Back to Top
+</button>
+      
 </div>
 
 </div>
@@ -573,6 +625,7 @@ function updateCheckoutTotal() {
 
   checkoutTotal.textContent =
     `$${total.toFixed(2)}`;
+  syncBottomOrderSummary();
 }
 
 updateCheckoutTotal();
@@ -712,6 +765,71 @@ if (!acceptPolicies.checked) {
         "Unable to prepare payment. Please try again.";
     }
   });
+function setupSummaryToggle(buttonId, contentId, arrowId) {
+  const button = document.getElementById(buttonId);
+  const content = document.getElementById(contentId);
+  const arrow = document.getElementById(arrowId);
+
+  if (!button || !content || !arrow) return;
+
+  button.addEventListener("click", function () {
+    const isOpen = content.style.display !== "none";
+
+    content.style.display = isOpen ? "none" : "block";
+    arrow.textContent = isOpen ? "⌄" : "⌃";
+
+    button.setAttribute(
+      "aria-expanded",
+      String(!isOpen)
+    );
+  });
+}
+
+setupSummaryToggle(
+  "bottomSummaryToggle",
+  "bottomSummaryContent",
+  "bottomSummaryArrow"
+);
+
+function syncBottomOrderSummary() {
+  const sourceItems =
+    document.getElementById("checkoutItems");
+
+  const bottomItems =
+    document.getElementById("bottomCheckoutItems");
+
+  if (sourceItems && bottomItems) {
+    bottomItems.innerHTML = sourceItems.innerHTML;
+  }
+
+  const copyText = (sourceId, targetId) => {
+    const source = document.getElementById(sourceId);
+    const target = document.getElementById(targetId);
+
+    if (source && target) {
+      target.textContent = source.textContent;
+    }
+  };
+
+  copyText("checkoutSubtotal", "bottomSubtotal");
+  copyText("checkoutDiscount", "bottomDiscount");
+  copyText("checkoutShipping", "bottomShipping");
+  copyText("checkoutTax", "bottomTax");
+  copyText("checkoutTotal", "bottomTotal");
+}
+
+setTimeout(syncBottomOrderSummary, 100);
+
+document
+  .getElementById("backToTopButton")
+  .addEventListener("click", function () {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  });
+syncBottomOrderSummary();
+    </script>
 
 </body>
 </html>

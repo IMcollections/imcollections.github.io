@@ -51,8 +51,7 @@
     .checkout-container {
       max-width: 900px;
       margin: 25px auto;
-     padding: 0 24px 40px;
-      box-sizing: border-box;
+      padding: 0 18px 40px;
     }
 
     .checkout-title {
@@ -67,72 +66,18 @@
       gap: 24px;
     }
 
-  .checkout-box {
-  background: transparent;
-  border: none;
-  padding: 0;
-  margin-bottom: 36px;
-  box-shadow: none;
-}
-
-    @media (max-width: 768px) {
-  aside.checkout-box {
-    padding-left: 40px;
-    padding-right: 40px;
-    box-sizing: border-box;
-  }
-}
-
-    .checkout-box + .checkout-box {
-  border-top: 1px solid #d9d9d9;
-  padding-top: 32px;
-}
+    .checkout-box {
+      background: #fff;
+      border: 1px solid #e2e2e2;
+      padding: 22px;
+      margin-bottom: 20px;
+    }
 
     .checkout-box h2 {
       margin-top: 0;
       font-size: 20px;
     }
 
-.back-to-top {
-  display: block;
-  width: auto;
-  margin: 32px auto;
-  padding: 12px 22px;
-  border: none;
-  background: transparent;
-  color: #111;
-  font-weight: 700;
-  text-decoration: underline;
-  text-align: center;
-  cursor: pointer;
-}
-
-.order-summary-toggle {
-  width: 100%;
-  border: none;
-  background: transparent;
-  padding: 18px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 22px;
-  font-weight: 700;
-  color: #111;
-  cursor: pointer;
-  text-align: left;
-}
-
-#orderSummaryContent,
-#bottomSummaryContent {
-  padding: 10px 0 28px;
-}
-
-.bottom-order-summary {
-  margin-top: 44px;
-  padding-top: 28px;
-  border-top: 1px solid #d9d9d9;
-}
-    
     .order-item {
       display: grid;
       grid-template-columns: 80px 1fr auto;
@@ -289,7 +234,7 @@
 
     <img src="IM-logo.jpg" alt="IM Collections">
   </div>
-    
+
               <button
     type="button"
     class="order-summary-toggle"
@@ -297,7 +242,7 @@
     aria-expanded="true"
   >
     <span>Order Summary</span>
-    <span id="orderSummaryArrow">⌃</span>
+    <span id="bottomSummaryArrow">⌃</span>
   </button>
 
 <div id="orderSummaryContent">
@@ -318,27 +263,27 @@
 
     <div class="summary-row">
       <span>Subtotal</span>
-      <strong id="checkoutSubtotal">$0.00</strong>
+      <strong id="bottomSubtotal">$0.00</strong>
     </div>
 
     <div class="summary-row">
       <span>Discount</span>
-      <strong id="checkoutDiscount">-$0.00</strong>
+      <strong id="bottomDiscount">-$0.00</strong>
     </div>
 
     <div class="summary-row">
       <span>Standard Shipping</span>
-      <strong id="checkoutShipping">$0.00</strong>
+      <strong id="bottomShipping">$0.00</strong>
     </div>
 
     <div class="summary-row">
       <span>Estimated Tax</span>
-      <strong id="checkoutTax">$0.00</strong>
+      <strong id="bottomTax">$0.00</strong>
     </div>
 
     <div class="summary-total">
       <span>Total</span>
-      <strong id="checkoutTotal">$0.00</strong>
+      <strong id="bottomTotal">$0.00</strong>
     </div>
 
   </div>
@@ -350,20 +295,23 @@
 
   <section>
     
-    <div class="contact-heading-row">
-  <h2>Contact</h2>
-</div>
+      <div class="contact-heading-row">
+        <h2>Contact</h2>
 
-<p class="guest-note">
-  Guest checkout is available.
-</p>
+        <div class="contact-account-links">
+          <a href="Login.html">Sign In</a>
+          <span>/</span>
+          <a href="Register.html">Register</a>
+        </div>
+      </div>
 
-<div class="contact-account-links">
-  <a href="Login.html">Sign In</a>
-  <span>or</span>
-  <a href="Register.html">Register</a>
-  <span>for faster checkout.</span>
-</div>
+      <label>Email Address</label>
+    <input type="email" id="guestEmail" placeholder="Email address" required>
+
+      <p class="guest-note">
+        Guest checkout is available. Sign in or register for faster checkout
+        and access member offers.
+      </p>
 
       <!-- Full Name, Phone, Address, etc. continue here -->
 
@@ -376,11 +324,8 @@
     <label>Email Address</label>
     <input type="email" id="guestEmail" placeholder="Email address" required>
 
-    <label>First Name</label>
-    <input type="text" id="guestName" placeholder="First Name" required>
-
-    <label>Last Name</label>
-    <input type="text" id="guestName" placeholder="Last Name" required>
+    <label>Full Name</label>
+    <input type="text" id="guestName" placeholder="First and Last Name" required>
 
     <label>Phone Number</label>
     <input type="tel" id="guestPhone" placeholder="Phone number">
@@ -409,10 +354,6 @@
   </div>
 
 </div>
-
-      </section>
-
-      <aside class="checkout-box">
 
         <button
   type="button"
@@ -490,7 +431,8 @@
 
     <span>
       I confirm that I have read and understand the
-      <a href="terms.html" target="_blank">Terms & Conditions</a>,
+      <a href="terms.html" target="_blank">Terms & Conditions</a>
+,
       <a href="privacy.html" target="_blank">Privacy Policy</a> and
        <a href="cookie.html" target="_blank">Cookie Policy</a>
     </span>
@@ -504,7 +446,7 @@
   class="back-to-top"
   id="backToTopButton"
 >
-  ↑ Back to Top ↑ 
+  ↑ Back to Top
 </button>
       
 </div>
@@ -794,7 +736,7 @@ document
 if (!acceptPolicies.checked) {
   message.style.color = "#b00020";
   message.textContent =
-    "Please accept the Terms & Conditions, Privacy Policy and Cookie Policy before paying.";
+    "Please accept the Terms & Conditions and Privacy Policy before paying.";
   return;
 }
 
@@ -848,12 +790,6 @@ function setupSummaryToggle(buttonId, contentId, arrowId) {
 }
 
 setupSummaryToggle(
-  "orderSummaryToggle",
-  "orderSummaryContent",
-  "orderSummaryArrow"
-);
-    
-setupSummaryToggle(
   "bottomSummaryToggle",
   "bottomSummaryContent",
   "bottomSummaryArrow"
@@ -896,7 +832,6 @@ document
       behavior: "smooth"
     });
   });
-    
 syncBottomOrderSummary();
     </script>
 

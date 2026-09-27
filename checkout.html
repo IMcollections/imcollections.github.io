@@ -280,6 +280,18 @@ input[type="checkbox"] {
   margin: 0 0 20px;
 }
 
+.order-summary-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+#orderSummaryTotal {
+  font-weight: 700;
+  font-size: 20px;
+}
+
   </style>
 </head>
 
@@ -312,8 +324,13 @@ input[type="checkbox"] {
   aria-expanded="true"
 >
   <span>Order Summary</span>
-<span id="orderSummaryArrow">⌃</span>
-        </button>
+
+<span class="order-summary-right">
+  <span id="orderSummaryTotal">$0.00</span>
+  <span id="orderSummaryArrow">⌄</span>
+</span>
+  
+      </button>
 
 <div id="orderSummaryContent">
 
@@ -643,8 +660,12 @@ function updateCheckoutTotal() {
     .textContent =
     `$${estimatedTax.toFixed(2)}`;
 
+document.getElementById("orderSummaryTotal").textContent =
+  `$${total.toFixed(2)}`;
+
   checkoutTotal.textContent =
     `$${total.toFixed(2)}`;
+
   syncBottomOrderSummary();
 }
 

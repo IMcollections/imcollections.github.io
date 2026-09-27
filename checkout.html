@@ -66,12 +66,18 @@
       gap: 24px;
     }
 
-    .checkout-box {
-      background: #fff;
-      border: 1px solid #e2e2e2;
-      padding: 22px;
-      margin-bottom: 20px;
-    }
+  .checkout-box {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-bottom: 36px;
+  box-shadow: none;
+}
+
+    .checkout-box + .checkout-box {
+  border-top: 1px solid #d9d9d9;
+  padding-top: 32px;
+}
 
     .checkout-box h2 {
       margin-top: 0;

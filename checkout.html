@@ -668,36 +668,48 @@ const paymentRequest =
     }
   });
 
-const applePay =
-  await payments.applePay(paymentRequest);
+try {
+  const applePay =
+    await payments.applePay(paymentRequest);
 
-const applePayButton =
-  document.getElementById("applePay");
+  const applePayButton =
+    document.getElementById("applePay");
 
-if (applePayButton) {
-  applePayButton.addEventListener("click", async function () {
-    try {
-      const result =
-        await applePay.tokenize();
+  if (applePayButton) {
+    applePayButton.addEventListener("click", async function () {
+      try {
+        const result =
+          await applePay.tokenize();
 
-      if (result.status === "OK") {
-        console.log(
-          "Apple Pay token created:",
-          result.token
-        );
-      } else {
-        console.error(
-          "Apple Pay tokenization failed:",
-          result.errors
-        );
+        if (result.status === "OK") {
+          console.log(
+            "Apple Pay token created:",
+            result.token
+          );
+        } else {
+          console.error(
+            "Apple Pay tokenization failed:",
+            result.errors
+          );
+        }
+      } catch (error) {
+        console.error("Apple Pay error:", error);
       }
-    } catch (error) {
-      console.error(
-        "Apple Pay error:",
-        error
-      );
-    }
-  });
+    });
+  }
+
+} catch (error) {
+  console.warn(
+    "Apple Pay is not available yet:",
+    error
+  );
+
+  const applePayButton =
+    document.getElementById("applePay");
+
+  if (applePayButton) {
+    applePayButton.style.display = "none";
+  }
 }
 
   squareCard = await payments.card();

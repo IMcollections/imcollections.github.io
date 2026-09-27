@@ -51,7 +51,8 @@
     .checkout-container {
       max-width: 900px;
       margin: 25px auto;
-      padding: 0 18px 40px;
+     padding: 0 24px 40px;
+      box-sizing: border-box;
     }
 
     .checkout-title {
@@ -66,18 +67,72 @@
       gap: 24px;
     }
 
-    .checkout-box {
-      background: #fff;
-      border: 1px solid #e2e2e2;
-      padding: 22px;
-      margin-bottom: 20px;
-    }
+  .checkout-box {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-bottom: 36px;
+  box-shadow: none;
+}
+
+    @media (max-width: 768px) {
+  aside.checkout-box {
+    padding-left: 40px;
+    padding-right: 40px;
+    box-sizing: border-box;
+  }
+}
+
+    .checkout-box + .checkout-box {
+  border-top: 1px solid #d9d9d9;
+  padding-top: 32px;
+}
 
     .checkout-box h2 {
       margin-top: 0;
       font-size: 20px;
     }
 
+.back-to-top {
+  display: block;
+  width: auto;
+  margin: 32px auto;
+  padding: 12px 22px;
+  border: none;
+  background: transparent;
+  color: #111;
+  font-weight: 700;
+  text-decoration: underline;
+  text-align: center;
+  cursor: pointer;
+}
+
+.order-summary-toggle {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 18px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #111;
+  cursor: pointer;
+  text-align: left;
+}
+
+#orderSummaryContent,
+#bottomSummaryContent {
+  padding: 10px 0 28px;
+}
+
+.bottom-order-summary {
+  margin-top: 44px;
+  padding-top: 28px;
+  border-top: 1px solid #d9d9d9;
+}
+    
     .order-item {
       display: grid;
       grid-template-columns: 80px 1fr auto;
@@ -229,11 +284,65 @@
 
   <div class="logo-area">
     <a href="index.html" class="back-link">
-   <h2>   ← Continue Shopping </h2>
+      ← Continue Shopping
     </a>
 
     <img src="IM-logo.jpg" alt="IM Collections">
   </div>
+    
+              <button
+    type="button"
+    class="order-summary-toggle"
+    id="bottomSummaryToggle"
+    aria-expanded="true"
+  >
+    <span>Order Summary</span>
+    <span id="orderSummaryArrow">⌃</span>
+  </button>
+
+<div id="orderSummaryContent">
+
+        <div id="checkoutItems"></div>
+
+        <div class="discount-row">
+          <input
+            type="text"
+            id="discountCode"
+            placeholder="Discount code"
+          >
+
+          <button type="button" id="applyDiscount">
+            Apply
+          </button>
+        </div>
+
+    <div class="summary-row">
+      <span>Subtotal</span>
+      <strong id="bottomSubtotal">$0.00</strong>
+    </div>
+
+    <div class="summary-row">
+      <span>Discount</span>
+      <strong id="bottomDiscount">-$0.00</strong>
+    </div>
+
+    <div class="summary-row">
+      <span>Standard Shipping</span>
+      <strong id="bottomShipping">$0.00</strong>
+    </div>
+
+    <div class="summary-row">
+      <span>Estimated Tax</span>
+      <strong id="bottomTax">$0.00</strong>
+    </div>
+
+    <div class="summary-total">
+      <span>Total</span>
+      <strong id="bottomTotal">$0.00</strong>
+    </div>
+
+  </div>
+</aside>
 
   <main class="checkout-container">
 
@@ -241,7 +350,67 @@
 
   <section>
     
+      <div class="contact-heading-row">
+        <h2>Contact</h2>
+
+ <p class="guest-note">
+        Guest checkout is available.
+
+        <div class="contact-account-links">
+          <a href="Login.html">Sign In</a>
+          <span>or 
+          <a href="Register.html">Register</a> 
+</div> for faster checkout. </p>
+      </div>
+
+      <!-- Full Name, Phone, Address, etc. continue here -->
+
+      <section>
+
+  <h2>Delivery Information</h2>
+
+  <div class="guest-form">
+
+    <label>Email Address</label>
+    <input type="email" id="guestEmail" placeholder="Email address" required>
+
+    <label>First Name</label>
+    <input type="text" id="guestName" placeholder="First Name" required>
+
+    <label>Last Name</label>
+    <input type="text" id="guestName" placeholder="Last Name" required>
+
+    <label>Phone Number</label>
+    <input type="tel" id="guestPhone" placeholder="Phone number">
+
+    <label>Street Address</label>
+    <input type="text" id="guestAddress" placeholder="Street address" required>
+
+    <label>Apartment / Unit</label>
+    <input type="text" id="guestAddress2" placeholder="Apartment, suite, unit, etc. (optional)">
+
+    <label>City</label>
+    <input type="text" id="guestCity" placeholder="City" required>
+
+    <label>State</label>
+    <input type="text" id="guestState" placeholder="State" required>
+
+    <label>ZIP Code</label>
+    <input type="text" id="guestZip" placeholder="ZIP / Postal Code" required>
+
+<div class="save-checkout-info">
+  <label>
+    <input type="checkbox" id="saveCheckoutInfo">
+    Save my information for faster checkout next time
+  </label>
+    
   </div>
+
+</div>
+
+      </section>
+
+      <aside class="checkout-box">
 
         <button
   type="button"
@@ -249,7 +418,9 @@
   id="orderSummaryToggle"
   aria-expanded="true"
 >
-  <h2> Order Summary ^</h2>
+  <span>Order Summary</span>
+  <span id="orderSummaryArrow">^</span>
+</button>
 
 <div id="orderSummaryContent">
 
@@ -295,70 +466,6 @@
         </div>
         
      </aside>
-
-  <h2>Contact</h2>
-</div>
-
-<p class="guest-note">
-  Guest checkout is available.
-</p>
-
-<div class="contact-account-links">
-  <a href="Login.html">Sign In</a>
-  <span>or</span>
-  <a href="Register.html">Register</a>
-  <span>for faster checkout.</span>
-</div>
-
-      <!-- Full Name, Phone, Address, etc. continue here -->
-
-      <section>
-
-  <h2>Delivery Information</h2>
-
-  <div class="guest-form">
-
-    <label>Email Address</label>
-    <input type="email" id="guestEmail" placeholder="Email address" required>
-
-<label for="guestCountry">Country / Region</label>
-<select id="guestCountry" name="country">
-placeholder="Country/Region"required>  <option value="United States">United States</option>
-  <option value="Canada">Canada</option>
-</select>
-
-    <label>First Name</label>
-    <input type="text" id="guestName" placeholder="First Name" required>
-
-    <label>Last Name</label>
-    <input type="text" id="guestName" placeholder="Last Name" required>
-
-    <label>Phone Number</label>
-    <input type="tel" id="guestPhone" placeholder="Phone number">
-
-    <label>Street Address</label>
-    <input type="text" id="guestAddress" placeholder="Street address" required>
-
-    <label>Apartment / Unit</label>
-    <input type="text" id="guestAddress2" placeholder="Apartment, suite, unit, etc. (optional)">
-
-    <label>City</label>
-    <input type="text" id="guestCity" placeholder="City" required>
-
-    <label>State</label>
-    <input type="text" id="guestState" placeholder="State" required>
-
-    <label>ZIP Code</label>
-    <input type="text" id="guestZip" placeholder="ZIP / Postal Code" required>
-
-<div class="save-checkout-info">
-  <label>
-    <input type="checkbox" id="saveCheckoutInfo">
-    Save my information for faster checkout next time
-  </label>
-    
- </div>
-
       <div class="checkout-box payment-box">
   <h2>Payment</h2>
 
@@ -381,8 +488,7 @@ placeholder="Country/Region"required>  <option value="United States">United Stat
 
     <span>
       I confirm that I have read and understand the
-      <a href="terms.html" target="_blank">Terms & Conditions</a>
-,
+      <a href="terms.html" target="_blank">Terms & Conditions</a>,
       <a href="privacy.html" target="_blank">Privacy Policy</a> and
        <a href="cookie.html" target="_blank">Cookie Policy</a>
     </span>
@@ -686,7 +792,7 @@ document
 if (!acceptPolicies.checked) {
   message.style.color = "#b00020";
   message.textContent =
-    "Please accept the Terms & Conditions and Privacy Policy before paying.";
+    "Please accept the Terms & Conditions, Privacy Policy and Cookie Policy before paying.";
   return;
 }
 
@@ -740,6 +846,12 @@ function setupSummaryToggle(buttonId, contentId, arrowId) {
 }
 
 setupSummaryToggle(
+  "orderSummaryToggle",
+  "orderSummaryContent",
+  "orderSummaryArrow"
+);
+    
+setupSummaryToggle(
   "bottomSummaryToggle",
   "bottomSummaryContent",
   "bottomSummaryArrow"
@@ -782,6 +894,7 @@ document
       behavior: "smooth"
     });
   });
+    
 syncBottomOrderSummary();
     </script>
 

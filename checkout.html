@@ -200,7 +200,7 @@
 .order-summary-toggle {
   width: 100%;
   display: flex;
-  justify-content: flex-start;
+ justify-content: space-between;
   align-items: center;
 
   border: none;
@@ -221,8 +221,7 @@
 #bottomSummaryArrow {
   font-size: 18px;
   line-height: 1;
-  margin-left: 8px;
-  margin-right: 0;
+  margin-left: 12px;
 }
 
 input[type="checkbox"] {
@@ -234,8 +233,7 @@ input[type="checkbox"] {
   vertical-align: middle;
 }
 
-    }
-    .guest-form {
+ .guest-form {
   display: grid;
   gap: 8px;
 }
@@ -288,7 +286,7 @@ input[type="checkbox"] {
 
   <section>
     
-  </div>
+  </section>
 
         <button
   type="button"
@@ -296,7 +294,9 @@ input[type="checkbox"] {
   id="orderSummaryToggle"
   aria-expanded="true"
 >
-  <h2> Order Summary ^</h2>
+  <span>Order Summary</span>
+<span id="orderSummaryArrow">⌃</span>
+        </button>
 
 <div id="orderSummaryContent">
 

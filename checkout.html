@@ -292,6 +292,30 @@ input[type="checkbox"] {
   font-size: 20px;
 }
 
+#cardholderName {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #ccc;
+  padding: 12px;
+  font-size: 15px;
+  box-sizing: border-box;
+  margin: 8px 0 16px;
+}
+
+.billing-same {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 18px;
+  font-weight: 600;
+}
+
+.billing-same input[type="checkbox"] {
+  width: 18px !important;
+  height: 18px !important;
+  margin: 0;
+}
+
   </style>
 </head>
 
@@ -451,66 +475,23 @@ input[type="checkbox"] {
 
   <div id="card-container"></div>
 
-<div id="billingAddressFields" style="display: none;">
+<label for="cardholderName">Name on Card</label>
+<input
+  type="text"
+  id="cardholderName"
+  name="cardholderName"
+  placeholder="Name on card"
+  autocomplete="cc-name"
+/>
 
-  <h3>Billing Address</h3>
-
-  <label for="billingCountry">Country / Region</label>
-  <select id="billingCountry">
-    <option value="United States">United States</option>
-    <option value="Canada">Canada</option>
-  </select>
-
-  <label for="billingFirstName">First Name</label>
+<label class="billing-same">
   <input
-    type="text"
-    id="billingFirstName"
-    placeholder="First Name"
+    type="checkbox"
+    id="sameAsShipping"
+    checked
   >
-
-  <label for="billingLastName">Last Name</label>
-  <input
-    type="text"
-    id="billingLastName"
-    placeholder="Last Name"
-  >
-
-  <label for="billingAddress">Street Address</label>
-  <input
-    type="text"
-    id="billingAddress"
-    placeholder="Street Address"
-  >
-
-  <label for="billingApartment">Apartment / Unit</label>
-  <input
-    type="text"
-    id="billingApartment"
-    placeholder="Apartment / Unit"
-  >
-
-  <label for="billingCity">City</label>
-  <input
-    type="text"
-    id="billingCity"
-    placeholder="City"
-  >
-
-  <label for="billingState">State / Province</label>
-  <input
-    type="text"
-    id="billingState"
-    placeholder="State / Province"
-  >
-
-  <label for="billingPostal">ZIP / Postal Code</label>
-  <input
-    type="text"
-    id="billingPostal"
-    placeholder="ZIP / Postal Code"
-  >
-
-</div>
+  <span>Use shipping address as billing address</span>
+</label>
 
   <button
     type="button"

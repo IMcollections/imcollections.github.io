@@ -292,6 +292,30 @@ input[type="checkbox"] {
   font-size: 20px;
 }
 
+#cardholderName {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #ccc;
+  padding: 12px;
+  font-size: 15px;
+  box-sizing: border-box;
+  margin: 8px 0 16px;
+}
+
+.billing-same {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 18px;
+  font-weight: 600;
+}
+
+.billing-same input[type="checkbox"] {
+  width: 18px !important;
+  height: 18px !important;
+  margin: 0;
+}
+
   </style>
 </head>
 
@@ -450,6 +474,24 @@ input[type="checkbox"] {
   </p>
 
   <div id="card-container"></div>
+
+<label for="cardholderName">Name on Card</label>
+<input
+  type="text"
+  id="cardholderName"
+  name="cardholderName"
+  placeholder="Name on card"
+  autocomplete="cc-name"
+/>
+
+<label class="billing-same">
+  <input
+    type="checkbox"
+    id="sameAsShipping"
+    checked
+  >
+  <span>Use shipping address as billing address</span>
+</label>
 
   <button
     type="button"

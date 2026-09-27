@@ -316,6 +316,21 @@ input[type="checkbox"] {
   margin: 0;
 }
 
+#billingAddressFields {
+  gap: 8px;
+}
+
+#billingAddressFields label {
+  display: block;
+  margin-top: 8px;
+}
+
+#billingAddressFields input,
+#billingAddressFields select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
   </style>
 </head>
 
@@ -961,7 +976,7 @@ const billingAddressFields =
 if (sameAsShipping && billingAddressFields) {
   sameAsShipping.addEventListener("change", function () {
     billingAddressFields.style.display =
-      this.checked ? "none" : "block";
+      this.checked ? "none" : "grid";
   });
 }
     </script>

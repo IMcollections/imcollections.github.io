@@ -354,13 +354,15 @@ input[type="checkbox"] {
         <div class="free-shipping" id="shippingMessage"></div>
 
         <div class="summary-total">
-          <span>Total</span>
-          <span id="checkoutTotal">$0.00</span>
-        </div>
-        
-     </aside>
+  <span>Total</span>
+  <span id="checkoutTotal">$0.00</span>
+</div>
 
-  <h2>Contact</h2>
+</div>   <!-- closes orderSummaryContent -->
+
+</aside>
+
+<h2>Contact</h2>
 </div>
 
 <p class="guest-note">
@@ -802,6 +804,12 @@ function setupSummaryToggle(buttonId, contentId, arrowId) {
     );
   });
 }
+
+setupSummaryToggle(
+  "orderSummaryToggle",
+  "orderSummaryContent",
+  "orderSummaryArrow"
+);
 
 setupSummaryToggle(
   "bottomSummaryToggle",

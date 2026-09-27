@@ -352,6 +352,20 @@ input[type="checkbox"] {
   cursor: pointer;
 }
 
+#applePay {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin: 12px 0;
+  border: none;
+  border-radius: 6px;
+  background: #000;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
   </style>
 </head>
 
@@ -516,7 +530,7 @@ input[type="checkbox"] {
   Apple Pay
 </button>
 
-<div class="payment-divider">
+<div class="payment-divider" id="applePayDivider">
   <span>OR</span>
 </div>
 
@@ -707,8 +721,11 @@ try {
   const applePayButton =
     document.getElementById("applePay");
 
-  if (applePayButton) {
-    applePayButton.style.display = "none";
+const applePayDivider =
+  document.getElementById("applePayDivider");
+
+if (applePayDivider) {
+  applePayDivider.style.display = "none";
   }
 }
 

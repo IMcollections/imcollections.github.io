@@ -971,60 +971,7 @@ document.getElementById("orderSummaryTotal").textContent =
   syncBottomOrderSummary();
 }
 
-const subtotal =
-      checkoutCart.reduce(
-        (total, item) =>
-          total + item.price * item.quantity,
-        0
-      );
 
-
-    checkoutSubtotal.textContent =
-      `$${subtotal.toFixed(2)}`;
-
-
-    if (subtotal >= 75) {
-
-      checkoutShipping.textContent = "FREE";
-
-      shippingMessage.textContent =
-        "✓ You qualify for FREE Standard Shipping!";
-
-    } else {
-
-      checkoutShipping.textContent = "$8.99";
-
-      const remaining = 75 - subtotal;
-
-      shippingMessage.textContent =
-        `You're $${remaining.toFixed(2)} away from FREE Standard Shipping`;
-    }
-
-
-    let discountAmount = 0;
-
-function updateCheckoutTotal() {
-
-  const discountedSubtotal =
-    Math.max(0, subtotal - discountAmount);
-
-  const shippingCost =
-    subtotal >= 75 ? 0 : 8.99;
-
-  const taxRate = 0.0925;
-
-  const taxableAmount =
-    discountedSubtotal + shippingCost;
-
-  const estimatedTax =
-    taxableAmount * taxRate;
-
-  const total =
-    taxableAmount + estimatedTax;
-
-  document.getElementById("checkoutDiscount")
-    .textContent =
-    `-$${discountAmount.toFixed(2)}`;
 
 updateCheckoutTotal();
 

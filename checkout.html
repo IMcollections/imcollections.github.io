@@ -971,8 +971,6 @@ document.getElementById("orderSummaryTotal").textContent =
   syncBottomOrderSummary();
 }
 
-
-
 updateCheckoutTotal();
 
 document
@@ -1166,6 +1164,7 @@ function syncBottomOrderSummary() {
   copyText("checkoutDiscount", "bottomDiscount");
   copyText("checkoutShipping", "bottomShipping");
   copyText("checkoutTax", "bottomTax");
+copyText("shippingMessage", "bottomShippingMessage");
   copyText("checkoutTotal", "bottomTotal");
 copyText("checkoutTotal", "bottomSummaryHeaderTotal");
 }

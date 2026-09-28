@@ -714,7 +714,8 @@ try {
     const status =
       document.getElementById("applePayStatus");
 
-    status.textContent = "Opening Apple Pay…";
+    status.textContent =
+  "Opening Apple Pay for $" + applePayAmount + "…";
 
     try {
       const result =

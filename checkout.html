@@ -707,28 +707,51 @@ try {
     document.getElementById("applePay");
 
   if (applePayButton) {
-    applePayButton.addEventListener("click", async function () {
-      try {
-        const result =
-          await applePay.tokenize();
+  applePayButton.addEventListener("click", async function () {
 
-        if (result.status === "OK") {
-          console.log(
-            "Apple Pay token created:",
-            result.token
-          );
-        } else {
-          console.error(
-            "Apple Pay tokenization failed:",
-            result.errors
-          );
-        }
-      } catch (error) {
-        console.error("Apple Pay error:", error);
+    const status =
+      document.getElementById("applePayStatus");
+
+    status.textContent = "Opening Apple Pay…";
+
+    try {
+      const result =
+        await applePay.tokenize();
+
+      if (result.status === "OK") {
+
+        status.textContent =
+          "Apple Pay authorized. Processing…";
+
+        console.log(
+          "Apple Pay token created:",
+          result.token
+        );
+
+      } else {
+
+        status.textContent =
+          "Apple Pay was not completed. Please try again.";
+
+        console.error(
+          "Apple Pay tokenization failed:",
+          result.errors
+        );
       }
-    });
-  }
 
+    } catch (error) {
+
+      status.textContent =
+        "Apple Pay closed: " +
+        (error.message || "Unable to start payment.");
+
+      console.error(
+        "Apple Pay error:",
+        error
+      );
+    }
+  });
+}
 } catch (error) {
   console.warn(
     "Apple Pay is not available yet:",

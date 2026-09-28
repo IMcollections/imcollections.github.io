@@ -533,14 +533,14 @@ input[type="checkbox"] {
     
        <button
   type="button"
-  class="bottom-summary-toggle"
+  class="order-summary-toggle"
   id="bottomSummaryToggle"
   aria-expanded="true"
 >
   <span>Order Summary</span>
 
 <span class="order-summary-right">
-  <span id="bottomSummaryTotal">$0.00</span>
+<span id="bottomSummaryHeaderTotal">$0.00</span>
   <span id="bottomSummaryArrow">⌄</span>
 </span>
   
@@ -563,7 +563,7 @@ input[type="checkbox"] {
         </div>
 
         <div class="summary-row">
-          <span>bottomSubtotal</span>
+          <span>Subtotal</span>
           <strong id="bottomSubtotal">$0.00</strong>
         </div>
         
@@ -1163,6 +1163,7 @@ function syncBottomOrderSummary() {
   copyText("checkoutShipping", "bottomShipping");
   copyText("checkoutTax", "bottomTax");
   copyText("checkoutTotal", "bottomTotal");
+copyText("checkoutTotal", "bottomSummaryHeaderTotal");
 }
 
 setTimeout(syncBottomOrderSummary, 100);

@@ -439,6 +439,8 @@ input[type="checkbox"] {
           </button>
         </div>
 
+<div id="discountMessage"></div>
+
         <div class="summary-row">
           <span>Subtotal</span>
           <strong id="checkoutSubtotal">$0.00</strong>
@@ -561,6 +563,8 @@ input[type="checkbox"] {
             Apply
           </button>
         </div>
+
+<div id="bottomDiscountMessage"></div>
 
         <div class="summary-row">
           <span>Subtotal</span>
@@ -1176,6 +1180,7 @@ function syncBottomOrderSummary() {
 copyText("shippingMessage", "bottomShippingMessage");
   copyText("checkoutTotal", "bottomTotal");
 copyText("checkoutTotal", "bottomSummaryHeaderTotal");
+copyText("discountMessage", "bottomDiscountMessage");
 }
 
 setTimeout(syncBottomOrderSummary, 100);

@@ -1071,6 +1071,8 @@ document
   message.textContent =
     `COLLECT15 applied! You saved $${discountAmount.toFixed(2)}.`;
 
+syncBottomOrderSummary();
+
 } else if (code === "IMREFER10") {
 
   discountAmount = Math.min(10, subtotal);
@@ -1079,6 +1081,8 @@ document
   message.style.color = "green";
   message.textContent =
     `IMREFER10 applied! You saved $${discountAmount.toFixed(2)}.`;
+
+syncBottomOrderSummary();
 
 } else {
 
@@ -1224,6 +1228,17 @@ if (sourceDiscountMessage && bottomDiscountMessage) {
   bottomDiscountMessage.style.color =
     sourceDiscountMessage.style.color;
 }
+}
+
+const sourceDiscountCode =
+  document.getElementById("discountCode");
+
+const bottomDiscountCode =
+  document.getElementById("bottomDiscountCode");
+
+if (sourceDiscountCode && bottomDiscountCode) {
+  bottomDiscountCode.value =
+    sourceDiscountCode.value;
 }
 
 setTimeout(syncBottomOrderSummary, 100);

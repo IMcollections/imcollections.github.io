@@ -1237,7 +1237,6 @@ if (sourceDiscountMessage && bottomDiscountMessage) {
   bottomDiscountMessage.style.color =
     sourceDiscountMessage.style.color;
 }
-}
 
 const sourceDiscountCode =
   document.getElementById("discountCode");
@@ -1248,6 +1247,7 @@ const bottomDiscountCode =
 if (sourceDiscountCode && bottomDiscountCode) {
   bottomDiscountCode.value =
     sourceDiscountCode.value;
+}
 }
 
 setTimeout(syncBottomOrderSummary, 100);

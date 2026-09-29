@@ -555,11 +555,11 @@ input[type="checkbox"] {
         <div class="discount-row">
           <input
             type="text"
-            id="discountCode"
+      id="bottomDiscountCode"
             placeholder="Discount code"
           >
 
-          <button type="button" id="applyDiscount">
+          <button type="button" id="bottomApplyDiscount"
             Apply
           </button>
         </div>
@@ -1074,6 +1074,22 @@ document
 }
 
 });
+
+document
+  .getElementById("bottomApplyDiscount")
+  .addEventListener("click", function () {
+
+    const bottomCode =
+      document
+        .getElementById("bottomDiscountCode")
+        .value
+        .trim();
+
+    document.getElementById("discountCode").value =
+      bottomCode;
+
+    document.getElementById("applyDiscount").click();
+  });
 
 document
   .getElementById("paymentButton")

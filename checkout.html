@@ -1050,6 +1050,15 @@ document
   message.textContent =
     `COLLECT15 applied! You saved $${discountAmount.toFixed(2)}.`;
 
+} else if (code === "IMREFER10") {
+
+  discountAmount = Math.min(10, subtotal);
+  updateCheckoutTotal();
+
+  message.style.color = "green";
+  message.textContent =
+    `IMREFER10 applied! You saved $${discountAmount.toFixed(2)}.`;
+
 } else {
 
   discountAmount = 0;
@@ -1059,8 +1068,8 @@ document
   message.textContent =
     "Invalid discount code.";
 }
-  });
 
+});
 
 document
   .getElementById("paymentButton")

@@ -134,6 +134,8 @@
       display: flex;
       gap: 8px;
       margin-top: 15px;
+width: 100%;
+box-sizing: border-box;
     }
 
     .discount-row input {
@@ -141,6 +143,7 @@
       padding: 13px;
       border: 1px solid #ccc;
       font-size: 15px;
+min-width: 0;
     }
 
     .discount-row button {
@@ -149,6 +152,8 @@
       color: #fff;
       padding: 0 18px;
       font-weight: 700;
+min-width: 96px;
+flex-shrink: 0;
     }
 
     .payment-box {
@@ -1197,6 +1202,16 @@ copyText("checkoutShipping", "bottomShipping");
 copyText("shippingMessage", "bottomShippingMessage");
   copyText("checkoutTotal", "bottomTotal");
 copyText("checkoutTotal", "bottomSummaryHeaderTotal");
+const sourceDiscountMessage =
+  document.getElementById("discountMessage");
+
+const bottomDiscountMessage =
+  document.getElementById("bottomDiscountMessage");
+
+if (sourceDiscountMessage && bottomDiscountMessage) {
+  bottomDiscountMessage.style.color =
+    sourceDiscountMessage.style.color;
+}
 }
 
 setTimeout(syncBottomOrderSummary, 100);

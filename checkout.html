@@ -1047,10 +1047,13 @@ document
     discountAmount = 0;
     updateCheckoutTotal();
 
-    message.style.color = "#b00020";
-    message.textContent =
-      "We could not verify your welcome discount. Please try again.";
-    return;
+  message.style.color = "#b00020";
+message.textContent =
+  "We could not verify your welcome discount. Please try again.";
+
+syncBottomOrderSummary();
+
+return;
   }
 
   if (profile.welcome_discount_used === true) {

@@ -225,7 +225,7 @@
 
   <main class="page-wrap">
 
-    <div class="login-card">
+    <div class="login-card" id="loginCard">
 
       <h1>Login</h1>
 
@@ -397,6 +397,9 @@
     const loginForm =
       document.getElementById("loginForm");
 
+    const loginCard =
+  document.getElementById("loginCard");
+
     const loginMessage =
       document.getElementById("loginMessage");
 
@@ -442,11 +445,11 @@ async function loadAccountDashboard() {
     error: userError
   } = await supabaseClient.auth.getUser();
 
-  if (userError || !user) {
-    loginForm.style.display = "block";
-    accountDashboard.style.display = "none";
-    return;
-  }
+ if (userError || !user) {
+  loginCard.style.display = "block";
+  accountDashboard.style.display = "none";
+  return;
+}
 
   const { data: profile, error: profileError } =
     await supabaseClient
@@ -475,7 +478,7 @@ async function loadAccountDashboard() {
     return;
   }
 
-  loginForm.style.display = "none";
+  loginCard.style.display = "none";
   accountDashboard.style.display = "block";
 
   const points = profile.reward_points || 0;
@@ -535,6 +538,18 @@ async function loadAccountDashboard() {
 }
 
     loadAccountDashboard();
+
+    logoutBtn.addEventListener("click", async () => {
+  const { error } =
+    await supabaseClient.auth.signOut();
+
+  if (error) {
+    console.error("Logout error:", error);
+    return;
+  }
+
+  window.location.href = "my-account.html";
+});
     
 const forgotPasswordLink =
   document.getElementById("forgotPasswordLink");
@@ -609,9 +624,9 @@ forgotPasswordLink.addEventListener("click", async function(event) {
           "Login successful! Redirecting...";
 
         setTimeout(() => {
-          window.location.href =
-            "index.html";
-        }, 800);
+  window.location.href =
+    "my-account.html";
+}, 800);
       }
     );
   </script>

@@ -400,6 +400,142 @@
     const loginMessage =
       document.getElementById("loginMessage");
 
+const accountDashboard =
+  document.getElementById("accountDashboard");
+
+const membershipLevel =
+  document.getElementById("membershipLevel");
+
+const membershipPoints =
+  document.getElementById("membershipPoints");
+
+const availableReward =
+  document.getElementById("availableReward");
+
+const nextRewardText =
+  document.getElementById("nextRewardText");
+
+const accountName =
+  document.getElementById("accountName");
+
+const accountEmail =
+  document.getElementById("accountEmail");
+
+const accountPhone =
+  document.getElementById("accountPhone");
+
+const accountAddress =
+  document.getElementById("accountAddress");
+
+const memberReferralCode =
+  document.getElementById("memberReferralCode");
+
+const referralCredit =
+  document.getElementById("referralCredit");
+
+const logoutBtn =
+  document.getElementById("logoutBtn");
+
+async function loadAccountDashboard() {
+  const {
+    data: { user },
+    error: userError
+  } = await supabaseClient.auth.getUser();
+
+  if (userError || !user) {
+    loginForm.style.display = "block";
+    accountDashboard.style.display = "none";
+    return;
+  }
+
+  const { data: profile, error: profileError } =
+    await supabaseClient
+      .from("profiles")
+      .select(`
+        first_name,
+        last_name,
+        email,
+        phone,
+        address_line1,
+        address_line2,
+        city,
+        state_province,
+        postal_code,
+        country,
+        reward_points,
+        reward_tier,
+        referral_code,
+        referral_credit
+      `)
+      .eq("id", user.id)
+      .single();
+
+  if (profileError) {
+    console.error("Profile load error:", profileError);
+    return;
+  }
+
+  loginForm.style.display = "none";
+  accountDashboard.style.display = "block";
+
+  const points = profile.reward_points || 0;
+  const tier = profile.reward_tier || "Member";
+
+  membershipPoints.textContent = points;
+  membershipLevel.textContent = tier;
+
+  let reward = 0;
+  let nextText = "";
+
+  if (points >= 1200) {
+    reward = 50;
+    nextText = "You can redeem REWARDS50.";
+  } else if (points >= 800) {
+    reward = 30;
+    nextText = `${1200 - points} points to unlock $50 reward.`;
+  } else if (points >= 500) {
+    reward = 20;
+    nextText = `${800 - points} points to unlock $30 reward.`;
+  } else if (points >= 250) {
+    reward = 10;
+    nextText = `${500 - points} points to unlock $20 reward.`;
+  } else {
+    nextText = `${250 - points} points to unlock $10 reward.`;
+  }
+
+  availableReward.textContent = `$${reward}`;
+  nextRewardText.textContent = nextText;
+
+  accountName.textContent =
+    `${profile.first_name || ""} ${profile.last_name || ""}`.trim();
+
+  accountEmail.textContent =
+    profile.email || user.email || "";
+
+  accountPhone.textContent =
+    profile.phone || "";
+
+  accountAddress.textContent =
+    [
+      profile.address_line1,
+      profile.address_line2,
+      profile.city,
+      profile.state_province,
+      profile.postal_code,
+      profile.country
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+  memberReferralCode.textContent =
+    profile.referral_code || "—";
+
+  referralCredit.textContent =
+    profile.referral_credit || 0;
+}
+
+    loadAccountDashboard();
+    
 const forgotPasswordLink =
   document.getElementById("forgotPasswordLink");
 forgotPasswordLink.addEventListener("click", async function(event) {

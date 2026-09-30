@@ -418,6 +418,73 @@
     <button type="button" id="editProfileBtn">
       Edit Profile
     </button>
+    <div id="editProfileForm" style="display: none; margin-top: 18px;">
+
+  <input
+    type="text"
+    id="editFirstName"
+    placeholder="First Name"
+  >
+
+  <input
+    type="text"
+    id="editLastName"
+    placeholder="Last Name"
+  >
+
+  <input
+    type="tel"
+    id="editPhone"
+    placeholder="Phone Number"
+  >
+
+  <input
+    type="text"
+    id="editAddress1"
+    placeholder="Address Line 1"
+  >
+
+  <input
+    type="text"
+    id="editAddress2"
+    placeholder="Address Line 2"
+  >
+
+  <input
+    type="text"
+    id="editCity"
+    placeholder="City"
+  >
+
+  <input
+    type="text"
+    id="editState"
+    placeholder="State / Province"
+  >
+
+  <input
+    type="text"
+    id="editPostalCode"
+    placeholder="Postal Code"
+  >
+
+  <select id="editCountry">
+    <option value="">Select Country</option>
+    <option value="United States">United States</option>
+    <option value="Canada">Canada</option>
+  </select>
+
+  <button type="button" id="saveProfileBtn">
+    Save Profile
+  </button>
+
+  <button type="button" id="cancelProfileBtn">
+    Cancel
+  </button>
+
+  <p id="profileMessage"></p>
+
+</div>
   </section>
 
 
@@ -526,6 +593,50 @@ const referralCredit =
 const logoutBtn =
   document.getElementById("logoutBtn");
 
+    const editProfileBtn =
+  document.getElementById("editProfileBtn");
+
+const editProfileForm =
+  document.getElementById("editProfileForm");
+
+const editFirstName =
+  document.getElementById("editFirstName");
+
+const editLastName =
+  document.getElementById("editLastName");
+
+const editPhone =
+  document.getElementById("editPhone");
+
+const editAddress1 =
+  document.getElementById("editAddress1");
+
+const editAddress2 =
+  document.getElementById("editAddress2");
+
+const editCity =
+  document.getElementById("editCity");
+
+const editState =
+  document.getElementById("editState");
+
+const editPostalCode =
+  document.getElementById("editPostalCode");
+
+const editCountry =
+  document.getElementById("editCountry");
+
+const saveProfileBtn =
+  document.getElementById("saveProfileBtn");
+
+const cancelProfileBtn =
+  document.getElementById("cancelProfileBtn");
+
+const profileMessage =
+  document.getElementById("profileMessage");
+
+let currentProfile = null;
+    
 async function loadAccountDashboard() {
   const {
     data: { user },
@@ -565,6 +676,8 @@ async function loadAccountDashboard() {
     return;
   }
 
+currentProfile = profile;
+  
   loginCard.style.display = "none";
   accountDashboard.style.display = "block";
 
@@ -626,6 +739,98 @@ async function loadAccountDashboard() {
 
     loadAccountDashboard();
 
+    editProfileBtn.addEventListener("click", () => {
+  if (!currentProfile) return;
+
+  editFirstName.value =
+    currentProfile.first_name || "";
+
+  editLastName.value =
+    currentProfile.last_name || "";
+
+  editPhone.value =
+    currentProfile.phone || "";
+
+  editAddress1.value =
+    currentProfile.address_line1 || "";
+
+  editAddress2.value =
+    currentProfile.address_line2 || "";
+
+  editCity.value =
+    currentProfile.city || "";
+
+  editState.value =
+    currentProfile.state_province || "";
+
+  editPostalCode.value =
+    currentProfile.postal_code || "";
+
+  editCountry.value =
+    currentProfile.country || "";
+
+  profileMessage.textContent = "";
+
+  editProfileForm.style.display = "block";
+  editProfileBtn.style.display = "none";
+});
+    
+cancelProfileBtn.addEventListener("click", () => {
+  editProfileForm.style.display = "none";
+  editProfileBtn.style.display = "block";
+  profileMessage.textContent = "";
+});
+
+    saveProfileBtn.addEventListener("click", async () => {
+  const {
+    data: { user },
+    error: userError
+  } = await supabaseClient.auth.getUser();
+
+  if (userError || !user) {
+    profileMessage.textContent =
+      "Please sign in again.";
+    return;
+  }
+
+  const updates = {
+    first_name: editFirstName.value.trim(),
+    last_name: editLastName.value.trim(),
+    phone: editPhone.value.trim(),
+    address_line1: editAddress1.value.trim(),
+    address_line2: editAddress2.value.trim(),
+    city: editCity.value.trim(),
+    state_province: editState.value.trim(),
+    postal_code: editPostalCode.value.trim(),
+    country: editCountry.value
+  };
+
+  const { data, error } =
+    await supabaseClient
+      .from("profiles")
+      .update(updates)
+      .eq("id", user.id)
+      .select()
+      .single();
+
+  if (error) {
+    console.error("Profile update error:", error);
+    profileMessage.textContent =
+      "Unable to save profile.";
+    return;
+  }
+
+  currentProfile = data;
+
+  profileMessage.textContent =
+    "Profile updated successfully.";
+
+  await loadAccountDashboard();
+
+  editProfileForm.style.display = "none";
+  editProfileBtn.style.display = "block";
+});
+    
     logoutBtn.addEventListener("click", async () => {
   const { error } =
     await supabaseClient.auth.signOut();

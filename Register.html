@@ -253,19 +253,33 @@
 
       <form id="registerForm">
 
-        <div class="form-group">
-          <label for="fullName">
-            Full Name
-          </label>
+       <div class="form-group">
+  <label for="firstName">
+    First Name
+  </label>
 
-          <input
-            type="text"
-            id="fullName"
-            placeholder="Enter your full name"
-            autocomplete="name"
-            required
-          >
-        </div>
+  <input
+    type="text"
+    id="firstName"
+    placeholder="Enter your first name"
+    autocomplete="given-name"
+    required
+  >
+</div>
+
+<div class="form-group">
+  <label for="lastName">
+    Last Name
+  </label>
+
+  <input
+    type="text"
+    id="lastName"
+    placeholder="Enter your last name"
+    autocomplete="family-name"
+    required
+  >
+</div>
 
         <div class="form-group">
           <label for="email">
@@ -371,9 +385,13 @@ const supabaseClient =
 
         event.preventDefault();
 
-        const fullName =
-          document.getElementById("fullName")
-            .value.trim();
+        const firstName =
+  document.getElementById("firstName")
+    .value.trim();
+
+const lastName =
+  document.getElementById("lastName")
+    .value.trim();
 
         const email =
           document.getElementById("email")
@@ -421,7 +439,8 @@ const { data, error } =
     password: password,
     options: {
       data: {
-        full_name: fullName
+        first_name: firstName,
+last_name: lastName
       }
     }
   });

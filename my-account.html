@@ -350,7 +350,7 @@
 
     <p>
       Level:
-      <strong id="membershipLevel">Member</strong>
+      <strong id="membershipLevel">Collector</strong>
     </p>
 
     <p>
@@ -532,7 +532,7 @@ async function loadAccountDashboard() {
   accountDashboard.style.display = "block";
 
   const points = profile.reward_points || 0;
-  const tier = profile.reward_tier || "Member";
+  const tier = profile.reward_tier || "Collector";
 
   membershipPoints.textContent = points;
   membershipLevel.textContent = tier;

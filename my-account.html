@@ -842,8 +842,8 @@ currentProfile = profile;
   accountName.textContent =
     `${profile.first_name || ""} ${profile.last_name || ""}`.trim();
 
-  accountEmail.textContent =
-    profile.email || user.email || "";
+accountEmail.textContent =
+  user.email || profile.email || "";
 
   accountPhone.textContent =
     profile.phone || "";

@@ -379,15 +379,11 @@ const supabaseClient =
     supabaseKey
   );
 
-            alert(window.location.href);
-
 const urlParams =
   new URLSearchParams(window.location.search);
 
 const referralCode =
   urlParams.get("ref");
-
-alert("Referral code: " + referralCode);
 
     registerForm.addEventListener(
       "submit",

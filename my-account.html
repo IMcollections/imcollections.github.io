@@ -356,6 +356,44 @@
   border-radius: 8px;
   box-sizing: border-box;
 }
+
+#changePasswordBtn,
+#savePasswordBtn,
+#cancelPasswordBtn {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+#changePasswordBtn,
+#savePasswordBtn {
+  border: none;
+  background: #111111;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+#cancelPasswordBtn {
+  border: 1px solid #cccccc;
+  background: #f3f3f3;
+  color: #111111;
+  font-weight: 600;
+}
+
+#newPassword,
+#confirmNewPassword {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  font-size: 16px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
     
   </style>
 </head>
@@ -505,6 +543,40 @@
   </div>
 </div>
     
+<div class="change-password-area">
+  <button type="button" id="changePasswordBtn">
+    Change Password
+  </button>
+
+  <div id="changePasswordForm" style="display: none; margin-top: 14px;">
+
+    <input
+      type="password"
+      id="newPassword"
+      placeholder="Enter new password"
+      autocomplete="new-password"
+    >
+
+    <input
+      type="password"
+      id="confirmNewPassword"
+      placeholder="Confirm new password"
+      autocomplete="new-password"
+    >
+
+    <button type="button" id="savePasswordBtn">
+      Update Password
+    </button>
+
+    <button type="button" id="cancelPasswordBtn">
+      Cancel
+    </button>
+
+    <p id="passwordChangeMessage"></p>
+
+  </div>
+</div>
+
     <p id="accountPhone"></p>
     <p id="accountAddress"></p>
 
@@ -746,6 +818,27 @@ const cancelEmailBtn =
 const emailChangeMessage =
   document.getElementById("emailChangeMessage");
 
+const changePasswordBtn =
+  document.getElementById("changePasswordBtn");
+
+const changePasswordForm =
+  document.getElementById("changePasswordForm");
+
+const newPassword =
+  document.getElementById("newPassword");
+
+const confirmNewPassword =
+  document.getElementById("confirmNewPassword");
+
+const savePasswordBtn =
+  document.getElementById("savePasswordBtn");
+
+const cancelPasswordBtn =
+  document.getElementById("cancelPasswordBtn");
+
+const passwordChangeMessage =
+  document.getElementById("passwordChangeMessage");
+
 let currentProfile = null;
     
 async function loadAccountDashboard() {
@@ -909,6 +1002,73 @@ cancelEmailBtn.addEventListener("click", () => {
 
   changeEmailForm.style.display = "none";
   changeEmailBtn.style.display = "block";
+});
+
+changePasswordBtn.addEventListener("click", () => {
+  newPassword.value = "";
+  confirmNewPassword.value = "";
+  passwordChangeMessage.textContent = "";
+
+  changePasswordForm.style.display = "block";
+  changePasswordBtn.style.display = "none";
+});
+
+cancelPasswordBtn.addEventListener("click", () => {
+  changePasswordForm.style.display = "none";
+  changePasswordBtn.style.display = "block";
+
+  newPassword.value = "";
+  confirmNewPassword.value = "";
+  passwordChangeMessage.textContent = "";
+});
+
+savePasswordBtn.addEventListener("click", async () => {
+  const password = newPassword.value;
+  const confirmPassword = confirmNewPassword.value;
+
+  passwordChangeMessage.textContent = "";
+
+  if (!password || !confirmPassword) {
+    passwordChangeMessage.textContent =
+      "Please enter and confirm your new password.";
+    return;
+  }
+
+  if (password.length < 8) {
+    passwordChangeMessage.textContent =
+      "Password must be at least 8 characters.";
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    passwordChangeMessage.textContent =
+      "Passwords do not match.";
+    return;
+  }
+
+  const { error } =
+    await supabaseClient.auth.updateUser({
+      password: password
+    });
+
+  if (error) {
+    console.error("Password update error:", error);
+    passwordChangeMessage.textContent =
+      error.message;
+    return;
+  }
+
+  passwordChangeMessage.textContent =
+    "Password updated successfully.";
+
+  newPassword.value = "";
+  confirmNewPassword.value = "";
+
+  setTimeout(() => {
+    changePasswordForm.style.display = "none";
+    changePasswordBtn.style.display = "block";
+    passwordChangeMessage.textContent = "";
+  }, 1500);
 });
     
     editProfileBtn.addEventListener("click", () => {

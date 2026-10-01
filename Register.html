@@ -433,15 +433,23 @@ const lastName =
           return;
         }
 
+const urlParams =
+  new URLSearchParams(window.location.search);
+
+const referralCode =
+  urlParams.get("ref");
+        alert("Referral code: " + referralCode);
+        
 const { data, error } =
   await supabaseClient.auth.signUp({
     email: email,
     password: password,
     options: {
-      data: {
-        first_name: firstName,
-last_name: lastName
-      }
+   data: {
+  first_name: firstName,
+  last_name: lastName,
+  referred_by_code: referralCode
+}
     }
   });
 

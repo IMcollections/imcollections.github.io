@@ -438,7 +438,6 @@ const urlParams =
 
 const referralCode =
   urlParams.get("ref");
-        alert("Referral code: " + referralCode);
         
 const { data, error } =
   await supabaseClient.auth.signUp({

@@ -394,6 +394,36 @@
   border-radius: 8px;
   box-sizing: border-box;
 }
+
+#referralLink {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 10px;
+  padding: 12px 14px;
+  font-size: 16px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
+#copyReferralBtn {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background: #111111;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+#referralMessage {
+  margin-top: 10px;
+  font-size: 14px;
+}
     
   </style>
 </head>
@@ -674,6 +704,27 @@
     <button type="button" id="referFriendBtn">
       Refer A Friend
     </button>
+
+<div id="referralShareArea" style="display: none; margin-top: 16px;">
+
+  <p>
+    Your Personal Referral Link:
+  </p>
+
+  <input
+    type="text"
+    id="referralLink"
+    readonly
+  >
+
+  <button type="button" id="copyReferralBtn">
+    Copy Referral Link
+  </button>
+
+  <p id="referralMessage"></p>
+
+</div>
+
   </section>
 
 
@@ -839,6 +890,21 @@ const cancelPasswordBtn =
 const passwordChangeMessage =
   document.getElementById("passwordChangeMessage");
 
+const referFriendBtn =
+  document.getElementById("referFriendBtn");
+
+const referralShareArea =
+  document.getElementById("referralShareArea");
+
+const referralLink =
+  document.getElementById("referralLink");
+
+const copyReferralBtn =
+  document.getElementById("copyReferralBtn");
+
+const referralMessage =
+  document.getElementById("referralMessage");
+
 let currentProfile = null;
     
 async function loadAccountDashboard() {
@@ -961,6 +1027,45 @@ accountEmail.textContent =
 }
 
     loadAccountDashboard();
+
+referFriendBtn.addEventListener("click", () => {
+  if (!currentProfile?.referral_code) {
+    referralMessage.textContent =
+      "Referral code is not available yet.";
+    return;
+  }
+
+  referralLink.value =
+    `https://imcollections.github.io/Register.html?ref=${currentProfile.referral_code}`;
+
+  referralMessage.textContent = "";
+  referralShareArea.style.display = "block";
+});
+
+copyReferralBtn.addEventListener("click", async () => {
+  const link = referralLink.value;
+
+  if (!link) {
+    referralMessage.textContent =
+      "Referral link is not available.";
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(link);
+
+    referralMessage.textContent =
+      "Referral link copied!";
+  } catch (error) {
+    referralLink.select();
+    referralLink.setSelectionRange(0, 99999);
+
+    document.execCommand("copy");
+
+    referralMessage.textContent =
+      "Referral link copied!";
+  }
+});
 
 changeEmailBtn.addEventListener("click", () => {
   newEmail.value = currentProfile?.email || "";

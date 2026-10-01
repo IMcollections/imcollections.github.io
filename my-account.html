@@ -289,6 +289,74 @@
 #logoutBtn:active {
   opacity: 0.8;
 }
+
+#editCountry,
+#saveProfileBtn,
+#cancelProfileBtn {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+#editCountry {
+  border: 1px solid #cccccc;
+  background: #ffffff;
+}
+
+#saveProfileBtn {
+  border: none;
+  background: #111111;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+#cancelProfileBtn {
+  border: 1px solid #cccccc;
+  background: #f3f3f3;
+  color: #111111;
+  font-weight: 600;
+}
+
+    #changeEmailBtn,
+#saveEmailBtn,
+#cancelEmailBtn {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+#changeEmailBtn,
+#saveEmailBtn {
+  border: none;
+  background: #111111;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+#cancelEmailBtn {
+  border: 1px solid #cccccc;
+  background: #f3f3f3;
+  color: #111111;
+  font-weight: 600;
+}
+
+#newEmail {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  font-size: 16px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+    
   </style>
 </head>
 
@@ -412,6 +480,31 @@
 
     <p id="accountName"></p>
     <p id="accountEmail"></p>
+    <div class="change-email-area">
+  <button type="button" id="changeEmailBtn">
+    Change Email
+  </button>
+
+  <div id="changeEmailForm" style="display: none; margin-top: 14px;">
+    <input
+      type="email"
+      id="newEmail"
+      placeholder="Enter new email address"
+      autocomplete="email"
+    >
+
+    <button type="button" id="saveEmailBtn">
+      Update Email
+    </button>
+
+    <button type="button" id="cancelEmailBtn">
+      Cancel
+    </button>
+
+    <p id="emailChangeMessage"></p>
+  </div>
+</div>
+    
     <p id="accountPhone"></p>
     <p id="accountAddress"></p>
 
@@ -635,6 +728,24 @@ const cancelProfileBtn =
 const profileMessage =
   document.getElementById("profileMessage");
 
+    const changeEmailBtn =
+  document.getElementById("changeEmailBtn");
+
+const changeEmailForm =
+  document.getElementById("changeEmailForm");
+
+const newEmail =
+  document.getElementById("newEmail");
+
+const saveEmailBtn =
+  document.getElementById("saveEmailBtn");
+
+const cancelEmailBtn =
+  document.getElementById("cancelEmailBtn");
+
+const emailChangeMessage =
+  document.getElementById("emailChangeMessage");
+
 let currentProfile = null;
     
 async function loadAccountDashboard() {
@@ -675,6 +786,25 @@ async function loadAccountDashboard() {
     console.error("Profile load error:", profileError);
     return;
   }
+
+if (user.email && profile.email !== user.email) {
+  const { error: emailSyncError } =
+    await supabaseClient
+      .from("profiles")
+      .update({
+        email: user.email
+      })
+      .eq("id", user.id);
+
+  if (emailSyncError) {
+    console.error(
+      "Profile email sync error:",
+      emailSyncError
+    );
+  } else {
+    profile.email = user.email;
+  }
+}
 
 currentProfile = profile;
   
@@ -739,6 +869,48 @@ currentProfile = profile;
 
     loadAccountDashboard();
 
+changeEmailBtn.addEventListener("click", () => {
+  newEmail.value = currentProfile?.email || "";
+  emailChangeMessage.textContent = "";
+
+  changeEmailForm.style.display = "block";
+  changeEmailBtn.style.display = "none";
+});
+
+cancelEmailBtn.addEventListener("click", () => {
+  changeEmailForm.style.display = "none";
+  changeEmailBtn.style.display = "block";
+  emailChangeMessage.textContent = "";
+});
+
+    saveEmailBtn.addEventListener("click", async () => {
+  const email = newEmail.value.trim();
+
+  if (!email) {
+    emailChangeMessage.textContent =
+      "Please enter a new email address.";
+    return;
+  }
+
+  const { data, error } =
+    await supabaseClient.auth.updateUser({
+      email: email
+    });
+
+  if (error) {
+    console.error("Email update error:", error);
+    emailChangeMessage.textContent =
+      error.message;
+    return;
+  }
+
+  emailChangeMessage.textContent =
+    "Confirmation email sent. Please confirm your new email address.";
+
+  changeEmailForm.style.display = "none";
+  changeEmailBtn.style.display = "block";
+});
+    
     editProfileBtn.addEventListener("click", () => {
   if (!currentProfile) return;
 

@@ -379,6 +379,16 @@ const supabaseClient =
     supabaseKey
   );
 
+            alert(window.location.href);
+
+const urlParams =
+  new URLSearchParams(window.location.search);
+
+const referralCode =
+  urlParams.get("ref");
+
+alert("Referral code: " + referralCode);
+
     registerForm.addEventListener(
       "submit",
       async function(event) {
@@ -432,16 +442,6 @@ const lastName =
 
           return;
         }
-
-        alert(window.location.href);
-
-const urlParams =
-  new URLSearchParams(window.location.search);
-
-const referralCode =
-  urlParams.get("ref");
-
-alert("Referral code: " + referralCode);
         
 const { data, error } =
   await supabaseClient.auth.signUp({

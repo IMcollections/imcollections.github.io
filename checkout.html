@@ -424,6 +424,61 @@ font-size: 0 !important;
   flex-shrink: 0;
 }
 
+      .shipping-method-box {
+  margin-bottom: 28px;
+}
+
+.shipping-method-box h2 {
+  margin-bottom: 16px;
+}
+
+.shipping-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 18px 20px;
+  border: 1px solid #cccccc;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.shipping-option + .shipping-option {
+  border-top: none;
+}
+
+.shipping-option input {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.shipping-option-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.shipping-option-text strong {
+  font-size: 17px;
+}
+
+.shipping-option-text small {
+  margin-top: 3px;
+  font-size: 14px;
+  color: #666666;
+}
+
+.shipping-option-price {
+  font-size: 17px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.shipping-option:has(input:checked) {
+  border: 2px solid #111111;
+}
+
   </style>
 </head>
 
@@ -575,8 +630,77 @@ font-size: 0 !important;
   </label>
 
       <div class="checkout-box payment-box">
-  <h2>Payment</h2>
 
+<section class="shipping-method-box">
+  <h2>Shipping Method</h2>
+
+  <label class="shipping-option">
+    <input
+      type="radio"
+      name="shippingMethod"
+      value="standard"
+      id="shippingStandard"
+      checked
+    >
+
+    <span class="shipping-option-text">
+      <strong>Standard Delivery</strong>
+      <small>3–4 Working Days</small>
+    </span>
+
+    <span
+      class="shipping-option-price"
+      id="standardShippingPrice"
+    >
+      $8.99
+    </span>
+  </label>
+
+  <label class="shipping-option">
+    <input
+      type="radio"
+      name="shippingMethod"
+      value="express"
+      id="shippingExpress"
+    >
+
+    <span class="shipping-option-text">
+      <strong>Express Delivery</strong>
+      <small>3 Working Days</small>
+    </span>
+
+    <span class="shipping-option-price">
+      $15.00
+    </span>
+  </label>
+</section>
+        
+  <h2>Payment</h2>
+        
+<div class="payment-method-options">
+
+  <label class="payment-method-option">
+    <input
+      type="radio"
+      name="paymentMethod"
+      value="card"
+      id="paymentMethodCard"
+      checked
+    >
+    <span>Credit / Debit Card</span>
+  </label>
+
+  <label class="payment-method-option">
+    <input
+      type="radio"
+      name="paymentMethod"
+      value="applepay"
+      id="paymentMethodApplePay"
+    >
+    <span>Apple Pay</span>
+  </label>
+
+</div>
   <p class="secure-note">
     Pay securely with credit or debit card.
   </p>
@@ -641,7 +765,7 @@ font-size: 0 !important;
   <input type="text" id="billingPostal" placeholder="ZIP / Postal Code">
 
 </div>
-  <span>OR</span>
+  
 </label>
         
   <button

@@ -1087,14 +1087,67 @@ syncBottomOrderSummary();
 
 } else if (code === "IMREFER10") {
 
-  discountAmount = Math.min(10, subtotal);
+  const {
+    data: { user },
+    error: userError
+  } = await supabaseClient.auth.getUser();
+
+  if (userError || !user) {
+    discountAmount = 0;
+    updateCheckoutTotal();
+
+    message.style.color = "#b00020";
+    message.textContent =
+      "Please sign in to use your referral reward.";
+
+    syncBottomOrderSummary();
+    return;
+  }
+
+  if (subtotal < 50) {
+    discountAmount = 0;
+    updateCheckoutTotal();
+
+    message.style.color = "#b00020";
+    message.textContent =
+      "IMREFER10 requires a minimum $50 purchase.";
+
+    syncBottomOrderSummary();
+    return;
+  }
+
+  const {
+    data: referral,
+    error: referralError
+  } = await supabaseClient
+    .from("referrals")
+    .select("id, status, referred_reward_used")
+    .eq("referred_user_id", user.id)
+    .eq("status", "pending")
+    .eq("referred_reward_used", false)
+    .limit(1)
+    .maybeSingle();
+
+  if (referralError || !referral) {
+    discountAmount = 0;
+    updateCheckoutTotal();
+
+    message.style.color = "#b00020";
+    message.textContent =
+      "This account does not have an available referral reward.";
+
+    syncBottomOrderSummary();
+    return;
+  }
+
+  discountAmount = 10;
   updateCheckoutTotal();
 
   message.style.color = "green";
   message.textContent =
-    `IMREFER10 applied! You saved $${discountAmount.toFixed(2)}.`;
+    "IMREFER10 applied! You saved $10.";
 
-syncBottomOrderSummary();
+  syncBottomOrderSummary();
 
 } else {
 

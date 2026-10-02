@@ -573,72 +573,6 @@ font-size: 0 !important;
     <input type="checkbox" id="saveCheckoutInfo">
     Save my information for faster checkout next time
   </label>
-    
-       <button
-  type="button"
-  class="order-summary-toggle"
-  id="bottomSummaryToggle"
-  aria-expanded="true"
->
-  <span>Order Summary</span>
-
-<span class="order-summary-right">
-<span id="bottomSummaryHeaderTotal">$0.00</span>
-  <span id="bottomSummaryArrow">⌄</span>
-</span>
-  
-      </button>
-
-<div id="bottomSummaryContent">
-
-        <div id="bottomCheckoutItems"></div>
-
-        <div class="discount-row">
-          <input
-            type="text"
-      id="bottomDiscountCode"
-            placeholder="Discount code"
-          >
-
-          <button type="button" id="bottomApplyDiscount"
-            Apply
-          </button>
-        </div>
-
-<div id="bottomDiscountMessage"></div>
-
-        <div class="summary-row">
-          <span>Subtotal</span>
-          <strong id="bottomSubtotal">$0.00</strong>
-        </div>
-        
-<div class="summary-row">
-  <span>Discount</span>
-  <strong id="bottomDiscount">-$0.00</strong>
-</div>
-        
-        <div class="summary-row">
-  <span>Standard Shipping</span>
-  <strong id="bottomShipping">$8.99</strong>
-</div>
-
-        <div class="summary-row">
-  <span>Estimated Tax</span>
-  <strong id="bottomTax">$0.00</strong>
-</div>
-        
-      <div class="free-shipping" id="bottomShippingMessage"></div>
-
-        <div class="summary-total">
-  <span>Total</span>
-  <span id="bottomTotal">$0.00</span>
-</div>
-
-</div>   <!-- closes orderSummaryContent -->
-
-</aside>
-
- </div>
 
       <div class="checkout-box payment-box">
   <h2>Payment</h2>
@@ -720,10 +654,79 @@ font-size: 0 !important;
 <div id="applePayStatus"></div>
 
 <div class="payment-divider" id="applePayDivider">
-</div>
+</div>button
+
+
 
   <button
-    type="button"
+        
+       <button
+  type="button"
+  class="order-summary-toggle"
+  id="bottomSummaryToggle"
+  aria-expanded="true"
+>
+  <span>Order Summary</span>
+
+<span class="order-summary-right">
+<span id="bottomSummaryHeaderTotal">$0.00</span>
+  <span id="bottomSummaryArrow">⌄</span>
+</span>
+  
+      </button>
+
+<div id="bottomSummaryContent">
+
+        <div id="bottomCheckoutItems"></div>
+
+        <div class="discount-row">
+          <input
+            type="text"
+      id="bottomDiscountCode"
+            placeholder="Discount code"
+          >
+
+          <button type="button" id="bottomApplyDiscount"
+            Apply
+          </button>
+        </div>
+
+<div id="bottomDiscountMessage"></div>
+
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <strong id="bottomSubtotal">$0.00</strong>
+        </div>
+        
+<div class="summary-row">
+  <span>Discount</span>
+  <strong id="bottomDiscount">-$0.00</strong>
+</div>
+        
+        <div class="summary-row">
+  <span>Standard Shipping</span>
+  <strong id="bottomShipping">$8.99</strong>
+</div>
+
+        <div class="summary-row">
+  <span>Estimated Tax</span>
+  <strong id="bottomTax">$0.00</strong>
+</div>
+        
+      <div class="free-shipping" id="bottomShippingMessage"></div>
+
+        <div class="summary-total">
+  <span>Total</span>
+  <span id="bottomTotal">$0.00</span>
+</div>
+
+</div>   <!-- closes orderSummaryContent -->
+
+</aside>
+
+ </div>
+
+type="button"
     class="payment-button"
     id="paymentButton"
   >
@@ -741,6 +744,8 @@ font-size: 0 !important;
        <a href="cookie.html" target="_blank">Cookie Policy</a>
     </span>
   </label>
+
+
 
   <div id="checkoutMessage"></div>
 </div>

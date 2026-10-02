@@ -479,6 +479,42 @@ font-size: 0 !important;
   border: 2px solid #111111;
 }
 
+      .payment-method-options {
+  display: flex;
+  flex-direction: column;
+}
+
+.payment-method-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 18px 20px;
+  border: 1px solid #cccccc;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.payment-method-option + .payment-method-option {
+  border-top: none;
+}
+
+.payment-method-option input[type="radio"] {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.payment-method-option span {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.payment-method-option:has(input:checked) {
+  border: 2px solid #111111;
+}
+
   </style>
 </head>
 

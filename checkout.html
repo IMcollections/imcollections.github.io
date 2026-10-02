@@ -647,21 +647,6 @@ font-size: 0 !important;
     Pay securely with credit or debit card.
   </p>
 
-<button
-  type="button"
-  id="applePay"
-  class="apple-pay-button"
-  aria-label="Apple Pay"
-></button>
-
-<div id="applePayStatus"></div>
-
-<div class="payment-divider" id="applePayDivider">
-  <span>OR</span>
-</div>
-
-  <div id="card-container"></div>
-
 <label for="cardholderName">Name on Card</label>
 <input
   type="text"
@@ -670,6 +655,16 @@ font-size: 0 !important;
   placeholder="Name on card"
   autocomplete="cc-name"
 />
+
+  <div id="card-container"></div>
+
+<label class="save-card-option">
+  <input
+    type="checkbox"
+    id="saveCardForFuture"
+  >
+  Save this card for future purchases
+</label>
 
 <label class="billing-same">
   <input
@@ -722,7 +717,18 @@ font-size: 0 !important;
   Save this card for future purchases
 </label>
         
-  <button
+  <<button
+  type="button"
+  id="applePay"
+  class="apple-pay-button"
+  aria-label="Apple Pay"
+></button>
+
+<div id="applePayStatus"></div>
+
+<div class="payment-divider" id="applePayDivider">
+  <span>OR</span>
+</div>button
     type="button"
     class="payment-button"
     id="paymentButton"

@@ -1211,11 +1211,56 @@ if (!acceptPolicies.checked) {
 
       const paymentToken = result.token;
 
-      message.textContent =
-        "Card secured. Connecting payment...";
+     message.textContent =
+  "Card secured. Processing payment...";
 
-      console.log("Square payment token created:", paymentToken);
+const discountedSubtotal =
+  Math.max(0, subtotal - discountAmount);
 
+const shippingCost =
+  subtotal >= 75 ? 0 : 8.99;
+
+const taxableAmount =
+  discountedSubtotal + shippingCost;
+
+const estimatedTax =
+  taxableAmount * 0.0925;
+
+const total =
+  taxableAmount + estimatedTax;
+
+const amountCents =
+  Math.round(total * 100);
+
+const {
+  data: paymentData,
+  error: paymentError
+} = await supabaseClient.functions.invoke(
+  "create-square-payment",
+  {
+    body: {
+      sourceId: paymentToken,
+      amountCents: amountCents
+    }
+  }
+);
+
+if (paymentError || !paymentData?.success) {
+  console.error(
+    "Payment error:",
+    paymentError || paymentData
+  );
+
+  message.style.color = "#b00020";
+  message.textContent =
+    "Payment could not be completed. Please try again.";
+
+  return;
+}
+
+message.style.color = "green";
+message.textContent =
+  "Payment successful!";
     } catch (error) {
       console.error(error);
 

@@ -700,7 +700,40 @@ font-size: 0 !important;
     <span>Apple Pay</span>
   </label>
 
+  <label class="payment-method-option">
+    <input
+      type="radio"
+      name="paymentMethod"
+      value="googlepay"
+      id="paymentMethodGooglePay"
+    >
+    <span>Google Pay</span>
+  </label>
+
+  <label class="payment-method-option">
+    <input
+      type="radio"
+      name="paymentMethod"
+      value="cashapp"
+      id="paymentMethodCashApp"
+    >
+    <span>Cash App Pay</span>
+  </label>
+
+  <label class="payment-method-option">
+    <input
+      type="radio"
+      name="paymentMethod"
+      value="giftcard"
+      id="paymentMethodGiftCard"
+    >
+    <span>Gift Card</span>
+  </label>
+
 </div>
+
+<div id="cardPaymentSection">
+      
   <p class="secure-note">
     Pay securely with credit or debit card.
   </p>
@@ -765,8 +798,9 @@ font-size: 0 !important;
   <input type="text" id="billingPostal" placeholder="ZIP / Postal Code">
 
 </div>
-  
-</label>
+  </div>
+
+<div id="applePayPaymentSection" style="display: none;">
         
   <button
   type="button"
@@ -778,6 +812,22 @@ font-size: 0 !important;
 <div id="applePayStatus"></div>
 
 <div class="payment-divider" id="applePayDivider">
+</div>
+  </div>
+
+<div id="googlePayPaymentSection" style="display: none;">
+  <div id="googlePay"></div>
+  <div id="googlePayStatus"></div>
+</div>
+
+<div id="cashAppPaymentSection" style="display: none;">
+  <div id="cashAppPay"></div>
+  <div id="cashAppPayStatus"></div>
+</div>
+
+<div id="giftCardPaymentSection" style="display: none;">
+  <div id="giftCardContainer"></div>
+  <div id="giftCardStatus"></div>
 </div>
         
        <button
@@ -1150,6 +1200,57 @@ document.getElementById("orderSummaryTotal").textContent =
 }
 
 updateCheckoutTotal();
+
+    const cardPaymentSection =
+  document.getElementById("cardPaymentSection");
+
+const applePayPaymentSection =
+  document.getElementById("applePayPaymentSection");
+
+const googlePayPaymentSection =
+  document.getElementById("googlePayPaymentSection");
+
+const cashAppPaymentSection =
+  document.getElementById("cashAppPaymentSection");
+
+const giftCardPaymentSection =
+  document.getElementById("giftCardPaymentSection");
+
+const paymentMethodRadios =
+  document.querySelectorAll(
+    'input[name="paymentMethod"]'
+  );
+
+function showSelectedPaymentMethod() {
+  const selected =
+    document.querySelector(
+      'input[name="paymentMethod"]:checked'
+    )?.value;
+
+  cardPaymentSection.style.display =
+    selected === "card" ? "block" : "none";
+
+  applePayPaymentSection.style.display =
+    selected === "applepay" ? "block" : "none";
+
+  googlePayPaymentSection.style.display =
+    selected === "googlepay" ? "block" : "none";
+
+  cashAppPaymentSection.style.display =
+    selected === "cashapp" ? "block" : "none";
+
+  giftCardPaymentSection.style.display =
+    selected === "giftcard" ? "block" : "none";
+}
+
+paymentMethodRadios.forEach((radio) => {
+  radio.addEventListener(
+    "change",
+    showSelectedPaymentMethod
+  );
+});
+
+showSelectedPaymentMethod();
 
 document
   .getElementById("applyDiscount")

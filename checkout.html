@@ -409,6 +409,21 @@ font-size: 0 !important;
   font-weight: 700;
 }
 
+      .save-card-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.save-card-option input {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
   </style>
 </head>
 
@@ -699,6 +714,14 @@ font-size: 0 !important;
 </div>
 </label>
 
+<label class="save-card-option">
+  <input
+    type="checkbox"
+    id="saveCardForFuture"
+  >
+  Save this card for future purchases
+</label>
+        
   <button
     type="button"
     class="payment-button"

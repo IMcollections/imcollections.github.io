@@ -1090,6 +1090,7 @@ let squareCard;
 let googlePay;
 let cashAppPay;
 let giftcard;
+    let paymentRequest;
 
 async function initializeSquareCard() {
   if (!window.Square) {
@@ -1110,7 +1111,7 @@ const applePayAmount =
     ? checkoutTotalElement.textContent.replace("$", "").trim()
     : "0.00";
 
-const paymentRequest =
+paymentRequest =
   payments.paymentRequest({
     countryCode: "US",
     currencyCode: "USD",
@@ -1398,6 +1399,15 @@ if (standardShippingPrice) {
 
   const total =
     taxableAmount + estimatedTax;
+
+ if (paymentRequest) {
+  paymentRequest.update({
+    total: {
+      amount: total.toFixed(2),
+      label: "IM Collections"
+    }
+  });
+} 
 
   document.getElementById("checkoutDiscount")
     .textContent =

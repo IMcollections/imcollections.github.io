@@ -1287,9 +1287,29 @@ function updateCheckoutTotal() {
   const discountedSubtotal =
     Math.max(0, subtotal - discountAmount);
 
-  const shippingCost =
-    subtotal >= 75 ? 0 : 8.99;
+  const selectedShippingMethod =
+  document.querySelector(
+    'input[name="shippingMethod"]:checked'
+  )?.value || "standard";
 
+let shippingCost;
+
+if (selectedShippingMethod === "express") {
+  shippingCost = 15;
+} else {
+  shippingCost =
+    subtotal >= 75 ? 0 : 8.99;
+}
+
+const standardShippingPrice =
+  document.getElementById("standardShippingPrice");
+
+if (standardShippingPrice) {
+  standardShippingPrice.textContent =
+    subtotal >= 75
+      ? "FREE"
+      : "$8.99";
+}
   const taxRate = 0.0925;
 
   const taxableAmount =
@@ -1326,6 +1346,17 @@ document.getElementById("orderSummaryTotal").textContent =
 
 updateCheckoutTotal();
 
+document
+  .querySelectorAll(
+    'input[name="shippingMethod"]'
+  )
+  .forEach((radio) => {
+    radio.addEventListener(
+      "change",
+      updateCheckoutTotal
+    );
+  });
+    
     const cardPaymentSection =
   document.getElementById("cardPaymentSection");
 

@@ -515,6 +515,24 @@ font-size: 0 !important;
   border: 2px solid #111111;
 }
 
+.save-card-option,
+.billing-same {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.save-card-option input,
+.billing-same input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex-shrink: 0;
+}
+
   </style>
 </head>
 
@@ -726,6 +744,43 @@ font-size: 0 !important;
     <span>Credit / Debit Card</span>
   </label>
 
+</div>
+
+<div id="cardPaymentSection">
+      
+  <p class="secure-note">
+    Pay securely with credit or debit card.
+  </p>
+
+<label for="cardholderName">Name on Card</label>
+<input
+  type="text"
+  id="cardholderName"
+  name="cardholderName"
+  placeholder="Name on card"
+  autocomplete="cc-name"
+/>
+
+  <div id="card-container"></div>
+
+<label class="save-card-option">
+  <input
+    type="checkbox"
+    id="saveCardForFuture"
+  >
+  Save this card for future purchases
+</label>
+
+<label class="billing-same">
+  <input
+    type="checkbox"
+    id="sameAsShipping"
+    checked
+  >
+  <span>Use shipping address as billing address</span>
+</label>
+
+  
   <label class="payment-method-option">
     <input
       type="radio"
@@ -765,42 +820,6 @@ font-size: 0 !important;
     >
     <span>Gift Card</span>
   </label>
-
-</div>
-
-<div id="cardPaymentSection">
-      
-  <p class="secure-note">
-    Pay securely with credit or debit card.
-  </p>
-
-<label for="cardholderName">Name on Card</label>
-<input
-  type="text"
-  id="cardholderName"
-  name="cardholderName"
-  placeholder="Name on card"
-  autocomplete="cc-name"
-/>
-
-  <div id="card-container"></div>
-
-<label class="save-card-option">
-  <input
-    type="checkbox"
-    id="saveCardForFuture"
-  >
-  Save this card for future purchases
-</label>
-
-<label class="billing-same">
-  <input
-    type="checkbox"
-    id="sameAsShipping"
-    checked
-  >
-  <span>Use shipping address as billing address</span>
-</label>
 
 <div id="billingAddressFields" style="display: none;">
 

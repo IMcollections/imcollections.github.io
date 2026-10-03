@@ -1558,6 +1558,37 @@ if (!acceptPolicies.checked) {
   return;
 }
 
+const selectedPaymentMethod =
+  document.querySelector(
+    'input[name="paymentMethod"]:checked'
+  )?.value || "card";
+
+if (selectedPaymentMethod === "applepay") {
+  document.getElementById("applePay")?.click();
+  return;
+}
+
+if (selectedPaymentMethod === "googlepay") {
+  message.style.color = "#b00020";
+  message.textContent =
+    "Google Pay is being connected. Please select another payment method for now.";
+  return;
+}
+
+if (selectedPaymentMethod === "cashapp") {
+  message.style.color = "#b00020";
+  message.textContent =
+    "Cash App Pay is being connected. Please select another payment method for now.";
+  return;
+}
+
+if (selectedPaymentMethod === "giftcard") {
+  message.style.color = "#b00020";
+  message.textContent =
+    "Gift Card payment is being connected. Please select another payment method for now.";
+  return;
+}
+    
     if (!squareCard) {
       message.textContent =
         "Payment form is still loading. Please try again.";
@@ -1581,8 +1612,17 @@ if (!acceptPolicies.checked) {
 const discountedSubtotal =
   Math.max(0, subtotal - discountAmount);
 
+const selectedShippingMethod =
+  document.querySelector(
+    'input[name="shippingMethod"]:checked'
+  )?.value || "standard";
+
 const shippingCost =
-  subtotal >= 75 ? 0 : 8.99;
+  selectedShippingMethod === "express"
+    ? 15
+    : subtotal >= 75
+      ? 0
+      : 8.99;
 
 const taxableAmount =
   discountedSubtotal + shippingCost;

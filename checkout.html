@@ -1118,15 +1118,25 @@ try {
     referenceId: "IM-" + Date.now()
   };
 
- const cashAppPaymentRequest =
-  payments.paymentRequest({
-    countryCode: "US",
-    currencyCode: "USD",
-    total: {
-      amount: applePayAmount,
-      label: "IM Collections"
-    }
-  });
+cashAppPay =
+  await payments.cashAppPay(
+    paymentRequest,
+    cashAppOptions
+  );
+
+cashAppPay.addEventListener(
+  "ontokenization",
+  (event) => {
+    const { tokenResult } = event.detail;
+
+    console.log(
+      "Cash App tokenization:",
+      tokenResult
+    );
+  }
+);
+
+await cashAppPay.attach("#cashAppPay");
 
 cashAppPay =
   await payments.cashAppPay(

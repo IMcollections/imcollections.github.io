@@ -53,7 +53,7 @@
       margin: 25px auto;
       padding: 0 18px 40px;
     }
- 
+
     .checkout-title {
       font-family: Georgia, serif;
       font-size: 34px;
@@ -1090,6 +1090,7 @@ let squareCard;
 let googlePay;
 let cashAppPay;
 let giftcard;
+    let paymentRequest;
 
 async function initializeSquareCard() {
   if (!window.Square) {
@@ -1110,7 +1111,7 @@ const applePayAmount =
     ? checkoutTotalElement.textContent.replace("$", "").trim()
     : "0.00";
 
-const paymentRequest =
+paymentRequest =
   payments.paymentRequest({
     countryCode: "US",
     currencyCode: "USD",
@@ -1398,6 +1399,15 @@ if (standardShippingPrice) {
 
   const total =
     taxableAmount + estimatedTax;
+
+ if (paymentRequest) {
+  paymentRequest.update({
+    total: {
+      amount: total.toFixed(2),
+      label: "IM Collections"
+    }
+  });
+} 
 
   document.getElementById("checkoutDiscount")
     .textContent =
@@ -1775,10 +1785,10 @@ if (selectedPaymentMethod === "googlepay") {
     );
 
     message.style.color = "#b00020";
-message.style.color = "#b00020";
-message.textContent =
-  "Unable to process Google Pay.";
-return;
+    message.textContent =
+      "Unable to process Google Pay.";
+    return;
+  }
 }
 
 if (selectedPaymentMethod === "giftcard") {

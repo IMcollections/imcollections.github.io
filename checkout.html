@@ -53,8 +53,7 @@
       margin: 25px auto;
       padding: 0 18px 40px;
     }
-
-    
+ 
     .checkout-title {
       font-family: Georgia, serif;
       font-size: 34px;
@@ -1786,10 +1785,10 @@ if (selectedPaymentMethod === "googlepay") {
     );
 
     message.style.color = "#b00020";
-    message.textContent =
-      "Unable to process Google Pay.";
+message.textContent =
+  "Google Pay error: " +
+  (error?.message || String(error));
     return;
-  }
 }
 
 if (selectedPaymentMethod === "giftcard") {

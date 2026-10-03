@@ -1794,10 +1794,95 @@ if (selectedPaymentMethod === "googlepay") {
 }
 
 if (selectedPaymentMethod === "giftcard") {
-  message.style.color = "#b00020";
-  message.textContent =
-    "Gift Card payment is being connected. Please select another payment method for now.";
-  return;
+  if (!giftCard) {
+    message.style.color = "#b00020";
+    message.textContent =
+      "Gift Card payment is not available right now.";
+    return;
+  }
+
+  try {
+    const result =
+      await giftCard.tokenize();
+
+    if (result.status !== "OK") {
+      message.style.color = "#b00020";
+      message.textContent =
+        "Please check your gift card information.";
+      return;
+    }
+
+    const paymentToken = result.token;
+
+    const discountedSubtotal =
+      Math.max(0, subtotal - discountAmount);
+
+    const selectedShippingMethod =
+      document.querySelector(
+        'input[name="shippingMethod"]:checked'
+      )?.value || "standard";
+
+    const shippingCost =
+      selectedShippingMethod === "express"
+        ? 15
+        : subtotal >= 75
+          ? 0
+          : 8.99;
+
+    const taxableAmount =
+      discountedSubtotal + shippingCost;
+
+    const estimatedTax =
+      taxableAmount * 0.0925;
+
+    const total =
+      taxableAmount + estimatedTax;
+
+    const amountCents =
+      Math.round(total * 100);
+
+    const {
+      data: paymentData,
+      error: paymentError
+    } = await supabaseClient.functions.invoke(
+      "create-square-payment",
+      {
+        body: {
+          sourceId: paymentToken,
+          amountCents: amountCents
+        }
+      }
+    );
+
+    if (paymentError || !paymentData?.success) {
+      console.error(
+        "Gift Card payment error:",
+        paymentError || paymentData
+      );
+
+      message.style.color = "#b00020";
+      message.textContent =
+        "Gift Card payment could not be completed.";
+      return;
+    }
+
+    message.style.color = "green";
+    message.textContent =
+      "Payment successful!";
+
+    return;
+
+  } catch (error) {
+    console.error(
+      "Gift Card error:",
+      error
+    );
+
+    message.style.color = "#b00020";
+    message.textContent =
+      "Unable to process Gift Card payment.";
+    return;
+  }
 }
     
     if (!squareCard) {

@@ -1045,6 +1045,7 @@ const squareLocationId =
   "LG5NFQWF";
 
 let squareCard;
+let googlePay;
 
 async function initializeSquareCard() {
   if (!window.Square) {
@@ -1074,6 +1075,22 @@ const paymentRequest =
       label: "IM Collections"
     }
   });
+
+try {
+  googlePay =
+    await payments.googlePay(paymentRequest);
+
+  await googlePay.attach("#googlePay", {
+    buttonColor: "default",
+    buttonType: "long"
+  });
+
+} catch (error) {
+  console.error(
+    "Google Pay initialization error:",
+    error
+  );
+}
 
 try {
   const applePay =
@@ -1569,10 +1586,97 @@ if (selectedPaymentMethod === "applepay") {
 }
 
 if (selectedPaymentMethod === "googlepay") {
-  message.style.color = "#b00020";
-  message.textContent =
-    "Google Pay is being connected. Please select another payment method for now.";
-  return;
+  if (!googlePay) {
+    message.style.color = "#b00020";
+    message.textContent =
+      "Google Pay is not available right now.";
+    return;
+  }
+
+  try {
+    const result = await googlePay.tokenize();
+
+    if (result.status !== "OK") {
+      message.style.color = "#b00020";
+      message.textContent =
+        "Google Pay could not be completed.";
+      return;
+    }
+
+    const paymentToken = result.token;
+
+    message.textContent =
+      "Google Pay secured. Processing payment...";
+
+    const discountedSubtotal =
+      Math.max(0, subtotal - discountAmount);
+
+    const selectedShippingMethod =
+      document.querySelector(
+        'input[name="shippingMethod"]:checked'
+      )?.value || "standard";
+
+    const shippingCost =
+      selectedShippingMethod === "express"
+        ? 15
+        : subtotal >= 75
+          ? 0
+          : 8.99;
+
+    const taxableAmount =
+      discountedSubtotal + shippingCost;
+
+    const estimatedTax =
+      taxableAmount * 0.0925;
+
+    const total =
+      taxableAmount + estimatedTax;
+
+    const amountCents =
+      Math.round(total * 100);
+
+    const {
+      data: paymentData,
+      error: paymentError
+    } = await supabaseClient.functions.invoke(
+      "create-square-payment",
+      {
+        body: {
+          sourceId: paymentToken,
+          amountCents: amountCents
+        }
+      }
+    );
+
+    if (paymentError || !paymentData?.success) {
+      console.error(
+        "Google Pay payment error:",
+        paymentError || paymentData
+      );
+
+      message.style.color = "#b00020";
+      message.textContent =
+        "Google Pay payment could not be completed.";
+      return;
+    }
+
+    message.style.color = "green";
+    message.textContent =
+      "Payment successful!";
+
+    return;
+
+  } catch (error) {
+    console.error(
+      "Google Pay error:",
+      error
+    );
+
+    message.style.color = "#b00020";
+    message.textContent =
+      "Unable to process Google Pay.";
+    return;
+  }
 }
 
 if (selectedPaymentMethod === "cashapp") {

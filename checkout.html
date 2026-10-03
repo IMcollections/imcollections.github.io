@@ -1046,6 +1046,8 @@ const squareLocationId =
 
 let squareCard;
 let googlePay;
+let cashAppPay;
+let giftcard;
 
 async function initializeSquareCard() {
   if (!window.Square) {
@@ -1684,6 +1686,47 @@ if (selectedPaymentMethod === "cashapp") {
   message.textContent =
     "Cash App Pay is being connected. Please select another payment method for now.";
   return;
+}
+
+try {
+  const cashAppOptions = {
+    redirectURL: window.location.href,
+    referenceId: "IM-" + Date.now()
+  };
+
+  cashAppPay =
+    await payments.cashAppPay(
+      paymentRequest,
+      cashAppOptions
+    );
+
+  cashAppPay.addEventListener(
+    "ontokenization",
+    async (event) => {
+      const { tokenResult } = event.detail;
+
+      if (tokenResult.status !== "OK") {
+        console.error(
+          "Cash App Pay tokenization failed:",
+          tokenResult
+        );
+        return;
+      }
+
+      console.log(
+        "Cash App Pay token created:",
+        tokenResult.token
+      );
+    }
+  );
+
+  await cashAppPay.attach("#cashAppPay");
+
+} catch (error) {
+  console.error(
+    "Cash App Pay initialization error:",
+    error
+  );
 }
 
 if (selectedPaymentMethod === "giftcard") {

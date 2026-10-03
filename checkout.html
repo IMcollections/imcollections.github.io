@@ -1775,10 +1775,10 @@ if (selectedPaymentMethod === "googlepay") {
     );
 
     message.style.color = "#b00020";
+message.style.color = "#b00020";
 message.textContent =
-  "Google Pay error: " +
-  (error?.message || String(error));
-    return;
+  "Unable to process Google Pay.";
+return;
 }
 
 if (selectedPaymentMethod === "giftcard") {

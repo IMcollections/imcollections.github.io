@@ -384,7 +384,7 @@ input[type="checkbox"] {
   -apple-pay-button-style: black;
 
   width: 100%;
-  height: 46px;
+  height: 44px;
   border: none;
   margin: 14px 0;
 }
@@ -569,7 +569,7 @@ font-size: 0 !important;
       #googlePayPaymentSection,
 #googlePay {
   width: 100%;
-  height: 46px;
+  height: 44px;
   border: none;
   margin: 12px 0;
 }
@@ -1207,6 +1207,16 @@ message.textContent =
     "Cash App Pay initialization error:",
     error
   );
+
+  const cashAppStatus =
+    document.getElementById("cashAppPayStatus");
+
+  if (cashAppStatus) {
+    cashAppStatus.style.color = "#b00020";
+    cashAppStatus.textContent =
+      "Cash App error: " +
+      (error?.message || String(error));
+  }
 }
 
 try {

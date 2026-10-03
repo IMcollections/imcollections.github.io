@@ -1118,11 +1118,21 @@ try {
     referenceId: "IM-" + Date.now()
   };
 
-  cashAppPay =
-    await payments.cashAppPay(
-      paymentRequest,
-      cashAppOptions
-    );
+ const cashAppPaymentRequest =
+  payments.paymentRequest({
+    countryCode: "US",
+    currencyCode: "USD",
+    total: {
+      amount: applePayAmount,
+      label: "IM Collections"
+    }
+  });
+
+cashAppPay =
+  await payments.cashAppPay(
+    cashAppPaymentRequest,
+    cashAppOptions
+  );
 
   cashAppPay.addEventListener(
     "ontokenization",

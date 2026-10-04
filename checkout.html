@@ -2021,6 +2021,8 @@ if (paymentError || !paymentData?.success) {
 message.style.color = "green";
 message.textContent =
   "Payment successful!";
+      showPaymentSuccessPopup();
+      
     } catch (error) {
       console.error(error);
 

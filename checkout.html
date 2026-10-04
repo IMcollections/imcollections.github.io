@@ -1111,6 +1111,7 @@ type="button"
   id="backToTopButton"
 >
   ↑ Back to Top ↑ 
+  
 </button>
       
 </div>
@@ -2144,6 +2145,11 @@ function closePaymentSuccessPopup() {
     .getElementById("paymentSuccessPopup")
     ?.classList.remove("show");
 }
+
+    function goToAccountSummary() {
+  window.location.href = "my-account.html";
+}
+    
     </script>
 
   <!-- PAYMENT SUCCESS POPUP -->
@@ -2153,6 +2159,7 @@ function closePaymentSuccessPopup() {
       type="button"
       class="payment-success-close"
       onclick="closePaymentSuccessPopup()"
+}
     >
       ×
     </button>

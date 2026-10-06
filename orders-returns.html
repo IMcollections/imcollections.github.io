@@ -6,61 +6,281 @@
   <title>Orders &amp; Returns | IM Collections</title>
 
   <style>
-    *{box-sizing:border-box}
-    body{margin:0;background:#f7f6f2;color:#171717;font-family:Arial,sans-serif;line-height:1.5}
-    .topbar{background:#111;color:#d4af55;text-align:center;padding:10px;font-size:12px;letter-spacing:2px}
-    header{background:#fff;border-bottom:1px solid #dedbd2;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-    header img{width:72px;height:72px;object-fit:contain}
-    a{color:#76591e}
-    nav{display:flex;gap:20px;flex-wrap:wrap}
-    main{max-width:900px;margin:36px auto;padding:0 20px}
-    h1{margin-bottom:8px}
-    h2{font-size:21px;margin-top:0}
-    h3{margin:0}
-    .intro,.muted{color:#626262}
-    .card{background:#fff;border:1px solid #dedbd2;border-radius:12px;padding:24px;margin:20px 0}
-    .login-card{max-width:440px;margin:24px auto}
-    label{display:block;margin:14px 0 6px}
-    input,select,button{font:inherit}
-    input,select{width:100%;padding:12px;border:1px solid #aaa;border-radius:6px;background:#fff;color:#171717}
-    button{display:inline-block;padding:12px 18px;border:0;border-radius:6px;background:#111;color:#fff;cursor:pointer}
-    button:disabled{opacity:.55;cursor:wait}
-    .gold{background:#c9a44c;color:#111}
-    .login-card button{width:100%;margin-top:20px}
-    .order-head,.summary-row{display:flex;justify-content:space-between;gap:16px;align-items:center}
-    .order-head{flex-wrap:wrap}
-    .badge{padding:5px 12px;border-radius:20px;font-size:13px;background:#f8edcf;color:#705310}
-    .badge.completed{background:#e1f1e7;color:#216437}
-    .badge.cancelled{background:#f8e4e4;color:#8c2727}
-    details{margin-top:18px}
-    summary{cursor:pointer;color:#76591e;font-weight:bold;padding:8px 0}
-    .item{display:flex;gap:14px;padding:15px 0;border-bottom:1px solid #eee}
-    .item img{width:64px;height:72px;object-fit:contain;background:#f6f6f6}
-    .item-copy{flex:1}
-    .item p{margin:3px 0}
-    .totals{max-width:360px;margin:20px 0 20px auto}
-    .summary-row{margin:8px 0}
-    .total{font-weight:bold;border-top:1px solid #ddd;padding-top:10px}
-    .shipping{padding:16px;background:#f7f6f2;border-radius:6px;margin:20px 0}
-    .shipping p{margin:6px 0;overflow-wrap:anywhere}
-    .message{min-height:24px;overflow-wrap:anywhere}
-    .error{color:#a42626}
-    .success{color:#216437}
-    .filters{max-width:250px}
-    .return-note{font-size:14px}
-    .actions{display:flex;gap:10px;flex-wrap:wrap}
-    footer{text-align:center;color:#666;padding:30px 20px;font-size:13px}
-    [hidden]{display:none!important}
-    button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #c9a44c;outline-offset:3px}
+    * { box-sizing: border-box; }
 
-    @media(max-width:540px){
-      header{padding:12px 16px}
-      header img{width:55px;height:55px}
-      main{margin-top:24px;padding:0 16px}
-      .card{padding:18px}
-      .item{gap:10px}
-      .item img{width:48px;height:60px}
-      h1{font-size:28px}
+    body {
+      margin: 0;
+      background: #f7f6f2;
+      color: #171717;
+      font-family: Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    .topbar {
+      background: #111;
+      color: #d4af55;
+      text-align: center;
+      padding: 10px;
+      font-size: 12px;
+      letter-spacing: 2px;
+    }
+
+    header {
+      background: #fff;
+      border-bottom: 1px solid #dedbd2;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    header img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+    }
+
+    nav {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    a, h1, h2, h3, label, summary {
+      color: #8a651f;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 36px auto;
+      padding: 0 20px;
+    }
+
+    h1 { margin-bottom: 8px; }
+    h2 { font-size: 21px; margin-top: 0; }
+    h3 { margin: 0; }
+
+    .card {
+      background: #fff;
+      border: 1px solid #dedbd2;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 20px 0;
+    }
+
+    .login-card {
+      max-width: 440px;
+      margin: 24px auto;
+    }
+
+    label {
+      display: block;
+      margin: 14px 0 6px;
+    }
+
+    input, select, button {
+      font: inherit;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #aaa;
+      border-radius: 6px;
+      background: #fff;
+      color: #171717;
+    }
+
+    input::placeholder {
+      color: #8a651f;
+      opacity: 1;
+    }
+
+    select {
+      color: #8a651f;
+    }
+
+    button {
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 6px;
+      background: #c9a44c;
+      color: #111;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: wait;
+    }
+
+    .login-card button {
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .section-head, .order-head, .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .section-head, .order-head {
+      flex-wrap: wrap;
+    }
+
+    .explore {
+      display: inline-block;
+      border: 1px solid #b08b38;
+      border-radius: 6px;
+      padding: 10px 16px;
+      text-decoration: none;
+      background: #fff;
+    }
+
+    .greeting {
+      font-size: 22px;
+      color: #8a651f;
+    }
+
+    .filters, .return-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .filters {
+      margin: 24px 0;
+    }
+
+    .badge {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      background: #f8edcf;
+      color: #705310;
+    }
+
+    .badge.completed {
+      background: #e1f1e7;
+      color: #216437;
+    }
+
+    .badge.cancelled {
+      background: #f8e4e4;
+      color: #8c2727;
+    }
+
+    .order-reference, .message {
+      overflow-wrap: anywhere;
+    }
+
+    details {
+      margin-top: 18px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: bold;
+      padding: 8px 0;
+    }
+
+    .item {
+      display: flex;
+      gap: 14px;
+      padding: 15px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .item img {
+      width: 64px;
+      height: 72px;
+      object-fit: contain;
+      background: #f6f6f6;
+    }
+
+    .item-copy {
+      flex: 1;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .item p {
+      margin: 3px 0;
+    }
+
+    .totals {
+      max-width: 360px;
+      margin: 20px 0 20px auto;
+    }
+
+    .summary-row {
+      margin: 8px 0;
+    }
+
+    .total {
+      font-weight: bold;
+      border-top: 1px solid #ddd;
+      padding-top: 10px;
+    }
+
+    .shipping {
+      padding: 16px;
+      background: #f7f6f2;
+      border-radius: 6px;
+      margin: 20px 0;
+    }
+
+    .shipping p {
+      margin: 6px 0;
+      overflow-wrap: anywhere;
+    }
+
+    .muted {
+      color: #626262;
+    }
+
+    .message {
+      min-height: 24px;
+    }
+
+    .error { color: #a42626; }
+    .success { color: #216437; }
+    .return-note { font-size: 14px; }
+
+    footer {
+      text-align: center;
+      color: #666;
+      padding: 30px 20px;
+      font-size: 13px;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    button:focus-visible,
+    a:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid #c9a44c;
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 540px) {
+      header { padding: 12px 16px; }
+      header img { width: 55px; height: 55px; }
+      main { margin-top: 24px; padding: 0 16px; }
+      .card { padding: 18px; }
+      .item { gap: 10px; }
+      .item img { width: 48px; height: 60px; }
+      h1 { font-size: 28px; }
+
+      .filters, .return-inputs {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
     }
   </style>
 </head>
@@ -69,21 +289,18 @@
   <div class="topbar">IM COLLECTIONS</div>
 
   <header>
-    <a href="index.html">
-      <img src="IM-logo.jpg" alt="IM Collections">
-    </a>
-
     <nav aria-label="Account navigation">
       <a href="index.html">Back to Shop</a>
       <a href="my-account.html">My Account</a>
     </nav>
+
+    <a href="index.html">
+      <img src="IM-logo.jpg" alt="IM Collections">
+    </a>
   </header>
 
   <main>
     <h1>Orders &amp; Returns</h1>
-    <p class="intro">
-      Your purchases, shipping updates, and return requests.
-    </p>
 
     <p
       id="pageMessage"
@@ -98,11 +315,12 @@
       <h2>Sign in to view your orders</h2>
 
       <form id="loginForm">
-        <label for="email">Email address</label>
+        <label for="email">Email Address</label>
         <input
           id="email"
           type="email"
           autocomplete="email"
+          placeholder="Email address"
           required
         >
 
@@ -111,10 +329,11 @@
           id="password"
           type="password"
           autocomplete="current-password"
+          placeholder="Password"
           required
         >
 
-        <button id="loginButton" type="submit" class="gold">
+        <button id="loginButton" type="submit">
           Sign In
         </button>
       </form>
@@ -132,26 +351,41 @@
     </section>
 
     <div id="memberContent" hidden>
-      <div class="actions">
-        <button id="refreshButton" type="button">
-          Refresh Orders
-        </button>
+      <p id="greeting" class="greeting">Hello!</p>
 
-        <button id="logoutButton" type="button">
-          Sign Out
-        </button>
-      </div>
+      <section class="card" aria-labelledby="collectionsHeading">
+        <div class="section-head">
+          <h2 id="collectionsHeading">My Collections (Orders)</h2>
+          <a class="explore" href="index.html">
+            Explore Collections
+          </a>
+        </div>
 
-      <div class="filters">
-        <label for="statusFilter">Order status</label>
+        <div class="filters">
+          <div>
+            <label for="statusFilter">Order Status</label>
 
-        <select id="statusFilter">
-          <option value="all">All orders</option>
-          <option value="pending">Pending</option>
-          <option value="completed">Completed / Shipped</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-      </div>
+            <select id="statusFilter">
+              <option value="all">Show All</option>
+              <option value="completed">Completed (Shipped)</option>
+              <option value="pending">Pending</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="historyFilter">Order History</label>
+
+            <select id="historyFilter">
+              <option value="all">All Order History</option>
+              <option value="30days">Last 30 Days</option>
+              <option value="3months">Past 3 Months</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+            </select>
+          </div>
+        </div>
+      </section>
 
       <div id="orderList"></div>
 
@@ -159,32 +393,49 @@
         <h2>Request a Return</h2>
 
         <p class="return-note">
-          Enter the order number from your order details.
           Returns are available within 30 days of purchase
-          for items in their original condition, with
-          packaging and tags. You pay return shipping;
-          no reason is required.
+          for items in their original condition,
+          with packaging and tags.
+        </p>
+
+        <p>
+          <a href="return-policy.html">
+            Review Returns &amp; Refunds Policy
+          </a>
         </p>
 
         <form id="returnForm">
-          <label for="returnOrderNumber">Order number</label>
+          <div class="return-inputs">
+            <div>
+              <label for="returnOrderNumber">Order Number</label>
 
-          <input
-            id="returnOrderNumber"
-            type="text"
-            inputmode="numeric"
-            pattern="[0-9]{10}"
-            maxlength="10"
-            placeholder="0318000001"
-            required
-          >
+              <input
+                id="returnOrderNumber"
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]{10}"
+                maxlength="10"
+                placeholder="0318000001"
+                required
+              >
+            </div>
+
+            <div>
+              <label for="returnZipCode">ZIP / Postal Code</label>
+
+              <input
+                id="returnZipCode"
+                type="text"
+                autocomplete="postal-code"
+                maxlength="10"
+                placeholder="ZIP / Postal code used at checkout"
+                required
+              >
+            </div>
+          </div>
 
           <p>
-            <button
-              id="returnButton"
-              type="submit"
-              class="gold"
-            >
+            <button id="returnButton" type="submit">
               Submit Return Request
             </button>
           </p>
@@ -196,12 +447,6 @@
           role="status"
           aria-live="polite"
         ></p>
-
-        <p>
-          <a href="return-policy.html">
-            Read the Return &amp; Refund Policy
-          </a>
-        </p>
       </section>
     </div>
   </main>
@@ -257,7 +502,11 @@
       const d = new Date(value);
 
       return value && !Number.isNaN(d.getTime())
-        ? d.toLocaleDateString()
+        ? d.toLocaleDateString("en-US", {
+            month: "2-digit",
+            day: "2-digit",
+            year: "numeric"
+          })
         : "—";
     }
 
@@ -268,6 +517,85 @@
           ? currency
           : "USD"
       }).format(Number(value) || 0);
+    }
+
+    function matchesHistory(order, filter, now = new Date()) {
+      if (filter === "all") return true;
+
+      const purchased =
+        new Date(order.paid_at || order.created_at);
+
+      if (Number.isNaN(purchased.getTime())) return false;
+
+      if (filter === "2026" || filter === "2027") {
+        return purchased.getFullYear() === Number(filter);
+      }
+
+      if (purchased > now) return false;
+
+      let start;
+
+      if (filter === "30days") {
+        start = new Date(now);
+        start.setDate(start.getDate() - 30);
+      } else if (filter === "3months") {
+        start = new Date(now);
+
+        const day = start.getDate();
+
+        start.setDate(1);
+        start.setMonth(start.getMonth() - 3);
+
+        const lastDay = new Date(
+          start.getFullYear(),
+          start.getMonth() + 1,
+          0
+        ).getDate();
+
+        start.setDate(Math.min(day, lastDay));
+      } else {
+        return true;
+      }
+
+      return purchased >= start;
+    }
+
+    function paymentLabel(order) {
+      const method =
+        String(order.payment_method || "").toLowerCase();
+
+      const provider =
+        String(order.payment_provider || "").toLowerCase();
+
+      const giftMethods = [
+        "giftcard",
+        "gift_card",
+        "giftcards",
+        "gift_cards"
+      ];
+
+      if (
+        giftMethods.includes(method) ||
+        giftMethods.includes(provider)
+      ) {
+        return "Gift Cards";
+      }
+
+      if (provider === "klarna" || method === "klarna") {
+        return "Klarna";
+      }
+
+      if (provider === "square") {
+        return "Square";
+      }
+
+      return "Not available";
+    }
+
+    function statusLabel(status) {
+      if (status === "completed") return "Completed (Shipped)";
+      if (status === "cancelled") return "Cancelled";
+      return "Pending";
     }
 
     function showLogin() {
@@ -290,9 +618,11 @@
       list.replaceChildren();
 
       const filter = byId("statusFilter").value;
+      const history = byId("historyFilter").value;
 
       const visible = orders.filter(order =>
-        filter === "all" || order.status === filter
+        (filter === "all" || order.status === filter) &&
+        matchesHistory(order, history)
       );
 
       if (!visible.length) {
@@ -300,7 +630,7 @@
           node(
             "p",
             orders.length
-              ? "No orders with this status."
+              ? "No orders match these filters."
               : "No orders yet.",
             "card"
           )
@@ -313,26 +643,59 @@
 
         const head = node("div", undefined, "order-head");
 
-        const statusText =
-          order.status === "completed"
-            ? "Completed / Shipped"
-            : order.status === "cancelled"
-              ? "Cancelled"
-              : "Pending";
-
         head.append(
-          node("h2", "Order " + order.order_number),
-          node("span", statusText, "badge " + order.status)
+          node(
+            "h2",
+            "Order Number: " + order.order_number,
+            "order-reference"
+          ),
+          node(
+            "span",
+            statusLabel(order.status),
+            "badge " + order.status
+          )
         );
 
         card.append(
           head,
-          node("p", "Purchased " + date(order.paid_at), "muted")
+          node(
+            "p",
+            "Order Date: " +
+              date(order.paid_at || order.created_at),
+            "muted"
+          ),
+          node(
+            "p",
+            "Order Total: " + money(order.total, order.currency)
+          ),
+          node(
+            "p",
+            "Order Status: " + statusLabel(order.status)
+          ),
+          node(
+            "p",
+            "Payment Info: " + paymentLabel(order)
+          )
+        );
+
+        const tracking =
+          order.status === "completed"
+            ? order.tracking_number || "Not added yet"
+            : order.status === "cancelled"
+              ? "Not applicable"
+              : "Available when shipped";
+
+        card.append(
+          node("p", "Tracking Number: " + tracking)
         );
 
         const details = node("details");
-        details.open = order.order_number === validOrder;
-        details.append(node("summary", "View Order Details"));
+        details.open = true;
+
+        details.append(
+          node("summary", "Order Details"),
+          node("h3", "Order Summary")
+        );
 
         const items =
           Array.isArray(order.items) ? order.items : [];
@@ -352,6 +715,7 @@
                 img.src = url.href;
                 img.alt = item.name || "Purchased item";
                 img.loading = "lazy";
+
                 row.append(img);
               }
             } catch (_) {}
@@ -384,7 +748,7 @@
 
         const totals = node("div", undefined, "totals");
 
-        const totalFields = [
+        const fields = [
           ["Subtotal", "subtotal"],
           ["Discount", "discount"],
           ["Shipping", "shipping"],
@@ -392,7 +756,7 @@
           ["Total", "total"]
         ];
 
-        for (const [label, field] of totalFields) {
+        for (const [label, field] of fields) {
           const row = node(
             "div",
             undefined,
@@ -424,7 +788,7 @@
             .filter(Boolean)
             .join(" ");
 
-        const addressLines = [
+        const lines = [
           name,
           address.address_line1,
           address.address_line2,
@@ -436,7 +800,7 @@
           address.country
         ];
 
-        for (const line of addressLines) {
+        for (const line of lines) {
           if (line) {
             delivery.append(node("p", line));
           }
@@ -455,14 +819,14 @@
             node(
               "p",
               order.tracking_number
-                ? "Tracking number: " + order.tracking_number
+                ? "Tracking Number: " + order.tracking_number
                 : "Tracking details have not been added yet."
             )
           );
 
           if (order.shipped_at) {
             delivery.append(
-              node("p", "Shipped " + date(order.shipped_at))
+              node("p", "Shipped: " + date(order.shipped_at))
             );
           }
         }
@@ -475,12 +839,11 @@
 
         if (request) {
           details.append(
-            node("p", "Return status: " + request.status)
+            node("p", "Return Status: " + request.status)
           );
         } else if (order.status === "completed") {
           const button = node("button", "Request a Return");
           button.type = "button";
-          button.className = "gold";
 
           button.addEventListener("click", () => {
             byId("returnOrderNumber").value =
@@ -506,7 +869,6 @@
     async function loadOrders() {
       const version = ++loadVersion;
 
-      byId("refreshButton").disabled = true;
       message("pageMessage", "Loading your orders…");
 
       try {
@@ -523,10 +885,15 @@
         }
 
         memberId = user.id;
+
         byId("loginCard").hidden = true;
         byId("memberContent").hidden = false;
 
-        const [orderResult, returnResult] = await Promise.all([
+        const [
+          orderResult,
+          returnResult,
+          profileResult
+        ] = await Promise.all([
           client
             .from("orders")
             .select("*")
@@ -536,10 +903,25 @@
           client
             .from("return_requests")
             .select("id,order_id,status,created_at")
-            .eq("user_id", user.id)
+            .eq("user_id", user.id),
+
+          client
+            .from("profiles")
+            .select("first_name")
+            .eq("id", user.id)
+            .maybeSingle()
         ]);
 
         if (version !== loadVersion) return;
+
+        const firstName = String(
+          profileResult.data?.first_name ||
+          user.user_metadata?.first_name ||
+          ""
+        ).trim();
+
+        byId("greeting").textContent =
+          firstName ? "Hello, " + firstName + "!" : "Hello!";
 
         if (orderResult.error) {
           throw new Error(
@@ -588,15 +970,12 @@
           error.message || "Unable to load your orders.",
           true
         );
-      } finally {
-        if (version === loadVersion) {
-          byId("refreshButton").disabled = false;
-        }
       }
     }
 
     byId("loginForm").addEventListener("submit", async event => {
       event.preventDefault();
+
       byId("loginButton").disabled = true;
       message("loginMessage", "Signing in…");
 
@@ -623,6 +1002,7 @@
 
     byId("returnForm").addEventListener("submit", async event => {
       event.preventDefault();
+
       byId("returnButton").disabled = true;
       message("returnMessage", "Submitting your request…");
 
@@ -635,7 +1015,9 @@
           "im_request_return",
           {
             p_order_number:
-              byId("returnOrderNumber").value.trim()
+              byId("returnOrderNumber").value.trim(),
+            p_zip_code:
+              byId("returnZipCode").value.trim()
           }
         );
 
@@ -660,24 +1042,15 @@
       }
     });
 
-    byId("refreshButton").addEventListener("click", loadOrders);
-    byId("statusFilter").addEventListener("change", renderOrders);
+    byId("statusFilter").addEventListener(
+      "change",
+      renderOrders
+    );
 
-    byId("logoutButton").addEventListener("click", async () => {
-      const { error } = await client.auth.signOut();
-
-      if (error) {
-        message(
-          "pageMessage",
-          "Unable to sign out. Please try again.",
-          true
-        );
-        return;
-      }
-
-      ++loadVersion;
-      showLogin();
-    });
+    byId("historyFilter").addEventListener(
+      "change",
+      renderOrders
+    );
 
     client.auth.onAuthStateChange(event => {
       if (event === "SIGNED_OUT") {

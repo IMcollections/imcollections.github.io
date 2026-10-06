@@ -1,1 +1,692 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Orders &amp; Returns | IM Collections</title>
 
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#f7f6f2;color:#171717;font-family:Arial,sans-serif;line-height:1.5}
+    .topbar{background:#111;color:#d4af55;text-align:center;padding:10px;font-size:12px;letter-spacing:2px}
+    header{background:#fff;border-bottom:1px solid #dedbd2;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    header img{width:72px;height:72px;object-fit:contain}
+    a{color:#76591e}
+    nav{display:flex;gap:20px;flex-wrap:wrap}
+    main{max-width:900px;margin:36px auto;padding:0 20px}
+    h1{margin-bottom:8px}
+    h2{font-size:21px;margin-top:0}
+    h3{margin:0}
+    .intro,.muted{color:#626262}
+    .card{background:#fff;border:1px solid #dedbd2;border-radius:12px;padding:24px;margin:20px 0}
+    .login-card{max-width:440px;margin:24px auto}
+    label{display:block;margin:14px 0 6px}
+    input,select,button{font:inherit}
+    input,select{width:100%;padding:12px;border:1px solid #aaa;border-radius:6px;background:#fff;color:#171717}
+    button{display:inline-block;padding:12px 18px;border:0;border-radius:6px;background:#111;color:#fff;cursor:pointer}
+    button:disabled{opacity:.55;cursor:wait}
+    .gold{background:#c9a44c;color:#111}
+    .login-card button{width:100%;margin-top:20px}
+    .order-head,.summary-row{display:flex;justify-content:space-between;gap:16px;align-items:center}
+    .order-head{flex-wrap:wrap}
+    .badge{padding:5px 12px;border-radius:20px;font-size:13px;background:#f8edcf;color:#705310}
+    .badge.completed{background:#e1f1e7;color:#216437}
+    .badge.cancelled{background:#f8e4e4;color:#8c2727}
+    details{margin-top:18px}
+    summary{cursor:pointer;color:#76591e;font-weight:bold;padding:8px 0}
+    .item{display:flex;gap:14px;padding:15px 0;border-bottom:1px solid #eee}
+    .item img{width:64px;height:72px;object-fit:contain;background:#f6f6f6}
+    .item-copy{flex:1}
+    .item p{margin:3px 0}
+    .totals{max-width:360px;margin:20px 0 20px auto}
+    .summary-row{margin:8px 0}
+    .total{font-weight:bold;border-top:1px solid #ddd;padding-top:10px}
+    .shipping{padding:16px;background:#f7f6f2;border-radius:6px;margin:20px 0}
+    .shipping p{margin:6px 0;overflow-wrap:anywhere}
+    .message{min-height:24px;overflow-wrap:anywhere}
+    .error{color:#a42626}
+    .success{color:#216437}
+    .filters{max-width:250px}
+    .return-note{font-size:14px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    footer{text-align:center;color:#666;padding:30px 20px;font-size:13px}
+    [hidden]{display:none!important}
+    button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #c9a44c;outline-offset:3px}
+
+    @media(max-width:540px){
+      header{padding:12px 16px}
+      header img{width:55px;height:55px}
+      main{margin-top:24px;padding:0 16px}
+      .card{padding:18px}
+      .item{gap:10px}
+      .item img{width:48px;height:60px}
+      h1{font-size:28px}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">IM COLLECTIONS</div>
+
+  <header>
+    <a href="index.html">
+      <img src="IM-logo.jpg" alt="IM Collections">
+    </a>
+
+    <nav aria-label="Account navigation">
+      <a href="index.html">Back to Shop</a>
+      <a href="my-account.html">My Account</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Orders &amp; Returns</h1>
+    <p class="intro">
+      Your purchases, shipping updates, and return requests.
+    </p>
+
+    <p
+      id="pageMessage"
+      class="message"
+      role="status"
+      aria-live="polite"
+    >
+      Checking your account…
+    </p>
+
+    <section id="loginCard" class="card login-card" hidden>
+      <h2>Sign in to view your orders</h2>
+
+      <form id="loginForm">
+        <label for="email">Email address</label>
+        <input
+          id="email"
+          type="email"
+          autocomplete="email"
+          required
+        >
+
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          autocomplete="current-password"
+          required
+        >
+
+        <button id="loginButton" type="submit" class="gold">
+          Sign In
+        </button>
+      </form>
+
+      <p id="loginMessage" class="message" role="status"></p>
+
+      <p>
+        Not a member?
+        <a href="Register.html">Register</a>
+      </p>
+
+      <p>
+        <a href="my-account.html">Forgot your password?</a>
+      </p>
+    </section>
+
+    <div id="memberContent" hidden>
+      <div class="actions">
+        <button id="refreshButton" type="button">
+          Refresh Orders
+        </button>
+
+        <button id="logoutButton" type="button">
+          Sign Out
+        </button>
+      </div>
+
+      <div class="filters">
+        <label for="statusFilter">Order status</label>
+
+        <select id="statusFilter">
+          <option value="all">All orders</option>
+          <option value="pending">Pending</option>
+          <option value="completed">Completed / Shipped</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+
+      <div id="orderList"></div>
+
+      <section class="card" id="returnSection">
+        <h2>Request a Return</h2>
+
+        <p class="return-note">
+          Enter the order number from your order details.
+          Returns are available within 30 days of purchase
+          for items in their original condition, with
+          packaging and tags. You pay return shipping;
+          no reason is required.
+        </p>
+
+        <form id="returnForm">
+          <label for="returnOrderNumber">Order number</label>
+
+          <input
+            id="returnOrderNumber"
+            type="text"
+            inputmode="numeric"
+            pattern="[0-9]{10}"
+            maxlength="10"
+            placeholder="0318000001"
+            required
+          >
+
+          <p>
+            <button
+              id="returnButton"
+              type="submit"
+              class="gold"
+            >
+              Submit Return Request
+            </button>
+          </p>
+        </form>
+
+        <p
+          id="returnMessage"
+          class="message"
+          role="status"
+          aria-live="polite"
+        ></p>
+
+        <p>
+          <a href="return-policy.html">
+            Read the Return &amp; Refund Policy
+          </a>
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    © 2026 IM Collections. All Rights Reserved.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const client = supabase.createClient(
+      "https://vqzjegneplzeoqxcqfeu.supabase.co",
+      "sb_publishable_QDvKrAHvvopp_fuunxTxEA_4v6TD4Jk"
+    );
+
+    const byId = id => document.getElementById(id);
+
+    let orders = [];
+    let returns = [];
+    let memberId = null;
+    let loadVersion = 0;
+
+    const selectedOrder =
+      new URLSearchParams(location.search).get("order");
+
+    const validOrder =
+      /^\d{10}$/.test(selectedOrder || "")
+        ? selectedOrder
+        : null;
+
+    function node(tag, text, className) {
+      const el = document.createElement(tag);
+
+      if (text !== undefined) {
+        el.textContent = String(text);
+      }
+
+      if (className) {
+        el.className = className;
+      }
+
+      return el;
+    }
+
+    function message(id, text, failed = false) {
+      byId(id).textContent = text;
+      byId(id).className =
+        "message " + (failed ? "error" : "success");
+    }
+
+    function date(value) {
+      const d = new Date(value);
+
+      return value && !Number.isNaN(d.getTime())
+        ? d.toLocaleDateString()
+        : "—";
+    }
+
+    function money(value, currency) {
+      return new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: ["USD", "CAD"].includes(currency)
+          ? currency
+          : "USD"
+      }).format(Number(value) || 0);
+    }
+
+    function showLogin() {
+      memberId = null;
+      orders = [];
+      returns = [];
+
+      byId("orderList").replaceChildren();
+      byId("memberContent").hidden = true;
+      byId("loginCard").hidden = false;
+
+      message(
+        "pageMessage",
+        "Sign in or register to access your orders."
+      );
+    }
+
+    function renderOrders() {
+      const list = byId("orderList");
+      list.replaceChildren();
+
+      const filter = byId("statusFilter").value;
+
+      const visible = orders.filter(order =>
+        filter === "all" || order.status === filter
+      );
+
+      if (!visible.length) {
+        list.append(
+          node(
+            "p",
+            orders.length
+              ? "No orders with this status."
+              : "No orders yet.",
+            "card"
+          )
+        );
+      }
+
+      for (const order of visible) {
+        const card = node("article", undefined, "card");
+        card.id = "order-" + order.order_number;
+
+        const head = node("div", undefined, "order-head");
+
+        const statusText =
+          order.status === "completed"
+            ? "Completed / Shipped"
+            : order.status === "cancelled"
+              ? "Cancelled"
+              : "Pending";
+
+        head.append(
+          node("h2", "Order " + order.order_number),
+          node("span", statusText, "badge " + order.status)
+        );
+
+        card.append(
+          head,
+          node("p", "Purchased " + date(order.paid_at), "muted")
+        );
+
+        const details = node("details");
+        details.open = order.order_number === validOrder;
+        details.append(node("summary", "View Order Details"));
+
+        const items =
+          Array.isArray(order.items) ? order.items : [];
+
+        for (const item of items) {
+          const row = node("div", undefined, "item");
+
+          if (item.image) {
+            try {
+              const url = new URL(item.image, location.href);
+
+              if (
+                url.protocol === "https:" ||
+                url.protocol === "http:"
+              ) {
+                const img = node("img");
+                img.src = url.href;
+                img.alt = item.name || "Purchased item";
+                img.loading = "lazy";
+                row.append(img);
+              }
+            } catch (_) {}
+          }
+
+          const copy = node("div", undefined, "item-copy");
+
+          copy.append(
+            node("strong", item.name || "Item"),
+            node("p", "Quantity: " + item.quantity)
+          );
+
+          if (item.size) {
+            copy.append(node("p", "Size: " + item.size));
+          }
+
+          row.append(
+            copy,
+            node(
+              "span",
+              money(
+                Number(item.price) * Number(item.quantity),
+                order.currency
+              )
+            )
+          );
+
+          details.append(row);
+        }
+
+        const totals = node("div", undefined, "totals");
+
+        const totalFields = [
+          ["Subtotal", "subtotal"],
+          ["Discount", "discount"],
+          ["Shipping", "shipping"],
+          ["Tax", "tax"],
+          ["Total", "total"]
+        ];
+
+        for (const [label, field] of totalFields) {
+          const row = node(
+            "div",
+            undefined,
+            "summary-row" + (field === "total" ? " total" : "")
+          );
+
+          row.append(
+            node("span", label),
+            node(
+              "span",
+              (field === "discount" ? "−" : "") +
+                money(order[field], order.currency)
+            )
+          );
+
+          totals.append(row);
+        }
+
+        details.append(totals);
+
+        const address = order.shipping_address || {};
+        const delivery = node("div", undefined, "shipping");
+
+        delivery.append(node("h3", "Delivery Information"));
+
+        const name =
+          address.full_name ||
+          [address.first_name, address.last_name]
+            .filter(Boolean)
+            .join(" ");
+
+        const addressLines = [
+          name,
+          address.address_line1,
+          address.address_line2,
+          [
+            address.city,
+            address.state_province,
+            address.postal_code
+          ].filter(Boolean).join(", "),
+          address.country
+        ];
+
+        for (const line of addressLines) {
+          if (line) {
+            delivery.append(node("p", line));
+          }
+        }
+
+        if (order.status === "completed") {
+          delivery.append(node("h3", "Shipment Tracking"));
+
+          if (order.carrier) {
+            delivery.append(
+              node("p", "Carrier: " + order.carrier)
+            );
+          }
+
+          delivery.append(
+            node(
+              "p",
+              order.tracking_number
+                ? "Tracking number: " + order.tracking_number
+                : "Tracking details have not been added yet."
+            )
+          );
+
+          if (order.shipped_at) {
+            delivery.append(
+              node("p", "Shipped " + date(order.shipped_at))
+            );
+          }
+        }
+
+        details.append(delivery);
+
+        const request = returns.find(
+          r => r.order_id === order.id
+        );
+
+        if (request) {
+          details.append(
+            node("p", "Return status: " + request.status)
+          );
+        } else if (order.status === "completed") {
+          const button = node("button", "Request a Return");
+          button.type = "button";
+          button.className = "gold";
+
+          button.addEventListener("click", () => {
+            byId("returnOrderNumber").value =
+              order.order_number;
+
+            byId("returnSection").scrollIntoView({
+              behavior: "smooth"
+            });
+
+            byId("returnOrderNumber").focus({
+              preventScroll: true
+            });
+          });
+
+          details.append(button);
+        }
+
+        card.append(details);
+        list.append(card);
+      }
+    }
+
+    async function loadOrders() {
+      const version = ++loadVersion;
+
+      byId("refreshButton").disabled = true;
+      message("pageMessage", "Loading your orders…");
+
+      try {
+        const {
+          data: { user },
+          error: authError
+        } = await client.auth.getUser();
+
+        if (version !== loadVersion) return;
+
+        if (authError || !user) {
+          showLogin();
+          return;
+        }
+
+        memberId = user.id;
+        byId("loginCard").hidden = true;
+        byId("memberContent").hidden = false;
+
+        const [orderResult, returnResult] = await Promise.all([
+          client
+            .from("orders")
+            .select("*")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false }),
+
+          client
+            .from("return_requests")
+            .select("id,order_id,status,created_at")
+            .eq("user_id", user.id)
+        ]);
+
+        if (version !== loadVersion) return;
+
+        if (orderResult.error) {
+          throw new Error(
+            "Your orders could not be loaded. Please refresh and try again."
+          );
+        }
+
+        orders = orderResult.data || [];
+        returns = returnResult.data || [];
+
+        renderOrders();
+
+        if (returnResult.error) {
+          message(
+            "pageMessage",
+            "Orders loaded, but return requests could not be loaded. Please try refreshing.",
+            true
+          );
+        } else if (
+          validOrder &&
+          !orders.some(o => o.order_number === validOrder)
+        ) {
+          message(
+            "pageMessage",
+            "This order is not available in this account. For a guest purchase, sign in with the email used at checkout.",
+            true
+          );
+        } else {
+          message(
+            "pageMessage",
+            orders.length
+              ? "Your orders are up to date."
+              : "Your orders will appear here after a successful purchase."
+          );
+        }
+
+        if (validOrder) {
+          byId("order-" + validOrder)?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+        }
+      } catch (error) {
+        message(
+          "pageMessage",
+          error.message || "Unable to load your orders.",
+          true
+        );
+      } finally {
+        if (version === loadVersion) {
+          byId("refreshButton").disabled = false;
+        }
+      }
+    }
+
+    byId("loginForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      byId("loginButton").disabled = true;
+      message("loginMessage", "Signing in…");
+
+      try {
+        const { error } = await client.auth.signInWithPassword({
+          email: byId("email").value.trim(),
+          password: byId("password").value
+        });
+
+        if (error) throw error;
+
+        byId("password").value = "";
+        await loadOrders();
+      } catch (error) {
+        message(
+          "loginMessage",
+          error.message || "Unable to sign in.",
+          true
+        );
+      } finally {
+        byId("loginButton").disabled = false;
+      }
+    });
+
+    byId("returnForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      byId("returnButton").disabled = true;
+      message("returnMessage", "Submitting your request…");
+
+      try {
+        if (!memberId) {
+          throw new Error("Please sign in first.");
+        }
+
+        const { data, error } = await client.rpc(
+          "im_request_return",
+          {
+            p_order_number:
+              byId("returnOrderNumber").value.trim()
+          }
+        );
+
+        if (error) throw error;
+
+        message(
+          "returnMessage",
+          "Return request saved. Status: " +
+            data.status +
+            ". Please wait for approval and return instructions before mailing your items."
+        );
+
+        await loadOrders();
+      } catch (error) {
+        message(
+          "returnMessage",
+          error.message || "Unable to submit your return.",
+          true
+        );
+      } finally {
+        byId("returnButton").disabled = false;
+      }
+    });
+
+    byId("refreshButton").addEventListener("click", loadOrders);
+    byId("statusFilter").addEventListener("change", renderOrders);
+
+    byId("logoutButton").addEventListener("click", async () => {
+      const { error } = await client.auth.signOut();
+
+      if (error) {
+        message(
+          "pageMessage",
+          "Unable to sign out. Please try again.",
+          true
+        );
+        return;
+      }
+
+      ++loadVersion;
+      showLogin();
+    });
+
+    client.auth.onAuthStateChange(event => {
+      if (event === "SIGNED_OUT") {
+        ++loadVersion;
+        showLogin();
+      }
+    });
+
+    loadOrders();
+  </script>
+</body>
+</html>

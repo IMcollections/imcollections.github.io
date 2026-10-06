@@ -413,9 +413,9 @@ h1, h2, h3, .greeting {
       <section class="card" aria-labelledby="collectionsHeading">
         <div class="section-head">
           <h2 id="collectionsHeading">My Collections (Orders)</h2>
-          <a class="explore" href="index.html">
-            Explore Collections
-          </a>
+         <a class="explore" href="index.html">
+  Explore Collections
+</a>a>
         </div>
 
         <div class="filters">
@@ -683,13 +683,29 @@ h1, h2, h3, .greeting {
       );
 
       if (!visible.length) {
-        list.append(
-          node(
-            "p",
-            orders.length
-              ? "No orders match these filters."
-              : "No orders yet.",
-            "card"
+  const empty = node("div", undefined, "card empty-orders");
+
+  empty.append(node(
+    "p",
+    orders.length
+      ? "No orders match these filters."
+      : "No orders yet."
+  ));
+
+  if (!orders.length) {
+    const explore = node(
+      "a",
+      "Explore Collections",
+      "explore"
+    );
+
+    explore.href = "index.html";
+    empty.append(explore);
+  }
+
+  list.append(empty);
+  return;
+}card"
           )
         );
       }

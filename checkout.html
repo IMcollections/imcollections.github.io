@@ -2157,7 +2157,10 @@ function closePaymentSuccessPopup() {
 }
 
     function goToAccountSummary() {
-  window.location.href = "my-account.html";
+  window.location.href = "orders-returns.html" +
+    (latestOrderNumber
+      ? "?order=" + encodeURIComponent(latestOrderNumber)
+      : "");
 }
     
     </script>

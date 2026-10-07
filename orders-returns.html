@@ -268,6 +268,24 @@
       outline-offset: 3px;
     }
 
+    .filters label { color: #8a651f; }
+    .explore, #returnButton {
+      display: inline-block;
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 6px;
+      background: #c9a44c;
+      color: #111;
+      font: inherit;
+      line-height: inherit;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .empty-orders { text-align: center; padding: 32px 24px; }
+    .empty-orders p { margin: 0 0 18px; }
+    .order-head h2 { margin-bottom: 0; }
+    .order-card > p { margin: 12px 0; }
+    .order-card details h3 { margin: 12px 0; }
     @media (max-width: 540px) {
       header { padding: 12px 16px; }
       header img { width: 55px; height: 55px; }
@@ -276,68 +294,7 @@
       .item { gap: 10px; }
       .item img { width: 48px; height: 60px; }
       h1 { font-size: 28px; }
-
-      .filters, .return-inputs {
-        grid-template-columns: 1fr;
-        gap: 14px;
-
-a, label, select, .explore {
-  color: #171717;
-}
-
-input::placeholder {
-  color: #666;
-  opacity: 1;
-}
-
-h1, h2, h3, .greeting {
-  color: #8a651f;
-}
-
-.empty-orders {
-  text-align: center;
-  padding: 32px 24px;
-}
-
-.empty-orders p {
-  margin: 0 0 18px;
-}
-
-.order-card h2 {
-  margin-bottom: 28px;
-}
-
-.order-info-row {
-  margin
-
-  .filters label {
-  color: #8a651f;
-}
-
-.explore,
-#returnButton {
-  display: inline-block;
-  padding: 12px 18px;
-  border: 0;
-  border-radius: 6px;
-  background: #c9a44c;
-  color: #111;
-  font: inherit;
-  line-height: inherit;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.empty-orders {
-  text-align: center;
-  padding: 32px 24px;
-}
-
-.empty-orders p {
-  margin: 0 0 18px;
-}
-        
-      }
+      .filters, .return-inputs { grid-template-columns: 1fr; gap: 14px; }
     }
   </style>
 </head>
@@ -422,7 +379,7 @@ h1, h2, h3, .greeting {
 
             <select id="statusFilter">
               <option value="all">Show All</option>
-              <option value="completed">Completed</option>
+              <option value="completed">Completed (Shipped)</option>
               <option value="pending">Pending</option>
               <option value="cancelled">Cancelled</option>
             </select>
@@ -470,20 +427,21 @@ h1, h2, h3, .greeting {
                 inputmode="numeric"
                 pattern="[0-9]{10}"
                 maxlength="10"
-                placeholder="0000000000"
+                placeholder="0318000001"
                 required
               >
             </div>
 
             <div>
-              <label for="returnZipCode">ZIP / Postal Code</label>
+              <label for="returnZipCode">ZIP Code</label>
 
               <input
                 id="returnZipCode"
                 type="text"
                 autocomplete="postal-code"
+                pattern="[0-9]{5}(-[0-9]{4})?"
                 maxlength="10"
-                placeholder="ZIP / Postal code used at checkout"
+                placeholder="ZIP Code used at checkout"
                 required
               >
             </div>
@@ -706,7 +664,7 @@ h1, h2, h3, .greeting {
 }
 
       for (const order of visible) {
-        const card = node("article", undefined, "card");
+        const card = node("article", undefined, "card order-card");
         card.id = "order-" + order.order_number;
 
         const head = node("div", undefined, "order-head");
@@ -747,11 +705,11 @@ h1, h2, h3, .greeting {
         );
 
         const tracking =
-          order.status === "completed"
-            ? order.tracking_number || "Not added yet"
-            : order.status === "cancelled"
-              ? "Not applicable"
-              : "Available when shipped";
+          order.status === "cancelled"
+            ? "Not applicable"
+            : order.tracking_number || (
+                order.status === "completed" ? "Not added yet" : "Available when the shipping label is created"
+              );
 
         card.append(
           node("p", "Tracking Number: " + tracking)
@@ -858,11 +816,11 @@ h1, h2, h3, .greeting {
 
         const lines = [
           name,
-          address.address_line1,
-          address.address_line2,
+          address.address_line1 || address.address,
+          address.address_line2 || address.address2,
           [
             address.city,
-            address.state_province,
+            address.state_province || address.state,
             address.postal_code
           ].filter(Boolean).join(", "),
           address.country

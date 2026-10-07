@@ -784,10 +784,10 @@ font-size: 0 !important;
 </select>
 
     <label>First Name</label>
-    <input type="text" id="guestName" placeholder="First Name" required>
+    <input type="text" id="guestFirstName" placeholder="First Name" required>
 
     <label>Last Name</label>
-    <input type="text" id="guestName" placeholder="Last Name" required>
+    <input type="text" id="guestLastName" placeholder="Last Name" required>
 
     <label>Phone Number</label>
     <input type="tel" id="guestPhone" placeholder="Phone number">
@@ -1102,6 +1102,10 @@ type="button"
     </span>
   </label>
 
+<button type="button" id="retryPaymentStatus" hidden>
+  Retry Payment Status
+</button>
+  
   <div id="checkoutMessage"></div>
 </div>
 
@@ -1149,7 +1153,7 @@ const squareLocationId =
 let squareCard;
 let googlePay;
 let cashAppPay;
-let giftcard;
+let giftCard;
     let paymentRequest;
 
 async function initializeSquareCard() {

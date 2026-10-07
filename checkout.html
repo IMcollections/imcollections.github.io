@@ -2166,5 +2166,102 @@ function closePaymentSuccessPopup() {
   </div>
 </div>
 
+<script>
+(() => {
+  const key = "imCheckoutDraftV1";
+  const lifetime = 24 * 60 * 60 * 1000;
+  const ids = [
+    "guestEmail", "guestCountry", "guestFirstName",
+    "guestLastName", "guestPhone", "guestAddress",
+    "guestAddress2", "guestCity", "guestState", "guestZip",
+    "billingCountry", "billingFirstName", "billingLastName",
+    "billingAddress", "billingApartment", "billingCity",
+    "billingState", "billingPostal"
+  ];
+  const popup = document.getElementById("paymentSuccessPopup");
+  let finished = false;
+
+  function save() {
+    if (finished) return;
+    const values = {};
+    ids.forEach(id => {
+      const field = document.getElementById(id);
+      if (field) values[id] = field.value;
+    });
+    const draft = {
+      savedAt: Date.now(),
+      values,
+      shipping: document.querySelector(
+        'input[name="shippingMethod"]:checked'
+      )?.value || "standard",
+      same: document.getElementById("sameAsShipping")?.checked
+    };
+    try {
+      localStorage.setItem(key, JSON.stringify(draft));
+    } catch (_) {}
+  }
+
+  try {
+    const draft = JSON.parse(localStorage.getItem(key) || "null");
+    if (draft && Date.now() - draft.savedAt < lifetime) {
+      ids.forEach(id => {
+        const field = document.getElementById(id);
+        if (field && typeof draft.values?.[id] === "string") {
+          field.value = draft.values[id];
+        }
+      });
+
+      const same = document.getElementById("sameAsShipping");
+      if (same && typeof draft.same === "boolean") {
+        same.checked = draft.same;
+        same.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+
+      document.querySelectorAll(
+        'input[name="shippingMethod"]'
+      ).forEach(radio => {
+        if (radio.value === draft.shipping) {
+          radio.checked = true;
+          radio.dispatchEvent(
+            new Event("change", { bubbles: true })
+          );
+        }
+      });
+    } else if (draft) {
+      localStorage.removeItem(key);
+    }
+  } catch (_) {}
+
+  const watched = new Set([...ids, "sameAsShipping"]);
+  function changed(event) {
+    if (
+      watched.has(event.target.id) ||
+      event.target.name === "shippingMethod"
+    ) save();
+  }
+
+  document.addEventListener("input", changed);
+  document.addEventListener("change", changed);
+  window.addEventListener("pagehide", save);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") save();
+  });
+
+  if (popup) {
+    new MutationObserver(() => {
+      if (popup.classList.contains("show")) {
+        finished = true;
+        try {
+          localStorage.removeItem(key);
+        } catch (_) {}
+      }
+    }).observe(popup, {
+      attributes: true,
+      attributeFilter: ["class"]
+    });
+  }
+})();
+</script>
+
 </body>
 </html>

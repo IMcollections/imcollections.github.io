@@ -1735,309 +1735,280 @@ document
     document.getElementById("discountCode").value =
       bottomCode;
 
-    document.getElementById("applyDiscount").click();
-  });
+    const attemptStorageKey = "imSquarePaymentAttempt";
+let paymentBusy = false;
+let latestOrderNumber = null;
 
-document
-  .getElementById("paymentButton")
-  .addEventListener("click", async function () {
-
-    const message =
-      document.getElementById("checkoutMessage");
-
-    const acceptPolicies =
-  document.getElementById("acceptPolicies");
-
-if (!acceptPolicies.checked) {
-  message.style.color = "#b00020";
-  message.textContent =
-    "Please accept the Terms & Conditions and Privacy Policy before paying.";
-  return;
+function checkoutNotice(text, failed = false) {
+  const el = document.getElementById("checkoutMessage");
+  el.textContent = text;
+  el.style.color = failed ? "#b00020" : "green";
 }
 
-const selectedPaymentMethod =
-  document.querySelector(
-    'input[name="paymentMethod"]:checked'
-  )?.value || "card";
-
-if (selectedPaymentMethod === "applepay") {
-  document.getElementById("applePay")?.click();
-  return;
+function setPaymentBusy(busy) {
+  paymentBusy = busy;
+  document.getElementById("paymentButton").disabled = busy;
+  document.getElementById("retryPaymentStatus").disabled = busy;
 }
 
-if (selectedPaymentMethod === "googlepay") {
-  if (!googlePay) {
-    message.style.color = "#b00020";
-    message.textContent =
-      "Google Pay is not available right now.";
-    return;
-  }
+function deliveryPayload() {
+  const values = {};
 
-  try {
-    const result = await googlePay.tokenize();
+  const fields = {
+    first_name: "guestFirstName",
+    last_name: "guestLastName",
+    address: "guestAddress",
+    address2: "guestAddress2",
+    city: "guestCity",
+    state: "guestState",
+    postal_code: "guestZip",
+    country: "guestCountry",
+    phone: "guestPhone"
+  };
 
-    if (result.status !== "OK") {
-      message.style.color = "#b00020";
-      message.textContent =
-        "Google Pay could not be completed.";
-      return;
+  for (const [key, id] of Object.entries(fields)) {
+    const input = document.getElementById(id);
+
+    if (!input.reportValidity()) {
+      throw new Error("Complete your delivery information first.");
     }
 
-    const paymentToken = result.token;
-
-    message.textContent =
-      "Google Pay secured. Processing payment...";
-
-    const discountedSubtotal =
-      Math.max(0, subtotal - discountAmount);
-
-    const selectedShippingMethod =
-      document.querySelector(
-        'input[name="shippingMethod"]:checked'
-      )?.value || "standard";
-
-    const shippingCost =
-      selectedShippingMethod === "express"
-        ? 15
-        : subtotal >= 75
-          ? 0
-          : 8.99;
-
-    const taxableAmount =
-      discountedSubtotal + shippingCost;
-
-    const estimatedTax =
-      taxableAmount * 0.0925;
-
-    const total =
-      taxableAmount + estimatedTax;
-
-    const amountCents =
-      Math.round(total * 100);
-
-    const {
-      data: paymentData,
-      error: paymentError
-    } = await supabaseClient.functions.invoke(
-      "create-square-payment",
-      {
-        body: {
-          sourceId: paymentToken,
-          amountCents: amountCents
-        }
-      }
-    );
-
-    if (paymentError || !paymentData?.success) {
-      console.error(
-        "Google Pay payment error:",
-        paymentError || paymentData
-      );
-
-      message.style.color = "#b00020";
-      message.textContent =
-        "Google Pay payment could not be completed.";
-      return;
-    }
-
-    message.style.color = "green";
-    message.textContent =
-      "Payment successful!";
-
-    return;
-
-  } catch (error) {
-    console.error(
-      "Google Pay error:",
-      error
-    );
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "Unable to process Google Pay.";
-    return;
+    values[key] = input.value.trim();
   }
+
+  const email = document.getElementById("guestEmail");
+
+  if (!email.reportValidity()) {
+    throw new Error("Enter your checkout email.");
+  }
+
+  if (!document.getElementById("acceptPolicies").checked) {
+    throw new Error(
+      "Please accept the Terms & Conditions and Privacy Policy before paying."
+    );
+  }
+
+  if (!checkoutCart.length) {
+    throw new Error("Your cart is empty.");
+  }
+
+  return {
+    email: email.value.trim(),
+    shippingAddress: values
+  };
 }
 
-if (selectedPaymentMethod === "giftcard") {
-  if (!giftCard) {
-    message.style.color = "#b00020";
-    message.textContent =
-      "Gift Card payment is not available right now.";
-    return;
-  }
-
-  try {
-    const result =
-      await giftCard.tokenize();
-
-    if (result.status !== "OK") {
-      message.style.color = "#b00020";
-      message.textContent =
-        "Please check your gift card information.";
-      return;
-    }
-
-    const paymentToken = result.token;
-
-    const discountedSubtotal =
-      Math.max(0, subtotal - discountAmount);
-
-    const selectedShippingMethod =
-      document.querySelector(
-        'input[name="shippingMethod"]:checked'
-      )?.value || "standard";
-
-    const shippingCost =
-      selectedShippingMethod === "express"
-        ? 15
-        : subtotal >= 75
-          ? 0
-          : 8.99;
-
-    const taxableAmount =
-      discountedSubtotal + shippingCost;
-
-    const estimatedTax =
-      taxableAmount * 0.0925;
-
-    const total =
-      taxableAmount + estimatedTax;
-
-    const amountCents =
-      Math.round(total * 100);
-
-    const {
-      data: paymentData,
-      error: paymentError
-    } = await supabaseClient.functions.invoke(
-      "create-square-payment",
-      {
-        body: {
-          sourceId: paymentToken,
-          amountCents: amountCents
-        }
-      }
-    );
-
-    if (paymentError || !paymentData?.success) {
-      console.error(
-        "Gift Card payment error:",
-        paymentError || paymentData
-      );
-
-      message.style.color = "#b00020";
-      message.textContent =
-        "Gift Card payment could not be completed.";
-      return;
-    }
-
-    message.style.color = "green";
-    message.textContent =
-      "Payment successful!";
-    
-showPaymentSuccessPopup();
-    
-    return;
-
-  } catch (error) {
-    console.error(
-      "Gift Card error:",
-      error
-    );
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "Unable to process Gift Card payment.";
-    return;
-  }
-}
-    
-    if (!squareCard) {
-      message.textContent =
-        "Payment form is still loading. Please try again.";
-      return;
-    }
-
-    try {
-      const result = await squareCard.tokenize();
-
-      if (result.status !== "OK") {
-        message.textContent =
-          "Please check your card information and try again.";
-        return;
-      }
-
-      const paymentToken = result.token;
-
-     message.textContent =
-  "Card secured. Processing payment...";
-
-const discountedSubtotal =
-  Math.max(0, subtotal - discountAmount);
-
-const selectedShippingMethod =
-  document.querySelector(
+function checkoutAmountCents() {
+  const shipping = document.querySelector(
     'input[name="shippingMethod"]:checked'
   )?.value || "standard";
 
-const shippingCost =
-  selectedShippingMethod === "express"
-    ? 15
-    : subtotal >= 75
-      ? 0
-      : 8.99;
+  const subtotalCents = checkoutCart.reduce(
+    (sum, item) =>
+      sum + Math.round(Number(item.price) * 100) * Number(item.quantity),
+    0
+  );
 
-const taxableAmount =
-  discountedSubtotal + shippingCost;
+  const discountCents = Math.round(discountAmount * 100);
 
-const estimatedTax =
-  taxableAmount * 0.0925;
+  const shipCents = shipping === "express"
+    ? 1500
+    : subtotalCents >= 7500 ? 0 : 899;
 
-const total =
-  taxableAmount + estimatedTax;
+  const taxableCents = subtotalCents - discountCents + shipCents;
 
-const amountCents =
-  Math.round(total * 100);
+  return taxableCents + Math.round(taxableCents * 0.0925);
+}
 
-const {
-  data: paymentData,
-  error: paymentError
-} = await supabaseClient.functions.invoke(
-  "create-square-payment",
-  {
-    body: {
-      sourceId: paymentToken,
-      amountCents: amountCents
+async function invokeOrderPayment(body) {
+  const { data: { session } } =
+    await supabaseClient.auth.getSession();
+
+  body.userAccessToken = session?.access_token || null;
+
+  const { data, error } = await supabaseClient.functions.invoke(
+    "create-square-payment",
+    { body }
+  );
+
+  let response = data;
+
+  if (error && error.context?.json) {
+    try {
+      response = await error.context.json();
+    } catch (_) {}
+  }
+
+  if (
+    response?.success &&
+    /^\d{10}$/.test(response.orderNumber || "")
+  ) {
+    latestOrderNumber = response.orderNumber;
+
+    localStorage.removeItem(attemptStorageKey);
+    document.getElementById("retryPaymentStatus").hidden = true;
+
+    const currentCart = localStorage.getItem("imCollectionsCart");
+
+    if (
+      currentCart &&
+      JSON.stringify(JSON.parse(currentCart)) ===
+        JSON.stringify(checkoutCart)
+    ) {
+      localStorage.removeItem("imCollectionsCart");
+    }
+
+    checkoutNotice("Payment successful! Order #" + latestOrderNumber);
+    showPaymentSuccessPopup();
+
+    document.getElementById("paymentButton").disabled = true;
+    return;
+  }
+
+  if (response?.terminal) {
+    localStorage.removeItem(attemptStorageKey);
+    document.getElementById("retryPaymentStatus").hidden = true;
+  } else {
+    document.getElementById("retryPaymentStatus").hidden = false;
+  }
+
+  throw new Error(
+    response?.error ||
+    "Payment status could not be checked. Tap Retry Payment Status before paying again."
+  );
+}
+
+document.getElementById("paymentButton").addEventListener(
+  "click",
+  async () => {
+    if (paymentBusy || latestOrderNumber) return;
+
+    if (localStorage.getItem(attemptStorageKey)) {
+      checkoutNotice(
+        "An earlier payment needs checking. Tap Retry Payment Status before paying again.",
+        true
+      );
+
+      document.getElementById("retryPaymentStatus").hidden = false;
+      return;
+    }
+
+    setPaymentBusy(true);
+
+    try {
+      const delivery = deliveryPayload();
+
+      const method = document.querySelector(
+        'input[name="paymentMethod"]:checked'
+      )?.value || "card";
+
+      const paymentForm = {
+        card: squareCard,
+        giftcard: giftCard,
+        googlepay: googlePay
+      }[method];
+
+      if (!paymentForm) {
+        throw new Error(
+          "This payment method is not connected yet. Choose Card, Gift Card, or Google Pay."
+        );
+      }
+
+      checkoutNotice("Preparing your payment…");
+
+      const result = await paymentForm.tokenize();
+
+      if (result.status !== "OK") {
+        throw new Error(
+          "Please check your payment information and try again."
+        );
+      }
+
+      const attemptId = crypto.randomUUID();
+
+      localStorage.setItem(attemptStorageKey, attemptId);
+
+      checkoutNotice("Processing payment and saving your order…");
+
+      await invokeOrderPayment({
+        attemptId,
+        sourceId: result.token,
+        ...delivery,
+
+        items: checkoutCart.map(item => ({
+          id: item.id,
+          quantity: item.quantity
+        })),
+
+        shippingMethod: document.querySelector(
+          'input[name="shippingMethod"]:checked'
+        )?.value || "standard",
+
+        promoCode: discountAmount > 0
+          ? document.getElementById("discountCode")
+              .value.trim().toUpperCase()
+          : "",
+
+        amountCents: checkoutAmountCents(),
+        paymentMethod: method
+      });
+    } catch (error) {
+      checkoutNotice(
+        error.message || "Unable to prepare payment.",
+        true
+      );
+
+      if (localStorage.getItem(attemptStorageKey)) {
+        document.getElementById("retryPaymentStatus").hidden = false;
+      }
+    } finally {
+      setPaymentBusy(false);
+
+      if (latestOrderNumber) {
+        document.getElementById("paymentButton").disabled = true;
+      }
     }
   }
 );
 
-if (paymentError || !paymentData?.success) {
-  console.error(
-    "Payment error:",
-    paymentError || paymentData
-  );
+document.getElementById("retryPaymentStatus").addEventListener(
+  "click",
+  async () => {
+    if (paymentBusy) return;
 
-  message.style.color = "#b00020";
-  message.textContent =
-    "Payment could not be completed. Please try again.";
+    const attemptId = localStorage.getItem(attemptStorageKey);
 
-  return;
-}
+    if (!attemptId) return;
 
-message.style.color = "green";
-message.textContent =
-  "Payment successful!";
-      showPaymentSuccessPopup();
-      
+    setPaymentBusy(true);
+
+    try {
+      checkoutNotice("Checking your existing payment…");
+
+      await invokeOrderPayment({
+        attemptId,
+        resume: true
+      });
     } catch (error) {
-      console.error(error);
+      checkoutNotice(error.message, true);
+    } finally {
+      setPaymentBusy(false);
 
-      message.textContent =
-        "Unable to prepare payment. Please try again.";
+      if (latestOrderNumber) {
+        document.getElementById("paymentButton").disabled = true;
+      }
     }
-  });
+  }
+);
+
+if (localStorage.getItem(attemptStorageKey)) {
+  document.getElementById("retryPaymentStatus").hidden = false;
+
+  checkoutNotice(
+    "An earlier payment needs checking. Tap Retry Payment Status before paying again.",
+    true
+  );
+}
 function setupSummaryToggle(buttonId, contentId, arrowId) {
   const button = document.getElementById(buttonId);
   const content = document.getElementById(contentId);

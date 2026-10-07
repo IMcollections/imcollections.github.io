@@ -193,6 +193,7 @@ flex-shrink: 0;
       .checkout-title {
         font-size: 30px;
       }
+    }
 
 #guestCountry {
   width: 100%;
@@ -667,6 +668,20 @@ font-size: 0 !important;
   display: none !important;
 }
       
+
+/* Member delivery summary and mobile checkout cleanup. */
+.saved-delivery { background:#fff; border:1px solid #dedbd2; border-radius:10px; padding:18px; margin:16px 0; }
+.saved-delivery p { margin:6px 0; overflow-wrap:anywhere; }
+.checkout-secondary, #retryAccountLoad { background:#c9a44c; color:#111; border:0; border-radius:6px; padding:12px 18px; font:inherit; cursor:pointer; margin:0 0 18px; }
+#checkoutProfileMessage { font-size:14px; line-height:1.5; }
+#memberAccountLink a { color:#8a651f; }
+#deliveryFields input, #deliveryFields select { width:100%; }
+#guestCountry, #billingCountry { width:100%; padding:14px 12px; border:1px solid #bbb; background:#fff; font-size:16px; }
+.payment-success-content { max-height:calc(100dvh - 32px); overflow-y:auto; }
+.payment-success-popup { padding:16px; }
+.payment-success-content img { max-height:calc(100dvh - 126px); object-fit:contain; }
+
+#deliveryFields { display:grid; gap:8px; }
   </style>
 </head>
 
@@ -736,7 +751,7 @@ font-size: 0 !important;
 </div>
         
         <div class="summary-row">
-  <span>Standard Shipping</span>
+  <span class="shipping-summary-label">Standard Shipping</span>
   <strong id="checkoutShipping">$8.99</strong>
 </div>
 
@@ -759,32 +774,37 @@ font-size: 0 !important;
 <h2>Contact</h2>
 </div>
 
-<p class="guest-note">
+<p class="guest-note" id="checkoutContactStatus" role="status" aria-live="polite">
   Guest checkout is available.
 </p>
 
-<div class="contact-account-links">
+<div class="contact-account-links" id="guestAccountLinks">
   <a href="Login.html">Sign In</a>
   <span>or</span>
   <a href="Register.html">Register</a>
   <span>for faster checkout.</span>
 </div>
 
-      <!-- Full Name, Phone, Address, etc. continue here -->
+<p id="memberAccountLink" hidden><a href="my-account.html">My Account</a></p>
+<p id="checkoutProfileMessage" role="status" aria-live="polite"></p>
+<button type="button" id="retryAccountLoad" hidden>Retry Account Details</button>
 
       <section>
 
   <h2>Delivery Information</h2>
 
+  <div id="savedDeliverySummary" class="saved-delivery" hidden></div>
+  <button type="button" id="editDeliveryButton" class="checkout-secondary" hidden
+    aria-controls="deliveryFields" aria-expanded="false">Edit Delivery Information</button>
   <div class="guest-form">
+  <div id="deliveryFields">
 
     <label>Email Address</label>
-    <input type="email" id="guestEmail" placeholder="Email address" required>
+    <input type="email" id="guestEmail" placeholder="Email address" autocomplete="email" required>
 
 <label for="guestCountry">Country / Region</label>
 <select id="guestCountry" name="country">
 <option value="United States">United States</option>
-  <option value="Canada">Canada</option>
 </select>
 
     <label>First Name</label>
@@ -809,12 +829,13 @@ font-size: 0 !important;
     <input type="text" id="guestState" placeholder="State" required>
 
     <label>ZIP Code</label>
-    <input type="text" id="guestZip" placeholder="ZIP / Postal Code" required>
+    <input type="text" id="guestZip" placeholder="ZIP Code" autocomplete="postal-code" pattern="[0-9]{5}(-[0-9]{4})?" maxlength="10" required>
 
+</div> <!-- deliveryFields -->
 <div class="save-checkout-info">
   <label>
     <input type="checkbox" id="saveCheckoutInfo">
-    Save my information for faster checkout next time
+    <span id="saveCheckoutLabel">Remember my information on this device</span>
   </label>
 
       <div class="checkout-box payment-box">
@@ -897,13 +918,7 @@ font-size: 0 !important;
 
   <div id="card-container"></div>
 
-<label class="save-card-option">
-  <input
-    type="checkbox"
-    id="saveCardForFuture"
-  >
-  Save this card for future purchases
-</label>
+
 
 <label class="billing-same">
   <input
@@ -962,8 +977,7 @@ font-size: 0 !important;
   <label for="billingCountry">Country / Region</label>
   <select id="billingCountry">
     <option value="United States">United States</option>
-    <option value="Canada">Canada</option>
-  </select>
+    </select>
 
   <label for="billingFirstName">First Name</label>
   <input type="text" id="billingFirstName" placeholder="First Name">
@@ -980,11 +994,11 @@ font-size: 0 !important;
   <label for="billingCity">City</label>
   <input type="text" id="billingCity" placeholder="City">
 
-  <label for="billingState">State / Province</label>
-  <input type="text" id="billingState" placeholder="State / Province">
+  <label for="billingState">State</label>
+  <input type="text" id="billingState" placeholder="State">
 
-  <label for="billingPostal">ZIP / Postal Code</label>
-  <input type="text" id="billingPostal" placeholder="ZIP / Postal Code">
+  <label for="billingPostal">ZIP Code</label>
+  <input type="text" id="billingPostal" placeholder="ZIP Code" autocomplete="postal-code" pattern="[0-9]{5}(-[0-9]{4})?" maxlength="10">
 
 </div>
   </div>
@@ -1063,7 +1077,7 @@ font-size: 0 !important;
 </div>
         
         <div class="summary-row">
-  <span>Standard Shipping</span>
+  <span class="shipping-summary-label">Standard Shipping</span>
   <strong id="bottomShipping">$8.99</strong>
 </div>
 
@@ -1497,6 +1511,17 @@ document.getElementById("orderSummaryTotal").textContent =
   checkoutTotal.textContent =
     `$${total.toFixed(2)}`;
 
+  document.querySelectorAll(".shipping-summary-label").forEach(label => {
+    label.textContent = selectedShippingMethod === "express"
+      ? "Express Shipping" : "Standard Shipping";
+  });
+  if (selectedShippingMethod === "express") {
+    shippingMessage.textContent = "Express delivery selected.";
+  } else {
+    shippingMessage.textContent = subtotal >= 75
+      ? "✓ You qualify for FREE Standard Shipping!"
+      : `You're $${(75 - subtotal).toFixed(2)} away from FREE Standard Shipping`;
+  }
   syncBottomOrderSummary();
 }
 
@@ -1779,6 +1804,10 @@ function deliveryPayload() {
     values[key] = input.value.trim();
   }
 
+  if (values.country !== "United States") {
+    throw new Error("We currently ship within the United States only.");
+  }
+
   const email = document.getElementById("guestEmail");
 
   if (!email.reportValidity()) {
@@ -1899,7 +1928,12 @@ document.getElementById("paymentButton").addEventListener(
     setPaymentBusy(true);
 
     try {
+      await checkoutAccount.ready;
+      checkoutAccount.checkReady();
+      checkoutAccount.copyBilling();
       const delivery = deliveryPayload();
+      checkoutAccount.validateBilling();
+      await checkoutAccount.savePreference();
 
       const method = document.querySelector(
         'input[name="paymentMethod"]:checked'
@@ -2106,18 +2140,6 @@ document
     });
   });
 syncBottomOrderSummary();
-const sameAsShipping =
-  document.getElementById("sameAsShipping");
-
-const billingAddressFields =
-  document.getElementById("billingAddressFields");
-
-if (sameAsShipping && billingAddressFields) {
-  sameAsShipping.addEventListener("change", function () {
-    billingAddressFields.style.display =
-      this.checked ? "none" : "grid";
-  });
-}
     function showPaymentSuccessPopup() {
   document
     .getElementById("paymentSuccessPopup")
@@ -2146,7 +2168,6 @@ function closePaymentSuccessPopup() {
       type="button"
       class="payment-success-close"
       onclick="closePaymentSuccessPopup()"
-}
     >
       ×
     </button>
@@ -2167,100 +2188,282 @@ function closePaymentSuccessPopup() {
 </div>
 
 <script>
-(() => {
-  const key = "imCheckoutDraftV1";
-  const lifetime = 24 * 60 * 60 * 1000;
-  const ids = [
-    "guestEmail", "guestCountry", "guestFirstName",
-    "guestLastName", "guestPhone", "guestAddress",
-    "guestAddress2", "guestCity", "guestState", "guestZip",
-    "billingCountry", "billingFirstName", "billingLastName",
-    "billingAddress", "billingApartment", "billingCity",
-    "billingState", "billingPostal"
-  ];
-  const popup = document.getElementById("paymentSuccessPopup");
-  let finished = false;
-
-  function save() {
-    if (finished) return;
-    const values = {};
-    ids.forEach(id => {
-      const field = document.getElementById(id);
-      if (field) values[id] = field.value;
-    });
-    const draft = {
-      savedAt: Date.now(),
-      values,
-      shipping: document.querySelector(
-        'input[name="shippingMethod"]:checked'
-      )?.value || "standard",
-      same: document.getElementById("sameAsShipping")?.checked
-    };
+const checkoutAccount = (() => {
+  const fieldMap = {
+    first_name: "guestFirstName", last_name: "guestLastName", phone: "guestPhone",
+    address_line1: "guestAddress", address_line2: "guestAddress2", city: "guestCity",
+    state_province: "guestState", postal_code: "guestZip", country: "guestCountry"
+  };
+  const billingMap = {
+    guestFirstName: "billingFirstName", guestLastName: "billingLastName",
+    guestAddress: "billingAddress", guestAddress2: "billingApartment",
+    guestCity: "billingCity", guestState: "billingState", guestZip: "billingPostal",
+    guestCountry: "billingCountry"
+  };
+  const deliveryIds = ["guestEmail", ...Object.values(fieldMap)];
+  const draftIds = [...deliveryIds, ...Object.values(billingMap)];
+  const watched = new Set([...draftIds, "sameAsShipping", "saveCheckoutInfo"]);
+  const byId = id => document.getElementById(id);
+  let user = null, owner = null, loading = true, failed = false, finished = false;
+  let version = 0, ready;
+  const dirty = new Set();
+  const draftKey = () => "imCheckoutDraftV2:" + owner;
+  const rememberKey = () => "imCheckoutRememberV1:" + owner;
+  function notice(text, error = false) {
+    byId("checkoutProfileMessage").textContent = text;
+    byId("checkoutProfileMessage").style.color = error ? "#b00020" : "#626262";
+  }
+  function stored(key, lifetime) {
     try {
-      localStorage.setItem(key, JSON.stringify(draft));
-    } catch (_) {}
-  }
-
-  try {
-    const draft = JSON.parse(localStorage.getItem(key) || "null");
-    if (draft && Date.now() - draft.savedAt < lifetime) {
-      ids.forEach(id => {
-        const field = document.getElementById(id);
-        if (field && typeof draft.values?.[id] === "string") {
-          field.value = draft.values[id];
-        }
-      });
-
-      const same = document.getElementById("sameAsShipping");
-      if (same && typeof draft.same === "boolean") {
-        same.checked = draft.same;
-        same.dispatchEvent(new Event("change", { bubbles: true }));
-      }
-
-      document.querySelectorAll(
-        'input[name="shippingMethod"]'
-      ).forEach(radio => {
-        if (radio.value === draft.shipping) {
-          radio.checked = true;
-          radio.dispatchEvent(
-            new Event("change", { bubbles: true })
-          );
-        }
-      });
-    } else if (draft) {
+      const draft = JSON.parse(localStorage.getItem(key) || "null");
+      if (draft && Number.isFinite(draft.savedAt) && Date.now() - draft.savedAt < lifetime) return draft;
       localStorage.removeItem(key);
-    }
-  } catch (_) {}
-
-  const watched = new Set([...ids, "sameAsShipping"]);
-  function changed(event) {
-    if (
-      watched.has(event.target.id) ||
-      event.target.name === "shippingMethod"
-    ) save();
+    } catch (_) {}
+    return null;
   }
-
-  document.addEventListener("input", changed);
-  document.addEventListener("change", changed);
-  window.addEventListener("pagehide", save);
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") save();
-  });
-
-  if (popup) {
-    new MutationObserver(() => {
-      if (popup.classList.contains("show")) {
-        finished = true;
-        try {
-          localStorage.removeItem(key);
-        } catch (_) {}
+  function copyBilling() {
+    const same = byId("sameAsShipping");
+    byId("billingAddressFields").style.display = same.checked ? "none" : "grid";
+    if (same.checked) {
+      for (const [source, target] of Object.entries(billingMap)) {
+        byId(target).value = byId(source).value;
       }
-    }).observe(popup, {
-      attributes: true,
-      attributeFilter: ["class"]
+    }
+  }
+  function snapshot() {
+    const values = {};
+    draftIds.forEach(id => { values[id] = byId(id).value; });
+    return {
+      savedAt: Date.now(), values,
+      shipping: document.querySelector('input[name="shippingMethod"]:checked')?.value || "standard",
+      same: byId("sameAsShipping").checked,
+      remember: byId("saveCheckoutInfo").checked
+    };
+  }
+  function saveDraft() {
+    if (loading || finished || !owner) return;
+    try { localStorage.setItem(draftKey(), JSON.stringify(snapshot())); } catch (_) {}
+  }
+  function supportedCountry(value) {
+    return !value || ["US", "USA", "United States", "United States of America"].includes(value);
+  }
+  function applyDraft(draft) {
+    if (!draft?.values || !supportedCountry(draft.values.guestCountry)) return;
+    draftIds.forEach(id => {
+      if (id === "guestCountry" || id === "billingCountry" || (id === "guestEmail" && user)) return;
+      if (!dirty.has(id) && typeof draft.values[id] === "string") byId(id).value = draft.values[id];
+    });
+    if (!dirty.has("sameAsShipping") && typeof draft.same === "boolean") byId("sameAsShipping").checked = draft.same;
+    if (typeof draft.remember === "boolean") byId("saveCheckoutInfo").checked = draft.remember;
+    document.querySelectorAll('input[name="shippingMethod"]').forEach(radio => {
+      if (radio.value === draft.shipping) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event("change", { bubbles: true }));
+      }
     });
   }
+  function completeDelivery() {
+    return ["guestEmail", "guestFirstName", "guestLastName", "guestAddress", "guestCity", "guestState", "guestZip"]
+      .every(id => byId(id).value.trim() && byId(id).checkValidity());
+  }
+  function showSummary() {
+    const summary = byId("savedDeliverySummary");
+    summary.replaceChildren();
+    const lines = [
+      byId("guestEmail").value,
+      [byId("guestFirstName").value, byId("guestLastName").value].filter(Boolean).join(" "),
+      byId("guestAddress").value, byId("guestAddress2").value,
+      [byId("guestCity").value, byId("guestState").value, byId("guestZip").value].filter(Boolean).join(", "),
+      "United States", byId("guestPhone").value
+    ];
+    lines.filter(Boolean).forEach(line => {
+      const p = document.createElement("p"); p.textContent = line; summary.append(p);
+    });
+    const collapse = Boolean(user) && completeDelivery();
+    summary.hidden = !collapse;
+    byId("deliveryFields").hidden = collapse;
+    byId("editDeliveryButton").hidden = !collapse;
+    byId("editDeliveryButton").textContent = "Edit Delivery Information";
+    byId("editDeliveryButton").setAttribute("aria-expanded", "false");
+  }
+  async function limited(promise) {
+    let timer;
+    try {
+      return await Promise.race([
+        promise,
+        new Promise((_, reject) => {
+          timer = setTimeout(() => reject(new Error("Account details took too long to load. Try again.")), 15000);
+        })
+      ]);
+    } finally { clearTimeout(timer); }
+  }
+  async function load() {
+    const requestVersion = ++version;
+    loading = true; failed = false;
+    byId("checkoutContactStatus").textContent = "Checking your account…";
+    byId("guestAccountLinks").hidden = true;
+    byId("retryAccountLoad").hidden = true;
+    try {
+      const sessionResult = await limited(supabaseClient.auth.getSession());
+      if (sessionResult.error) throw sessionResult.error;
+      let nextUser = null;
+      if (sessionResult.data.session) {
+        const result = await limited(supabaseClient.auth.getUser());
+        if (result.error || !result.data.user) throw new Error("Please sign in again to load your saved details.");
+        nextUser = result.data.user;
+      }
+      if (requestVersion !== version) return;
+      const nextOwner = nextUser?.id || "guest";
+      if (owner && owner !== nextOwner) {
+        draftIds.forEach(id => { byId(id).value = ""; });
+        dirty.clear(); byId("saveCheckoutInfo").checked = false;
+      }
+      user = nextUser; owner = nextOwner;
+      byId("guestCountry").value = "United States";
+      byId("billingCountry").value = "United States";
+      byId("guestEmail").readOnly = Boolean(user);
+      byId("memberAccountLink").hidden = !user;
+      byId("guestAccountLinks").hidden = Boolean(user);
+      byId("saveCheckoutLabel").textContent = user
+        ? "Save updated delivery information to My Account"
+        : "Remember my information on this device";
+      byId("checkoutContactStatus").textContent = user
+        ? "Signed in as " + user.email
+        : "Guest checkout is available. We currently ship within the United States only.";
+      notice("");
+      if (user) {
+        byId("guestEmail").value = user.email || "";
+        let profile = null;
+        try {
+          const result = await limited(supabaseClient.from("profiles").select(
+            "first_name,last_name,phone,address_line1,address_line2,city,state_province,postal_code,country"
+          ).eq("id", user.id).maybeSingle());
+          if (result.error) throw result.error;
+          profile = result.data;
+        } catch (_) {
+          if (requestVersion !== version) return;
+          notice("Your saved address could not be loaded. Enter your delivery details or try Retry Account Details.", true);
+          byId("retryAccountLoad").hidden = false;
+        }
+        if (requestVersion !== version) return;
+        const domestic = supportedCountry(profile?.country);
+        for (const [column, id] of Object.entries(fieldMap)) {
+          if (id === "guestCountry" || dirty.has(id)) continue;
+          const personal = ["first_name", "last_name", "phone"].includes(column);
+          byId(id).value = domestic || personal
+            ? String(profile?.[column] || (personal ? user.user_metadata?.[column] : "") || "")
+            : "";
+        }
+        if (!domestic) notice("Your profile has an international address. Enter a United States delivery address for this order.", true);
+      }
+      const draft = stored(draftKey(), 24 * 60 * 60 * 1000);
+      if (draft) applyDraft(draft);
+      else if (!user) applyDraft(stored(rememberKey(), 30 * 24 * 60 * 60 * 1000));
+      // Migrate an existing guest timeout draft, but never use it for a member.
+      if (!user && !draft) applyDraft(stored("imCheckoutDraftV1", 24 * 60 * 60 * 1000));
+      try { localStorage.removeItem("imCheckoutDraftV1"); } catch (_) {}
+      copyBilling(); showSummary();
+      if (user && !completeDelivery() && !byId("checkoutProfileMessage").textContent) {
+        notice("Complete the missing delivery details. Check the save box to update My Account.");
+      }
+    } catch (error) {
+      if (requestVersion !== version) return;
+      failed = true;
+      byId("checkoutContactStatus").textContent = "Your account could not be checked.";
+      byId("guestAccountLinks").hidden = false;
+      byId("retryAccountLoad").hidden = false;
+      notice(error.message || "Unable to check your account. Try again.", true);
+    } finally {
+      if (requestVersion === version) { loading = false; saveDraft(); }
+    }
+  }
+  function validateBilling() {
+    const method = document.querySelector('input[name="paymentMethod"]:checked')?.value || "card";
+    if (method !== "card" || byId("sameAsShipping").checked) return;
+    for (const id of ["billingFirstName", "billingLastName", "billingAddress", "billingCity", "billingState", "billingPostal"]) {
+      const input = byId(id);
+      if (!input.value.trim() || !input.reportValidity()) {
+        input.focus(); throw new Error("Complete your billing address or use your shipping address.");
+      }
+    }
+  }
+  async function savePreference() {
+    saveDraft();
+    if (!byId("saveCheckoutInfo").checked) {
+      try { localStorage.removeItem(rememberKey()); } catch (_) {}
+      return;
+    }
+    if (!user) {
+      try { localStorage.setItem(rememberKey(), JSON.stringify(snapshot())); } catch (_) {}
+      return;
+    }
+    const current = await limited(supabaseClient.auth.getUser());
+    if (current.error || current.data.user?.id !== user.id) throw new Error("Your account changed. Reload checkout before paying.");
+    const updates = {};
+    for (const [column, id] of Object.entries(fieldMap)) updates[column] = byId(id).value.trim();
+    const result = await limited(supabaseClient.from("profiles").update(updates).eq("id", user.id).select("id").maybeSingle());
+    if (result.error || !result.data) {
+      throw new Error("Your delivery details could not be saved. Try again, or uncheck Save updated delivery information to pay without updating My Account.");
+    }
+    notice("Delivery information saved to My Account.");
+  }
+  document.addEventListener("input", event => {
+    if (watched.has(event.target.id)) {
+      dirty.add(event.target.id);
+      if (deliveryIds.includes(event.target.id)) copyBilling();
+      saveDraft();
+    }
+  });
+  document.addEventListener("change", event => {
+    if (watched.has(event.target.id) || event.target.name === "shippingMethod") {
+      dirty.add(event.target.id); copyBilling(); saveDraft();
+      if (event.target.id === "saveCheckoutInfo" && !event.target.checked && owner) {
+        try { localStorage.removeItem(rememberKey()); } catch (_) {}
+      }
+    }
+  });
+  byId("editDeliveryButton").addEventListener("click", () => {
+    const fields = byId("deliveryFields");
+    if (fields.hidden) {
+      fields.hidden = false; byId("savedDeliverySummary").hidden = true;
+      byId("editDeliveryButton").textContent = "Done Editing";
+      byId("editDeliveryButton").setAttribute("aria-expanded", "true");
+    } else {
+      if (!completeDelivery()) { notice("Complete the required delivery details first.", true); return; }
+      copyBilling(); saveDraft(); showSummary();
+    }
+  });
+  byId("retryAccountLoad").addEventListener("click", () => { ready = load(); });
+  window.addEventListener("pagehide", saveDraft);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") saveDraft(); });
+  new MutationObserver(() => {
+    if (byId("paymentSuccessPopup").classList.contains("show")) {
+      finished = true;
+      if (owner) { try { localStorage.removeItem(draftKey()); } catch (_) {} }
+    }
+  }).observe(byId("paymentSuccessPopup"), { attributes: true, attributeFilter: ["class"] });
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === "SIGNED_OUT") {
+      ++version; loading = true; user = null; owner = null; dirty.clear();
+      draftIds.forEach(id => { byId(id).value = ""; });
+      byId("savedDeliverySummary").hidden = true;
+      byId("deliveryFields").hidden = false;
+      byId("editDeliveryButton").hidden = true;
+      byId("guestEmail").readOnly = false;
+      byId("saveCheckoutInfo").checked = false;
+    }
+    if (event === "SIGNED_OUT" || (event === "SIGNED_IN" && owner && session?.user?.id !== owner)) {
+      // Run profile queries outside Supabase's auth callback.
+      setTimeout(() => { ready = load(); }, 0);
+    }
+  });
+  ready = load();
+  return {
+    get ready() { return ready; }, copyBilling, validateBilling, savePreference,
+    checkReady() { if (loading || failed) throw new Error("Check your account with Retry Account Details before paying."); }
+  };
 })();
+
 </script>
 
 </body>

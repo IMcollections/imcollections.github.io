@@ -1464,7 +1464,7 @@ syncBottomOrderSummary();
 
     let checkoutRewardPoints = 0;
     function standardShippingFree(subtotalCents, discountCents) {
-      return subtotalCents >= 7500 || (checkoutRewardPoints >= 800 && subtotalCents - discountCents >= 5000);
+      return subtotalCents >= 7500 || checkoutRewardPoints >= 800;
     }
     let discountAmount = 0;
 
@@ -1544,12 +1544,11 @@ document.getElementById("orderSummaryTotal").textContent =
     shippingMessage.textContent = "Express delivery selected.";
   } else {
     const free = standardShippingFree(Math.round(subtotal * 100), Math.round(discountAmount * 100));
-    const remaining = checkoutRewardPoints >= 800
-      ? Math.min(75 - subtotal, 50 - discountedSubtotal) : 75 - subtotal;
+    const remaining = 75 - subtotal;
     shippingMessage.textContent = free
       ? "✓ You qualify for FREE Standard Shipping!"
       : `You're $${Math.max(0, remaining).toFixed(2)} away from FREE Standard Shipping`;
-    if (checkoutRewardPoints >= 800 && !free) shippingMessage.textContent += " (VIP & Premium: $50 after discounts).";
+    if (checkoutRewardPoints >= 800 && free) shippingMessage.textContent = "✓ VIP & Premium benefit: FREE Standard Shipping on any purchase!";
   }
   syncBottomOrderSummary();
 }

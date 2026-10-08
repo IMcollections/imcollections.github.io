@@ -539,6 +539,12 @@
     <p id="nextRewardText">
       Earn points to unlock your next reward.
     </p>
+
+    <p>
+      Referral Rewards:
+      $<strong id="referralCredit">0</strong>
+    </p>
+    <p>Visit <a href="collectors-reward.html">Collectors Reward</a> for program details.</p>
   </section>
 
 
@@ -592,9 +598,12 @@
     <input
       type="password"
       id="confirmNewPassword"
+      aria-describedby="accountPasswordMatchStatus"
       placeholder="Confirm new password"
       autocomplete="new-password"
     >
+
+    <p id="accountPasswordMatchStatus" role="status" aria-live="polite" style="min-height:1.5em;margin:8px 0 14px"></p>
 
     <button type="button" id="savePasswordBtn">
       Update Password
@@ -687,18 +696,10 @@
     <h3>Refer A Friend</h3>
 
     <p>
-      Give $10, Get $10
-    </p>
-
-    <p>
       Referral Code:
       <strong id="memberReferralCode">—</strong>
     </p>
 
-    <p>
-      Referral Rewards:
-      $<strong id="referralCredit">0</strong>
-    </p>
 
     <button type="button" id="referFriendBtn">
       Refer A Friend
@@ -1097,9 +1098,23 @@ cancelEmailBtn.addEventListener("click", () => {
   changeEmailBtn.style.display = "block";
 });
 
+const accountPasswordMatchStatus = document.getElementById("accountPasswordMatchStatus");
+function updateAccountPasswordMatch() {
+  const confirmation = confirmNewPassword.value;
+  const mismatch = confirmation.length > 0 && newPassword.value !== confirmation;
+  confirmNewPassword.setCustomValidity(mismatch ? "Passwords do not match." : "");
+  confirmNewPassword.setAttribute("aria-invalid", String(mismatch));
+  accountPasswordMatchStatus.textContent = confirmation.length === 0 ? ""
+    : mismatch ? "Passwords do not match." : "Passwords match.";
+  accountPasswordMatchStatus.style.color = mismatch ? "#b00020" : "#216e26";
+}
+newPassword.addEventListener("input", updateAccountPasswordMatch);
+confirmNewPassword.addEventListener("input", updateAccountPasswordMatch);
+
 changePasswordBtn.addEventListener("click", () => {
   newPassword.value = "";
   confirmNewPassword.value = "";
+  updateAccountPasswordMatch();
   passwordChangeMessage.textContent = "";
 
   changePasswordForm.style.display = "block";
@@ -1112,6 +1127,7 @@ cancelPasswordBtn.addEventListener("click", () => {
 
   newPassword.value = "";
   confirmNewPassword.value = "";
+  updateAccountPasswordMatch();
   passwordChangeMessage.textContent = "";
 });
 
@@ -1156,6 +1172,7 @@ savePasswordBtn.addEventListener("click", async () => {
 
   newPassword.value = "";
   confirmNewPassword.value = "";
+  updateAccountPasswordMatch();
 
   setTimeout(() => {
     changePasswordForm.style.display = "none";

@@ -696,6 +696,10 @@ font-size: 0 !important;
 #imReferralDialog .im-referral-close { position:absolute; top:10px; right:12px; border:0; background:transparent; color:#191919; font-size:28px; cursor:pointer; padding:4px 10px; }
 #imReferralDialog .im-referral-action { display:block; text-align:center; margin-top:20px; padding:12px 16px; border-radius:6px; background:#c9a44c; color:#111; text-decoration:none; }
 #imReferralDialog .im-referral-note { font-size:14px; color:#555; }
+  .referral-reward-choice{margin:16px 0;padding:14px;background:#fbf8ef;border:1px solid #ded3b7;border-radius:6px}
+  .referral-reward-choice p{margin:0 0 10px;font-size:14px;line-height:1.5}
+  .referral-reward-choice button{background:#c8a347;color:#111;border:0;border-radius:4px;padding:12px 16px;font:inherit;cursor:pointer;width:100%}
+  .referral-reward-choice button:disabled{opacity:.55;cursor:default}
   </style>
 </head>
 
@@ -753,6 +757,10 @@ font-size: 0 !important;
         </div>
 
 <div id="discountMessage"></div>
+<div class="referral-reward-choice" id="ReferralRewardChoice" hidden>
+  <p id="ReferralRewardStatus" role="status" aria-live="polite"></p>
+  <button type="button" id="UseReferralRewards">Use My Referral Rewards</button>
+</div>
 
         <div class="summary-row">
           <span>Subtotal</span>
@@ -1085,6 +1093,10 @@ font-size: 0 !important;
         </div>
 
 <div id="bottomDiscountMessage"></div>
+<div class="referral-reward-choice" id="bottomReferralRewardChoice" hidden>
+  <p id="bottomReferralRewardStatus" role="status" aria-live="polite"></p>
+  <button type="button" id="bottomUseReferralRewards">Use My Referral Rewards</button>
+</div>
 
         <div class="summary-row">
           <span>Subtotal</span>
@@ -1435,9 +1447,9 @@ syncBottomOrderSummary();
     const subtotal =
       checkoutCart.reduce(
         (total, item) =>
-          total + item.price * item.quantity,
+          total + Math.round(Number(item.price) * 100) * Number(item.quantity),
         0
-      );
+      ) / 100;
 
 
     checkoutSubtotal.textContent =
@@ -1467,6 +1479,102 @@ syncBottomOrderSummary();
       return subtotalCents >= 7500 || checkoutRewardPoints >= 800;
     }
     let discountAmount = 0;
+    let appliedPromoCode = "";
+    let useReferralRewards = false;
+    let referralMemberId = null;
+    let referralBalanceCents = 0;
+    let referralBalanceKnown = false;
+    let referralQuoteVersion = 0;
+    let discountSelectionVersion = 0;
+    let referralUiBusy = false;
+    let referralQuoteBusy = false;
+
+function referralRewardLimitCents(subtotalCents) {
+  return subtotalCents >= 20000 ? 5000 : subtotalCents >= 15000 ? 4000
+    : subtotalCents >= 10000 ? 3000 : subtotalCents >= 7500 ? 2000
+    : subtotalCents >= 5000 ? 1000 : 0;
+}
+function renderReferralRewardChoice() {
+  const limit = referralRewardLimitCents(Math.round(subtotal * 100));
+  const usable = Math.min(referralBalanceCents, limit);
+  for (const prefix of ["", "bottom"]) {
+    const box = document.getElementById(prefix + "ReferralRewardChoice");
+    box.hidden = !referralMemberId;
+    const button = document.getElementById(prefix + "UseReferralRewards");
+    button.textContent = useReferralRewards ? "Remove Referral Rewards" : "Use My Referral Rewards";
+    button.setAttribute("aria-pressed", String(useReferralRewards));
+    button.disabled = referralUiBusy || referralQuoteBusy || !!localStorage.getItem("imSquarePaymentAttempt")
+      || (referralBalanceKnown && !useReferralRewards && usable <= 0);
+    const status = document.getElementById(prefix + "ReferralRewardStatus");
+    status.textContent = !referralBalanceKnown ? "Check your available earned referral rewards. No code is needed."
+      : useReferralRewards ? `Referral rewards applied: $${discountAmount.toFixed(2)}. Deducted after successful payment.`
+      : `Available referral rewards: $${(referralBalanceCents / 100).toFixed(2)}. `
+        + (limit ? `You can use up to $${(usable / 100).toFixed(2)} on this order. One promotion or reward per order.`
+                 : "A $50 merchandise subtotal is required to use referral rewards.");
+  }
+}
+function resetReferralMember(memberId) {
+  if (referralMemberId !== memberId) {
+    ++discountSelectionVersion; ++referralQuoteVersion;
+    useReferralRewards = false; appliedPromoCode = ""; discountAmount = 0;
+    referralBalanceCents = 0; referralBalanceKnown = false; referralQuoteBusy = false;
+    document.getElementById("discountMessage").textContent = "";
+    referralMemberId = memberId;
+    updateCheckoutTotal();
+  }
+  renderReferralRewardChoice();
+}
+async function refreshReferralBalance() {
+  const owner = referralMemberId;
+  const version = ++referralQuoteVersion;
+  if (!owner) throw new Error("Sign in to use earned referral rewards.");
+  let timer;
+  const result = await Promise.race([
+    supabaseClient.rpc("im_get_referral_reward_balance"),
+    new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("Referral rewards took too long to load. Try again.")), 15000); })
+  ]).finally(() => clearTimeout(timer));
+  if (version !== referralQuoteVersion || owner !== referralMemberId)
+    throw new Error("Your account changed. Check your referral rewards again.");
+  if (result.error || !Number.isFinite(Number(result.data)))
+    throw new Error("Your referral rewards could not be checked. Try again before paying.");
+  referralBalanceCents = Math.max(0, Math.round(Number(result.data) * 100));
+  referralBalanceKnown = true;
+  renderReferralRewardChoice();
+  return referralBalanceCents;
+}
+async function toggleReferralRewards() {
+  if (referralUiBusy || referralQuoteBusy || localStorage.getItem("imSquarePaymentAttempt")) return;
+  const version = ++discountSelectionVersion;
+  const message = document.getElementById("discountMessage");
+  if (useReferralRewards) {
+    useReferralRewards = false; discountAmount = 0; appliedPromoCode = "";
+    message.textContent = "Referral rewards removed."; message.style.color = "#555";
+    updateCheckoutTotal(); return;
+  }
+  referralQuoteBusy = true; renderReferralRewardChoice();
+  try {
+    await checkoutAccount.ready;
+    const available = await refreshReferralBalance();
+    if (version !== discountSelectionVersion) return;
+    const limit = referralRewardLimitCents(Math.round(subtotal * 100));
+    if (!limit) throw new Error("Referral rewards require a minimum $50 merchandise subtotal.");
+    const reward = Math.min(available, limit);
+    if (!reward) throw new Error("You do not have available earned referral rewards yet.");
+    appliedPromoCode = ""; useReferralRewards = true; discountAmount = reward / 100;
+    document.getElementById("discountCode").value = "";
+    message.textContent = `Referral rewards applied! You saved $${discountAmount.toFixed(2)}.`;
+    message.style.color = "green";
+    updateCheckoutTotal();
+  } catch (error) {
+    if (version === discountSelectionVersion) {
+      message.textContent = error.message; message.style.color = "#b00020"; syncBottomOrderSummary();
+    }
+  } finally { referralQuoteBusy = false; renderReferralRewardChoice(); }
+}
+for (const prefix of ["", "bottom"]) {
+  document.getElementById(prefix + "UseReferralRewards").addEventListener("click", toggleReferralRewards);
+}
+
 
 function updateCheckoutTotal() {
 
@@ -1502,7 +1610,7 @@ if (standardShippingPrice) {
     discountedSubtotal + shippingCost;
 
   const estimatedTax =
-    taxableAmount * taxRate;
+    Math.round(Math.round(taxableAmount * 100) * taxRate) / 100;
 
   const total =
     taxableAmount + estimatedTax;
@@ -1550,6 +1658,7 @@ document.getElementById("orderSummaryTotal").textContent =
       : `You're $${Math.max(0, remaining).toFixed(2)} away from FREE Standard Shipping`;
     if (checkoutRewardPoints >= 800 && free) shippingMessage.textContent = "✓ VIP & Premium benefit: FREE Standard Shipping on any purchase!";
   }
+  renderReferralRewardChoice();
   syncBottomOrderSummary();
 }
 
@@ -1617,162 +1726,44 @@ paymentMethodRadios.forEach((radio) => {
 
 showSelectedPaymentMethod();
 
-document
-  .getElementById("applyDiscount")
-  .addEventListener("click", async function () {
-
-    const code =
-      document
-        .getElementById("discountCode")
-        .value
-        .trim()
-        .toUpperCase();
-
-  const message =
-  document.getElementById("discountMessage");
-
-   if (code === "COLLECT15") {
-
-  const {
-    data: { user },
-    error: userError
-  } = await supabaseClient.auth.getUser();
-
-  if (userError || !user) {
-    discountAmount = 0;
-    updateCheckoutTotal();
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "COLLECT15 is for registered members only. Please sign in or register to use your welcome discount.";
-    return;
-  }
-
-  const {
-    data: profile,
-    error: profileError
-  } = await supabaseClient
-    .from("profiles")
-    .select("welcome_discount_code, welcome_discount_used")
-    .eq("id", user.id)
-    .single();
-
-  if (profileError || !profile) {
-    discountAmount = 0;
-    updateCheckoutTotal();
-
-  message.style.color = "#b00020";
-message.textContent =
-  "We could not verify your welcome discount. Please try again.";
-
-syncBottomOrderSummary();
-
-return;
-  }
-
-  if (profile.welcome_discount_used === true) {
-    discountAmount = 0;
-    updateCheckoutTotal();
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "Your COLLECT15 welcome discount has already been used.";
-    return;
-  }
-
-  if (profile.welcome_discount_code !== "COLLECT15") {
-    discountAmount = 0;
-    updateCheckoutTotal();
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "COLLECT15 is not available for this account.";
-    return;
-  }
-
-  discountAmount = subtotal * 0.15;
+document.getElementById("applyDiscount").addEventListener("click", async function () {
+  if (referralUiBusy || referralQuoteBusy || localStorage.getItem("imSquarePaymentAttempt")) return;
+  const version = ++discountSelectionVersion;
+  const code = document.getElementById("discountCode").value.trim().toUpperCase();
+  const message = document.getElementById("discountMessage");
+  useReferralRewards = false; appliedPromoCode = ""; discountAmount = 0;
   updateCheckoutTotal();
-
-  message.style.color = "green";
-  message.textContent =
-    `COLLECT15 applied! You saved $${discountAmount.toFixed(2)}.`;
-
-syncBottomOrderSummary();
-
-} else if (code === "IMREFER10") {
-
-  const {
-    data: { user },
-    error: userError
-  } = await supabaseClient.auth.getUser();
-
-  if (userError || !user) {
-    discountAmount = 0;
+  try {
+    if (!["COLLECT15", "IMREFER10"].includes(code)) throw new Error("Invalid discount code.");
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (version !== discountSelectionVersion) return;
+    if (userError || !user) throw new Error("Sign in or register to use a member discount.");
+    if (user.id !== referralMemberId) throw new Error("Your account changed. Reload checkout before applying a discount.");
+    let amount;
+    if (code === "COLLECT15") {
+      const result = await supabaseClient.from("profiles")
+        .select("welcome_discount_code,welcome_discount_used").eq("id", user.id).single();
+      if (result.error || !result.data) throw new Error("We could not verify your welcome discount. Please try again.");
+      if (result.data.welcome_discount_used) throw new Error("Your COLLECT15 welcome discount has already been used.");
+      if (result.data.welcome_discount_code !== "COLLECT15") throw new Error("COLLECT15 is not available for this account.");
+      amount = Math.round(Math.round(subtotal * 100) * 0.15) / 100;
+    } else {
+      if (Math.round(subtotal * 100) < 5000) throw new Error("IMREFER10 requires a minimum $50 purchase.");
+      const result = await supabaseClient.from("referrals").select("id")
+        .eq("referred_user_id", user.id).eq("status", "pending").eq("referred_reward_used", false).limit(1).maybeSingle();
+      if (result.error || !result.data) throw new Error("This account does not have an available new-friend referral discount.");
+      amount = 10;
+    }
+    if (version !== discountSelectionVersion || user.id !== referralMemberId) return;
+    discountAmount = amount; appliedPromoCode = code;
+    message.style.color = "green";
+    message.textContent = `${code} applied! You saved $${amount.toFixed(2)}.`;
     updateCheckoutTotal();
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "Please sign in to use your referral reward.";
-
-    syncBottomOrderSummary();
-    return;
-  }
-
-  if (subtotal < 50) {
-    discountAmount = 0;
+  } catch (error) {
+    if (version !== discountSelectionVersion) return;
+    message.style.color = "#b00020"; message.textContent = error.message;
     updateCheckoutTotal();
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "IMREFER10 requires a minimum $50 purchase.";
-
-    syncBottomOrderSummary();
-    return;
   }
-
-  const {
-    data: referral,
-    error: referralError
-  } = await supabaseClient
-    .from("referrals")
-    .select("id, status, referred_reward_used")
-    .eq("referred_user_id", user.id)
-    .eq("status", "pending")
-    .eq("referred_reward_used", false)
-    .limit(1)
-    .maybeSingle();
-
-  if (referralError || !referral) {
-    discountAmount = 0;
-    updateCheckoutTotal();
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "This account does not have an available referral reward.";
-
-    syncBottomOrderSummary();
-    return;
-  }
-
-  discountAmount = 10;
-  updateCheckoutTotal();
-
-  message.style.color = "green";
-  message.textContent =
-    "IMREFER10 applied! You saved $10.00";
-
-  syncBottomOrderSummary();
-
-} else {
-
-  discountAmount = 0;
-  updateCheckoutTotal();
-
-  message.style.color = "#b00020";
-  message.textContent =
-    "Invalid discount code.";
-}
-
 });
 
 document
@@ -1803,6 +1794,11 @@ function checkoutNotice(text, failed = false) {
 
 function setPaymentBusy(busy) {
   paymentBusy = busy;
+  referralUiBusy = busy;
+  for (const id of ["applyDiscount", "bottomApplyDiscount", "discountCode", "bottomDiscountCode"]) {
+    document.getElementById(id).disabled = busy;
+  }
+  renderReferralRewardChoice();
   document.getElementById("paymentButton").disabled = busy;
   document.getElementById("retryPaymentStatus").disabled = busy;
 }
@@ -1958,6 +1954,14 @@ document.getElementById("paymentButton").addEventListener(
     try {
       await checkoutAccount.ready;
       checkoutAccount.checkReady();
+      if (referralQuoteBusy) throw new Error("Wait for your referral rewards to finish loading.");
+      // Applying a discount can involve asynchronous account checks.
+      ++discountSelectionVersion;
+      if (useReferralRewards) {
+        const available = await refreshReferralBalance();
+        if (Math.round(discountAmount * 100) > available)
+          throw new Error("Your available referral rewards changed. Remove and apply your rewards again before paying.");
+      }
       checkoutAccount.copyBilling();
       const delivery = deliveryPayload();
       checkoutAccount.validateBilling();
@@ -2009,10 +2013,9 @@ document.getElementById("paymentButton").addEventListener(
           'input[name="shippingMethod"]:checked'
         )?.value || "standard",
 
-        promoCode: discountAmount > 0
-          ? document.getElementById("discountCode")
-              .value.trim().toUpperCase()
-          : "",
+        promoCode: useReferralRewards ? "" : appliedPromoCode,
+        useReferralRewards,
+        referralRewardCents: useReferralRewards ? Math.round(discountAmount * 100) : 0,
 
         amountCents: checkoutAmountCents(),
         paymentMethod: method
@@ -2347,6 +2350,7 @@ const checkoutAccount = (() => {
         dirty.clear(); byId("saveCheckoutInfo").checked = false;
       }
       user = nextUser; owner = nextOwner;
+      resetReferralMember(user?.id || null);
       checkoutRewardPoints = 0; updateCheckoutTotal();
       byId("guestCountry").value = "United States";
       byId("billingCountry").value = "United States";
@@ -2476,7 +2480,7 @@ const checkoutAccount = (() => {
   }).observe(byId("paymentSuccessPopup"), { attributes: true, attributeFilter: ["class"] });
   supabaseClient.auth.onAuthStateChange((event, session) => {
     if (event === "SIGNED_OUT") {
-      ++version; checkoutRewardPoints = 0; updateCheckoutTotal(); loading = true; user = null; owner = null; dirty.clear();
+      ++version; resetReferralMember(null); checkoutRewardPoints = 0; updateCheckoutTotal(); loading = true; user = null; owner = null; dirty.clear();
       draftIds.forEach(id => { byId(id).value = ""; });
       byId("savedDeliverySummary").hidden = true;
       byId("deliveryFields").hidden = false;

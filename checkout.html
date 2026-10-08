@@ -231,6 +231,22 @@ flex-shrink: 0;
   margin-left: 12px;
 }
 
+.summary-thumbnails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 0 24px;
+}
+.summary-thumbnails[hidden] { display: none; }
+.summary-thumbnails img {
+  width: 64px;
+  height: 76px;
+  object-fit: contain;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  background: #fff;
+}
+
 input[type="checkbox"] {
   width: 18px !important;
   height: 18px !important;
@@ -741,10 +757,12 @@ font-size: 0 !important;
 
 <span class="order-summary-right">
   <span id="orderSummaryTotal">$0.00</span>
-  <span id="orderSummaryArrow">⌄</span>
+  <span id="orderSummaryArrow">⌃</span>
 </span>
   
       </button>
+
+<div id="orderSummaryThumbnails" class="summary-thumbnails" hidden aria-label="Products in your order"></div>
 
 <div id="orderSummaryContent">
 
@@ -1077,10 +1095,12 @@ font-size: 0 !important;
 
 <span class="order-summary-right">
 <span id="bottomSummaryHeaderTotal">$0.00</span>
-  <span id="bottomSummaryArrow">⌄</span>
+  <span id="bottomSummaryArrow">⌃</span>
 </span>
   
       </button>
+
+<div id="bottomSummaryThumbnails" class="summary-thumbnails" hidden aria-label="Products in your order"></div>
 
 <div id="bottomSummaryContent">
 
@@ -2100,10 +2120,27 @@ if (localStorage.getItem(attemptStorageKey)) {
     true
   );
 }
-function setupSummaryToggle(buttonId, contentId, arrowId) {
+function renderSummaryThumbnails() {
+  ["orderSummaryThumbnails", "bottomSummaryThumbnails"].forEach(id => {
+    const container = document.getElementById(id);
+    if (!container) return;
+    container.replaceChildren();
+    checkoutCart.forEach(item => {
+      const image = document.createElement("img");
+      image.src = item.image || "";
+      image.alt = item.name || "Product";
+      image.title = `${item.name || "Product"} — Quantity: ${item.quantity}`;
+      container.appendChild(image);
+    });
+  });
+}
+renderSummaryThumbnails();
+
+function setupSummaryToggle(buttonId, contentId, arrowId, thumbnailsId) {
   const button = document.getElementById(buttonId);
   const content = document.getElementById(contentId);
   const arrow = document.getElementById(arrowId);
+  const thumbnails = document.getElementById(thumbnailsId);
 
   if (!button || !content || !arrow) return;
 
@@ -2112,6 +2149,7 @@ function setupSummaryToggle(buttonId, contentId, arrowId) {
 
     content.style.display = isOpen ? "none" : "block";
     arrow.textContent = isOpen ? "⌄" : "⌃";
+    if (thumbnails) thumbnails.hidden = !isOpen || checkoutCart.length === 0;
 
     button.setAttribute(
       "aria-expanded",
@@ -2123,13 +2161,15 @@ function setupSummaryToggle(buttonId, contentId, arrowId) {
 setupSummaryToggle(
   "orderSummaryToggle",
   "orderSummaryContent",
-  "orderSummaryArrow"
+  "orderSummaryArrow",
+  "orderSummaryThumbnails"
 );
 
 setupSummaryToggle(
   "bottomSummaryToggle",
   "bottomSummaryContent",
-  "bottomSummaryArrow"
+  "bottomSummaryArrow",
+  "bottomSummaryThumbnails"
 );
 
 function syncBottomOrderSummary() {

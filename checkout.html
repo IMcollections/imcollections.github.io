@@ -685,6 +685,14 @@ font-size: 0 !important;
 .checkout-program-links { line-height:1.6; margin:12px 0; }
 .checkout-program-links a { color:#8a651f; }
 .contact-account-links { flex-wrap:wrap; line-height:1.6; }
+
+#imReferralDialog { width:min(520px,calc(100% - 32px)); max-height:85dvh; overflow:auto; padding:28px 22px; border:1px solid #dedbd2; border-radius:14px; background:white; color:#191919; font:16px/1.6 Arial,sans-serif; }
+#imReferralDialog::backdrop { background:rgba(0,0,0,.6); }
+#imReferralDialog h2 { color:#8a651f; margin:0 40px 16px 0; font-size:26px; }
+#imReferralDialog p { margin:12px 0; }
+#imReferralDialog .im-referral-close { position:absolute; top:10px; right:12px; border:0; background:transparent; color:#191919; font-size:28px; cursor:pointer; padding:4px 10px; }
+#imReferralDialog .im-referral-action { display:block; text-align:center; margin-top:20px; padding:12px 16px; border-radius:6px; background:#c9a44c; color:#111; text-decoration:none; }
+#imReferralDialog .im-referral-note { font-size:14px; color:#555; }
   </style>
 </head>
 
@@ -695,11 +703,11 @@ font-size: 0 !important;
   </div>
 
   <div class="logo-area">
-    <a href="index.html" class="back-link">
+    <a href="https://imcollections.github.io/" class="back-link">
    <h2>   ← Continue Shopping </h2>
     </a>
 
-    <img src="IM-logo.jpg" alt="IM Collections">
+    <a href="https://imcollections.github.io/" aria-label="Shop IM Collections"><img src="IM-logo.jpg" alt="IM Collections"></a>
   </div>
 
   <main class="checkout-container">
@@ -763,7 +771,7 @@ font-size: 0 !important;
   <strong id="checkoutTax">$0.00</strong>
 </div>
         
-        <p class="checkout-program-links"><a href="refer-a-friend.html">Been referred by a friend?</a></p>
+        <p class="checkout-program-links"><a href="refer-a-friend.html" data-referral-popup>Been referred by a friend?</a></p>
 <div class="free-shipping" id="shippingMessage"></div>
 
         <div class="summary-total">
@@ -789,7 +797,7 @@ font-size: 0 !important;
   <span>for faster checkout and an additional 15% off your first eligible purchase with COLLECT15. One promo code per order.</span>
 </div>
 
-<p class="checkout-program-links"><a href="refer-a-friend.html">Refer a Friend — Give $10, Get $10</a> · <a href="collectors-reward.html">Collectors Reward</a></p>
+<p class="checkout-program-links"><a href="refer-a-friend.html" data-referral-popup>Refer a Friend — Give $10, Get $10</a> · <a href="collectors-reward.html">Collectors Reward</a></p>
 <p id="memberAccountLink" hidden><a href="my-account.html">My Account</a></p>
 <p id="checkoutProfileMessage" role="status" aria-live="polite"></p>
 <button type="button" id="retryAccountLoad" hidden>Retry Account Details</button>
@@ -2469,6 +2477,36 @@ const checkoutAccount = (() => {
   };
 })();
 
+</script>
+
+
+<dialog id="imReferralDialog" aria-labelledby="imReferralTitle" aria-describedby="imReferralDescription">
+  <button class="im-referral-close" type="button" aria-label="Close referral information" autofocus>×</button>
+  <h2 id="imReferralTitle">Give $10, Get $10</h2>
+  <p id="imReferralDescription"><strong>Give your friend $10 off</strong> their first eligible $50+ purchase when they sign up through your link.</p>
+  <p><strong>Earn $10 for each friend</strong> who successfully completes a qualifying $50+ purchase. Use your reward on a future eligible $50+ order.</p>
+  <p class="im-referral-note">One reward per friend. One discount per order. The $50 minimum excludes shipping and tax.</p>
+  <a class="im-referral-action" href="refer-a-friend.html">Refer a Friend</a>
+
+</dialog>
+<script>
+(() => {
+  const dialog = document.getElementById('imReferralDialog');
+  if (!dialog || typeof dialog.showModal !== 'function') return;
+  document.querySelectorAll('[data-referral-popup]').forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      if (!dialog.open) dialog.showModal();
+    });
+  });
+  dialog.querySelector('button').addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', event => {
+    if (event.target !== dialog) return;
+    const box = dialog.getBoundingClientRect();
+    if (event.clientX < box.left || event.clientX > box.right ||
+        event.clientY < box.top || event.clientY > box.bottom) dialog.close();
+  });
+})();
 </script>
 
 </body>

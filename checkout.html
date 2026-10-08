@@ -255,6 +255,8 @@ flex-shrink: 0;
 .preview-gallery .preview-image { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; }
 .preview-quantity { display: flex; align-items: center; gap: 18px; margin: 16px 0; }
 .checkout-cart-dialog .preview-quantity button { margin: 0; min-width: 44px; background: #fff; border: 1px solid #bbb; }
+.preview-shopping-link { display: inline-block; margin-top: 18px; padding: 12px 18px; border-radius: 4px; background: #c6a34a; color: #111; text-decoration: none; font-weight: 600; }
+.preview-shopping-link:focus-visible { outline: 3px solid #111; outline-offset: 3px; }
 .preview-product-details p { white-space: pre-line; overflow-wrap: break-word; }
 .summary-thumbnails img {
   width: 64px;
@@ -1222,7 +1224,7 @@ type="button"
   <button type="button" class="preview-close" id="checkoutPreviewClose" aria-label="Close product preview">×</button>
   <h2 id="checkoutCartDialogTitle">Product image</h2>
   <div id="checkoutCartDialogContent"></div>
-  <form method="dialog"><button type="submit">Back to Carts</button></form>
+  <a class="preview-shopping-link" href="https://imcollections.github.io/#featured">Back to Shopping</a>
 </dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

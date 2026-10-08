@@ -682,6 +682,9 @@ font-size: 0 !important;
 .payment-success-content img { max-height:calc(100dvh - 126px); object-fit:contain; }
 
 #deliveryFields { display:grid; gap:8px; }
+.checkout-program-links { line-height:1.6; margin:12px 0; }
+.checkout-program-links a { color:#8a651f; }
+.contact-account-links { flex-wrap:wrap; line-height:1.6; }
   </style>
 </head>
 
@@ -760,7 +763,8 @@ font-size: 0 !important;
   <strong id="checkoutTax">$0.00</strong>
 </div>
         
-        <div class="free-shipping" id="shippingMessage"></div>
+        <p class="checkout-program-links"><a href="refer-a-friend.html">Been referred by a friend?</a></p>
+<div class="free-shipping" id="shippingMessage"></div>
 
         <div class="summary-total">
   <span>Total</span>
@@ -782,9 +786,10 @@ font-size: 0 !important;
   <a href="Login.html">Sign In</a>
   <span>or</span>
   <a href="Register.html">Register</a>
-  <span>for faster checkout.</span>
+  <span>for faster checkout and an additional 15% off your first eligible purchase with COLLECT15. One promo code per order.</span>
 </div>
 
+<p class="checkout-program-links"><a href="refer-a-friend.html">Refer a Friend — Give $10, Get $10</a> · <a href="collectors-reward.html">Collectors Reward</a></p>
 <p id="memberAccountLink" hidden><a href="my-account.html">My Account</a></p>
 <p id="checkoutProfileMessage" role="status" aria-live="polite"></p>
 <button type="button" id="retryAccountLoad" hidden>Retry Account Details</button>
@@ -2280,10 +2285,10 @@ const checkoutAccount = (() => {
       const p = document.createElement("p"); p.textContent = line; summary.append(p);
     });
     const collapse = Boolean(user) && completeDelivery();
-    summary.hidden = !collapse;
+    summary.hidden = true;
     byId("deliveryFields").hidden = collapse;
     byId("editDeliveryButton").hidden = !collapse;
-    byId("editDeliveryButton").textContent = "Edit Delivery Information";
+    byId("editDeliveryButton").textContent = "Show / Edit Delivery Information ▾";
     byId("editDeliveryButton").setAttribute("aria-expanded", "false");
   }
   async function limited(promise) {
@@ -2426,7 +2431,7 @@ const checkoutAccount = (() => {
     const fields = byId("deliveryFields");
     if (fields.hidden) {
       fields.hidden = false; byId("savedDeliverySummary").hidden = true;
-      byId("editDeliveryButton").textContent = "Done Editing";
+      byId("editDeliveryButton").textContent = "Hide Delivery Information ▴";
       byId("editDeliveryButton").setAttribute("aria-expanded", "true");
     } else {
       if (!completeDelivery()) { notice("Complete the required delivery details first.", true); return; }

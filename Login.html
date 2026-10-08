@@ -279,6 +279,7 @@
 
         <div
           id="loginMessage"
+          role="status" aria-live="polite"
           class="message"
         ></div>
 
@@ -358,7 +359,7 @@
           "message success";
 
         loginMessage.textContent =
-          "Login successful! Redirecting...";
+          "Password verified. Signing you in…";
 
         setTimeout(() => {
           window.location.href =

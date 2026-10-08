@@ -685,6 +685,9 @@ font-size: 0 !important;
 .checkout-program-links { line-height:1.6; margin:12px 0; }
 .checkout-program-links a { color:#8a651f; }
 .contact-account-links { flex-wrap:wrap; line-height:1.6; }
+.checkout-program-links-stacked { display:flex; flex-direction:column; align-items:flex-start; gap:6px; }
+#memberAccountLink { line-height:1.6; }
+#memberAccountLink .member-account-nav { display:flex; flex-wrap:wrap; gap:8px 20px; }
 
 #imReferralDialog { width:min(520px,calc(100% - 32px)); max-height:85dvh; overflow:auto; padding:28px 22px; border:1px solid #dedbd2; border-radius:14px; background:white; color:#191919; font:16px/1.6 Arial,sans-serif; }
 #imReferralDialog::backdrop { background:rgba(0,0,0,.6); }
@@ -797,8 +800,11 @@ font-size: 0 !important;
   <span>for faster checkout and an additional 15% off your first eligible purchase with COLLECT15. One promo code per order.</span>
 </div>
 
-<p class="checkout-program-links"><a href="refer-a-friend.html" data-referral-popup>Refer a Friend — Give $10, Get $10</a> · <a href="collectors-reward.html">Collectors Reward</a></p>
-<p id="memberAccountLink" hidden><a href="my-account.html">My Account</a></p>
+<div class="checkout-program-links checkout-program-links-stacked">
+  <a href="refer-a-friend.html" data-referral-popup>Refer a Friend — Give $10, Get $10</a>
+  <a id="guestCollectorsRewardLink" href="collectors-reward.html">Collectors Reward</a>
+</div>
+<div id="memberAccountLink" hidden><div class="member-account-nav"><a href="my-account.html">My Account</a><a href="collectors-reward.html">Collectors Reward</a></div></div>
 <p id="checkoutProfileMessage" role="status" aria-live="polite"></p>
 <button type="button" id="retryAccountLoad" hidden>Retry Account Details</button>
 
@@ -1072,7 +1078,7 @@ font-size: 0 !important;
             placeholder="Discount code"
           >
 
-          <button type="button" id="bottomApplyDiscount"
+          <button type="button" id="bottomApplyDiscount">
             Apply
           </button>
         </div>
@@ -1099,6 +1105,7 @@ font-size: 0 !important;
   <strong id="bottomTax">$0.00</strong>
 </div>
         
+      <p class="checkout-program-links"><a href="refer-a-friend.html" data-referral-popup>Been referred by a friend?</a></p>
       <div class="free-shipping" id="bottomShippingMessage"></div>
 
         <div class="summary-total">
@@ -2336,6 +2343,7 @@ const checkoutAccount = (() => {
       byId("billingCountry").value = "United States";
       byId("guestEmail").readOnly = Boolean(user);
       byId("memberAccountLink").hidden = !user;
+      byId("guestCollectorsRewardLink").hidden = Boolean(user);
       byId("guestAccountLinks").hidden = Boolean(user);
       byId("saveCheckoutLabel").textContent = user
         ? "Save updated delivery information to My Account"

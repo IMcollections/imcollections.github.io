@@ -1,2514 +1,4158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="IM Collections">
 
-  <title>Checkout | IM Collections</title>
+  <title>IM Collections | Style. Tech. Everything You Need.</title>
 
+  <meta
+    name="description"
+    content="Shop IM Collections for bags, shoes, clothes, accessories, electronics and many more."
+  />
   <style>
+.header-actions {
+  position: relative;
+}
+
+#headerAccountMenu {
+  position: absolute;
+  top: 52px;
+  right: -10px;
+  width: 100px;
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  border-radius: 8px;
+  padding: 10px 0;
+  z-index: 9999;
+}
+
+#headerAccountMenu a {
+  display: block;
+  padding: 12px 16px;
+  color: #111;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+#headerAccountMenu a:hover {
+  background: #f5f5f5;
+}
+  
+    /* =========================================================
+       IM COLLECTIONS
+       Complete storefront - HTML/CSS/JavaScript
+       ========================================================= */
+
+    :root {
+      --black: #0b0b0b;
+      --dark: #151515;
+      --dark-2: #222;
+      --gold: #c9962e;
+      --gold-light: #f2ce72;
+      --cream: #f8f6f0;
+      --white: #ffffff;
+      --gray: #777;
+      --light-gray: #eeeeeb;
+      --border: #e6e3dc;
+      --success: #287a4b;
+
+      --container: 1280px;
+      --radius: 4px;
+      --transition: 0.25s ease;
+    }
+
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f7f7f7;
-      color: #111;
+      font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+      color: var(--black);
+      background: var(--white);
+      line-height: 1.5;
     }
 
-    .checkout-header {
-      background: #000;
-      color: #fff;
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .container {
+      width: min(92%, var(--container));
+      margin: 0 auto;
+    }
+
+    /* =========================================================
+       ANNOUNCEMENT
+       ========================================================= */
+
+    .announcement {
+      background: var(--black);
+      color: var(--white);
       text-align: center;
-      padding: 14px 20px;
-      letter-spacing: 2px;
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      padding: 10px 15px;
+      text-transform: uppercase;
+    }
+
+    .announcement strong {
+      color: var(--gold-light);
+    }
+
+    /* =========================================================
+       HEADER
+       ========================================================= */
+
+    .header {
+      background: rgba(255,255,255,0.97);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(12px);
+    }
+
+    .header-inner {
+      min-height: 82px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .logo {
+      width: 68px;
+      height: 68px;
+      object-fit: contain;
+    }
+
+    .desktop-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+    }
+
+    .desktop-nav a {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      position: relative;
+      padding: 30px 0;
+    }
+
+    .desktop-nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 22px;
+      width: 0;
+      height: 2px;
+      background: var(--gold);
+      transition: width var(--transition);
+    }
+
+    .desktop-nav a:hover::after {
+      width: 100%;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 17px;
+    }
+
+    .icon-button {
+      width: 38px;
+      height: 38px;
+      border: 0;
+      background: transparent;
+      display: grid;
+      place-items: center;
+      position: relative;
+      color: var(--black);
+    }
+
+    .icon-button svg {
+      width: 21px;
+      height: 21px;
+      stroke: currentColor;
+    }
+
+    .icon-button:hover {
+      color: var(--gold);
+    }
+
+    .cart-count {
+      position: absolute;
+      right: -1px;
+      top: 0;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: var(--black);
+      font-size: 10px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+    }
+
+    /* =========================================================
+       MOBILE MENU
+       ========================================================= */
+
+    .mobile-menu {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 2000;
+      visibility: hidden;
+      opacity: 0;
+      transition: 0.25s ease;
+    }
+
+    .mobile-menu.active {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .mobile-menu-panel {
+      width: min(360px, 88%);
+      height: 100%;
+      background: white;
+      padding: 28px;
+      transform: translateX(-100%);
+      transition: 0.3s ease;
+    }
+
+    .mobile-menu.active .mobile-menu-panel {
+      transform: translateX(0);
+    }
+
+    .mobile-menu-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 35px;
+    }
+
+    .mobile-menu-links {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mobile-menu-links a {
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+      text-transform: uppercase;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    /* =========================================================
+       HERO
+       ========================================================= */
+
+    .hero {
+      min-height: 670px;
+      background:
+        radial-gradient(circle at 70% 30%, rgba(201,150,46,0.22), transparent 30%),
+        linear-gradient(115deg, #080808 0%, #161616 55%, #29251b 100%);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      width: 650px;
+      height: 650px;
+      border: 1px solid rgba(242,206,114,0.18);
+      border-radius: 50%;
+      right: -180px;
+      top: -150px;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 450px;
+      height: 450px;
+      border: 1px solid rgba(242,206,114,0.12);
+      border-radius: 50%;
+      right: -70px;
+      top: -50px;
+    }
+
+    .hero-inner {
+      min-height: 670px;
+      display: grid;
+      grid-template-columns: 1fr 0.9fr;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-copy {
+      max-width: 650px;
+    }
+
+    .eyebrow {
+      color: var(--gold-light);
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 500;
+      font-size: clamp(54px, 7vw, 92px);
+      line-height: 0.94;
+      margin-bottom: 25px;
+    }
+
+    .hero h1 span {
+      color: var(--gold-light);
+      font-style: italic;
+    }
+
+    .hero-description {
+      max-width: 490px;
+      color: #d3d3d3;
+      font-size: 16px;
+      margin-bottom: 34px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid transparent;
+      min-height: 48px;
+      padding: 0 27px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 12px;
+      font-weight: 800;
+      transition: var(--transition);
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    .btn-gold:hover {
+      background: var(--gold-light);
+      transform: translateY(-2px);
+    }
+
+    .btn-outline-light {
+      border-color: #fff;
+      color: white;
+      background: transparent;
+    }
+
+    .btn-outline-light:hover {
+      background: white;
+      color: black;
+    }
+
+    .hero-display {
+      position: relative;
+      height: 500px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .display-circle {
+      width: 430px;
+      height: 430px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, rgba(242,206,114,0.2), rgba(0,0,0,0) 65%);
+      border: 1px solid rgba(242,206,114,0.35);
+      position: relative;
+    }
+
+    .display-card {
+      position: absolute;
+      background: linear-gradient(145deg, #242424, #080808);
+      border: 1px solid rgba(242,206,114,0.25);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+    }
+
+    .display-bag {
+      width: 210px;
+      height: 245px;
+      border-radius: 20px 20px 30px 30px;
+      left: 90px;
+      top: 125px;
+      transform: rotate(-10deg);
+    }
+
+    .display-bag::before {
+      content: "";
+      position: absolute;
+      width: 100px;
+      height: 80px;
+      border: 9px solid var(--gold);
+      border-bottom: 0;
+      border-radius: 60px 60px 0 0;
+      left: 46px;
+      top: -67px;
+    }
+
+    .display-accessories {
+      width: 105px;
+      height: 105px;
+      border-radius: 50%;
+      right: 35px;
+      top: 75px;
+      background:
+        radial-gradient(circle, #191919 35%, var(--gold) 36%, var(--gold) 45%, #111 46%);
+      border: 8px solid #333;
+    }
+
+    .display-shoe {
+      width: 250px;
+      height: 90px;
+      border-radius: 100px 35px 30px 25px;
+      bottom: 75px;
+      right: 0;
+      transform: rotate(-8deg);
+    }
+
+    /* =========================================================
+       TRUST BAR
+       ========================================================= */
+
+    .trust-bar {
+      border-bottom: 1px solid var(--border);
+      background: var(--white);
+    }
+
+    .trust-grid {
+      min-height: 90px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      align-items: center;
+    }
+
+    .trust-item {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .trust-icon {
+      color: var(--gold);
+    }
+
+    .trust-icon svg {
+      width: 26px;
+      height: 26px;
+      stroke: currentColor;
+    }
+
+    .trust-item strong {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .trust-item span {
+      display: block;
+      color: var(--gray);
+      font-size: 11px;
+    }
+
+    /* =========================================================
+       SECTION
+       ========================================================= */
+
+    .section {
+      padding: 90px 0;
+    }
+
+    .section-heading {
+      text-align: center;
+      margin-bottom: 42px;
+    }
+
+    .section-heading .eyebrow {
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+
+    .section-heading h2 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(34px, 4vw, 52px);
+      font-weight: 500;
+      line-height: 1.1;
+    }
+
+    .section-heading p {
+      color: var(--gray);
+      max-width: 580px;
+      margin: 12px auto 0;
+    }
+
+    /* =========================================================
+       CATEGORIES
+       ========================================================= */
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+    }
+
+    .category-card {
+      min-height: 300px;
+      background: var(--cream);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      padding: 22px;
+      transition: var(--transition);
+    }
+
+    .category-card:hover {
+      transform: translateY(-6px);
+    }
+
+    .category-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(201,150,46,0.22), transparent 45%),
+        linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.6));
+    }
+
+    .category-visual {
+      position: absolute;
+      left: 50%;
+      top: 42%;
+      transform: translate(-50%, -50%);
+      color: rgba(0,0,0,0.15);
+      font-size: 90px;
+      font-weight: 900;
+    }
+
+    .category-info {
+      position: relative;
+      z-index: 2;
+      color: white;
+    }
+
+    .category-info h3 {
+      font-family: Georgia, serif;
+      font-size: 24px;
+      margin-bottom: 3px;
+    }
+
+    .category-info span {
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 10px;
+    }
+
+    /* =========================================================
+       FEATURED PRODUCTS
+       ========================================================= */
+
+    .product-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      gap: 15px;
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      border: 1px solid var(--border);
+      background: white;
+      padding: 10px 16px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      transition: var(--transition);
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      background: var(--black);
+      color: white;
+      border-color: var(--black);
+    }
+
+    .product-count {
+      font-size: 12px;
+      color: var(--gray);
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 22px;
+    }
+
+    .product-card {
+      position: relative;
+      min-width: 0;
+    }
+
+    .product-image {
+      height: 390px;
+      background: var(--cream);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .product-image::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        120deg,
+        transparent 30%,
+        rgba(255,255,255,0.2),
+        transparent 65%
+      );
+      transform: translateX(-100%);
+      transition: 0.6s ease;
+    }
+
+    .product-card:hover .product-image::after {
+      transform: translateX(100%);
+    }
+
+    .product-art {
+      width: 72%;
+      height: 65%;
+      display: grid;
+      place-items: center;
+      color: #181818;
+      position: relative;
+    }
+
+    /* Product artwork */
+
+    .art-bag {
+      width: 180px;
+      height: 210px;
+      border-radius: 15px 15px 25px 25px;
+      background: linear-gradient(135deg, #141414, #343434);
+      box-shadow: 15px 25px 40px rgba(0,0,0,0.2);
+    }
+
+    .art-bag::before {
+      content: "";
+      position: absolute;
+      width: 90px;
+      height: 70px;
+      border: 10px solid #c9962e;
+      border-bottom: 0;
+      border-radius: 50px 50px 0 0;
+      left: 45px;
+      top: -50px;
+    }
+
+    .art-accessories {
+      width: 190px;
+      height: 190px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, #151515 0 30%, #c9962e 31% 36%, #202020 37% 48%, #c9962e 49% 52%, #111 53%);
+      border: 12px solid #2b2b2b;
+      box-shadow: 0 25px 40px rgba(0,0,0,0.25);
+    }
+
+    .art-shoe {
+      width: 260px;
+      height: 100px;
+      border-radius: 120px 35px 35px 25px;
+      background: linear-gradient(145deg, #fff, #cfcfcf);
+      transform: rotate(-9deg);
+      box-shadow: 0 25px 35px rgba(0,0,0,0.18);
+    }
+
+    .art-camera {
+      width: 135px;
+      height: 240px;
+      border-radius: 25px;
+      background: linear-gradient(145deg, #111, #555);
+      border: 7px solid #181818;
+      box-shadow: 20px 25px 40px rgba(0,0,0,0.2);
+      position: relative;
+    }
+
+    .art-drone::after {
+      content: "IM";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #c9962e;
+      font-family: Georgia, serif;
+      font-size: 28px;
+    }
+
+    .art-hoodie {
+      width: 220px;
+      height: 250px;
+      background: linear-gradient(145deg, #222, #555);
+      clip-path: polygon(
+        28% 0,
+        42% 12%,
+        58% 12%,
+        72% 0,
+        100% 20%,
+        86% 55%,
+        77% 45%,
+        78% 100%,
+        22% 100%,
+        23% 45%,
+        14% 55%,
+        0 20%
+      );
+    }
+
+    .art-earbuds {
+      width: 190px;
+      height: 150px;
+      position: relative;
+    }
+
+    .art-earbuds::before,
+    .art-earbuds::after {
+      content: "";
+      position: absolute;
+      width: 65px;
+      height: 115px;
+      border-radius: 45px 45px 35px 35px;
+      background: #eee;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
+
+    .art-earbuds::before {
+      left: 20px;
+      transform: rotate(12deg);
+    }
+
+    .art-earbuds::after {
+      right: 20px;
+      transform: rotate(-12deg);
+    }
+
+    .product-badge {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      z-index: 2;
+      background: var(--black);
+      color: white;
+      padding: 6px 9px;
+      font-size: 9px;
+      letter-spacing: 1px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .product-badge.sale {
+      background: #9d2929;
+    }
+
+    .wishlist {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      width: 36px;
+      height: 36px;
+      border: 0;
+      background: white;
+      border-radius: 50%;
+      z-index: 3;
+      display: grid;
+      place-items: center;
+      transition: var(--transition);
+    }
+
+    .wishlist svg {
+      width: 17px;
+      height: 17px;
+      stroke: #111;
+      fill: transparent;
+    }
+
+    .wishlist.active svg {
+      fill: #b82e2e;
+      stroke: #b82e2e;
+    }
+
+    .wishlist:hover {
+      transform: scale(1.08);
+    }
+
+    .quick-view {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      height: 44px;
+      background: white;
+      color: black;
+      border: 0;
+      text-transform: uppercase;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: var(--transition);
+    }
+
+    .product-card:hover .quick-view {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .product-info {
+      padding-top: 15px;
+    }
+
+    .product-category {
+      color: var(--gray);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .product-name {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 7px;
+    }
+
+    .product-rating {
+      color: var(--gold);
+      font-size: 11px;
+      margin-bottom: 7px;
+    }
+
+    .product-price {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .price {
+      font-weight: 800;
+    }
+
+    .old-price {
+      color: #999;
+      text-decoration: line-through;
+      font-size: 12px;
+    }
+
+    .add-button {
+      margin-top: 13px;
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--black);
+      background: white;
+      color: var(--black);
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: var(--transition);
+    }
+
+    .add-button:hover {
+      background: var(--black);
+      color: white;
+    }
+
+    /* =========================================================
+       PROMO
+       ========================================================= */
+
+    .promo {
+      background: var(--black);
+      color: white;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .promo-inner {
+      min-height: 410px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+    }
+
+    .promo-copy {
+      padding: 70px 0;
+    }
+
+    .promo-copy .eyebrow {
+      color: var(--gold-light);
+    }
+
+    .promo-copy h2 {
+      font-family: Georgia, serif;
+      font-size: clamp(42px, 5vw, 66px);
+      font-weight: 400;
+      line-height: 1;
+      margin-bottom: 18px;
+    }
+
+    .promo-copy p {
+      color: #c7c7c7;
+      max-width: 450px;
+      margin-bottom: 26px;
+    }
+
+    .promo-visual {
+      min-height: 410px;
+      position: relative;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(201,150,46,0.45), transparent 30%),
+        linear-gradient(145deg, #1a1a1a, #322a18);
+      overflow: hidden;
+    }
+
+    .promo-ring {
+      width: 390px;
+      height: 390px;
+      border: 1px solid rgba(242,206,114,0.45);
+      border-radius: 50%;
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .promo-watch {
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background:
+        radial-gradient(circle, #111 0 38%, #c9962e 39% 45%, #222 46% 53%, #d6a93d 54% 58%, #111 59%);
+      border: 15px solid #262626;
+      box-shadow: 0 35px 70px rgba(0,0,0,0.6);
+    }
+
+    /* =========================================================
+       FEATURES
+       ========================================================= */
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .feature-card {
+      padding: 40px 32px;
+      border: 1px solid var(--border);
+      background: white;
+      transition: var(--transition);
+    }
+
+    .feature-card:hover {
+      border-color: var(--gold);
+      transform: translateY(-4px);
+    }
+
+    .feature-number {
+      color: var(--gold);
+      font-family: Georgia, serif;
+      font-size: 30px;
+      margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+      font-family: Georgia, serif;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      color: var(--gray);
+      font-size: 14px;
+    }
+
+    /* =========================================================
+       NEWSLETTER
+       ========================================================= */
+
+    .newsletter {
+      background: #f2eee5;
+      text-align: center;
+    }
+
+    .newsletter-inner {
+      max-width: 700px;
+      margin: auto;
+    }
+
+    .newsletter h2 {
+      font-family: Georgia, serif;
+      font-size: 42px;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+
+    .newsletter p {
+      color: var(--gray);
+      margin-bottom: 25px;
+    }
+
+    .newsletter-form {
+      display: flex;
+      max-width: 570px;
+      margin: auto;
+    }
+
+    .newsletter-form input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid #ccc8bd;
+      border-right: 0;
+      padding: 0 18px;
+      min-height: 52px;
+      outline: none;
+      background: white;
+    }
+
+    .newsletter-form input:focus {
+      border-color: var(--gold);
+    }
+
+    .newsletter-form button {
+      border: 0;
+      background: var(--black);
+      color: white;
+      padding: 0 25px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .newsletter-message {
+      margin-top: 12px;
+      color: var(--success);
+      font-size: 13px;
+      display: none;
+    }
+
+    /* =========================================================
+       FOOTER
+       ========================================================= */
+
+    footer {
+      background: #090909;
+      color: white;
+    }
+
+    .footer-main {
+      padding: 70px 0 50px;
+      display: grid;
+      grid-template-columns: 1.5fr repeat(3, 1fr);
+      gap: 50px;
+    }
+
+    .footer-brand img {
+      width: 75px;
+      height: 75px;
+      object-fit: contain;
+      background: white;
+      margin-bottom: 20px;
+    }
+
+    .footer-brand p {
+      color: #999;
+      max-width: 300px;
       font-size: 13px;
     }
 
-    .logo-area {
-      background: #fff;
-      border-bottom: 1px solid #ddd;
-      padding: 18px 22px;
+    .footer-column h4 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--gold-light);
+      margin-bottom: 18px;
+    }
+
+    .footer-column a {
+      display: block;
+      color: #aaa;
+      font-size: 13px;
+      margin-bottom: 10px;
+      transition: var(--transition);
+    }
+
+    .footer-column a:hover {
+      color: white;
+      padding-left: 4px;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid #292929;
+      min-height: 70px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      color: #777;
+      font-size: 11px;
+    }
+
+    .socials {
+      display: flex;
+      gap: 15px;
+    }
+
+    .socials a {
+      color: #aaa;
+    }
+
+    /* =========================================================
+       CART DRAWER
+       ========================================================= */
+
+    .cart-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 3000;
+      opacity: 0;
+      visibility: hidden;
+      transition: 0.25s ease;
+    }
+
+    .cart-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .cart-drawer {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: min(440px, 92%);
+      height: auto;
+      max-height: 100%;
+      background: white;
+      transform: translateX(100%);
+      transition: 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .cart-overlay.active .cart-drawer {
+      transform: translateX(0);
+    }
+
+    .cart-header {
+      min-height: 75px;
+      padding: 0 25px;
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    .logo-area img {
-      width: 72px;
-      height: 72px;
-      object-fit: contain;
-    }
-
-    .back-link {
-      color: #111;
-      text-decoration: none;
-      font-weight: 700;
-    }
-
-    .checkout-container {
-      max-width: 900px;
-      margin: 25px auto;
-      padding: 0 18px 40px;
-    }
-
-    .checkout-title {
+    .cart-header h3 {
       font-family: Georgia, serif;
-      font-size: 34px;
-      margin-bottom: 22px;
+      font-size: 25px;
+      font-weight: 500;
     }
 
-    .checkout-grid {
-      display: grid;
-      grid-template-columns: 1fr 360px;
-      gap: 24px;
+    .cart-items {
+      flex: 0 1 auto;
+      max-height: 55vh;
+      overflow-y: auto;
+      padding: 20px 25px;
     }
 
-    .checkout-box {
-      background: #fff;
-      border: 1px solid #e2e2e2;
-      padding: 22px;
-      margin-bottom: 20px;
+    .empty-cart {
+      text-align: center;
+      color: var(--gray);
+      padding: 70px 20px;
     }
 
-    .checkout-box h2 {
-      margin-top: 0;
-      font-size: 20px;
-    }
+  .cart-item {
+  display: grid;
+  grid-template-columns: 90px 1fr auto;
+  gap: 14px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: start;
+}
 
-    .order-item {
-      display: grid;
-      grid-template-columns: 80px 1fr auto;
-      gap: 14px;
-      padding: 14px 0;
-      border-bottom: 1px solid #eee;
-      align-items: start;
-    }
-
-    .order-item img {
-      width: 80px;
-      height: 95px;
-      object-fit: cover;
-    }
-
-    .order-name {
+   .cart-thumb {
+  width: 90px;
+  height: 110px;
+  background: var(--cream);
+  overflow: hidden;
+}
+    
+.cart-product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+    
+    .cart-item-name {
       font-weight: 700;
+      font-size: 13px;
       margin-bottom: 5px;
     }
 
-    .order-quantity {
-      color: #777;
-      font-size: 13px;
+    .cart-item-price {
+      font-size: 12px;
+      color: var(--gray);
     }
 
-    .order-price {
-      font-weight: 700;
-    }
-
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 9px 0;
-    }
-
-    .summary-total {
-      display: flex;
-      justify-content: space-between;
-      border-top: 1px solid #ddd;
-      margin-top: 12px;
-      padding-top: 16px;
-      font-size: 20px;
-      font-weight: 800;
-    }
-
-    .free-shipping {
-      margin-top: 12px;
-      padding: 12px;
-      background: #f4f4f4;
-      font-weight: 700;
-    }
-
-    .discount-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 15px;
-width: 100%;
-box-sizing: border-box;
-    }
-
-    .discount-row input {
-      flex: 1;
-      padding: 13px;
-      border: 1px solid #ccc;
-      font-size: 15px;
-min-width: 0;
-    }
-
-    .discount-row button {
-      border: 0;
-      background: #222;
-      color: #fff;
-      padding: 0 18px;
-      font-weight: 700;
-font-size: 15px;
-min-width: 96px;
-flex-shrink: 0;
-    }
-
-    .payment-box {
-      margin-top: 18px;
-    }
-
-    .payment-button {
-      width: 100%;
-      min-height: 56px;
-      border: 0;
-      background: #111;
-      color: white;
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-top: 15px;
-    }
-
-    .secure-note {
-      color: #666;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    #checkoutMessage {
-      margin-top: 12px;
-      font-size: 14px;
-    }
-
-    @media (max-width: 720px) {
-      .checkout-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .checkout-title {
-        font-size: 30px;
-      }
-    }
-
-#guestCountry {
-  width: 100%;
-  padding: 14px 12px;
-  border: 1px solid #bbb;
-  background: #fff;
-  font-size: 16px;
-  box-sizing: border-box;
+  .quantity {
+  display: flex;
+  align-items: center;
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  width: fit-content;
+  height: 34px;
 }
 
-.order-summary-toggle {
-  width: 100%;
-  display: flex;
- justify-content: space-between;
-  align-items: center;
-
-  border: none;
-  border-radius: 0;
-  background: transparent;
-
-  padding: 0 0 20px;
-  margin: 0;
-
-  font-size: 22px;
-  font-weight: 700;
-  color: #111;
-  text-align: left;
+.quantity button {
+  border: 0;
+  background: white;
+  width: 34px;
+  height: 32px;
+  font-size: 18px;
   cursor: pointer;
 }
 
-#orderSummaryArrow,
-#bottomSummaryArrow {
-  font-size: 18px;
-  line-height: 1;
-  margin-left: 12px;
-}
-
-input[type="checkbox"] {
-  width: 18px !important;
-  height: 18px !important;
-  min-width: 18px;
-  padding: 0 !important;
-  margin: 0 8px 0 0;
-  vertical-align: middle;
-}
-
- .guest-form {
-  display: grid;
-  gap: 8px;
-}
-
-.guest-form label {
+.quantity span {
+  width: 32px;
+  text-align: center;
   font-size: 13px;
-  font-weight: 700;
-  margin-top: 8px;
+  font-weight: 600;
 }
 
-.guest-form input {
+.remove-item {
+  border: 0;
+  background: transparent;
+  color: #777;
+  font-size: 12px;
+  text-decoration: underline;
+  align-self: start;
+  padding-top: 4px;
+  cursor: pointer;
+}
+
+    .cart-footer {
+      border-top: 1px solid var(--border);
+      padding: 22px 25px;
+    }
+
+    .subtotal {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 800;
+      margin-bottom: 15px;
+    }
+    .shipping-progress {
+  margin: 18px 0 22px;
+}
+
+.free-shipping-message {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.shipping-progress-bar {
   width: 100%;
-  min-height: 48px;
-  border: 1px solid #ccc;
-  padding: 12px;
-  font-size: 15px;
-  background: #fff;
+  height: 8px;
+  background: #e5e5e5;
+  overflow: hidden;
 }
 
-.account-option {
-  margin-top: 18px;
+#shippingProgressFill {
+  width: 0%;
+  height: 100%;
+  background: #111;
+  transition: width 0.3s ease;
+}
+
+.shipping-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
   font-size: 14px;
   color: #666;
 }
 
-.account-option a {
-  color: #111;
-  font-weight: 700;
-}
+    .checkout-button {
+      width: 100%;
+      min-height: 52px;
+      background: var(--black);
+      color: white;
+      border: 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 11px;
+      font-weight: 800;
+    }
 
-.contact-heading-row {
-  margin: 0 0 4px;
-}
+    .close-button {
+      width: 36px;
+      height: 36px;
+      background: transparent;
+      border: 0;
+      font-size: 24px;
+    }
 
-.contact-heading-row h2 {
-  margin: 0;
-}
+    /* =========================================================
+       QUICK VIEW MODAL
+       ========================================================= */
 
-.guest-note {
-  margin: 0 0 4px;
-}
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 4000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transition: 0.25s ease;
+    }
 
-.contact-account-links {
-  margin: 0 0 20px;
-}
+    .modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
 
-.order-summary-right {
+    .modal-box {
+      background: white;
+      width: min(900px, 100%);
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .modal-image {
+      min-height: 500px;
+      background: var(--cream);
+      display: grid;
+      place-items: center;
+    }
+
+    .modal-info {
+      padding: 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .modal-info .product-category {
+      margin-bottom: 10px;
+    }
+
+    .modal-info h2 {
+      font-family: Georgia, serif;
+      font-size: 38px;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+    .modal-info p {
+      color: var(--gray);
+      margin: 18px 0 25px;
+    }
+
+    .modal-price {
+      font-size: 23px;
+      font-weight: 800;
+      margin-bottom: 25px;
+    }
+
+    .modal-close {
+      position: absolute;
+      right: 15px;
+      top: 15px;
+      width: 40px;
+      height: 40px;
+      border: 0;
+      background: white;
+      z-index: 2;
+      font-size: 24px;
+    }
+
+    /* =========================================================
+       TOAST
+       ========================================================= */
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 25px;
+      transform: translate(-50%, 30px);
+      background: var(--black);
+      color: white;
+      padding: 13px 20px;
+      font-size: 12px;
+      z-index: 5000;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.3s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+
+    @media (max-width: 1100px) {
+      .category-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .desktop-nav {
+        gap: 16px;
+      }
+    }
+
+    @media (max-width: 850px) {
+      .header-inner {
+        grid-template-columns: auto 1fr auto;
+      }
+
+      .desktop-nav {
+        display: none;
+      }
+
+      .mobile-menu-btn {
+        display: grid;
+      }
+
+      .hero-inner {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding: 70px 0;
+      }
+
+      .hero-copy {
+        margin: auto;
+      }
+
+      .hero-description {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hero-buttons {
+        justify-content: center;
+      }
+
+      .hero-display {
+        height: 390px;
+      }
+
+      .trust-grid {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 25px 0;
+      }
+
+      .promo-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .promo-copy {
+        text-align: center;
+      }
+
+      .promo-copy p {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .promo-visual {
+        min-height: 350px;
+      }
+
+      .feature-grid,
+      .review-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-main {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .footer-brand {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .header-inner {
+        min-height: 68px;
+      }
+
+      .logo {
+        width: 56px;
+        height: 56px;
+      }
+
+      .header-actions {
+        gap: 4px;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      .hero-inner {
+        min-height: auto;
+      }
+
+      .hero h1 {
+        font-size: 52px;
+      }
+
+      .display-circle {
+        width: 300px;
+        height: 300px;
+      }
+
+      .display-bag {
+        width: 140px;
+        height: 175px;
+        left: 50px;
+      }
+
+      .display-accessories {
+        width: 80px;
+        height: 80px;
+        right: 10px;
+      }
+
+      .display-shoe {
+        width: 175px;
+        height: 65px;
+      }
+
+      .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .category-card {
+        min-height: 230px;
+      }
+
+      .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+      }
+
+      .product-image {
+        height: 250px;
+      }
+
+      .product-name {
+        font-size: 13px;
+      }
+
+      .quick-view {
+        display: block;
+      }
+
+      .product-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .modal-box {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-image {
+        min-height: 300px;
+      }
+
+      .modal-info {
+        padding: 30px;
+      }
+
+      .modal-info h2 {
+        font-size: 30px;
+      }
+
+      .newsletter h2 {
+        font-size: 34px;
+      }
+
+      .newsletter-form {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .newsletter-form input {
+        border-right: 1px solid #ccc8bd;
+      }
+
+      .newsletter-form button {
+        min-height: 50px;
+      }
+
+      .footer-main {
+        grid-template-columns: 1fr 1fr;
+        gap: 35px 20px;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        justify-content: center;
+        padding: 20px 0;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .category-grid {
+        gap: 8px;
+      }
+
+      .category-card {
+        min-height: 200px;
+        padding: 15px;
+      }
+
+      .category-info h3 {
+        font-size: 20px;
+      }
+
+      .product-grid {
+        gap: 10px;
+      }
+
+      .product-image {
+        height: 210px;
+      }
+
+      .art-bag {
+        transform: scale(0.75);
+      }
+
+      .art-watch {
+        transform: scale(0.75);
+      }
+
+      .art-shoe {
+        transform: rotate(-9deg) scale(0.75);
+      }
+
+      .art-phone {
+        transform: scale(0.75);
+      }
+
+      .art-hoodie {
+        transform: scale(0.75);
+      }
+    }
+    .announcement {
+  position: relative;
+  min-height: 54px;
   display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-left: auto;
-}
-
-#orderSummaryTotal {
-  font-weight: 700;
-  font-size: 20px;
-}
-
-#cardholderName {
-  width: 100%;
-  min-height: 48px;
-  border: 1px solid #ccc;
-  padding: 12px;
-  font-size: 15px;
-  box-sizing: border-box;
-  margin: 8px 0 16px;
-}
-
-.billing-same {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 8px 0;
-  font-weight: 600;
-}
-
-.billing-same input[type="checkbox"] {
-  width: 18px !important;
-  height: 18px !important;
-  margin: 0;
-}
-
-#billingAddressFields {
-  gap: 8px;
-}
-
-#billingAddressFields label {
-  display: block;
-  margin-top: 8px;
-}
-
-#billingAddressFields input,
-#billingAddressFields select {
-  width: 100%;
-  box-sizing: border-box;
-}
-
-#billingCountry {
-  width: 100%;
-  min-height: 48px;
-  padding: 12px;
-  font-size: 15px;
-  box-sizing: border-box;
-}
-
-.back-to-top {
-  display: block;
-  width: auto;
-  margin: 28px auto;
-  padding: 8px 18px;
-  border: none;
-  background: transparent;
-  color: #111;
-  font-weight: 700;
-  text-align: center;
-  cursor: pointer;
-}
-
-#applePay {
-  display: block;
-  width: 100%;
-  min-height: 48px;
-  margin: 12px 0;
-  border: none;
-  border-radius: 6px;
-  background: #000;
-  color: #fff;
-  font-size: 18px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.payment-divider {
-  text-align: center;
-  margin: 12px 0;
-  font-weight: 700;
-}
-
-.apple-pay-button {
-  -webkit-appearance: -apple-pay-button;
-  -apple-pay-button-type: buy;
-  -apple-pay-button-style: black;
-
-  width: 100%;
-  height: 50px;
-border: none;
-margin: 18px 0 28px;
-}
-
-#bottomApplyDiscount {
-  color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
-  font-size: 15px !important;
-  font-weight: 700 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  text-indent: 0 !important;
-  min-width: 96px;
-font-size: 0 !important;
-}
-
-#bottomApplyDiscount::after {
-  content: "Apply";
-  color: #fff;
-  -webkit-text-fill-color: #fff;
-  font-size: 15px;
-  font-weight: 700;
-}
-
-#card-container {
-  margin-bottom: 6px !important;
-}
-
-.secure-note {
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-      
-      .save-card-option {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 8px 0;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.save-card-option {
-  margin-top: 6px;
-  margin-bottom: 6px;
-}
-
-.billing-same {
-  margin-top: 4px;
-  margin-bottom: 10px;
-}
-      
-.save-card-option input {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-}
-
-      .shipping-method-box {
-  margin-bottom: 28px;
-}
-
-.shipping-method-box h2 {
-  margin-bottom: 16px;
-}
-
-.shipping-option {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  padding: 18px 18px;
-  border: 1px solid #cccccc;
-  box-sizing: border-box;
-  cursor: pointer;
-}
-
-.shipping-option + .shipping-option {
-  border-top: none;
-}
-
-.shipping-option input {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-}
-
-.shipping-option-text {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.shipping-option-text strong {
-  font-size: 17px;
-}
-
-.shipping-option-text small {
-  margin-top: 3px;
-  font-size: 14px;
-  color: #666666;
-}
-
-.shipping-option-price {
-  font-size: 17px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.shipping-option:has(input:checked) {
-  border: 2px solid #111111;
-}
-
-      .payment-method-options {
-  display: flex;
-  flex-direction: column;
-}
-
-.payment-method-option + .payment-method-option {
-  border-top: none;
-}
-
-.save-card-option,
-.billing-same {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 4px 0;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.save-card-option input,
-.billing-same input {
-  width: 20px;
-  height: 20px;
-  margin: 0;
-  flex-shrink: 0;
-}
-
-      .payment-method-option {
-  min-height: 58px;
-  padding: 12px 16px;
-}
-
-.payment-method-option span {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.payment-method-options + #cardPaymentSection {
-  margin-top: 16px;
-}
-
-/* extra space below the last payment option */
-.payment-method-option:last-of-type {
-  margin-bottom: 24px;
-}
-
-#paymentMethodGiftCard
-  + span {
-  /* no change needed */
-}
-
-.payment-method-option {
-  width: 100%;
-  height: 54px !important;
-  min-height: 54px !important;
-  padding: 0 16px !important;
-  margin: 0;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.payment-method-option input[type="radio"] {
-  width: 20px !important;
-  height: 20px !important;
-  margin: 0 !important;
-  flex-shrink: 0;
-}
-
-.payment-method-option span {
-  font-size: 16px;
-  line-height: 1;
-}
-
-#paymentMethodGiftCard {
-  margin: 0;
-}
-
-.payment-method-option:last-of-type {
-  margin-bottom: 20px;
-}
-
-      #cashAppPaymentSection {
-  display: none;
-}
-      
-#googlePayPaymentSection {
-  width: 100%;
-  margin: 18px 0 28px;
-}
-
-#googlePay {
-  width: 100%;
-}
-
-#googlePay > div,
-#googlePay button {
-  width: 100% !important;
-  max-width: none !important;
-  height: 50px !important;
-  min-height: 50px !important;
-  border-radius: 0 !important;
-  font-size: 16px !important;
-}
-
-      .payment-success-popup {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  z-index: 99999;
   align-items: center;
   justify-content: center;
-  padding: 20px;
-}
-
-.payment-success-popup.show {
-  display: flex;
-}
-
-.payment-success-content {
-  position: relative;
-  width: 100%;
-  max-width: 480px;
-  background: white;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   text-align: center;
+  overflow: hidden;
 }
 
-.payment-success-content img {
-  display: block;
+.announcement-message {
+  display: none;
   width: 100%;
-  height: auto;
-}
-
-.payment-success-close {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  width: 38px;
-  height: 38px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  font-size: 26px;
-  cursor: pointer;
-  z-index: 2;
-}
-
-.payment-success-done {
-  width: calc(100% - 30px);
-  margin: 15px;
-  min-height: 48px;
-  border: none;
-  background: #111;
-  color: white;
-  font-size: 16px;
   font-weight: 700;
-  cursor: pointer;
+  letter-spacing: 2px;
+  animation: announcementFade 0.6s ease;
 }
 
-[hidden] {
-  display: none !important;
+.announcement-message.active {
+  display: block;
 }
-      
 
-/* Member delivery summary and mobile checkout cleanup. */
-.saved-delivery { background:#fff; border:1px solid #dedbd2; border-radius:10px; padding:18px; margin:16px 0; }
-.saved-delivery p { margin:6px 0; overflow-wrap:anywhere; }
-.checkout-secondary, #retryAccountLoad { background:#c9a44c; color:#111; border:0; border-radius:6px; padding:12px 18px; font:inherit; cursor:pointer; margin:0 0 18px; }
-#checkoutProfileMessage { font-size:14px; line-height:1.5; }
-#memberAccountLink a { color:#8a651f; }
-#deliveryFields input, #deliveryFields select { width:100%; }
-#guestCountry, #billingCountry { width:100%; padding:14px 12px; border:1px solid #bbb; background:#fff; font-size:16px; }
-.payment-success-content { max-height:calc(100dvh - 32px); overflow-y:auto; }
-.payment-success-popup { padding:16px; }
-.payment-success-content img { max-height:calc(100dvh - 126px); object-fit:contain; }
+@keyframes announcementFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
 
-#deliveryFields { display:grid; gap:8px; }
-.checkout-program-links { line-height:1.6; margin:12px 0; }
-.checkout-program-links a { color:#8a651f; }
-.contact-account-links { flex-wrap:wrap; line-height:1.6; }
-
-#imReferralDialog { width:min(520px,calc(100% - 32px)); max-height:85dvh; overflow:auto; padding:28px 22px; border:1px solid #dedbd2; border-radius:14px; background:white; color:#191919; font:16px/1.6 Arial,sans-serif; }
-#imReferralDialog::backdrop { background:rgba(0,0,0,.6); }
-#imReferralDialog h2 { color:#8a651f; margin:0 40px 16px 0; font-size:26px; }
-#imReferralDialog p { margin:12px 0; }
-#imReferralDialog .im-referral-close { position:absolute; top:10px; right:12px; border:0; background:transparent; color:#191919; font-size:28px; cursor:pointer; padding:4px 10px; }
-#imReferralDialog .im-referral-action { display:block; text-align:center; margin-top:20px; padding:12px 16px; border-radius:6px; background:#c9a44c; color:#111; text-decoration:none; }
-#imReferralDialog .im-referral-note { font-size:14px; color:#555; }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
   </style>
 </head>
 
 <body>
 
-  <div class="checkout-header">
-    IM COLLECTIONS • SECURE CHECKOUT
-  </div>
+  <!-- =======================================================
+       ANNOUNCEMENT
+       ======================================================== -->
 
-  <div class="logo-area">
-    <a href="index.html" class="back-link">
-   <h2>   ← Continue Shopping </h2>
-    </a>
+  <div class="announcement">
+  <span class="announcement-message active">WELCOME TO IM COLLECTIONS</span>
+  <span class="announcement-message">UP TO 60% OFF ALL ITEMS</span>
+  <span class="announcement-message">EXTRA 15% OFF WHEN YOU SIGN UP FOR EMAILS</span>
+  <span class="announcement-message">Free Standard Shipping on orders over $75</span>
+</div>
 
-    <img src="IM-logo.jpg" alt="IM Collections">
-  </div>
+  <!-- =======================================================
+       HEADER
+       ======================================================== -->
 
-  <main class="checkout-container">
+  <header class="header">
+    <div class="container header-inner">
 
-    <div class="checkout-grid">
+      <button
+        class="icon-button mobile-menu-btn"
+        id="mobileMenuBtn"
+        aria-label="Open menu"
+      >
+        <svg fill="none" viewBox="0 0 24 24">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke-width="1.7"/>
+        </svg>
+      </button>
 
-  <section>
-    
-  </section>
+      <div class="logo-wrap">
+        <a href="#">
+          <img
+            src="IM-logo.jpg"
+            alt="IM Collections"
+            class="logo"
+          />
+        </a>
+      </div>
+
+      <nav class="desktop-nav">
+        <a href="#featured">New Arrivals</a>
+<a href="#featured">Best Sellers</a>
+        <a href="#categories">Shop</a>
+<a href="Clothing.html">Clothing</a>
+<a href="Shoes.html">Shoes</a>
+<a href="Bags.html">Bags</a>
+      <a href="Accessories.html">Accessories</a>
+<a href="Electronics.html">Electronics</a>
+<a href="Toys.html">Toys</a>
+<a href="OpenBox.html">Open Box Deals</a>
+        <a href="#sale">Sale</a>
+      </nav>
+
+      <div class="header-actions">
+
+        <button class="icon-button" id="searchBtn" aria-label="Search">
+          <svg fill="none" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="6.5" stroke-width="1.6"/>
+            <path d="m16 16 5 5" stroke-width="1.6"/>
+          </svg>
+        </button>
 
         <button
-  type="button"
-  class="order-summary-toggle"
-  id="orderSummaryToggle"
-  aria-expanded="true"
+  class="icon-button"
+  id="accountMenuBtn"
+  aria-label="My Account"
 >
-  <span>Order Summary</span>
+          <svg fill="none" viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="3.5" stroke-width="1.6"/>
+            <path d="M5 20c.8-4 3-6 7-6s6.2 2 7 6" stroke-width="1.6"/>
+          </svg>
+        </button>
+        <div id="headerAccountMenu" style="display:none;">
 
-<span class="order-summary-right">
-  <span id="orderSummaryTotal">$0.00</span>
-  <span id="orderSummaryArrow">⌄</span>
-</span>
-  
-      </button>
+  <div id="headerLoggedOut">
+    <a href="Login.html">Login</a>
+    <a href="Register.html">Register</a>
+  </div>
 
-<div id="orderSummaryContent">
+  <div id="headerLoggedIn" style="display:none;">
+   <a href="my-account.html" id="headerMyAccountLink">Account Summary</a>
+<a href="orders-returns.html">Orders &amp;
+Returns</a>
+    <a href="#" id="headerLogoutLink">Logout</a>
+  </div>
 
-        <div id="checkoutItems"></div>
+</div>
 
-        <div class="discount-row">
-          <input
-            type="text"
-            id="discountCode"
-            placeholder="Discount code"
+        <button
+          class="icon-button"
+          id="cartBtn"
+          aria-label="Shopping cart"
+        >
+          <svg fill="none" viewBox="0 0 24 24">
+            <path d="M4 5h2l2 12h10l2-9H7" stroke-width="1.6"/>
+            <circle cx="10" cy="20" r="1" fill="currentColor"/>
+            <circle cx="17" cy="20" r="1" fill="currentColor"/>
+          </svg>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- =======================================================
+       MOBILE MENU
+       ======================================================== -->
+
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-panel">
+
+      <div class="mobile-menu-top">
+        <img
+          src="IM-logo.jpg"
+          alt="IM Collections"
+          style="width:55px;height:55px;object-fit:contain;"
+        />
+
+        <button
+          class="close-button"
+          id="mobileMenuClose"
+          aria-label="Close menu"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="mobile-menu-links">
+
+  <a href="#featured"
+     onclick="filterProducts('All')">
+    Shop All
+  </a> 
+
+  <a href="#featured"
+     onclick="filterProducts('NewArrivals')">
+    New Arrivals
+  </a>
+
+  <a href="#featured"
+  onclick="filterProducts('BestSellers')">
+    Best Sellers
+  </a>
+
+  <a href="#featured"
+     onclick="filterProducts('Sale')">
+    Sale
+  </a>
+
+  <a href="#featured"
+     onclick="filterProducts('Vintage')">
+    Vintage
+  </a> 
+
+ <a href="#featured"
+     onclick="filterProducts('Clothing')">
+    Clothing
+  </a>
+
+ <a href="#featured"
+     onclick="filterProducts('Shoes')">
+    Shoes
+  </a>
+
+  <a href="#featured"
+     onclick="filterProducts('Bags')">
+    Bags
+  </a>
+
+   <a href="#featured"
+     onclick="filterProducts('Accessories')">
+    Accessories
+  </a>
+
+  <a href="#featured"
+     onclick="filterProducts('Electronics')">
+    Electronics & Gadgets
+  </a>
+
+  <a href="#featured"
+     onclick="filterProducts('Toys')">
+    Toys & Hobbies
+  </a>
+
+  <a href="#featured"
+     onclick="filterProducts('OpenBox')">
+    Open Box Deals
+  </a>
+
+  <a href="#newsletter">
+    Join IM Collections
+  </a>
+
+</div>
+
+    </div>
+  </div>
+
+  <!-- =======================================================
+       HERO
+       ======================================================== -->
+
+  <section class="hero" id="new">
+
+    <div class="container hero-inner">
+
+      <div class="hero-copy">
+
+        <div class="eyebrow">
+          The IM Collections
+        </div>
+
+        <h1>
+          Style.<br />
+          <span>Tech.</span><br />
+          Everything.
+        </h1>
+
+        <p class="hero-description">
+          Discover a curated collection of fashion, accessories,
+          gadgets and everyday essentials designed to elevate
+          the way you live, work and express yourself.
+        </p>
+
+        <div class="hero-buttons">
+          <a href="#featured" class="btn btn-gold"
+onclick="filterProducts('BestSellers')"
+>
+            Shop Best Sellers
+          </a>
+
+          <a href="#featured" class="btn btn-outline-light"
+onclick="filterProducts('All')">
+Explore Collections
+  </a> 
+          </a>
+        </div>
+
+      </div>
+
+      <div class="hero-display">
+
+        <div class="display-circle">
+
+          <div class="display-card display-bag"></div>
+
+          <div class="display-card display-accessories"></div>
+
+          <div class="display-card display-shoe"></div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- =======================================================
+       TRUST
+       ======================================================== -->
+
+  <section class="trust-bar">
+
+    <div class="container trust-grid">
+
+      <div class="trust-item">
+        <div class="trust-icon">
+          <svg fill="none" viewBox="0 0 24 24">
+            <path d="M3 6h11v10H3zM14 9h4l3 3v4h-7z"
+              stroke-width="1.5"/>
+            <circle cx="7" cy="18" r="2" stroke-width="1.5"/>
+            <circle cx="18" cy="18" r="2" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div>
+          <strong>Fast Shipping</strong>
+          <span>Quick delivery</span>
+        </div>
+      </div>
+
+      <div class="trust-item">
+        <div class="trust-icon">
+          <svg fill="none" viewBox="0 0 24 24">
+            <path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3z"
+              stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div>
+          <strong>Secure Shopping</strong>
+          <span>Protected checkout</span>
+        </div>
+      </div>
+
+      <div class="trust-item">
+        <div class="trust-icon">
+          <svg fill="none" viewBox="0 0 24 24">
+            <path d="M5 5h14v14H5zM8 8h8v8H8z"
+              stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div>
+          <strong>Curated Quality</strong>
+          <span>Selected for you</span>
+        </div>
+      </div>
+
+      <div class="trust-item">
+        <div class="trust-icon">
+          <svg fill="none" viewBox="0 0 24 24">
+            <path d="M4 12a8 8 0 1 0 2.3-5.7"
+              stroke-width="1.5"/>
+            <path d="M4 5v5h5" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div>
+          <strong>Easy Returns</strong>
+          <span>Shop with confidence</span>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- =======================================================
+       CATEGORIES
+       ======================================================== -->
+
+  <section class="section" id="categories">
+
+    <div class="container">
+
+      <div class="section-heading">
+
+        <div class="eyebrow">Shop IM Collections</div>
+
+        <h2>Featured Products</h2>
+
+        <p>
+          Our most wanted pieces, electronics and accessories.
+        </p>
+
+      </div>
+
+      <div class="category-grid">
+
+        <a
+          class="category-card"
+          href="#featured"
+          onclick="filterProducts('Bags')"
+        >
+          <div class="category-visual" data-category="Bags">BAG</div>
+          <div class="category-info">
+            <h3>Bags</h3>
+            <span>Carry your style</span>
+          </div>
+        </a>
+
+        <a
+          class="category-card"
+          href="#featured"
+          onclick="filterProducts('Electronics')"
+        >
+          <div class="category-visual" data-category="Electronics">Electronics</div>
+          <div class="category-info">
+            <h3>Electronics</h3>
+            <span>Latest Gadgets</span>
+          </div>
+        </a>
+
+        <a
+          class="category-card"
+          href="#featured"
+          onclick="filterProducts('Accessories')"
+        >
+          <div class="category-visual" data-category="Accessories">TIME</div>
+          <div class="category-info">
+            <h3>Accessories</h3>
+            <span>Personal Accessories</span>
+          </div>
+        </a>
+
+        <a
+          class="category-card"
+          href="#featured"
+          onclick="filterProducts('Shoes')"
+        >
+          <div class="category-visual" data-category="Shoes">STEP</div>
+          <div class="category-info">
+            <h3>Shoes</h3>
+            <span>Step up your look</span>
+          </div>
+        </a>
+
+        <a
+          class="category-card"
+          href="#featured"
+          onclick="filterProducts('Clothing')"
+        >
+          <div class="category-visual" data-category="Clothing">Fashion</div>
+          <div class="category-info">
+            <h3>Clothing</h3>
+            <span>Wear your confidence</span>
+          </div>
+        </a>
+
+        <a
+          class="category-card"
+          href="#featured"
+          onclick="filterProducts('Toys')"
+        >
+          <div class="category-visual" data-category="Toys">FUNKO</div>
+          <div class="category-info">
+            <h3>Toys</h3>
+            <span>Amazing Toys</span>
+          </div>
+        </a>
+
+       <a
+          class="category-card"
+          href="#featured"
+          onclick="filterProducts('OpenBox')"
+        >
+          <div class="category-visual" data-category="Open Box">Pre-Owned</div>
+          <div class="category-info">
+            <h3>Open Box</h3>
+            <span>Slightly Used</span>
+          </div>
+        </a>
+
+   <a
+          class="category-card"
+          href="#featured"
+          onclick="filterProducts('Vintage')"
+        >
+          <div class="category-visual" data-category="Vintage">Vintage Style</div>
+          <div class="category-info">
+            <h3>Vintage</h3>
+            <span>Retro</span>
+          </div>
+        </a>
+
+    </div>
+
+  </section>
+
+  <!-- =======================================================
+       PRODUCTS
+       ======================================================== -->
+
+  <section class="section" id="featured">
+
+    <div class="container">
+
+      <div class="section-heading">
+
+        <div class="eyebrow">Shop IM Collections</div>
+
+        <h2>Find Your Collections</h2>
+
+        <p>
+         From everyday essentials to statement pieces,
+          discover something made for your lifestyle.
+        </p>
+
+      </div>
+
+      <div class="product-toolbar">
+
+        <div class="filter-buttons">
+
+          <button
+            class="filter-btn active"
+            data-filter="All"
           >
-
-          <button type="button" id="applyDiscount">
-            Apply
+            All
           </button>
-        </div>
 
-<div id="discountMessage"></div>
+    <button
+            class="filter-btn"
+            data-filter="NewArrivals"
+          >
+            New Arrivals
+          </button>
 
-        <div class="summary-row">
-          <span>Subtotal</span>
-          <strong id="checkoutSubtotal">$0.00</strong>
-        </div>
-        
-<div class="summary-row">
-  <span>Discount</span>
-  <strong id="checkoutDiscount">-$0.00</strong>
-</div>
-        
-        <div class="summary-row">
-  <span class="shipping-summary-label">Standard Shipping</span>
-  <strong id="checkoutShipping">$8.99</strong>
-</div>
+    <button
+            class="filter-btn"
+            data-filter="BestSellers"
+          >
+            Best Sellers
+          </button>
 
-        <div class="summary-row">
-  <span>Estimated Tax</span>
-  <strong id="checkoutTax">$0.00</strong>
-</div>
-        
-        <p class="checkout-program-links"><a href="refer-a-friend.html" data-referral-popup>Been referred by a friend?</a></p>
-<div class="free-shipping" id="shippingMessage"></div>
-
-        <div class="summary-total">
-  <span>Total</span>
-  <span id="checkoutTotal">$0.00</span>
-</div>
-
-</div>   <!-- closes orderSummaryContent -->
-
-</aside>
-
-<h2>Contact</h2>
-</div>
-
-<p class="guest-note" id="checkoutContactStatus" role="status" aria-live="polite">
-  Guest checkout is available.
-</p>
-
-<div class="contact-account-links" id="guestAccountLinks">
-  <a href="Login.html">Sign In</a>
-  <span>or</span>
-  <a href="Register.html">Register</a>
-  <span>for faster checkout and an additional 15% off your first eligible purchase with COLLECT15. One promo code per order.</span>
-</div>
-
-<p class="checkout-program-links"><a href="refer-a-friend.html" data-referral-popup>Refer a Friend — Give $10, Get $10</a> · <a href="collectors-reward.html">Collectors Reward</a></p>
-<p id="memberAccountLink" hidden><a href="my-account.html">My Account</a></p>
-<p id="checkoutProfileMessage" role="status" aria-live="polite"></p>
-<button type="button" id="retryAccountLoad" hidden>Retry Account Details</button>
-
-      <section>
-
-  <h2>Delivery Information</h2>
-
-  <div id="savedDeliverySummary" class="saved-delivery" hidden></div>
-  <button type="button" id="editDeliveryButton" class="checkout-secondary" hidden
-    aria-controls="deliveryFields" aria-expanded="false">Edit Delivery Information</button>
-  <div class="guest-form">
-  <div id="deliveryFields">
-
-    <label>Email Address</label>
-    <input type="email" id="guestEmail" placeholder="Email address" autocomplete="email" required>
-
-<label for="guestCountry">Country / Region</label>
-<select id="guestCountry" name="country">
-<option value="United States">United States</option>
-</select>
-
-    <label>First Name</label>
-    <input type="text" id="guestFirstName" placeholder="First Name" required>
-
-    <label>Last Name</label>
-    <input type="text" id="guestLastName" placeholder="Last Name" required>
-
-    <label>Phone Number</label>
-    <input type="tel" id="guestPhone" placeholder="Phone number">
-
-    <label>Street Address</label>
-    <input type="text" id="guestAddress" placeholder="Street address" required>
-
-    <label>Apartment / Unit</label>
-    <input type="text" id="guestAddress2" placeholder="Apartment, suite, unit, etc. (optional)">
-
-    <label>City</label>
-    <input type="text" id="guestCity" placeholder="City" required>
-
-    <label>State</label>
-    <input type="text" id="guestState" placeholder="State" required>
-
-    <label>ZIP Code</label>
-    <input type="text" id="guestZip" placeholder="ZIP Code" autocomplete="postal-code" pattern="[0-9]{5}(-[0-9]{4})?" maxlength="10" required>
-
-</div> <!-- deliveryFields -->
-<div class="save-checkout-info">
-  <label>
-    <input type="checkbox" id="saveCheckoutInfo">
-    <span id="saveCheckoutLabel">Remember my information on this device</span>
-  </label>
-
-      <div class="checkout-box payment-box">
-
-<section class="shipping-method-box">
-  <h2>Shipping Method</h2>
-
-  <label class="shipping-option">
-    <input
-      type="radio"
-      name="shippingMethod"
-      value="standard"
-      id="shippingStandard"
-      checked
-    >
-
-    <span class="shipping-option-text">
-      <strong>Standard Delivery</strong>
-      <small>3–5 Working Days</small>
-    </span>
-
-    <span
-      class="shipping-option-price"
-      id="standardShippingPrice"
-    >
-      $8.99
-    </span>
-  </label>
-
-  <label class="shipping-option">
-    <input
-      type="radio"
-      name="shippingMethod"
-      value="express"
-      id="shippingExpress"
-    >
-
-    <span class="shipping-option-text">
-      <strong>Express Delivery</strong>
-      <small>3 Working Days</small>
-    </span>
-
-    <span class="shipping-option-price">
-      $15.00
-    </span>
-  </label>
-</section>
-        
-  <h2>Payment</h2>
-        
-<div class="payment-method-options">
-
-  <label class="payment-method-option">
-    <input
-      type="radio"
-      name="paymentMethod"
-      value="card"
-      id="paymentMethodCard"
-      checked
-    >
-    <span>Credit / Debit Card</span>
-  </label>
-
-</div>
-
-<div id="cardPaymentSection">
-      
-  <p class="secure-note">
-    Pay securely with credit or debit card.
-  </p>
-
-<label for="cardholderName">Name on Card</label>
-<input
-  type="text"
-  id="cardholderName"
-  name="cardholderName"
-  placeholder="Name on card"
-  autocomplete="cc-name"
-/>
-
-  <div id="card-container"></div>
-
-
-
-<label class="billing-same">
-  <input
-    type="checkbox"
-    id="sameAsShipping"
-    checked
-  >
-  <span>Use shipping address as billing address</span>
-</label>
-
-  
-  <label class="payment-method-option">
-    <input
-      type="radio"
-      name="paymentMethod"
-      value="applepay"
-      id="paymentMethodApplePay"
-    >
-    <span>Apple Pay</span>
-  </label>
-
-  <label class="payment-method-option">
-    <input
-      type="radio"
-      name="paymentMethod"
-      value="googlepay"
-      id="paymentMethodGooglePay"
-    >
-    <span>Google Pay</span>
-  </label>
-
-  <label class="payment-method-option">
-    <input
-      type="radio"
-      name="paymentMethod"
-      value="cashapp"
-      id="paymentMethodCashApp"
-    >
-    <span>Cash App Pay</span>
-  </label>
-
-  <label class="payment-method-option">
-    <input
-      type="radio"
-      name="paymentMethod"
-      value="giftcard"
-      id="paymentMethodGiftCard"
-    >
-    <span>Gift Card</span>
-  </label>
-
-<div id="billingAddressFields" style="display: none;">
-
-  <h3>Billing Address</h3>
-
-  <label for="billingCountry">Country / Region</label>
-  <select id="billingCountry">
-    <option value="United States">United States</option>
-    </select>
-
-  <label for="billingFirstName">First Name</label>
-  <input type="text" id="billingFirstName" placeholder="First Name">
-
-  <label for="billingLastName">Last Name</label>
-  <input type="text" id="billingLastName" placeholder="Last Name">
-
-  <label for="billingAddress">Street Address</label>
-  <input type="text" id="billingAddress" placeholder="Street Address">
-
-  <label for="billingApartment">Apartment / Unit</label>
-  <input type="text" id="billingApartment" placeholder="Apartment / Unit">
-
-  <label for="billingCity">City</label>
-  <input type="text" id="billingCity" placeholder="City">
-
-  <label for="billingState">State</label>
-  <input type="text" id="billingState" placeholder="State">
-
-  <label for="billingPostal">ZIP Code</label>
-  <input type="text" id="billingPostal" placeholder="ZIP Code" autocomplete="postal-code" pattern="[0-9]{5}(-[0-9]{4})?" maxlength="10">
-
-</div>
-  </div>
-
-<div id="applePayPaymentSection" style="display: none;">
-        
-  <button
-  type="button"
-  id="applePay"
-  class="apple-pay-button"
-  aria-label="Apple Pay"
-></button>
-
-<div id="applePayStatus"></div>
-
-<div class="payment-divider" id="applePayDivider">
-</div>
-  </div>
-
-<div id="googlePayPaymentSection" style="display: none;">
-  <div id="googlePay"></div>
-  <div id="googlePayStatus"></div>
-</div>
-
-<div id="cashAppPaymentSection">
-  <div id="cashAppPay"></div>
-  <div id="cashAppPayStatus"></div>
-</div>
-
-<div id="giftCardPaymentSection" style="display: none;">
-  <div id="giftCardContainer"></div>
-  <div id="giftCardStatus"></div>
-</div>
-        
        <button
-  type="button"
-  class="order-summary-toggle"
-  id="bottomSummaryToggle"
-  aria-expanded="true"
->
-  <span>Order Summary</span>
+            class="filter-btn"
+            data-filter="Clothing"
+          >
+            Clothing
+          </button>
 
-<span class="order-summary-right">
-<span id="bottomSummaryHeaderTotal">$0.00</span>
-  <span id="bottomSummaryArrow">⌄</span>
-</span>
-  
+       <button
+            class="filter-btn"
+            data-filter="Shoes"
+          >
+            Shoes
+          </button>
+
+          <button
+            class="filter-btn"
+            data-filter="Bags"
+          >
+            Bags
+          </button>
+
+          <button
+            class="filter-btn"
+            data-filter="Accessories"
+          >
+            Accessories
+          </button>
+   
+       <button
+            class="filter-btn"
+            data-filter="Electronics"
+          >
+            Electronics & Tech
+          </button>
+
+         <button
+            class="filter-btn"
+            data-filter="Toys"
+          >
+            Toys & Hobbies
+          </button>
+
+       <button
+            class="filter-btn"
+            data-filter="OpenBox"
+          >
+            Open Box
+          </button>
+
+      <button
+            class="filter-btn"
+            data-filter="Sale"
+          >
+            Sale
+          </button>
+
+     <button
+            class="filter-btn"
+            data-filter="Vintage"
+          >
+            Vintage
+          </button>
+
+        </div>
+
+        <div class="product-count" id="productCount">
+          9 products
+        </div>
+
+      </div>
+
+      <div class="product-grid" id="productGrid">
+        <!-- Products generated by JavaScript -->
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- =======================================================
+       PROMO
+       ======================================================== -->
+
+  <section class="promo" id="sale">
+
+    <div class="container promo-inner">
+
+      <div class="promo-copy">
+
+        <div class="eyebrow">
+          IM Signature Collection
+        </div>
+
+        <h2>
+          Make every<br />
+          moment count.
+        </h2>
+
+        <p>
+          Discover statement watches and accessories designed
+          to bring a little more luxury into every day.
+        </p>
+
+        <a
+          href="#featured"
+          class="btn btn-gold"
+          onclick="filterProducts('Accessories')"
+        >
+          Shop Watches
+        </a>
+
+      </div>
+
+      <div class="promo-visual">
+        <div class="promo-ring"></div>
+        <div class="promo-watch"></div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- =======================================================
+       WHY IM Collections
+       ======================================================== -->
+
+  <section class="section">
+
+    <div class="container">
+
+      <div class="section-heading">
+
+        <div class="eyebrow">The IM Difference</div>
+
+        <h2>More Than A Store</h2>
+
+        <p>
+          IM Collections brings fashion, technology and
+          everyday lifestyle essentials together in one place.
+        </p>
+
+      </div>
+
+      <div class="feature-grid">
+
+        <div class="feature-card">
+          <div class="feature-number">01</div>
+          <h3>Curated For You</h3>
+          <p>
+            We focus on pieces that combine style, function
+            and everyday versatility.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-number">02</div>
+          <h3>Style Meets Technology</h3>
+          <p>
+            Shop fashion and modern gadgets side by side,
+            making it easy to build your complete lifestyle.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-number">03</div>
+          <h3>Made To Stand Out</h3>
+          <p>
+            From statement accessories to everyday essentials,
+            discover pieces with personality.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- =======================================================
+       NEWSLETTER
+       ======================================================== -->
+
+  <section class="section newsletter" id="newsletter">
+
+    <div class="container newsletter-inner">
+
+      <div class="eyebrow">
+        Join IM Collections
+      </div>
+
+      <h2>Get 15% Off Your First Order</h2>
+
+      <p>
+        Sign up for new arrivals, exclusive offers and
+        early access to our latest collections.
+      </p>
+
+      <form
+        class="newsletter-form"
+        id="newsletterForm"
+      >
+        <input
+          type="email"
+          id="emailInput"
+          placeholder="Enter your email address"
+          required
+        />
+
+        <button type="submit">
+          Sign Me Up
+        </button>
+      </form>
+
+      <div
+        class="newsletter-message"
+        id="newsletterMessage"
+      >
+        You're on the list. Welcome to IM Collections!
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- =======================================================
+       FOOTER
+       ======================================================== -->
+
+  <footer>
+
+    <div class="container footer-main">
+
+      <div class="footer-brand">
+
+        <img
+          src="IM-logo.jpg"
+          alt="IM Collections"
+        />
+
+        <p>
+          IM Collections when fashion,
+          technology and lifestyle meets savings.
+          
+        </p>
+
+      </div>
+
+      <div class="footer-column">
+
+        <h4>Shop</h4>
+
+        <a href="#featured">New Arrivals</a>
+        <a href="#featured">Best Sellers</a>
+<a href="#featured">Sale</a>
+<a href="#featured">Vintage</a>
+        <a href="#featured">Clothing</a>
+        <a href="#featured">Shoes</a>
+        <a href="#featured">Bags</a>
+        <a href="#featured">Accessories</a>
+<a href="#featured">Electronics</a>
+<a href="#featured">Toys & Hobbies</a>
+<a href="#featured">Open Box</a>
+
+
+         <h4>My Account</h4>
+
+<div id="accountLinks">
+    <a href="Login.html">Login</a>
+    <a href="Register.html">Register</a>
+<a href="refer-a-friend.html">Refer A Friend</a>
+<a href="Tracking.html">Track Orders</a>
+  </div>
+
+<div id="loggedInAccount" style="display:none;">
+  <a href="my-account.html" id="myAccountLink">Account Summary</a>
+  <a href="orders-returns.html">Orders &amp; Returns</a>
+<a href="refer-a-friend.html">Refer A Friend</a>
+  <a href="#" id="logoutLink">Logout</a>
+</div>
+
+  </div>
+
+      <div class="footer-column">
+
+        <h4>Customer Care</h4>
+
+        <a href="ContactUs">Contact Us</a>
+        <a href="Delivery.html">Shipping & Delivery</a>
+       <a href="return-policy.html">Return & Refund Policy</a>
+        <a href="#">FAQ</a>
+      <a href="Collections.html">Track your Order</a>
+
+  <div class="footer-column">
+
+      </div>
+
+      <div class="footer-column">
+
+        <h4>About IM Collections</h4>
+
+        <a href="WhoWeAre.html">Who We Are</a>
+<a href="Mission.html">Our Mission & Values </a>
+<a href="collectors-reward.html">Collectors Reward</a>
+        <a href="Policy.html">Privacy Policy</a>
+        <a href="Terms.html">Terms & Conditions</a>
+    
+
+      </div>
+
+    </div>
+
+    <div class="container footer-bottom">
+
+      <div>
+        © 2026 IM Collections. All Rights Reserved.
+      </div>
+
+  <div class="socials">
+    <a href="https://www.instagram.com/im_coll3cti0ns/" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="5"
+                  fill="none" stroke="currentColor" stroke-width="2"/>
+            <circle cx="12" cy="12" r="4"
+                    fill="none" stroke="currentColor" stroke-width="2"/>
+            <circle cx="17.5" cy="6.5" r="1"
+                    fill="currentColor"/>
+        </svg>
+        <span>Instagram</span>
+    </a>
+
+    <a href="#">Facebook</a>
+
+  </footer>
+
+  <!-- =======================================================
+       CART DRAWER
+       ======================================================== -->
+
+  <div class="cart-overlay" id="cartOverlay">
+
+    <aside class="cart-drawer">
+
+      <div class="cart-header">
+
+        <h3>Your Cart</h3>
+
+        <button
+          class="close-button"
+          id="cartClose"
+          aria-label="Close cart"
+        >
+          ×
+        </button>
+
+      </div>
+
+      <div
+        class="cart-items"
+        id="cartItems"
+      ></div>
+
+      <div class="cart-footer">
+
+        <div class="subtotal">
+
+          <span>Subtotal</span>
+
+          <span id="cartSubtotal">
+            $0.00
+          </span>
+
+        </div>
+        <div class="shipping-progress">
+  <div id="freeShippingMessage" class="free-shipping-message">
+    Add $75.00 more for FREE Standard Shipping
+  </div>
+
+  <div class="shipping-progress-bar">
+    <div id="shippingProgressFill"></div>
+  </div>
+
+  <div class="shipping-progress-labels">
+    <span>$0</span>
+    <span>$75</span>
+  </div>
+</div>
+
+        <button
+          class="checkout-button"
+          onclick="checkout()"
+        >
+          Proceed to Checkout
+        </button>
+
+      </div>
+
+    </aside>
+
+  </div>
+
+  <!-- =======================================================
+       QUICK VIEW MODAL
+       ======================================================== -->
+
+  <div class="modal" id="quickModal">
+
+    <div class="modal-box">
+
+      <button
+        class="modal-close"
+        id="modalClose"
+      >
+        ×
       </button>
 
-<div id="bottomSummaryContent">
+      <div
+        class="modal-image"
+        id="modalImage"
+      ></div>
 
-        <div id="bottomCheckoutItems"></div>
+      <div class="modal-info">
 
-        <div class="discount-row">
-          <input
-            type="text"
-      id="bottomDiscountCode"
-            placeholder="Discount code"
-          >
+        <div
+          class="product-category"
+          id="modalCategory"
+        ></div>
 
-          <button type="button" id="bottomApplyDiscount"
-            Apply
-          </button>
-        </div>
+        <h2 id="modalName"></h2>
 
-<div id="bottomDiscountMessage"></div>
+        <div
+          class="product-rating"
+          id="modalRating"
+        ></div>
 
-        <div class="summary-row">
-          <span>Subtotal</span>
-          <strong id="bottomSubtotal">$0.00</strong>
-        </div>
-        
-<div class="summary-row">
-  <span>Discount</span>
-  <strong id="bottomDiscount">-$0.00</strong>
-</div>
-        
-        <div class="summary-row">
-  <span class="shipping-summary-label">Standard Shipping</span>
-  <strong id="bottomShipping">$8.99</strong>
-</div>
+        <p id="modalDescription"></p>
 
-        <div class="summary-row">
-  <span>Estimated Tax</span>
-  <strong id="bottomTax">$0.00</strong>
-</div>
-        
-      <div class="free-shipping" id="bottomShippingMessage"></div>
+        <div
+          class="modal-price"
+          id="modalPrice"
+        ></div>
 
-        <div class="summary-total">
-  <span>Total</span>
-  <span id="bottomTotal">$0.00</span>
-</div>
+        <button
+          class="btn btn-gold"
+          id="modalAdd"
+        >
+          Add To Cart
+        </button>
 
-</div>   <!-- closes orderSummaryContent -->
+      </div>
 
-</aside>
+    </div>
 
- </div>
+  </div>
 
+  <!-- =======================================================
+       TOAST
+       ======================================================== -->
 
-  <button
-type="button"
-    class="payment-button"
-    id="paymentButton"
-  >
-    Pay Now
-  </button>
+  <div class="toast" id="toast"></div>
 
-  <label class="legal-confirm">
-    <input type="checkbox" id="acceptPolicies">
-
-    <span>
-      I confirm that I have read and understand the
-      <a href="terms.html" target="_blank">Terms & Conditions</a>
-,
-      <a href="privacy.html" target="_blank">Privacy Policy</a> and
-       <a href="cookie.html" target="_blank">Cookie Policy</a>
-    </span>
-  </label>
-
-<button type="button" id="retryPaymentStatus" hidden>
-  Retry Payment Status
-</button>
-  
-  <div id="checkoutMessage"></div>
-</div>
-
-<button
-  type="button"
-  class="back-to-top"
-  id="backToTopButton"
->
-  ↑ Back to Top ↑ 
-  
-</button>
-      
-</div>
-
-</div>
-
-  </main>
-
+  <!-- =======================================================
+       JAVASCRIPT
+       ======================================================== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
-  <script
-  type="text/javascript"
-  src="https://sandbox.web.squarecdn.com/v1/square.js">
-</script>
-  
   <script>
-    const supabaseUrl =
+
+    /* =======================================================
+       PRODUCT DATA
+       ======================================================== */
+
+    const products = [
+
+      {
+        id: 1,
+        name: "IM Signature Travel Bag",
+        category: "Bags",
+        image: "travelbag1.jpg",
+        price: 89.99,
+        oldPrice: 119.99,
+        badge: "Best Seller",
+        rating: "★★★★★",
+        art: "art-bag",
+        description:
+          "A sleek everyday travel bag designed for style, organization and convenience."
+      },
+
+      {
+    id: 10,
+    name: "IM Kids Spider-Man Backpack",
+    category: "Bags",
+    image: "backpack1.jpg",
+    price: 19.99,
+    oldPrice: 29.99,
+    badge: "New",
+    rating: "★★★★★",
+    art: "art-bag",
+    description:
+        "A versatile backpack for school, outdoor, and everyday adventures."
+},
+
+      {
+        id: 2,
+        name: "Invicta Pro Diver Currentwave Men's Watch - 43mm Steel Gold (30022)",
+        category: "Accessories",
+        image: "watch1.jpg",
+        price: 59.99,
+        oldPrice: 109.99,
+        badge: "Sale",
+        rating: "★★★★★",
+        art: "art-watch",
+        description:
+          "This impressive Invicta Pro Diver watch features a precise Quartz movement and finished by a strong steel, gold, stainless steel band, and it offers 100 m water resistance."
+      },
+
+      {
+        id: 3,
+        name: "IM Air Jordan 1 Mid 'Black Fire Red'",
+        category: "Shoes",
+        image: "shoes1.JPG",
+        price: 99.99,
+        oldPrice: 129.99,
+        badge: "New",
+        size: "9.5M",
+        rating: "★★★★☆",
+        art: "art-shoe",
+        description:
+          "The mid-top pair is crafted from panels of black, red and white leather for a refined take on the iconic sneaker silhouette."
+      },
+
+      {
+        id: 4,
+        name: "IM Drone",
+        category: "Electronics",
+        price: 99.99,
+        oldPrice: 349.99,
+        badge: "New",
+        rating: "★★★★★",
+        art: "art-drone",
+        description:
+          "A premium protective case with a sleek finish and signature IM styling."
+      },
+
+      {
+        id: 5,
+        name: "IM Essential Hoodie",
+        category: "Clothing",
+        price: 64.99,
+        oldPrice: 84.99,
+        badge: "Sale",
+        rating: "★★★★★",
+        art: "art-hoodie",
+        description:
+          "A premium everyday hoodie designed for effortless comfort and style."
+      },
+
+      {
+        id: 6,
+        name: "IM Wireless Earbuds",
+        category: "Electronics",
+        image: "earbuds1.jpg",
+        price: 39.99,
+        oldPrice: 79.99,
+        badge: "Best Seller",
+        rating: "★★★★☆",
+        art: "art-earbuds",
+        description:
+          "Compact wireless earbuds built for everyday listening and convenience."
+      },
+
+      {
+        id: 7,
+        name: "IM Executive Carry Bag",
+        category: "Bags",
+        image: "carrybag1.jpg",
+        price: 109.99,
+        oldPrice: 199.99,
+        badge: "New",
+        rating: "★★★★★",
+        art: "art-bag",
+        description:
+          "A refined carry bag made for work, travel and everyday sophistication."
+      },
+
+      {
+        id: 8,
+        name: "IM Premium Home Camera",
+        category: "Electronics",
+        image: "homecamera1.jpg",
+        price: 149.99,
+        oldPrice: 199.99,
+        badge: "Limited",
+        rating: "★★★★★",
+        art: "art-electronics",
+                description:
+            "A premium-inspired timepiece..."
+    },
+
+    {
+        id: 9,
+        name: "IM Classic Leather Bag",
+        category: "Bags",
+        image: "leather1.jpg",
+        price: 129.99,
+        oldPrice: 159.99,
+        badge: "New",
+        rating: "★★★★★",
+        art: "art-bag",
+        description:
+            "A stylish and versatile leather bag for everyday use."
+    }
+ ];
+    function loadCategoryImages() {
+  document.querySelectorAll(".category-visual[data-category]").forEach(box => {
+    const category = box.dataset.category;
+
+    const product = products.find(
+      item => item.category.toLowerCase() === category.toLowerCase()
+    );
+
+    if (product && product.image) {
+      box.style.backgroundImage =
+        `linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.55)), url("${product.image}")`;
+
+      box.style.backgroundSize = "cover";
+      box.style.backgroundPosition = "center";
+      box.style.backgroundRepeat = "no-repeat";
+      box.textContent = "";
+    }
+  });
+}
+
+// loadCategoryImages();
+      /* =======================================================
+   SUPABASE PRODUCTS
+   ======================================================== */
+
+const SUPABASE_URL =
   "https://vqzjegneplzeoqxcqfeu.supabase.co";
 
-const supabaseKey =
+const SUPABASE_KEY =
   "sb_publishable_QDvKrAHvvopp_fuunxTxEA_4v6TD4Jk";
 
 const supabaseClient =
-  supabase.createClient(
-    supabaseUrl,
-    supabaseKey
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
   );
 
-    const squareAppId =
-  "sandbox-sq0idb-c7snyR_ZJ25r9nRUu7ZvqA";
+async function loadSupabaseProducts() {
 
-const squareLocationId =
-  "LG5NFQWF";
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("products")
+    .select("*")
+    .order("created_at", {
+      ascending: false
+    });
 
-let squareCard;
-let googlePay;
-let cashAppPay;
-let giftCard;
-    let paymentRequest;
+  if (error) {
 
-async function initializeSquareCard() {
-  if (!window.Square) {
-    throw new Error("Square.js failed to load.");
-  }
-
-  const payments =
-    Square.payments(
-      squareAppId,
-      squareLocationId
+    console.error(
+      "Supabase product error:",
+      error
     );
 
-const checkoutTotalElement =
-  document.getElementById("checkoutTotal");
-
-const applePayAmount =
-  checkoutTotalElement
-    ? checkoutTotalElement.textContent.replace("$", "").trim()
-    : "0.00";
-
-paymentRequest =
-  payments.paymentRequest({
-    countryCode: "US",
-    currencyCode: "USD",
-    total: {
-      amount: applePayAmount,
-      label: "IM Collections"
-    }
-  });
-
-try {
-  googlePay =
-    await payments.googlePay(paymentRequest);
-
-  await googlePay.attach("#googlePay", {
-    buttonColor: "default",
-    buttonType: "long"
-  });
-
-} catch (error) {
-  console.error(
-    "Google Pay initialization error:",
-    error
-  );
-}
-
-try {
-  const cashAppOptions = {
-    redirectURL: window.location.href,
-    referenceId: "IM-" + Date.now()
-  };
-
-cashAppPay =
-  await payments.cashAppPay(
-    paymentRequest,
-    cashAppOptions
-  );
-
-cashAppPay.addEventListener(
-  "ontokenization",
-  (event) => {
-    const { tokenResult } = event.detail;
-
-    console.log(
-      "Cash App tokenization:",
-      tokenResult
-    );
+    renderProducts("All");
+    return;
   }
-);
 
-await cashAppPay.attach("#cashAppPay");
+  const onlineProducts =
+    (data || []).map(product => {
 
-} catch (error) {
-  console.error(
-    "Cash App Pay initialization error:",
-    error
-  );
+      let images = [];
 
-  const cashAppStatus =
-    document.getElementById("cashAppPayStatus");
-
-  if (cashAppStatus) {
-    cashAppStatus.style.color = "#b00020";
-    cashAppStatus.textContent =
-      "Cash App error: " +
-      (error?.message || String(error));
-  }
-}
-
-try {
-  giftCard =
-    await payments.giftCard();
-
-  await giftCard.attach(
-    "#giftCardContainer"
-  );
-
-} catch (error) {
-  console.error(
-    "Gift Card initialization error:",
-    error
-  );
-}
-  
-try {
-  const applePay =
-    await payments.applePay(paymentRequest);
-
-  const applePayButton =
-    document.getElementById("applePay");
-
-  if (applePayButton) {
-  applePayButton.addEventListener("click", async function () {
-
-    const status =
-      document.getElementById("applePayStatus");
-
-    status.textContent =
-  "Opening Apple Pay for $" + applePayAmount + "…";
-
-    try {
-      const result =
-        await applePay.tokenize();
-
-      if (result.status === "OK") {
-
-        status.textContent =
-          "Apple Pay authorized. Processing…";
-
-        console.log(
-          "Apple Pay token created:",
-          result.token
-        );
-
-      } else {
-
-        status.textContent =
-          "Apple Pay was not completed. Please try again.";
-
-        console.error(
-          "Apple Pay tokenization failed:",
-          result.errors
-        );
+      if (Array.isArray(product.image_urls)) {
+        images = product.image_urls;
       }
 
-    } catch (error) {
+      return {
 
-      status.textContent =
-        "Apple Pay closed: " +
-        (error.message || "Unable to start payment.");
+        /*
+          Add 1000000 so Supabase IDs do not
+          conflict with your existing product IDs.
+        */
+        id:
+          1000000 + Number(product.id),
 
-      console.error(
-        "Apple Pay error:",
-        error
-      );
-    }
-  });
+        name:
+          product.name || "Product",
+
+        category:
+          product.category || "Accessories",
+
+        image:
+          images.length > 0
+            ? images[0]
+            : null,
+
+        images:
+          images,
+
+        price:
+          Number(product.price) || 0,
+
+        oldPrice:
+          product.old_price !== null &&
+          product.old_price !== undefined
+            ? Number(product.old_price)
+            : null,
+
+        badge:
+          product.badge || "",
+
+        rating:
+          "★★★★★",
+
+        art:
+          "art-bag",
+
+        description:
+          product.description || "",
+
+        size:
+          product.size || "",
+
+        condition:
+          product.condition || "",
+
+        quantity:
+          product.quantity ?? 1,
+
+        featured:
+          Boolean(product.featured)
+
+      };
+
+    });
+
+  /*
+    Put newly uploaded products FIRST,
+    then keep all your existing products.
+  */
+  products.splice(0, products.length, ...onlineProducts);
+
+renderProducts("All");
+loadCategoryImages();
 }
-} catch (error) {
-  console.warn(
-    "Apple Pay is not available yet:",
-    error
+   let cart =
+  JSON.parse(
+    localStorage.getItem("imCollectionsCart") || "[]"
   );
+    let currentFilter = "All";
 
-  const applePayButton =
-    document.getElementById("applePay");
-}
+    /* =======================================================
+       PRODUCT RENDERING
+       ======================================================== */
 
-  squareCard = await payments.card();
+    const productGrid =
+      document.getElementById("productGrid");
 
-  await squareCard.attach("#card-container");
-}
+    const productCount =
+      document.getElementById("productCount");
 
-document.addEventListener(
-  "DOMContentLoaded",
-  initializeSquareCard
-);
-    
-    const checkoutCart =
-      JSON.parse(
-        localStorage.getItem("imCollectionsCart") || "[]"
-      );
+    function renderProducts(filter = "All") {
 
-    const checkoutItems =
-      document.getElementById("checkoutItems");
+      currentFilter = filter;
 
-    const checkoutSubtotal =
-      document.getElementById("checkoutSubtotal");
+      const filtered =
+        filter === "All"
+          ? products
+          : products.filter(
+              product => product.category === filter
+            );
 
-    const checkoutShipping =
-      document.getElementById("checkoutShipping");
+      productCount.textContent =
+        `${filtered.length} product${filtered.length === 1 ? "" : "s"}`;
 
-    const checkoutTotal =
-      document.getElementById("checkoutTotal");
+      productGrid.innerHTML = filtered
+        .map(product => `
 
-    const shippingMessage =
-      document.getElementById("shippingMessage");
+          <article
+            class="product-card"
+            data-category="${product.category}"
+          >
 
+            <div class="product-image">
 
-    if (checkoutCart.length === 0) {
+              ${
+                product.badge
+                  ? `
+                    <div
+                      class="product-badge ${
+                        product.badge === "Sale"
+                          ? "sale"
+                          : ""
+                      }"
+                    >
+                      ${product.badge}
+                    </div>
+                  `
+                  : ""
+              }
 
-      checkoutItems.innerHTML =
-        "<p>Your cart is empty.</p>";
+              <button
+                class="wishlist"
+                onclick="toggleWishlist(this)"
+                aria-label="Add to wishlist"
+              >
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"
+                    stroke-width="1.5"
+                  />
+                </svg>
+              </button>
 
-    } else {
+              <div class="product-art">
+  ${
+    product.image
+      ? `<img src="${product.image}" alt="${product.name}" style="width:100%;height:100%;object-fit:contain;">`
+      : `<div class="${product.art}"></div>`
+  }
+</div>
 
-      checkoutItems.innerHTML =
-        checkoutCart.map(item => `
+              <button
+                class="quick-view"
+                onclick="openQuickView(${product.id})"
+              >
+                Quick View
+              </button>
 
-          <div class="order-item">
-
-            <img
-              src="${item.image}"
-              alt="${item.name}"
-            >
-
-            <div>
-              <div class="order-name">
-                ${item.name}
-              </div>
-
-              <div class="order-quantity">
-                Quantity: ${item.quantity}
-              </div>
             </div>
 
-            <div class="order-price">
-              $${(item.price * item.quantity).toFixed(2)}
+            <div class="product-info">
+
+              <div class="product-category">
+                ${product.category}
+              </div>
+
+              <div class="product-name">
+                ${product.name}
+              </div>
+
+              <div class="product-rating">
+                ${product.rating}
+              </div>
+
+              <div class="product-price">
+
+                <span class="price">
+                  $${product.price.toFixed(2)}
+                </span>
+
+                ${
+                  product.oldPrice
+                    ? `
+                      <span class="old-price">
+                        $${product.oldPrice.toFixed(2)}
+                      </span>
+                    `
+                    : ""
+                }
+
+              </div>
+
+              <button
+                class="add-button"
+                onclick="addToCart(${product.id})"
+              >
+                Add To Cart
+              </button>
+
             </div>
+
+          </article>
+
+        `)
+        .join("");
+    }
+
+    /* =======================================================
+       FILTER
+       ======================================================== */
+
+    document
+      .querySelectorAll(".filter-btn")
+      .forEach(button => {
+
+        button.addEventListener("click", () => {
+
+          document
+            .querySelectorAll(".filter-btn")
+            .forEach(btn =>
+              btn.classList.remove("active")
+            );
+
+          button.classList.add("active");
+
+          renderProducts(button.dataset.filter);
+
+        });
+
+      });
+
+    function filterProducts(category) {
+function filterSpecialProducts(type) {
+
+  currentFilter = "All";
+
+  let filtered = [];
+
+  if (type === "new") {
+    filtered = products.filter(product =>
+      product.badge === "New"
+    );
+  }
+
+  if (type === "bestsellers") {
+    filtered = products.filter(product =>
+      product.badge === "Best Seller"
+    );
+  }
+
+  if (type === "sale") {
+    filtered = products.filter(product =>
+      product.badge === "Sale" ||
+      product.oldPrice
+    );
+  }
+
+  productCount.textContent =
+    `${filtered.length} product${filtered.length === 1 ? "" : "s"}`;
+
+  productGrid.innerHTML = filtered
+    .map(product => `
+
+      <article
+        class="product-card"
+        data-category="${product.category}"
+      >
+
+        <div class="product-image">
+
+          ${
+            product.badge
+              ? `
+                <div class="product-badge ${
+                  product.badge === "Sale"
+                    ? "sale"
+                    : ""
+                }">
+                  ${product.badge}
+                </div>
+              `
+              : ""
+          }
+
+          <button
+            class="wishlist"
+            onclick="toggleWishlist(this)"
+            aria-label="Add to wishlist"
+          >
+            ♡
+          </button>
+
+          ${
+            product.image
+              ? `
+                <img
+                  class="product-photo"
+                  src="${product.image}"
+                  alt="${product.name}"
+                  loading="lazy"
+                >
+              `
+              : `
+                <div class="product-art">
+                  <div class="${product.art}"></div>
+                </div>
+              `
+          }
+
+          <button
+            class="quick-view"
+            onclick="openQuickView(${product.id})"
+          >
+            Quick View
+          </button>
+
+        </div>
+
+        <div class="product-info">
+
+          <div class="product-category">
+            ${product.category}
+          </div>
+
+          <div class="product-name">
+            ${product.name}
+          </div>
+
+          <div class="product-rating">
+            ${product.rating || "★★★★★"}
+          </div>
+
+          <div class="product-price">
+
+            <span class="price">
+              $${Number(product.price).toFixed(2)}
+            </span>
+
+            ${
+              product.oldPrice
+                ? `
+                  <span class="old-price">
+                    $${Number(product.oldPrice).toFixed(2)}
+                  </span>
+                `
+                : ""
+            }
 
           </div>
 
-        `).join("");
-
-syncBottomOrderSummary();
-    }
-
-
-    const subtotal =
-      checkoutCart.reduce(
-        (total, item) =>
-          total + item.price * item.quantity,
-        0
-      );
-
-
-    checkoutSubtotal.textContent =
-      `$${subtotal.toFixed(2)}`;
-
-
-    if (subtotal >= 75) {
-
-      checkoutShipping.textContent = "FREE";
-
-      shippingMessage.textContent =
-        "✓ You qualify for FREE Standard Shipping!";
-
-    } else {
-
-      checkoutShipping.textContent = "$8.99";
-
-      const remaining = 75 - subtotal;
-
-      shippingMessage.textContent =
-        `You're $${remaining.toFixed(2)} away from FREE Standard Shipping`;
-    }
-
-
-    let discountAmount = 0;
-
-function updateCheckoutTotal() {
-
-  const discountedSubtotal =
-    Math.max(0, subtotal - discountAmount);
-
-  const selectedShippingMethod =
-  document.querySelector(
-    'input[name="shippingMethod"]:checked'
-  )?.value || "standard";
-
-let shippingCost;
-
-if (selectedShippingMethod === "express") {
-  shippingCost = 15;
-} else {
-  shippingCost =
-    subtotal >= 75 ? 0 : 8.99;
-}
-
-const standardShippingPrice =
-  document.getElementById("standardShippingPrice");
-
-if (standardShippingPrice) {
-  standardShippingPrice.textContent =
-    subtotal >= 75
-      ? "FREE"
-      : "$8.99";
-}
-  const taxRate = 0.0925;
-
-  const taxableAmount =
-    discountedSubtotal + shippingCost;
-
-  const estimatedTax =
-    taxableAmount * taxRate;
-
-  const total =
-    taxableAmount + estimatedTax;
-
- if (paymentRequest) {
-  paymentRequest.update({
-    total: {
-      amount: total.toFixed(2),
-      label: "IM Collections"
-    }
-  });
-} 
-
-  document.getElementById("checkoutDiscount")
-    .textContent =
-    `-$${discountAmount.toFixed(2)}`;
-
-  document.getElementById("checkoutShipping")
-    .textContent =
-    shippingCost === 0
-      ? "FREE"
-      : `$${shippingCost.toFixed(2)}`;
-
-  document.getElementById("checkoutTax")
-    .textContent =
-    `$${estimatedTax.toFixed(2)}`;
-
-document.getElementById("orderSummaryTotal").textContent =
-  `$${total.toFixed(2)}`;
-
-  checkoutTotal.textContent =
-    `$${total.toFixed(2)}`;
-
-  document.querySelectorAll(".shipping-summary-label").forEach(label => {
-    label.textContent = selectedShippingMethod === "express"
-      ? "Express Shipping" : "Standard Shipping";
-  });
-  if (selectedShippingMethod === "express") {
-    shippingMessage.textContent = "Express delivery selected.";
-  } else {
-    shippingMessage.textContent = subtotal >= 75
-      ? "✓ You qualify for FREE Standard Shipping!"
-      : `You're $${(75 - subtotal).toFixed(2)} away from FREE Standard Shipping`;
-  }
-  syncBottomOrderSummary();
-}
-
-updateCheckoutTotal();
-
-document
-  .querySelectorAll(
-    'input[name="shippingMethod"]'
-  )
-  .forEach((radio) => {
-    radio.addEventListener(
-      "change",
-      updateCheckoutTotal
-    );
-  });
-    
-    const cardPaymentSection =
-  document.getElementById("cardPaymentSection");
-
-const applePayPaymentSection =
-  document.getElementById("applePayPaymentSection");
-
-const googlePayPaymentSection =
-  document.getElementById("googlePayPaymentSection");
-
-const cashAppPaymentSection =
-  document.getElementById("cashAppPaymentSection");
-
-const giftCardPaymentSection =
-  document.getElementById("giftCardPaymentSection");
-
-const paymentMethodRadios =
-  document.querySelectorAll(
-    'input[name="paymentMethod"]'
-  );
-
-function showSelectedPaymentMethod() {
-  const selected =
-    document.querySelector(
-      'input[name="paymentMethod"]:checked'
-    )?.value;
-
-  cardPaymentSection.style.display =
-    selected === "card" ? "block" : "none";
-
-  applePayPaymentSection.style.display =
-    selected === "applepay" ? "block" : "none";
-
-  googlePayPaymentSection.style.display =
-    selected === "googlepay" ? "block" : "none";
-
-  cashAppPaymentSection.style.display =
-    selected === "cashapp" ? "block" : "none";
-
-  giftCardPaymentSection.style.display =
-    selected === "giftcard" ? "block" : "none";
-}
-
-paymentMethodRadios.forEach((radio) => {
-  radio.addEventListener(
-    "change",
-    showSelectedPaymentMethod
-  );
-});
-
-showSelectedPaymentMethod();
-
-document
-  .getElementById("applyDiscount")
-  .addEventListener("click", async function () {
-
-    const code =
-      document
-        .getElementById("discountCode")
-        .value
-        .trim()
-        .toUpperCase();
-
-  const message =
-  document.getElementById("discountMessage");
-
-   if (code === "COLLECT15") {
-
-  const {
-    data: { user },
-    error: userError
-  } = await supabaseClient.auth.getUser();
-
-  if (userError || !user) {
-    discountAmount = 0;
-    updateCheckoutTotal();
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "COLLECT15 is for registered members only. Please sign in or register to use your welcome discount.";
-    return;
-  }
-
-  const {
-    data: profile,
-    error: profileError
-  } = await supabaseClient
-    .from("profiles")
-    .select("welcome_discount_code, welcome_discount_used")
-    .eq("id", user.id)
-    .single();
-
-  if (profileError || !profile) {
-    discountAmount = 0;
-    updateCheckoutTotal();
-
-  message.style.color = "#b00020";
-message.textContent =
-  "We could not verify your welcome discount. Please try again.";
-
-syncBottomOrderSummary();
-
-return;
-  }
-
-  if (profile.welcome_discount_used === true) {
-    discountAmount = 0;
-    updateCheckoutTotal();
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "Your COLLECT15 welcome discount has already been used.";
-    return;
-  }
-
-  if (profile.welcome_discount_code !== "COLLECT15") {
-    discountAmount = 0;
-    updateCheckoutTotal();
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "COLLECT15 is not available for this account.";
-    return;
-  }
-
-  discountAmount = subtotal * 0.15;
-  updateCheckoutTotal();
-
-  message.style.color = "green";
-  message.textContent =
-    `COLLECT15 applied! You saved $${discountAmount.toFixed(2)}.`;
-
-syncBottomOrderSummary();
-
-} else if (code === "IMREFER10") {
-
-  const {
-    data: { user },
-    error: userError
-  } = await supabaseClient.auth.getUser();
-
-  if (userError || !user) {
-    discountAmount = 0;
-    updateCheckoutTotal();
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "Please sign in to use your referral reward.";
-
-    syncBottomOrderSummary();
-    return;
-  }
-
-  if (subtotal < 50) {
-    discountAmount = 0;
-    updateCheckoutTotal();
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "IMREFER10 requires a minimum $50 purchase.";
-
-    syncBottomOrderSummary();
-    return;
-  }
-
-  const {
-    data: referral,
-    error: referralError
-  } = await supabaseClient
-    .from("referrals")
-    .select("id, status, referred_reward_used")
-    .eq("referred_user_id", user.id)
-    .eq("status", "pending")
-    .eq("referred_reward_used", false)
-    .limit(1)
-    .maybeSingle();
-
-  if (referralError || !referral) {
-    discountAmount = 0;
-    updateCheckoutTotal();
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "This account does not have an available referral reward.";
-
-    syncBottomOrderSummary();
-    return;
-  }
-
-  discountAmount = 10;
-  updateCheckoutTotal();
-
-  message.style.color = "green";
-  message.textContent =
-    "IMREFER10 applied! You saved $10.00";
-
-  syncBottomOrderSummary();
-
-} else {
-
-  discountAmount = 0;
-  updateCheckoutTotal();
-
-  message.style.color = "#b00020";
-  message.textContent =
-    "Invalid discount code.";
-}
-
-});
-
-document
-  .getElementById("bottomApplyDiscount")
-  .addEventListener("click", function () {
-
-    const bottomCode =
-      document
-        .getElementById("bottomDiscountCode")
-        .value
-        .trim();
-
-    document.getElementById("discountCode").value =
-      bottomCode;
-
-    document.getElementById("applyDiscount").click();
-  });
-    
-    const attemptStorageKey = "imSquarePaymentAttempt";
-let paymentBusy = false;
-let latestOrderNumber = null;
-
-function checkoutNotice(text, failed = false) {
-  const el = document.getElementById("checkoutMessage");
-  el.textContent = text;
-  el.style.color = failed ? "#b00020" : "green";
-}
-
-function setPaymentBusy(busy) {
-  paymentBusy = busy;
-  document.getElementById("paymentButton").disabled = busy;
-  document.getElementById("retryPaymentStatus").disabled = busy;
-}
-
-function deliveryPayload() {
-  const values = {};
-
-  const fields = {
-    first_name: "guestFirstName",
-    last_name: "guestLastName",
-    address: "guestAddress",
-    address2: "guestAddress2",
-    city: "guestCity",
-    state: "guestState",
-    postal_code: "guestZip",
-    country: "guestCountry",
-    phone: "guestPhone"
-  };
-
-  for (const [key, id] of Object.entries(fields)) {
-    const input = document.getElementById(id);
-
-    if (!input.reportValidity()) {
-      throw new Error("Complete your delivery information first.");
-    }
-
-    values[key] = input.value.trim();
-  }
-
-  if (values.country !== "United States") {
-    throw new Error("We currently ship within the United States only.");
-  }
-
-  const email = document.getElementById("guestEmail");
-
-  if (!email.reportValidity()) {
-    throw new Error("Enter your checkout email.");
-  }
-
-  if (!document.getElementById("acceptPolicies").checked) {
-    throw new Error(
-      "Please accept the Terms & Conditions and Privacy Policy before paying."
-    );
-  }
-
-  if (!checkoutCart.length) {
-    throw new Error("Your cart is empty.");
-  }
-
-  return {
-    email: email.value.trim(),
-    shippingAddress: values
-  };
-}
-
-function checkoutAmountCents() {
-  const shipping = document.querySelector(
-    'input[name="shippingMethod"]:checked'
-  )?.value || "standard";
-
-  const subtotalCents = checkoutCart.reduce(
-    (sum, item) =>
-      sum + Math.round(Number(item.price) * 100) * Number(item.quantity),
-    0
-  );
-
-  const discountCents = Math.round(discountAmount * 100);
-
-  const shipCents = shipping === "express"
-    ? 1500
-    : subtotalCents >= 7500 ? 0 : 899;
-
-  const taxableCents = subtotalCents - discountCents + shipCents;
-
-  return taxableCents + Math.round(taxableCents * 0.0925);
-}
-
-async function invokeOrderPayment(body) {
-  const { data: { session } } =
-    await supabaseClient.auth.getSession();
-
-  body.userAccessToken = session?.access_token || null;
-
-  const { data, error } = await supabaseClient.functions.invoke(
-    "create-square-payment",
-    { body }
-  );
-
-  let response = data;
-
-  if (error && error.context?.json) {
-    try {
-      response = await error.context.json();
-    } catch (_) {}
-  }
-
-  if (
-    response?.success &&
-    /^\d{10}$/.test(response.orderNumber || "")
-  ) {
-    latestOrderNumber = response.orderNumber;
-
-    localStorage.removeItem(attemptStorageKey);
-    document.getElementById("retryPaymentStatus").hidden = true;
-
-    const currentCart = localStorage.getItem("imCollectionsCart");
-
-    if (
-      currentCart &&
-      JSON.stringify(JSON.parse(currentCart)) ===
-        JSON.stringify(checkoutCart)
-    ) {
-      localStorage.removeItem("imCollectionsCart");
-    }
-
-    checkoutNotice("Payment successful! Order #" + latestOrderNumber);
-    showPaymentSuccessPopup();
-
-    document.getElementById("paymentButton").disabled = true;
-    return;
-  }
-
-  if (response?.terminal) {
-    localStorage.removeItem(attemptStorageKey);
-    document.getElementById("retryPaymentStatus").hidden = true;
-  } else {
-    document.getElementById("retryPaymentStatus").hidden = false;
-  }
-
-  throw new Error(
-    response?.error ||
-    "Payment status could not be checked. Tap Retry Payment Status before paying again."
-  );
-}
-
-document.getElementById("paymentButton").addEventListener(
-  "click",
-  async () => {
-    if (paymentBusy || latestOrderNumber) return;
-
-    if (localStorage.getItem(attemptStorageKey)) {
-      checkoutNotice(
-        "An earlier payment needs checking. Tap Retry Payment Status before paying again.",
-        true
-      );
-
-      document.getElementById("retryPaymentStatus").hidden = false;
-      return;
-    }
-
-    setPaymentBusy(true);
-
-    try {
-      await checkoutAccount.ready;
-      checkoutAccount.checkReady();
-      checkoutAccount.copyBilling();
-      const delivery = deliveryPayload();
-      checkoutAccount.validateBilling();
-      await checkoutAccount.savePreference();
-
-      const method = document.querySelector(
-        'input[name="paymentMethod"]:checked'
-      )?.value || "card";
-
-      const paymentForm = {
-        card: squareCard,
-        giftcard: giftCard,
-        googlepay: googlePay
-      }[method];
-
-      if (!paymentForm) {
-        throw new Error(
-          "This payment method is not connected yet. Choose Card, Gift Card, or Google Pay."
-        );
-      }
-
-      checkoutNotice("Preparing your payment…");
-
-      const result = await paymentForm.tokenize();
-
-      if (result.status !== "OK") {
-        throw new Error(
-          "Please check your payment information and try again."
-        );
-      }
-
-      const attemptId = crypto.randomUUID();
-
-      localStorage.setItem(attemptStorageKey, attemptId);
-
-      checkoutNotice("Processing payment and saving your order…");
-
-      await invokeOrderPayment({
-        attemptId,
-        sourceId: result.token,
-        ...delivery,
-
-        items: checkoutCart.map(item => ({
-          id: item.id,
-          quantity: item.quantity
-        })),
-
-        shippingMethod: document.querySelector(
-          'input[name="shippingMethod"]:checked'
-        )?.value || "standard",
-
-        promoCode: discountAmount > 0
-          ? document.getElementById("discountCode")
-              .value.trim().toUpperCase()
-          : "",
-
-        amountCents: checkoutAmountCents(),
-        paymentMethod: method
-      });
-    } catch (error) {
-      checkoutNotice(
-        error.message || "Unable to prepare payment.",
-        true
-      );
-
-      if (localStorage.getItem(attemptStorageKey)) {
-        document.getElementById("retryPaymentStatus").hidden = false;
-      }
-    } finally {
-      setPaymentBusy(false);
-
-      if (latestOrderNumber) {
-        document.getElementById("paymentButton").disabled = true;
-      }
-    }
-  }
-);
-
-document.getElementById("retryPaymentStatus").addEventListener(
-  "click",
-  async () => {
-    if (paymentBusy) return;
-
-    const attemptId = localStorage.getItem(attemptStorageKey);
-
-    if (!attemptId) return;
-
-    setPaymentBusy(true);
-
-    try {
-      checkoutNotice("Checking your existing payment…");
-
-      await invokeOrderPayment({
-        attemptId,
-        resume: true
-      });
-    } catch (error) {
-      checkoutNotice(error.message, true);
-    } finally {
-      setPaymentBusy(false);
-
-      if (latestOrderNumber) {
-        document.getElementById("paymentButton").disabled = true;
-      }
-    }
-  }
-);
-
-if (localStorage.getItem(attemptStorageKey)) {
-  document.getElementById("retryPaymentStatus").hidden = false;
-
-  checkoutNotice(
-    "An earlier payment needs checking. Tap Retry Payment Status before paying again.",
-    true
-  );
-}
-function setupSummaryToggle(buttonId, contentId, arrowId) {
-  const button = document.getElementById(buttonId);
-  const content = document.getElementById(contentId);
-  const arrow = document.getElementById(arrowId);
-
-  if (!button || !content || !arrow) return;
-
-  button.addEventListener("click", function () {
-    const isOpen = content.style.display !== "none";
-
-    content.style.display = isOpen ? "none" : "block";
-    arrow.textContent = isOpen ? "⌄" : "⌃";
-
-    button.setAttribute(
-      "aria-expanded",
-      String(!isOpen)
-    );
-  });
-}
-
-setupSummaryToggle(
-  "orderSummaryToggle",
-  "orderSummaryContent",
-  "orderSummaryArrow"
-);
-
-setupSummaryToggle(
-  "bottomSummaryToggle",
-  "bottomSummaryContent",
-  "bottomSummaryArrow"
-);
-
-function syncBottomOrderSummary() {
-  const sourceItems =
-    document.getElementById("checkoutItems");
-
-  const bottomItems =
-    document.getElementById("bottomCheckoutItems");
-
-  if (sourceItems && bottomItems) {
-    bottomItems.innerHTML = sourceItems.innerHTML;
-  }
-
-  const copyText = (sourceId, targetId) => {
-    const source = document.getElementById(sourceId);
-    const target = document.getElementById(targetId);
-
-    if (source && target) {
-      target.textContent = source.textContent;
-    }
-  };
-
-copyText("checkoutSubtotal", "bottomSubtotal");
-copyText("checkoutDiscount", "bottomDiscount");
-copyText("discountMessage", "bottomDiscountMessage");
-copyText("checkoutShipping", "bottomShipping");
-  copyText("checkoutTax", "bottomTax");
-copyText("shippingMessage", "bottomShippingMessage");
-  copyText("checkoutTotal", "bottomTotal");
-copyText("checkoutTotal", "bottomSummaryHeaderTotal");
-const sourceDiscountMessage =
-  document.getElementById("discountMessage");
-
-const bottomDiscountMessage =
-  document.getElementById("bottomDiscountMessage");
-
-if (sourceDiscountMessage && bottomDiscountMessage) {
-  bottomDiscountMessage.style.color =
-    sourceDiscountMessage.style.color;
-}
-
-const sourceDiscountCode =
-  document.getElementById("discountCode");
-
-const bottomDiscountCode =
-  document.getElementById("bottomDiscountCode");
-
-if (sourceDiscountCode && bottomDiscountCode) {
-  bottomDiscountCode.value =
-    sourceDiscountCode.value;
-}
-}
-
-setTimeout(syncBottomOrderSummary, 100);
-
-document
-  .getElementById("backToTopButton")
-  .addEventListener("click", function () {
-    window.scrollTo({
-      top: 0,
+          <button
+            class="add-button"
+            onclick="addToCart(${product.id})"
+          >
+            Add To Cart
+          </button>
+
+        </div>
+
+      </article>
+
+    `)
+    .join("");
+
+  document
+    .getElementById("featured")
+    .scrollIntoView({
       behavior: "smooth"
     });
-  });
-syncBottomOrderSummary();
-    function showPaymentSuccessPopup() {
-  document
-    .getElementById("paymentSuccessPopup")
-    ?.classList.add("show");
 }
+      const button =
+        document.querySelector(
+          `.filter-btn[data-filter="${category}"]`
+        );
 
-function closePaymentSuccessPopup() {
-  document
-    .getElementById("paymentSuccessPopup")
-    ?.classList.remove("show");
-}
+      if (button) {
 
-    function goToAccountSummary() {
-  window.location.href = "orders-returns.html" +
-    (latestOrderNumber
-      ? "?order=" + encodeURIComponent(latestOrderNumber)
-      : "");
-}
-    
-    </script>
+        document
+          .querySelectorAll(".filter-btn")
+          .forEach(btn =>
+            btn.classList.remove("active")
+          );
 
-  <!-- PAYMENT SUCCESS POPUP -->
-<div id="paymentSuccessPopup" class="payment-success-popup">
-  <div class="payment-success-content">
-    <button
-      type="button"
-      class="payment-success-close"
-      onclick="closePaymentSuccessPopup()"
-    >
-      ×
-    </button>
+        button.classList.add("active");
 
-    <img
-      src="payment-successful.PNG"
-      alt="Payment Successful"
-    >
+      }
 
-    <button
-  type="button"
-  class="payment-success-done"
-  onclick="goToAccountSummary()"
->
-  CONTINUE
-</button>
-  </div>
+      renderProducts(category);
+
+      setTimeout(() => {
+
+        document
+          .getElementById("featured")
+          .scrollIntoView({
+            behavior: "smooth"
+          });
+
+      }, 50);
+    }
+
+    /* =======================================================
+       WISHLIST
+       ======================================================== */
+
+    function toggleWishlist(button) {
+
+      button.classList.toggle("active");
+
+      showToast(
+        button.classList.contains("active")
+          ? "Added to wishlist"
+          : "Removed from wishlist"
+      );
+    }
+
+    /* =======================================================
+       CART
+       ======================================================== */
+
+    function addToCart(productId) {
+
+      const product =
+        products.find(p => p.id === productId);
+
+      if (!product) return;
+
+      const existing =
+        cart.find(item => item.id === productId);
+
+      if (existing) {
+
+        existing.quantity++;
+
+      } else {
+
+        cart.push({
+          ...product,
+          quantity: 1
+        });
+
+      }
+
+    localStorage.setItem(
+  "imCollectionsCart",
+  JSON.stringify(cart)
+);
+
+updateCart();
+
+openCart();
+
+      showToast(
+        `${product.name} added to your cart`
+      );
+    }
+
+    function updateCart() {
+
+      const count =
+        cart.reduce(
+          (total, item) =>
+            total + item.quantity,
+          0
+        );
+
+      document.getElementById("cartCount")
+        .textContent = count;
+
+      const cartItems =
+        document.getElementById("cartItems");
+
+      if (cart.length === 0) {
+
+        cartItems.innerHTML = `
+          <div class="empty-cart">
+            <h3>Your cart is empty</h3>
+            <p>
+              Add something you love from
+              IM Collections.
+            </p>
+          </div>
+        `;
+
+      } else {
+
+        cartItems.innerHTML =
+          cart.map(item => `
+
+            <div class="cart-item">
+
+              <div class="cart-thumb">
+  <img
+    src="${item.image}"
+    alt="${item.name}"
+    class="cart-product-image"
+  >
 </div>
 
-<script>
-const checkoutAccount = (() => {
-  const fieldMap = {
-    first_name: "guestFirstName", last_name: "guestLastName", phone: "guestPhone",
-    address_line1: "guestAddress", address_line2: "guestAddress2", city: "guestCity",
-    state_province: "guestState", postal_code: "guestZip", country: "guestCountry"
-  };
-  const billingMap = {
-    guestFirstName: "billingFirstName", guestLastName: "billingLastName",
-    guestAddress: "billingAddress", guestAddress2: "billingApartment",
-    guestCity: "billingCity", guestState: "billingState", guestZip: "billingPostal",
-    guestCountry: "billingCountry"
-  };
-  const deliveryIds = ["guestEmail", ...Object.values(fieldMap)];
-  const draftIds = [...deliveryIds, ...Object.values(billingMap)];
-  const watched = new Set([...draftIds, "sameAsShipping", "saveCheckoutInfo"]);
-  const byId = id => document.getElementById(id);
-  let user = null, owner = null, loading = true, failed = false, finished = false;
-  let version = 0, ready;
-  const dirty = new Set();
-  const draftKey = () => "imCheckoutDraftV2:" + owner;
-  const rememberKey = () => "imCheckoutRememberV1:" + owner;
-  function notice(text, error = false) {
-    byId("checkoutProfileMessage").textContent = text;
-    byId("checkoutProfileMessage").style.color = error ? "#b00020" : "#626262";
-  }
-  function stored(key, lifetime) {
-    try {
-      const draft = JSON.parse(localStorage.getItem(key) || "null");
-      if (draft && Number.isFinite(draft.savedAt) && Date.now() - draft.savedAt < lifetime) return draft;
-      localStorage.removeItem(key);
-    } catch (_) {}
-    return null;
-  }
-  function copyBilling() {
-    const same = byId("sameAsShipping");
-    byId("billingAddressFields").style.display = same.checked ? "none" : "grid";
-    if (same.checked) {
-      for (const [source, target] of Object.entries(billingMap)) {
-        byId(target).value = byId(source).value;
+              <div>
+
+                <div class="cart-item-name">
+                  ${item.name}
+                </div>
+
+                <div class="cart-item-price">
+                  $${item.price.toFixed(2)}
+                </div>
+
+                <div class="quantity">
+
+                  <button
+                    onclick="changeQuantity(${item.id}, -1)"
+                  >
+                    −
+                  </button>
+
+                  <span>
+                    ${item.quantity}
+                  </span>
+
+                  <button
+                    onclick="changeQuantity(${item.id}, 1)"
+                  >
+                    +
+                  </button>
+
+                </div>
+
+              </div>
+
+              <button
+                class="remove-item"
+                onclick="removeFromCart(${item.id})"
+              >
+                Remove
+              </button>
+
+            </div>
+
+          `).join("");
+
       }
+
+      const subtotal =
+        cart.reduce(
+          (total, item) =>
+            total + item.price * item.quantity,
+          0
+        );
+
+      document.getElementById("cartSubtotal")
+        .textContent =
+          `$${subtotal.toFixed(2)}`;
+      const freeShippingThreshold = 75;
+const remaining = Math.max(0, freeShippingThreshold - subtotal);
+const progress = Math.min((subtotal / freeShippingThreshold) * 100, 100);
+
+const freeShippingMessage =
+  document.getElementById("freeShippingMessage");
+
+const shippingProgressFill =
+  document.getElementById("shippingProgressFill");
+
+if (subtotal >= freeShippingThreshold) {
+  freeShippingMessage.textContent =
+    "You qualify for FREE Standard Shipping!";
+} else {
+  freeShippingMessage.textContent =
+    `You're $${remaining.toFixed(2)} away from FREE Standard Shipping`;
+}
+
+shippingProgressFill.style.width = `${progress}%`;
     }
-  }
-  function snapshot() {
-    const values = {};
-    draftIds.forEach(id => { values[id] = byId(id).value; });
-    return {
-      savedAt: Date.now(), values,
-      shipping: document.querySelector('input[name="shippingMethod"]:checked')?.value || "standard",
-      same: byId("sameAsShipping").checked,
-      remember: byId("saveCheckoutInfo").checked
-    };
-  }
-  function saveDraft() {
-    if (loading || finished || !owner) return;
-    try { localStorage.setItem(draftKey(), JSON.stringify(snapshot())); } catch (_) {}
-  }
-  function supportedCountry(value) {
-    return !value || ["US", "USA", "United States", "United States of America"].includes(value);
-  }
-  function applyDraft(draft) {
-    if (!draft?.values || !supportedCountry(draft.values.guestCountry)) return;
-    draftIds.forEach(id => {
-      if (id === "guestCountry" || id === "billingCountry" || (id === "guestEmail" && user)) return;
-      if (!dirty.has(id) && typeof draft.values[id] === "string") byId(id).value = draft.values[id];
-    });
-    if (!dirty.has("sameAsShipping") && typeof draft.same === "boolean") byId("sameAsShipping").checked = draft.same;
-    if (typeof draft.remember === "boolean") byId("saveCheckoutInfo").checked = draft.remember;
-    document.querySelectorAll('input[name="shippingMethod"]').forEach(radio => {
-      if (radio.value === draft.shipping) {
-        radio.checked = true;
-        radio.dispatchEvent(new Event("change", { bubbles: true }));
+
+    function changeQuantity(productId, change) {
+
+      const item =
+        cart.find(
+          product => product.id === productId
+        );
+
+      if (!item) return;
+
+      item.quantity += change;
+
+      if (item.quantity <= 0) {
+
+        cart =
+          cart.filter(
+            product => product.id !== productId
+          );
+
       }
-    });
-  }
-  function completeDelivery() {
-    return ["guestEmail", "guestFirstName", "guestLastName", "guestAddress", "guestCity", "guestState", "guestZip"]
-      .every(id => byId(id).value.trim() && byId(id).checkValidity());
-  }
-  function showSummary() {
-    const summary = byId("savedDeliverySummary");
-    summary.replaceChildren();
-    const lines = [
-      byId("guestEmail").value,
-      [byId("guestFirstName").value, byId("guestLastName").value].filter(Boolean).join(" "),
-      byId("guestAddress").value, byId("guestAddress2").value,
-      [byId("guestCity").value, byId("guestState").value, byId("guestZip").value].filter(Boolean).join(", "),
-      "United States", byId("guestPhone").value
-    ];
-    lines.filter(Boolean).forEach(line => {
-      const p = document.createElement("p"); p.textContent = line; summary.append(p);
-    });
-    const collapse = Boolean(user) && completeDelivery();
-    summary.hidden = true;
-    byId("deliveryFields").hidden = collapse;
-    byId("editDeliveryButton").hidden = !collapse;
-    byId("editDeliveryButton").textContent = "Show / Edit Delivery Information ▾";
-    byId("editDeliveryButton").setAttribute("aria-expanded", "false");
-  }
-  async function limited(promise) {
-    let timer;
-    try {
-      return await Promise.race([
-        promise,
-        new Promise((_, reject) => {
-          timer = setTimeout(() => reject(new Error("Account details took too long to load. Try again.")), 15000);
-        })
-      ]);
-    } finally { clearTimeout(timer); }
-  }
-  async function load() {
-    const requestVersion = ++version;
-    loading = true; failed = false;
-    byId("checkoutContactStatus").textContent = "Checking your account…";
-    byId("guestAccountLinks").hidden = true;
-    byId("retryAccountLoad").hidden = true;
-    try {
-      const sessionResult = await limited(supabaseClient.auth.getSession());
-      if (sessionResult.error) throw sessionResult.error;
-      let nextUser = null;
-      if (sessionResult.data.session) {
-        const result = await limited(supabaseClient.auth.getUser());
-        if (result.error || !result.data.user) throw new Error("Please sign in again to load your saved details.");
-        nextUser = result.data.user;
-      }
-      if (requestVersion !== version) return;
-      const nextOwner = nextUser?.id || "guest";
-      if (owner && owner !== nextOwner) {
-        draftIds.forEach(id => { byId(id).value = ""; });
-        dirty.clear(); byId("saveCheckoutInfo").checked = false;
-      }
-      user = nextUser; owner = nextOwner;
-      byId("guestCountry").value = "United States";
-      byId("billingCountry").value = "United States";
-      byId("guestEmail").readOnly = Boolean(user);
-      byId("memberAccountLink").hidden = !user;
-      byId("guestAccountLinks").hidden = Boolean(user);
-      byId("saveCheckoutLabel").textContent = user
-        ? "Save updated delivery information to My Account"
-        : "Remember my information on this device";
-      byId("checkoutContactStatus").textContent = user
-        ? "Signed in as " + user.email
-        : "Guest checkout is available. We currently ship within the United States only.";
-      notice("");
-      if (user) {
-        byId("guestEmail").value = user.email || "";
-        let profile = null;
-        try {
-          const result = await limited(supabaseClient.from("profiles").select(
-            "first_name,last_name,phone,address_line1,address_line2,city,state_province,postal_code,country"
-          ).eq("id", user.id).maybeSingle());
-          if (result.error) throw result.error;
-          profile = result.data;
-        } catch (_) {
-          if (requestVersion !== version) return;
-          notice("Your saved address could not be loaded. Enter your delivery details or try Retry Account Details.", true);
-          byId("retryAccountLoad").hidden = false;
+
+localStorage.setItem(
+  "imCollectionsCart",
+  JSON.stringify(cart)
+);
+      
+      updateCart();
+    }
+
+    function removeFromCart(productId) {
+
+      cart =
+        cart.filter(
+          product => product.id !== productId
+        );
+
+localStorage.setItem(
+  "imCollectionsCart",
+  JSON.stringify(cart)
+);
+      
+      updateCart();
+
+      showToast("Item removed from cart");
+    }
+
+    function openCart() {
+
+      document
+        .getElementById("cartOverlay")
+        .classList.add("active");
+
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeCart() {
+
+      document
+        .getElementById("cartOverlay")
+        .classList.remove("active");
+
+      document.body.style.overflow = "";
+    }
+
+    document
+      .getElementById("cartBtn")
+      .addEventListener("click", openCart);
+
+    document
+      .getElementById("cartClose")
+      .addEventListener("click", closeCart);
+
+    document
+      .getElementById("cartOverlay")
+      .addEventListener("click", event => {
+
+        if (
+          event.target.id === "cartOverlay"
+        ) {
+          closeCart();
         }
-        if (requestVersion !== version) return;
-        const domestic = supportedCountry(profile?.country);
-        for (const [column, id] of Object.entries(fieldMap)) {
-          if (id === "guestCountry" || dirty.has(id)) continue;
-          const personal = ["first_name", "last_name", "phone"].includes(column);
-          byId(id).value = domestic || personal
-            ? String(profile?.[column] || (personal ? user.user_metadata?.[column] : "") || "")
-            : "";
+
+      });
+
+    /* =======================================================
+       QUICK VIEW
+       ======================================================== */
+
+    function openQuickView(productId) {
+
+      const product =
+        products.find(
+          p => p.id === productId
+        );
+
+      if (!product) return;
+
+      document.getElementById("modalCategory")
+        .textContent =
+          product.category;
+
+      document.getElementById("modalName")
+        .textContent =
+          product.name;
+
+      document.getElementById("modalRating")
+        .textContent =
+          product.rating;
+
+      document.getElementById("modalDescription")
+        .textContent =
+          product.description;
+
+      document.getElementById("modalPrice")
+        .textContent =
+          `$${product.price.toFixed(2)}`;
+
+     const galleryImages =
+  product.images && product.images.length
+    ? product.images
+    : product.image
+      ? [product.image]
+      : [];
+
+document.getElementById("modalImage").innerHTML =
+  galleryImages.length
+    ? `
+      <div class="product-gallery">
+        <img
+          id="galleryMainImage"
+          src="${galleryImages[0]}"
+          alt="${product.name}"
+          style="width:100%; max-height:420px; object-fit:contain;"
+        >
+
+        <div style="
+          display:flex;
+          gap:8px;
+          overflow-x:auto;
+          margin-top:12px;
+          padding-bottom:5px;
+        ">
+          ${galleryImages.map((img, index) => `
+            <img
+              src="${img}"
+              alt="${product.name} photo ${index + 1}"
+              onclick="document.getElementById('galleryMainImage').src=this.src"
+              style="
+                width:70px;
+                height:70px;
+                object-fit:cover;
+                cursor:pointer;
+                border:1px solid #ddd;
+              "
+            >
+          `).join("")}
+        </div>
+      </div>
+    `
+    : `
+      <div class="product-art">
+        <div class="${product.art}"></div>
+      </div>
+    `;
+
+document.getElementById("modalImage").innerHTML =
+  galleryImages.length
+    ? `
+      <div class="product-gallery">
+        <img
+          id="galleryMainImage"
+          src="${galleryImages[0]}"
+          alt="${product.name}"
+          style="width:100%; max-height:420px; object-fit:contain;"
+        >
+
+        <div style="
+          display:flex;
+          gap:8px;
+          overflow-x:auto;
+          margin-top:12px;
+          padding-bottom:5px;
+        ">
+          ${galleryImages.map((img, index) => `
+            <img
+              src="${img}"
+              alt="${product.name} photo ${index + 1}"
+              onclick="document.getElementById('galleryMainImage').src=this.src"
+              style="
+                width:70px;
+                height:70px;
+                object-fit:cover;
+                cursor:pointer;
+                border:1px solid #ddd;
+              "
+            >
+          `).join("")}
+        </div>
+      </div>
+    `
+    : `
+      <div class="product-art">
+        <div class="${product.art}"></div>
+      </div>
+    `;
+
+      document.getElementById("modalAdd")
+        .onclick = () => {
+
+          addToCart(product.id);
+
+          closeModal();
+
+        };
+
+      document
+        .getElementById("quickModal")
+        .classList.add("active");
+
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeModal() {
+
+      document
+        .getElementById("quickModal")
+        .classList.remove("active");
+
+      document.body.style.overflow = "";
+    }
+
+    document
+      .getElementById("modalClose")
+      .addEventListener("click", closeModal);
+
+    document
+      .getElementById("quickModal")
+      .addEventListener("click", event => {
+
+        if (
+          event.target.id === "quickModal"
+        ) {
+          closeModal();
         }
-        if (!domestic) notice("Your profile has an international address. Enter a United States delivery address for this order.", true);
-      }
-      const draft = stored(draftKey(), 24 * 60 * 60 * 1000);
-      if (draft) applyDraft(draft);
-      else if (!user) applyDraft(stored(rememberKey(), 30 * 24 * 60 * 60 * 1000));
-      // Migrate an existing guest timeout draft, but never use it for a member.
-      if (!user && !draft) applyDraft(stored("imCheckoutDraftV1", 24 * 60 * 60 * 1000));
-      try { localStorage.removeItem("imCheckoutDraftV1"); } catch (_) {}
-      copyBilling(); showSummary();
-      if (user && !completeDelivery() && !byId("checkoutProfileMessage").textContent) {
-        notice("Complete the missing delivery details. Check the save box to update My Account.");
-      }
-    } catch (error) {
-      if (requestVersion !== version) return;
-      failed = true;
-      byId("checkoutContactStatus").textContent = "Your account could not be checked.";
-      byId("guestAccountLinks").hidden = false;
-      byId("retryAccountLoad").hidden = false;
-      notice(error.message || "Unable to check your account. Try again.", true);
-    } finally {
-      if (requestVersion === version) { loading = false; saveDraft(); }
-    }
-  }
-  function validateBilling() {
-    const method = document.querySelector('input[name="paymentMethod"]:checked')?.value || "card";
-    if (method !== "card" || byId("sameAsShipping").checked) return;
-    for (const id of ["billingFirstName", "billingLastName", "billingAddress", "billingCity", "billingState", "billingPostal"]) {
-      const input = byId(id);
-      if (!input.value.trim() || !input.reportValidity()) {
-        input.focus(); throw new Error("Complete your billing address or use your shipping address.");
-      }
-    }
-  }
-  async function savePreference() {
-    saveDraft();
-    if (!byId("saveCheckoutInfo").checked) {
-      try { localStorage.removeItem(rememberKey()); } catch (_) {}
-      return;
-    }
-    if (!user) {
-      try { localStorage.setItem(rememberKey(), JSON.stringify(snapshot())); } catch (_) {}
-      return;
-    }
-    const current = await limited(supabaseClient.auth.getUser());
-    if (current.error || current.data.user?.id !== user.id) throw new Error("Your account changed. Reload checkout before paying.");
-    const updates = {};
-    for (const [column, id] of Object.entries(fieldMap)) updates[column] = byId(id).value.trim();
-    const result = await limited(supabaseClient.from("profiles").update(updates).eq("id", user.id).select("id").maybeSingle());
-    if (result.error || !result.data) {
-      throw new Error("Your delivery details could not be saved. Try again, or uncheck Save updated delivery information to pay without updating My Account.");
-    }
-    notice("Delivery information saved to My Account.");
-  }
-  document.addEventListener("input", event => {
-    if (watched.has(event.target.id)) {
-      dirty.add(event.target.id);
-      if (deliveryIds.includes(event.target.id)) copyBilling();
-      saveDraft();
-    }
-  });
-  document.addEventListener("change", event => {
-    if (watched.has(event.target.id) || event.target.name === "shippingMethod") {
-      dirty.add(event.target.id); copyBilling(); saveDraft();
-      if (event.target.id === "saveCheckoutInfo" && !event.target.checked && owner) {
-        try { localStorage.removeItem(rememberKey()); } catch (_) {}
-      }
-    }
-  });
-  byId("editDeliveryButton").addEventListener("click", () => {
-    const fields = byId("deliveryFields");
-    if (fields.hidden) {
-      fields.hidden = false; byId("savedDeliverySummary").hidden = true;
-      byId("editDeliveryButton").textContent = "Hide Delivery Information ▴";
-      byId("editDeliveryButton").setAttribute("aria-expanded", "true");
-    } else {
-      if (!completeDelivery()) { notice("Complete the required delivery details first.", true); return; }
-      copyBilling(); saveDraft(); showSummary();
-    }
-  });
-  byId("retryAccountLoad").addEventListener("click", () => { ready = load(); });
-  window.addEventListener("pagehide", saveDraft);
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") saveDraft(); });
-  new MutationObserver(() => {
-    if (byId("paymentSuccessPopup").classList.contains("show")) {
-      finished = true;
-      if (owner) { try { localStorage.removeItem(draftKey()); } catch (_) {} }
-    }
-  }).observe(byId("paymentSuccessPopup"), { attributes: true, attributeFilter: ["class"] });
-  supabaseClient.auth.onAuthStateChange((event, session) => {
-    if (event === "SIGNED_OUT") {
-      ++version; loading = true; user = null; owner = null; dirty.clear();
-      draftIds.forEach(id => { byId(id).value = ""; });
-      byId("savedDeliverySummary").hidden = true;
-      byId("deliveryFields").hidden = false;
-      byId("editDeliveryButton").hidden = true;
-      byId("guestEmail").readOnly = false;
-      byId("saveCheckoutInfo").checked = false;
-    }
-    if (event === "SIGNED_OUT" || (event === "SIGNED_IN" && owner && session?.user?.id !== owner)) {
-      // Run profile queries outside Supabase's auth callback.
-      setTimeout(() => { ready = load(); }, 0);
-    }
-  });
-  ready = load();
-  return {
-    get ready() { return ready; }, copyBilling, validateBilling, savePreference,
-    checkReady() { if (loading || failed) throw new Error("Check your account with Retry Account Details before paying."); }
-  };
-})();
 
-</script>
+      });
 
+    /* =======================================================
+       MOBILE MENU
+       ======================================================== */
 
-<dialog id="imReferralDialog" aria-labelledby="imReferralTitle" aria-describedby="imReferralDescription">
-  <button class="im-referral-close" type="button" aria-label="Close referral information" autofocus>×</button>
-  <h2 id="imReferralTitle">Give $10, Get $10</h2>
-  <p id="imReferralDescription">Share your personal IM Collections referral link with a new friend.</p>
-  <p><strong>Your friend gets $10 off</strong> their first eligible purchase with a merchandise subtotal of $50 or more after signing up through your link.</p>
-  <p><strong>You earn a $10 referral reward</strong> after your friend successfully pays for a qualifying $50+ merchandise purchase. Use your reward toward a future eligible $50+ purchase.</p>
-  <p class="im-referral-note">Sharing a link or signing up alone does not earn the referring member a reward. One discount or reward per order; cannot be combined with COLLECT15. Shipping and tax do not count toward the $50 minimum.</p>
-  <a class="im-referral-action" href="refer-a-friend.html">Open Refer a Friend</a>
-  <p class="im-referral-note">Members can share their personal link. New shoppers can sign up on the referral page. View earned credit in Collectors Reward.</p>
-</dialog>
+    const mobileMenu =
+      document.getElementById("mobileMenu");
+
+    document
+      .getElementById("mobileMenuBtn")
+      .addEventListener("click", () => {
+
+        mobileMenu.classList.add("active");
+
+        document.body.style.overflow = "hidden";
+
+      });
+
+    document
+      .getElementById("mobileMenuClose")
+      .addEventListener("click", () => {
+
+        mobileMenu.classList.remove("active");
+
+        document.body.style.overflow = "";
+
+      });
+
+    document
+      .querySelectorAll(".mobile-menu-links a")
+      .forEach(link => {
+
+        link.addEventListener("click", () => {
+
+          mobileMenu.classList.remove("active");
+
+          document.body.style.overflow = "";
+
+        });
+
+      });
+
+    /* =======================================================
+       SEARCH
+       ======================================================== */
+
+    document
+      .getElementById("searchBtn")
+      .addEventListener("click", () => {
+
+        const search =
+          prompt(
+            "What are you looking for?"
+          );
+
+        if (!search) return;
+
+        const query =
+          search.toLowerCase().trim();
+
+        const match =
+          products.filter(product =>
+            product.name
+              .toLowerCase()
+              .includes(query)
+            ||
+            product.category
+              .toLowerCase()
+              .includes(query)
+          );
+
+        if (match.length === 0) {
+
+          showToast(
+            `No products found for "${search}"`
+          );
+
+          return;
+
+        }
+
+        productGrid.innerHTML =
+          match.map(product => `
+
+            <article
+              class="product-card"
+              data-category="${product.category}"
+            >
+
+              <div class="product-image">
+
+                <div
+                  class="product-badge"
+                >
+                  ${product.badge}
+                </div>
+
+                <button
+                  class="wishlist"
+                  onclick="toggleWishlist(this)"
+                >
+                  ♡
+                </button>
+
+               <div class="product-art">
+    ${
+        product.image
+            ? `<img src="${product.image}" alt="${product.name}">`
+            : `<div class="${product.art}"></div>`
+    }
+</div>
+
+                <button
+                  class="quick-view"
+                  onclick="openQuickView(${product.id})"
+                >
+                  Quick View
+                </button>
+
+              </div>
+
+              <div class="product-info">
+
+                <div class="product-category">
+                  ${product.category}
+                </div>
+
+                <div class="product-name">
+                  ${product.name}
+                </div>
+
+                <div class="product-rating">
+                  ${product.rating}
+                </div>
+
+                <div class="product-price">
+                  <span class="price">
+                    $${product.price.toFixed(2)}
+                  </span>
+                </div>
+
+                <button
+                  class="add-button"
+                  onclick="addToCart(${product.id})"
+                >
+                  Add To Cart
+                </button>
+
+              </div>
+
+            </article>
+
+          `).join("");
+
+        productCount.textContent =
+          `${match.length} result${match.length === 1 ? "" : "s"}`;
+
+        document
+          .getElementById("featured")
+          .scrollIntoView({
+            behavior: "smooth"
+          });
+
+      });
+
+    /* =======================================================
+       NEWSLETTER
+       ======================================================== */
+
+    document
+      .getElementById("newsletterForm")
+      .addEventListener("submit", event => {
+
+        event.preventDefault();
+
+        const email =
+          document.getElementById("emailInput")
+            .value;
+
+        if (!email) return;
+
+        document
+          .getElementById("newsletterMessage")
+          .style.display = "block";
+
+        event.target.reset();
+
+        showToast(
+          "Welcome to IM Collections!" + 
+          "when Fashions & Lifestyles meets Savings!"
+        );
+
+      });
+
+    /* =======================================================
+       CHECKOUT DEMO
+       ======================================================== */
+
+    function checkout() {
+  if (cart.length === 0) {
+    showToast("Your cart is empty.");
+    return;
+  }
+
+  localStorage.setItem(
+    "imCollectionsCart",
+    JSON.stringify(cart)
+  );
+
+  window.location.href = "checkout.html";
+}
+    /* =======================================================
+       TOAST
+       ======================================================== */
+
+    let toastTimer;
+
+    function showToast(message) {
+
+      const toast =
+        document.getElementById("toast");
+
+      toast.textContent = message;
+
+      toast.classList.add("show");
+
+      clearTimeout(toastTimer);
+
+      toastTimer =
+        setTimeout(() => {
+
+          toast.classList.remove("show");
+
+        }, 2600);
+
+    }
+
+    /* =======================================================
+       INITIALIZE
+       ======================================================== */
+
+    loadSupabaseProducts();
+updateCart();
+// Register IM Collections service worker
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js")
+      .then(() => console.log("IM Collections PWA ready"))
+      .catch((error) => console.error("PWA registration failed:", error));
+  });
+}
+  </script>
 <script>
-(() => {
-  const dialog = document.getElementById('imReferralDialog');
-  if (!dialog || typeof dialog.showModal !== 'function') return;
-  document.querySelectorAll('[data-referral-popup]').forEach(link => {
-    link.addEventListener('click', event => {
-      event.preventDefault();
-      if (!dialog.open) dialog.showModal();
-    });
-  });
-  dialog.querySelector('button').addEventListener('click', () => dialog.close());
-  dialog.addEventListener('click', event => {
-    if (event.target !== dialog) return;
-    const box = dialog.getBoundingClientRect();
-    if (event.clientX < box.left || event.clientX > box.right ||
-        event.clientY < box.top || event.clientY > box.bottom) dialog.close();
-  });
-})();
-</script>
+  const announcements = document.querySelectorAll(".announcement-message");
+  let announcementIndex = 0;
 
+  setInterval(() => {
+    announcements[announcementIndex].classList.remove("active");
+
+    announcementIndex++;
+
+    if (announcementIndex >= announcements.length) {
+      announcementIndex = 0;
+    }
+
+    announcements[announcementIndex].classList.add("active");
+  }, 3000);
+  const accountLinks =
+  document.getElementById("accountLinks");
+
+const loggedInAccount =
+  document.getElementById("loggedInAccount");
+
+const logoutLink =
+  document.getElementById("logoutLink");
+
+async function updateAccountLinks() {
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+  if (session) {
+    accountLinks.style.display = "none";
+    loggedInAccount.style.display = "block";
+  } else {
+    accountLinks.style.display = "block";
+    loggedInAccount.style.display = "none";
+  }
+}
+
+logoutLink.addEventListener(
+  "click",
+  async function(event) {
+    event.preventDefault();
+
+    await supabaseClient.auth.signOut();
+
+    window.location.href = "index.html";
+  }
+);
+const accountMenuBtn =
+  document.getElementById("accountMenuBtn");
+
+const headerAccountMenu =
+  document.getElementById("headerAccountMenu");
+
+const headerLoggedOut =
+  document.getElementById("headerLoggedOut");
+
+const headerLoggedIn =
+  document.getElementById("headerLoggedIn");
+
+const headerLogoutLink =
+  document.getElementById("headerLogoutLink");
+
+async function updateHeaderAccountMenu() {
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+  if (session) {
+    headerLoggedOut.style.display = "none";
+    headerLoggedIn.style.display = "block";
+  } else {
+    headerLoggedOut.style.display = "block";
+    headerLoggedIn.style.display = "none";
+  }
+}
+
+accountMenuBtn.addEventListener(
+  "click",
+  async function(event) {
+    event.stopPropagation();
+
+    await updateHeaderAccountMenu();
+
+    headerAccountMenu.style.display =
+      headerAccountMenu.style.display === "none"
+        ? "block"
+        : "none";
+  }
+);
+
+headerLogoutLink.addEventListener(
+  "click",
+  async function(event) {
+    event.preventDefault();
+
+    await supabaseClient.auth.signOut();
+
+    window.location.href = "index.html";
+  }
+);
+
+document.addEventListener(
+  "click",
+  function(event) {
+    if (
+      !headerAccountMenu.contains(event.target) &&
+      !accountMenuBtn.contains(event.target)
+    ) {
+      headerAccountMenu.style.display = "none";
+    }
+  }
+);
+
+updateHeaderAccountMenu();
+updateAccountLinks();
+</script>
 </body>
 </html>

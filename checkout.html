@@ -686,7 +686,12 @@ font-size: 0 !important;
 .checkout-program-links a { color:#8a651f; }
 .contact-account-links { flex-wrap:wrap; line-height:1.6; }
 .checkout-program-links-stacked { display:flex; flex-direction:column; align-items:flex-start; gap:6px; }
-#memberAccountLink { line-height:1.6; }
+#memberAccountLink { line-height:1.6; margin-top:10px; }
+#memberAccountLink a { color:#8a651f; }
+.checkout-header-links { min-width:0; }
+.checkout-header-links h2 { margin:0; }
+.logo-area { gap:16px; }
+.logo-area > a { flex-shrink:0; }
 #memberAccountLink .member-account-nav { display:flex; flex-wrap:wrap; gap:8px 20px; }
 
 #imReferralDialog { width:min(520px,calc(100% - 32px)); max-height:85dvh; overflow:auto; padding:28px 22px; border:1px solid #dedbd2; border-radius:14px; background:white; color:#191919; font:16px/1.6 Arial,sans-serif; }
@@ -710,9 +715,10 @@ font-size: 0 !important;
   </div>
 
   <div class="logo-area">
-    <a href="https://imcollections.github.io/" class="back-link">
-   <h2>   ← Continue Shopping </h2>
-    </a>
+    <div class="checkout-header-links">
+      <a href="https://imcollections.github.io/" class="back-link"><h2>← Continue Shopping</h2></a>
+      <div id="memberAccountLink" hidden><div class="member-account-nav"><a href="my-account.html">My Account</a><a href="collectors-reward.html">Collectors Reward</a></div></div>
+    </div>
 
     <a href="https://imcollections.github.io/" aria-label="Shop IM Collections"><img src="IM-logo.jpg" alt="IM Collections"></a>
   </div>
@@ -812,7 +818,7 @@ font-size: 0 !important;
   <a href="refer-a-friend.html" data-referral-popup>Refer a Friend — Give $10, Get $10</a>
   <a id="guestCollectorsRewardLink" href="collectors-reward.html">Collectors Reward</a>
 </div>
-<div id="memberAccountLink" hidden><div class="member-account-nav"><a href="my-account.html">My Account</a><a href="collectors-reward.html">Collectors Reward</a></div></div>
+
 <p class="checkout-program-links">Sign up and earn 50 bonus points after your first successful purchase!</p>
 <p id="checkoutProfileMessage" role="status" aria-live="polite"></p>
 <button type="button" id="retryAccountLoad" hidden>Retry Account Details</button>
@@ -1488,6 +1494,7 @@ syncBottomOrderSummary();
     let discountSelectionVersion = 0;
     let referralUiBusy = false;
     let referralQuoteBusy = false;
+    let referralQuoteError = "";
 
 function referralRewardLimitCents(subtotalCents) {
   return subtotalCents >= 20000 ? 5000 : subtotalCents >= 15000 ? 4000
@@ -1501,28 +1508,42 @@ function renderReferralRewardChoice() {
     const box = document.getElementById(prefix + "ReferralRewardChoice");
     box.hidden = !referralMemberId;
     const button = document.getElementById(prefix + "UseReferralRewards");
-    button.textContent = useReferralRewards ? "Remove Referral Rewards" : "Use My Referral Rewards";
+    button.textContent = useReferralRewards ? `Remove Referral Rewards — $${discountAmount.toFixed(2)}`
+      : !referralBalanceKnown ? (referralQuoteError ? "Retry Referral Rewards" : "Loading Referral Rewards…")
+      : `Use My Referral Rewards — $${(usable / 100).toFixed(2)}`;
     button.setAttribute("aria-pressed", String(useReferralRewards));
     button.disabled = referralUiBusy || referralQuoteBusy || !!localStorage.getItem("imSquarePaymentAttempt")
+      || (!referralBalanceKnown && !referralQuoteError)
       || (referralBalanceKnown && !useReferralRewards && usable <= 0);
     const status = document.getElementById(prefix + "ReferralRewardStatus");
-    status.textContent = !referralBalanceKnown ? "Check your available earned referral rewards. No code is needed."
-      : useReferralRewards ? `Referral rewards applied: $${discountAmount.toFixed(2)}. Deducted after successful payment.`
+    status.textContent = !referralBalanceKnown ? (referralQuoteError || "Loading your available referral rewards…")
       : `Available referral rewards: $${(referralBalanceCents / 100).toFixed(2)}. `
-        + (limit ? `You can use up to $${(usable / 100).toFixed(2)} on this order. One promotion or reward per order.`
-                 : "A $50 merchandise subtotal is required to use referral rewards.");
+        + (useReferralRewards ? `Applied to this order: $${discountAmount.toFixed(2)}. Deducted after successful payment.`
+           : limit ? `Usable on this order: $${(usable / 100).toFixed(2)}. No code needed. One promotion or reward per order.`
+                   : "A $50 merchandise subtotal is required to use referral rewards.");
   }
 }
 function resetReferralMember(memberId) {
   if (referralMemberId !== memberId) {
     ++discountSelectionVersion; ++referralQuoteVersion;
     useReferralRewards = false; appliedPromoCode = ""; discountAmount = 0;
-    referralBalanceCents = 0; referralBalanceKnown = false; referralQuoteBusy = false;
+    referralBalanceCents = 0; referralBalanceKnown = false; referralQuoteBusy = false; referralQuoteError = "";
     document.getElementById("discountMessage").textContent = "";
     referralMemberId = memberId;
     updateCheckoutTotal();
+    if (memberId) void loadReferralBalance(memberId);
   }
   renderReferralRewardChoice();
+}
+async function loadReferralBalance(memberId) {
+  referralQuoteBusy = true; renderReferralRewardChoice();
+  try {
+    await refreshReferralBalance();
+  } catch (error) {
+    if (memberId === referralMemberId) referralQuoteError = error.message;
+  } finally {
+    if (memberId === referralMemberId) { referralQuoteBusy = false; renderReferralRewardChoice(); }
+  }
 }
 async function refreshReferralBalance() {
   const owner = referralMemberId;
@@ -1539,6 +1560,7 @@ async function refreshReferralBalance() {
     throw new Error("Your referral rewards could not be checked. Try again before paying.");
   referralBalanceCents = Math.max(0, Math.round(Number(result.data) * 100));
   referralBalanceKnown = true;
+  referralQuoteError = "";
   renderReferralRewardChoice();
   return referralBalanceCents;
 }
@@ -1567,6 +1589,7 @@ async function toggleReferralRewards() {
     updateCheckoutTotal();
   } catch (error) {
     if (version === discountSelectionVersion) {
+      if (!referralBalanceKnown) referralQuoteError = error.message;
       message.textContent = error.message; message.style.color = "#b00020"; syncBottomOrderSummary();
     }
   } finally { referralQuoteBusy = false; renderReferralRewardChoice(); }

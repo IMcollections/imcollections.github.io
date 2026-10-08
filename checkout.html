@@ -238,6 +238,14 @@ flex-shrink: 0;
   margin: 0 0 24px;
 }
 .summary-thumbnails[hidden] { display: none; }
+.summary-thumbnail-button { padding: 0; border: 0; background: transparent; cursor: pointer; border-radius: 4px; }
+.summary-thumbnail-button:focus-visible { outline: 3px solid #c6a34a; outline-offset: 3px; }
+.checkout-cart-dialog { width: min(440px, calc(100% - 32px)); max-height: 85vh; overflow: auto; box-sizing: border-box; border: 1px solid #ddd; border-radius: 12px; padding: 20px; }
+.checkout-cart-dialog::backdrop { background: rgba(0,0,0,.55); }
+.checkout-cart-dialog .preview-image { display: block; width: 100%; max-height: 50vh; object-fit: contain; }
+.checkout-cart-dialog button { cursor: pointer; padding: 12px; margin-top: 12px; }
+.checkout-cart-dialog .cart-preview-row { border-bottom: 1px solid #ddd; padding: 16px 0; }
+.checkout-cart-dialog .cart-preview-row img { width: 72px; height: 84px; object-fit: contain; }
 .summary-thumbnails img {
   width: 64px;
   height: 76px;
@@ -1200,6 +1208,11 @@ type="button"
 </div>
 
   </main>
+<dialog id="checkoutCartDialog" class="checkout-cart-dialog" aria-labelledby="checkoutCartDialogTitle">
+  <h2 id="checkoutCartDialogTitle">Product image</h2>
+  <div id="checkoutCartDialogContent"></div>
+  <form method="dialog"><button type="submit">Close</button></form>
+</dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
@@ -2120,6 +2133,61 @@ if (localStorage.getItem(attemptStorageKey)) {
     true
   );
 }
+function openCheckoutCartPreview(item) {
+  const dialog = document.getElementById("checkoutCartDialog");
+  const content = document.getElementById("checkoutCartDialogContent");
+  const title = document.getElementById("checkoutCartDialogTitle");
+  content.replaceChildren();
+  title.textContent = item ? item.name || "Product image" : "Your Cart";
+  const items = item ? [item] : checkoutCart;
+  items.forEach(product => {
+    const row = document.createElement("div");
+    row.className = item ? "" : "cart-preview-row";
+    const image = document.createElement("img");
+    image.src = product.image || "";
+    image.alt = product.name || "Product";
+    if (item) image.className = "preview-image";
+    row.appendChild(image);
+    const label = document.createElement("p");
+    label.textContent = `${product.name || "Product"} — Quantity: ${product.quantity} — $${(Number(product.price) * Number(product.quantity)).toFixed(2)}`;
+    row.appendChild(label);
+    if (!item) {
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.textContent = "Remove item";
+      remove.setAttribute("aria-label", `Remove ${product.name || "product"} from cart`);
+      remove.disabled = paymentBusy || !!latestOrderNumber || !!localStorage.getItem(attemptStorageKey);
+      remove.addEventListener("click", () => {
+        if (paymentBusy || latestOrderNumber || localStorage.getItem(attemptStorageKey)) return;
+        const currentCart = JSON.parse(localStorage.getItem("imCollectionsCart") || "[]");
+        if (JSON.stringify(currentCart) !== JSON.stringify(checkoutCart)) {
+          location.reload();
+          return;
+        }
+        const index = checkoutCart.indexOf(product);
+        localStorage.setItem("imCollectionsCart", JSON.stringify(checkoutCart.filter((_, i) => i !== index)));
+        location.reload();
+      });
+      row.appendChild(remove);
+    }
+    content.appendChild(row);
+  });
+  if (item) {
+    const viewCart = document.createElement("button");
+    viewCart.type = "button";
+    viewCart.textContent = "View Your Cart";
+    viewCart.addEventListener("click", () => openCheckoutCartPreview(null));
+    content.appendChild(viewCart);
+  } else {
+    const note = document.createElement("p");
+    note.textContent = paymentBusy || localStorage.getItem(attemptStorageKey)
+      ? "Cart changes are paused until your payment status is confirmed."
+      : "Removing an item reloads checkout and recalculates your totals and eligible rewards.";
+    content.appendChild(note);
+  }
+  if (!dialog.open) dialog.showModal();
+}
+
 function renderSummaryThumbnails() {
   ["orderSummaryThumbnails", "bottomSummaryThumbnails"].forEach(id => {
     const container = document.getElementById(id);
@@ -2130,7 +2198,13 @@ function renderSummaryThumbnails() {
       image.src = item.image || "";
       image.alt = item.name || "Product";
       image.title = `${item.name || "Product"} — Quantity: ${item.quantity}`;
-      container.appendChild(image);
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "summary-thumbnail-button";
+      button.setAttribute("aria-label", `View ${item.name || "product"} image and cart options`);
+      button.appendChild(image);
+      button.addEventListener("click", () => openCheckoutCartPreview(item));
+      container.appendChild(button);
     });
   });
 }

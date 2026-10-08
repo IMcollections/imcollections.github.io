@@ -805,6 +805,7 @@ font-size: 0 !important;
   <a id="guestCollectorsRewardLink" href="collectors-reward.html">Collectors Reward</a>
 </div>
 <div id="memberAccountLink" hidden><div class="member-account-nav"><a href="my-account.html">My Account</a><a href="collectors-reward.html">Collectors Reward</a></div></div>
+<p class="checkout-program-links">Sign up and earn 50 bonus points after your first successful purchase!</p>
 <p id="checkoutProfileMessage" role="status" aria-live="polite"></p>
 <button type="button" id="retryAccountLoad" hidden>Retry Account Details</button>
 
@@ -1461,6 +1462,10 @@ syncBottomOrderSummary();
     }
 
 
+    let checkoutRewardPoints = 0;
+    function standardShippingFree(subtotalCents, discountCents) {
+      return subtotalCents >= 7500 || (checkoutRewardPoints >= 800 && subtotalCents - discountCents >= 5000);
+    }
     let discountAmount = 0;
 
 function updateCheckoutTotal() {
@@ -1479,7 +1484,7 @@ if (selectedShippingMethod === "express") {
   shippingCost = 15;
 } else {
   shippingCost =
-    subtotal >= 75 ? 0 : 8.99;
+    standardShippingFree(Math.round(subtotal * 100), Math.round(discountAmount * 100)) ? 0 : 8.99;
 }
 
 const standardShippingPrice =
@@ -1487,7 +1492,7 @@ const standardShippingPrice =
 
 if (standardShippingPrice) {
   standardShippingPrice.textContent =
-    subtotal >= 75
+    standardShippingFree(Math.round(subtotal * 100), Math.round(discountAmount * 100))
       ? "FREE"
       : "$8.99";
 }
@@ -1538,9 +1543,13 @@ document.getElementById("orderSummaryTotal").textContent =
   if (selectedShippingMethod === "express") {
     shippingMessage.textContent = "Express delivery selected.";
   } else {
-    shippingMessage.textContent = subtotal >= 75
+    const free = standardShippingFree(Math.round(subtotal * 100), Math.round(discountAmount * 100));
+    const remaining = checkoutRewardPoints >= 800
+      ? Math.min(75 - subtotal, 50 - discountedSubtotal) : 75 - subtotal;
+    shippingMessage.textContent = free
       ? "✓ You qualify for FREE Standard Shipping!"
-      : `You're $${(75 - subtotal).toFixed(2)} away from FREE Standard Shipping`;
+      : `You're $${Math.max(0, remaining).toFixed(2)} away from FREE Standard Shipping`;
+    if (checkoutRewardPoints >= 800 && !free) shippingMessage.textContent += " (VIP & Premium: $50 after discounts).";
   }
   syncBottomOrderSummary();
 }
@@ -1865,7 +1874,7 @@ function checkoutAmountCents() {
 
   const shipCents = shipping === "express"
     ? 1500
-    : subtotalCents >= 7500 ? 0 : 899;
+    : standardShippingFree(subtotalCents, discountCents) ? 0 : 899;
 
   const taxableCents = subtotalCents - discountCents + shipCents;
 
@@ -2339,6 +2348,7 @@ const checkoutAccount = (() => {
         dirty.clear(); byId("saveCheckoutInfo").checked = false;
       }
       user = nextUser; owner = nextOwner;
+      checkoutRewardPoints = 0; updateCheckoutTotal();
       byId("guestCountry").value = "United States";
       byId("billingCountry").value = "United States";
       byId("guestEmail").readOnly = Boolean(user);
@@ -2357,7 +2367,7 @@ const checkoutAccount = (() => {
         let profile = null;
         try {
           const result = await limited(supabaseClient.from("profiles").select(
-            "first_name,last_name,phone,address_line1,address_line2,city,state_province,postal_code,country"
+            "first_name,last_name,phone,address_line1,address_line2,city,state_province,postal_code,country,reward_points"
           ).eq("id", user.id).maybeSingle());
           if (result.error) throw result.error;
           profile = result.data;
@@ -2367,6 +2377,8 @@ const checkoutAccount = (() => {
           byId("retryAccountLoad").hidden = false;
         }
         if (requestVersion !== version) return;
+        checkoutRewardPoints = Math.max(0, Number(profile?.reward_points) || 0);
+        updateCheckoutTotal();
         const domestic = supportedCountry(profile?.country);
         for (const [column, id] of Object.entries(fieldMap)) {
           if (id === "guestCountry" || dirty.has(id)) continue;
@@ -2465,7 +2477,7 @@ const checkoutAccount = (() => {
   }).observe(byId("paymentSuccessPopup"), { attributes: true, attributeFilter: ["class"] });
   supabaseClient.auth.onAuthStateChange((event, session) => {
     if (event === "SIGNED_OUT") {
-      ++version; loading = true; user = null; owner = null; dirty.clear();
+      ++version; checkoutRewardPoints = 0; updateCheckoutTotal(); loading = true; user = null; owner = null; dirty.clear();
       draftIds.forEach(id => { byId(id).value = ""; });
       byId("savedDeliverySummary").hidden = true;
       byId("deliveryFields").hidden = false;

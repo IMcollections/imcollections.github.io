@@ -318,12 +318,15 @@
           <input
             type="password"
             id="confirmPassword"
+            aria-describedby="passwordMatchStatus"
             placeholder="Enter password again"
             autocomplete="new-password"
             minlength="6"
             required
           >
         </div>
+
+        <p id="passwordMatchStatus" role="status" aria-live="polite" style="min-height:1.5em;margin:0 0 18px"></p>
 
         <button
           type="submit"
@@ -384,6 +387,22 @@ const urlParams =
 
 const referralCode =
   urlParams.get("ref");
+
+    const passwordInput = document.getElementById("password");
+    const confirmPasswordInput = document.getElementById("confirmPassword");
+    const passwordMatchStatus = document.getElementById("passwordMatchStatus");
+    function updatePasswordMatch() {
+      const confirmation = confirmPasswordInput.value;
+      const mismatch = confirmation.length > 0 && passwordInput.value !== confirmation;
+      confirmPasswordInput.setCustomValidity(mismatch ? "Passwords do not match." : "");
+      confirmPasswordInput.setAttribute("aria-invalid", String(mismatch));
+      passwordMatchStatus.textContent = confirmation.length === 0 ? ""
+        : mismatch ? "Passwords do not match." : "Passwords match.";
+      passwordMatchStatus.style.color = mismatch ? "#b00020" : "#216e26";
+    }
+    passwordInput.addEventListener("input", updatePasswordMatch);
+    confirmPasswordInput.addEventListener("input", updatePasswordMatch);
+    registerForm.addEventListener("reset", () => setTimeout(updatePasswordMatch, 0));
 
     registerForm.addEventListener(
       "submit",

@@ -257,6 +257,30 @@
       font-size: 13px;
     }
 
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    .return-choice {
+      display: grid;
+      grid-template-columns: auto 1fr 85px;
+      gap: 12px;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .return-choice input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+    }
+
+    .return-choice label { margin: 0; }
+    .return-choice input[type="number"] { width: 85px; }
+
     [hidden] {
       display: none !important;
     }
@@ -296,7 +320,21 @@
       h1 { font-size: 28px; }
       .filters, .return-inputs { grid-template-columns: 1fr; gap: 14px; }
     }
-  </style>
+  
+[hidden]{display:none!important}
+.im-member-nav{position:relative;margin:14px 0 24px;color:#8f681e}
+.im-member-nav summary{padding:14px;background:#eee9dc;border-radius:8px;cursor:pointer;font-weight:bold}
+.im-member-nav nav{display:grid;gap:0;background:white;border:1px solid #ddd;border-radius:8px}
+.im-member-nav a{display:block;padding:12px 16px;border-bottom:1px solid #eee;color:#8f681e}
+.im-member-id{color:#8f681e;margin:14px 0;font-weight:bold}
+.im-wish-item{padding:16px 0;border-bottom:1px solid #ddd;display:flex;gap:14px;flex-wrap:wrap}
+.im-wish-item img{width:90px;height:110px;object-fit:contain}
+.im-wish-item button,#memberAddCard,#memberSaveCard,#memberCancelCard{padding:12px 18px;margin:8px;border:0;border-radius:6px;background:#c3a247;color:#111;min-height:44px}
+#memberCardForm label{margin-top:16px}
+#memberCardConsent{width:20px;height:20px;vertical-align:middle}
+.wishlist.active svg{stroke:#167cd3!important;fill:#167cd3!important}
+
+</style>
 </head>
 
 <body>
@@ -365,11 +403,14 @@
     </section>
 
     <div id="memberContent" hidden>
-      <p id="greeting" class="greeting">Hello!</p>
+      <details class="im-member-nav" data-member-only hidden><summary>My Account</summary>
+<nav data-member-links aria-label="My Account sections"></nav></details>
+<p id="memberIdentity" class="im-member-id"></p>
+<p id="greeting" class="greeting">Hello!</p>
 
-      <section class="card" aria-labelledby="collectionsHeading">
+      <section class="card" id="orders" aria-labelledby="collectionsHeading">
         <div class="section-head">
-          <h2 id="collectionsHeading">My Collections</h2>
+          <h2 id="collectionsHeading">Orders</h2>
      
         </div>
 
@@ -417,6 +458,9 @@
         </p>
 
         <form id="returnForm">
+<label for="returnMemberId">Member ID</label>
+<input id="returnMemberId" placeholder="IM123088" pattern="IM[0-9]+" autocomplete="off">
+
           <div class="return-inputs">
             <div>
               <label for="returnOrderNumber">Order Number</label>
@@ -446,6 +490,14 @@
               >
             </div>
           </div>
+
+          <fieldset id="returnItems" hidden>
+            <legend>Select Items and Quantities to Return</legend>
+            <div id="returnItemChoices"></div>
+          </fieldset>
+          <p id="returnSelectionNote" class="return-note" role="status">
+            Enter an order number to choose the items you want to return.
+          </p>
 
           <p>
             <button id="returnButton" type="submit">
@@ -482,6 +534,10 @@
     let returns = [];
     let memberId = null;
     let loadVersion = 0;
+    let cancellations = [];
+    let cancellationReady = false;
+    let returnRequestKey = null;
+    let actionBusy = false;
 
     const selectedOrder =
       new URLSearchParams(location.search).get("order");
@@ -615,6 +671,11 @@
       memberId = null;
       orders = [];
       returns = [];
+      cancellations = [];
+      cancellationReady = false;
+      returnRequestKey = null;
+      byId("returnItems").hidden = true;
+      byId("returnItemChoices").replaceChildren();
 
       byId("orderList").replaceChildren();
       byId("memberContent").hidden = true;
@@ -624,6 +685,139 @@
         "pageMessage",
         "Sign in or register to access your orders."
       );
+    }
+
+    function remainingQuantity(order, index) {
+      const purchased = Number(order.items?.[index]?.quantity) || 0;
+      let held = 0;
+      for (const request of returns.filter(r =>
+        r.order_id === order.id && r.status !== "declined"
+      )) {
+        if (!Array.isArray(request.items)) return 0;
+        for (const line of request.items) {
+          if (Number(line.line_index) === index) held += Number(line.quantity) || 0;
+        }
+      }
+      return Math.max(0, purchased - held);
+    }
+
+    function renderReturnChoices() {
+      returnRequestKey = null;
+      const choices = byId("returnItemChoices");
+      choices.replaceChildren();
+      byId("returnItems").hidden = true;
+      const order = orders.find(o =>
+        o.order_number === byId("returnOrderNumber").value.trim()
+      );
+      if (!order) {
+        byId("returnSelectionNote").textContent =
+          "Enter an order number from your account to choose return items.";
+        return;
+      }
+      if (order.status !== "completed") {
+        byId("returnSelectionNote").textContent =
+          "Returns are available after an order has shipped.";
+        return;
+      }
+      let available = 0;
+      (Array.isArray(order.items) ? order.items : []).forEach((item, index) => {
+        const remaining = remainingQuantity(order, index);
+        if (!remaining) return;
+        available++;
+        const row = node("div", undefined, "return-choice");
+        const check = node("input");
+        check.type = "checkbox";
+        check.id = "return-line-" + index;
+        check.dataset.lineIndex = String(index);
+        const label = node("label");
+        label.htmlFor = check.id;
+        label.append(
+          node("strong", item.name || "Item"),
+          node("span", (item.size ? " — Size: " + item.size : "") +
+            " — Available to return: " + remaining)
+        );
+        const qty = node("input");
+        qty.type = "number";
+        qty.min = "1";
+        qty.max = String(remaining);
+        qty.step = "1";
+        qty.value = "1";
+        qty.disabled = true;
+        qty.setAttribute("aria-label", "Return quantity for " + (item.name || "item"));
+        check.addEventListener("change", () => {
+          qty.disabled = !check.checked;
+          returnRequestKey = null;
+        });
+        qty.addEventListener("input", () => { returnRequestKey = null; });
+        row.append(check, label, qty);
+        choices.append(row);
+      });
+      byId("returnItems").hidden = !available;
+      byId("returnSelectionNote").textContent = available
+        ? "Select only the items and quantities you want to return. Wait for approval before mailing them."
+        : "All items already have a return request. Contact us to change an existing request.";
+    }
+
+    function selectedReturnItems() {
+      const selected = [];
+      for (const row of byId("returnItemChoices").children) {
+        const check = row.querySelector('input[type="checkbox"]');
+        const quantity = row.querySelector('input[type="number"]');
+        if (!check?.checked) continue;
+        const value = Number(quantity.value);
+        if (!Number.isInteger(value) || value < 1 || value > Number(quantity.max)) {
+          throw new Error("Choose a valid whole-number return quantity.");
+        }
+        selected.push({ line_index: Number(check.dataset.lineIndex), quantity: value });
+      }
+      if (!selected.length) throw new Error("Select at least one item to return.");
+      return selected;
+    }
+
+    function cancellationLabel(state) {
+      return {
+        requested: "Cancellation saved. Refund status needs checking.",
+        pending: "Order cancelled. Refund pending with Square.",
+        completed: "Order cancelled. Refund completed by Square; your bank may take additional time.",
+        failed: "Order cancelled. Refund failed; please contact us for help.",
+        rejected: "Order cancelled. Refund rejected; please contact us for help."
+      }[state] || "Cancellation status needs checking.";
+    }
+
+    async function cancelOrder(order, checking = false) {
+      if (actionBusy) return;
+      if (!checking && !window.confirm(
+        "Cancel order " + order.order_number +
+        " and request a full refund of " + money(order.total, order.currency) + "?"
+      )) return;
+      actionBusy = true;
+      const version = loadVersion;
+      const notice = byId("cancelMessage-" + order.id);
+      if (notice) notice.textContent = "Checking cancellation and refund…";
+      document.querySelectorAll('[data-cancel-order]').forEach(b => { b.disabled = true; });
+      try {
+        const { data: { session } } = await client.auth.getSession();
+        if (!session || session.user.id !== memberId) throw new Error("Please sign in again.");
+        const { data, error } = await client.functions.invoke("cancel-square-order", {
+          body: { orderNumber: order.order_number, userAccessToken: session.access_token }
+        });
+        if (error) {
+          let detail;
+          try { detail = await error.context?.json(); } catch (_) {}
+          throw new Error(detail?.error || "Cancellation needs checking. Refresh and retry refund status.");
+        }
+        if (!data?.success) throw new Error(data?.error || "Cancellation needs checking.");
+        if (version !== loadVersion || !memberId) return;
+        await loadOrders();
+      } catch (error) {
+        if (version === loadVersion && memberId && notice) {
+          notice.textContent = error.message || "Unable to check this cancellation.";
+          notice.className = "message error";
+        }
+      } finally {
+        actionBusy = false;
+        document.querySelectorAll('[data-cancel-order]').forEach(b => { b.disabled = false; });
+      }
     }
 
     function renderOrders() {
@@ -712,6 +906,34 @@
           card.append(receiptActions);
         }
 
+        const cancellation = cancellations.find(c => c.order_id === order.id);
+        const cancelMessage = node("p", undefined, "message");
+        cancelMessage.id = "cancelMessage-" + order.id;
+        cancelMessage.setAttribute("role", "status");
+        const deadline = new Date(order.paid_at).getTime() + 30 * 60 * 1000;
+        if (cancellation) {
+          cancelMessage.textContent = cancellationLabel(cancellation.state);
+          if (["requested", "pending"].includes(cancellation.state)) {
+            const retry = node("button", "Check Refund Status");
+            retry.type = "button";
+            retry.dataset.cancelOrder = order.id;
+            retry.addEventListener("click", () => cancelOrder(order, true));
+            card.append(retry);
+          }
+        } else if (cancellationReady && order.status === "pending" && order.paid_at &&
+                   order.payment_provider === "square" && !order.processing_started_at &&
+                   !order.shipped_at && !order.tracking_number && Date.now() < deadline) {
+          const cancel = node("button", "Cancel Order");
+          cancel.type = "button";
+          cancel.dataset.cancelOrder = order.id;
+          cancel.addEventListener("click", () => cancelOrder(order));
+          cancelMessage.textContent = "Cancellation available until " +
+            new Date(deadline).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) +
+            ". The server checks eligibility when you cancel.";
+          card.append(cancel);
+        }
+        card.append(cancelMessage);
+
         const tracking =
           order.status === "cancelled"
             ? "Not applicable"
@@ -750,7 +972,13 @@
                 img.alt = item.name || "Purchased item";
                 img.loading = "lazy";
 
-                row.append(img);
+                const zoom = node("button");
+                zoom.type = "button";
+                zoom.setAttribute("aria-label", "Enlarge photo of " + (item.name || "purchased item"));
+                zoom.style.cssText = "padding:0;border:0;background:transparent;cursor:zoom-in";
+                zoom.append(img);
+                zoom.addEventListener("click", () => openPurchasedPhoto(item));
+                row.append(zoom);
               }
             } catch (_) {}
           }
@@ -867,31 +1095,30 @@
 
         details.append(delivery);
 
-        const request = returns.find(
-          r => r.order_id === order.id
-        );
-
-        if (request) {
-          details.append(
-            node("p", "Return Status: " + request.status)
-          );
-        } else if (order.status === "completed") {
-          const button = node("button", "Request a Return");
+        const requests = returns.filter(r => r.order_id === order.id);
+        for (const request of requests) {
+          details.append(node("p", "Return Status: " + request.status));
+          if (Array.isArray(request.items)) {
+            for (const line of request.items) {
+              details.append(node("p", (line.name || "Item") +
+                (line.size ? " — Size: " + line.size : "") +
+                " — Return quantity: " + line.quantity, "muted"));
+            }
+          } else {
+            details.append(node("p", "Whole-order return request", "muted"));
+          }
+        }
+        if (order.status === "completed" && Array.isArray(order.items) &&
+            order.items.some((_, index) => remainingQuantity(order, index) > 0)) {
+          const button = node("button", "Choose Items to Return");
           button.type = "button";
-
           button.addEventListener("click", () => {
-            byId("returnOrderNumber").value =
-              order.order_number;
-
-            byId("returnSection").scrollIntoView({
-              behavior: "smooth"
-            });
-
-            byId("returnOrderNumber").focus({
-              preventScroll: true
-            });
+            byId("returnOrderNumber").value = order.order_number;
+            byId("returnZipCode").value = order.shipping_address?.postal_code || "";
+            renderReturnChoices();
+            byId("returnSection").scrollIntoView({ behavior: "smooth" });
+            byId("returnOrderNumber").focus({ preventScroll: true });
           });
-
           details.append(button);
         }
 
@@ -923,10 +1150,17 @@
         byId("loginCard").hidden = true;
         byId("memberContent").hidden = false;
 
+        if (user.email_confirmed_at) {
+          const claim = await client.rpc("im_claim_guest_orders");
+          if (claim.error) throw new Error("Guest order access needs checking. Please contact us.");
+        }
+        if (version !== loadVersion) return;
+
         const [
           orderResult,
           returnResult,
-          profileResult
+          profileResult,
+          cancellationResult
         ] = await Promise.all([
           client
             .from("orders")
@@ -936,14 +1170,19 @@
 
           client
             .from("return_requests")
-            .select("id,order_id,status,created_at")
+            .select("id,order_id,status,created_at,items,request_key")
             .eq("user_id", user.id),
 
           client
             .from("profiles")
             .select("first_name")
             .eq("id", user.id)
-            .maybeSingle()
+            .maybeSingle(),
+
+          client
+            .from("im_order_cancellations")
+            .select("order_id,state,requested_at,completed_at")
+            .eq("user_id", user.id)
         ]);
 
         if (version !== loadVersion) return;
@@ -965,13 +1204,16 @@
 
         orders = orderResult.data || [];
         returns = returnResult.data || [];
+        cancellations = cancellationResult.data || [];
+        cancellationReady = !cancellationResult.error;
 
         renderOrders();
+        renderReturnChoices();
 
-        if (returnResult.error) {
+        if (returnResult.error || cancellationResult.error) {
           message(
             "pageMessage",
-            "Orders loaded, but return requests could not be loaded. Please try refreshing.",
+            "Orders loaded, but some return or cancellation details could not be loaded. Contact us or try refreshing.",
             true
           );
         } else if (
@@ -1045,13 +1287,18 @@
           throw new Error("Please sign in first.");
         }
 
+        const items = selectedReturnItems();
+        if (!returnRequestKey) returnRequestKey = crypto.randomUUID();
         const { data, error } = await client.rpc(
-          "im_request_return",
+          "im_request_member_return",
           {
             p_order_number:
               byId("returnOrderNumber").value.trim(),
-            p_zip_code:
-              byId("returnZipCode").value.trim()
+            p_member_id: byId("returnMemberId").value.trim().toUpperCase(),
+          p_zip_code:
+              byId("returnZipCode").value.trim(),
+            p_items: items,
+            p_request_key: returnRequestKey
           }
         );
 
@@ -1076,6 +1323,9 @@
       }
     });
 
+    byId("returnOrderNumber").addEventListener("input", renderReturnChoices);
+    byId("returnZipCode").addEventListener("input", () => { returnRequestKey = null; });
+
     byId("statusFilter").addEventListener(
       "change",
       renderOrders
@@ -1093,7 +1343,42 @@
       }
     });
 
+    setInterval(() => {
+      document.querySelectorAll('[data-cancel-order]').forEach(button => {
+        const order = orders.find(o => o.id === button.dataset.cancelOrder);
+        if (!order || cancellations.some(c => c.order_id === order.id)) return;
+        if (Date.now() >= new Date(order.paid_at).getTime() + 30 * 60 * 1000) {
+          button.disabled = true;
+          button.textContent = "Cancellation Window Ended";
+        }
+      });
+    }, 10000);
+
     loadOrders();
   </script>
+<dialog id="purchasedPhoto" style="width:min(94vw,700px);max-height:90dvh;border:0;border-radius:14px;padding:24px;margin:auto">
+<button type="button" id="purchasedPhotoClose" aria-label="Close product image" style="float:right;min-width:44px;min-height:44px">×</button>
+<h2 id="purchasedPhotoTitle"></h2>
+<div id="purchasedPhotoImages" style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory"></div>
+<p id="purchasedPhotoDescription"></p><p id="purchasedPhotoSize"></p>
+</dialog>
+<script>
+function openPurchasedPhoto(item) {
+  const d=document.getElementById('purchasedPhoto');
+  document.getElementById('purchasedPhotoTitle').textContent=item.name||'Purchased item';
+  document.getElementById('purchasedPhotoDescription').textContent=item.description||'';
+  document.getElementById('purchasedPhotoSize').textContent=item.size?'Purchased size: '+item.size:'';
+  const track=document.getElementById('purchasedPhotoImages');track.replaceChildren();
+  const photos=[...new Set([item.image,...(Array.isArray(item.images)?item.images:[])])];
+  for(const src of photos){try{const u=new URL(src,location.href);if(!src||!['http:','https:'].includes(u.protocol))continue;
+    const img=document.createElement('img');img.src=u.href;img.alt=item.name||'Purchased item';
+    img.style.cssText='width:100%;flex:0 0 100%;max-height:65dvh;object-fit:contain;scroll-snap-align:start';track.append(img);
+  }catch{}}
+  track.scrollLeft=0;d.showModal();
+}
+document.getElementById('purchasedPhotoClose').onclick=()=>document.getElementById('purchasedPhoto').close();
+document.getElementById('purchasedPhoto').addEventListener('click',e=>{if(e.target===e.currentTarget){const r=e.currentTarget.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.currentTarget.close();}});
+</script>
+<script src="member-tools.js"></script>
 </body>
 </html>

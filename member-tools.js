@@ -23,6 +23,7 @@
     #memberCardConsent{width:20px;height:20px;vertical-align:middle;margin-right:6px}
     #memberCardForm .im-consent{text-transform:none;letter-spacing:0;font-weight:normal;line-height:1.5}
     #memberIdentity{margin:8px 0 18px;font-size:16px;color:#8f681e}
+    #accountSectionTitle,#wishlistSection>h3,#paymentSection>h3,#collectionsHeading{display:none}
     #accountGreeting{margin:16px 0 0;font-weight:600}
 
     .im-member-nav{margin:14px 0 24px;color:#8f681e}
@@ -53,22 +54,13 @@
       const host = document.getElementById(id);
       if (!host || host.querySelector("[data-member-links]")) continue;
       const logout = document.getElementById(logoutId);
+      if (logout) logout.textContent = "Sign Out";
       host.replaceChildren();
-      let parent = host;
-      if (dropdown) {
-        parent = document.createElement("details");
-        parent.className = "im-member-nav";
-        parent.dataset.memberOnly = "";
-        parent.hidden = true;
-        const title = document.createElement("summary");
-        title.textContent = "My Account";
-        parent.append(title);
-        host.append(parent);
-      }
       const nav = document.createElement("nav");
       nav.dataset.memberLinks = "";
+      nav.dataset.memberLinkList = "";
       nav.setAttribute("aria-label", "My Account sections");
-      parent.append(nav);
+      host.append(nav);
       if (logout) host.append(logout);
     }
     window.toggleWishlist = (button) => window.imMember.toggle(button);
@@ -79,6 +71,18 @@
     if (text != null) n.textContent = text;
     return n;
   };
+  if (
+    document.querySelector("[data-member-links]") &&
+    !document.getElementById("headerLoggedIn")
+  ) {
+    const header = document.querySelector("header");
+    if (header) {
+      const link = el("a", "My Account");
+      link.href = "my-account.html#summary";
+      link.style.cssText = "font-weight:600;margin-left:12px";
+      header.prepend(link);
+    }
+  }
   const routes = [
     ["Account Summary", "my-account.html#summary"],
     ["Wishlist", "my-account.html#wishlist"],
@@ -103,20 +107,38 @@
     }
   };
   function navigation(container) {
+    if (container.hasAttribute("data-member-link-list")) {
+      const links =
+        container.closest("footer") || container.closest("#loggedInAccount")
+          ? [
+              routes[0],
+              routes[2],
+              routes[3],
+              ["Refer A Friend", "my-account.html#referral"],
+            ]
+          : routes;
+      container.replaceChildren();
+      for (const [label, href] of links) {
+        const a = el("a", label);
+        a.href = href;
+        container.append(a);
+      }
+      return;
+    }
     const select = el("select");
     select.className = "im-account-select";
     select.setAttribute("aria-label", "My Account sections");
     const current = location.pathname.split("/").pop() + location.hash;
-    const placeholder = el("option", "My Account");
-    placeholder.value = "";
-    select.append(placeholder);
+
     for (const [label, href] of routes) {
       const option = el("option", label);
       option.value = href;
       option.selected =
         href === current ||
         (href === "orders-returns.html#orders" &&
-          current === "orders-returns.html");
+          current === "orders-returns.html") ||
+        (href === "returns.html" && current.startsWith("returns.html")) ||
+        (href === "my-account.html#summary" && current === "my-account.html");
       select.append(option);
     }
     select.addEventListener("change", () => {
@@ -435,9 +457,7 @@
   async function openCardForm() {
     const form = document.getElementById("memberCardForm");
     form.hidden = false;
-    document
-      .getElementById("memberCardActions")
-      .append(document.getElementById("memberAddCard"));
+    document.getElementById("memberAddCardHome").hidden = true;
     try {
       if (!storeCard) {
         storeCard = await Square.payments(
@@ -500,9 +520,7 @@
   }
   function closeCardForm() {
     document.getElementById("memberCardForm").hidden = true;
-    document
-      .getElementById("memberAddCardHome")
-      .append(document.getElementById("memberAddCard"));
+    document.getElementById("memberAddCardHome").hidden = false;
   }
   function accountSection() {
     const currentRoute =
@@ -524,6 +542,12 @@
       routes.find((x) => x[1].endsWith("#" + tab))?.[0] || "Account Summary";
     if (user && tab === "wishlist") renderWishlist();
     if (user && tab === "payment") renderCards();
+    if (name === "referral" && user) {
+      document.getElementById("referFriendBtn")?.click();
+      document
+        .getElementById("referFriendBtn")
+        ?.scrollIntoView({ block: "center" });
+    }
   }
   async function loadMember() {
     const stamp = ++version;
@@ -646,7 +670,6 @@
       setTimeout(loadMember, 0);
   });
   loadMember();
-  
   // Product grids are rendered/replaced by the existing catalog functions.
   if (document.getElementById("headerLoggedIn")) {
     const observer = new MutationObserver((m) => {

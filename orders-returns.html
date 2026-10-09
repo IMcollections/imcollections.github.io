@@ -704,6 +704,14 @@
           )
         );
 
+        if (order.paid_at && order.payment_id) {
+          const receiptLink = node("a", "View / Print Receipt", "explore");
+          receiptLink.href = "receipt.html?order=" + encodeURIComponent(order.order_number);
+          const receiptActions = node("div", undefined, "actions");
+          receiptActions.append(receiptLink);
+          card.append(receiptActions);
+        }
+
         const tracking =
           order.status === "cancelled"
             ? "Not applicable"

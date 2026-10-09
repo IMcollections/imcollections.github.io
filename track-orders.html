@@ -386,7 +386,7 @@
           <nav data-member-links></nav>
         </details>
 
-        <span id="trackHeading" hidden>Track my Orders</span>
+        <span id="trackHeading" hidden>Track Orders</span>
         <form id="trackForm">
           <div class="return-inputs">
             <div>
@@ -402,13 +402,13 @@
               />
             </div>
             <div>
-              <label for="trackIdentifier">Member ID or Tracking Number</label>
+              <label for="trackIdentifier">Tracking Number</label>
               <input
                 id="trackIdentifier"
                 type="text"
                 autocomplete="off"
                 maxlength="80"
-                placeholder="Member ID or Tracking Number"
+                placeholder="Tracking Number"
                 required
               />
             </div>
@@ -502,7 +502,7 @@
         message(
           "pageMessage",
           user
-            ? "Enter your order number and the Member ID or Tracking Number."
+            ? "Enter your order number and the Tracking Number."
             : "Sign in with the email used at checkout to track your orders and returns.",
         );
       }
@@ -518,7 +518,7 @@
         )
           return message(
             "trackMessage",
-            "Enter a 10-digit order number and your Member ID or Tracking Number.",
+            "Enter a 10-digit order number and your Tracking Number.",
             true,
           );
         if (!user) {
@@ -541,7 +541,7 @@
           if (!order)
             return message(
               "trackMessage",
-              "No matching order was found in this account. Check your order number and Member ID or Tracking Number.",
+              "No matching order was found in this account. Check your order number and Tracking Number.",
               true,
             );
           const { data: requests, error: returnError } = await client
@@ -556,7 +556,7 @@
           line(
             "Order Status",
             order.status === "completed"
-              ? "Completed"
+              ? "Completed (Shipped)"
               : order.status === "cancelled"
                 ? "Cancelled"
                 : "Pending",

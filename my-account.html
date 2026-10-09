@@ -547,7 +547,12 @@
             Login To My Account
           </button>
 
-          <div id="loginMessage" class="message"></div>
+          <div
+            id="loginMessage"
+            class="message"
+            role="status"
+            aria-live="polite"
+          ></div>
         </form>
 
         <div class="register-text">
@@ -1281,37 +1286,55 @@
         loginMessage.textContent =
           "Password reset email sent. Please check your inbox.";
       });
+      function loginErrorText(error) {
+        if (
+          error?.code === "invalid_credentials" ||
+          /invalid login credentials/i.test(error?.message || "")
+        ) {
+          return "Incorrect email or password. Please try again, or use Forgot password.";
+        }
+        if (error?.code === "email_not_confirmed")
+          return "Please confirm your email address before signing in.";
+        if (
+          error?.status === 429 ||
+          /rate limit|too many requests/i.test(error?.message || "")
+        ) {
+          return "Too many sign-in attempts. Please wait before trying again.";
+        }
+        return "Unable to sign in right now. Please check your connection and try again.";
+      }
+
       loginForm.addEventListener("submit", async function (event) {
         event.preventDefault();
-
+        const button = document.getElementById("loginBtn");
+        if (button.disabled) return;
         const email = document.getElementById("email").value.trim();
-
         const password = document.getElementById("password").value;
-
+        button.disabled = true;
         loginMessage.className = "message";
-
-        loginMessage.textContent = "";
-
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-          email: email,
-          password: password,
-        });
-
-        if (error) {
+        loginMessage.textContent = "Checking your email and password…";
+        let signedIn = false;
+        try {
+          const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password,
+          });
+          if (error) throw error;
+          if (!data?.session || !data?.user)
+            throw new Error("Unable to sign in. Please try again.");
+          signedIn = true;
+          loginMessage.className = "message success";
+          loginMessage.textContent = "Signed in successfully.";
+          document.getElementById("password").value = "";
+          setTimeout(() => {
+            window.location.href = "my-account.html#summary";
+          }, 800);
+        } catch (error) {
           loginMessage.className = "message error";
-
-          loginMessage.textContent = error.message;
-
-          return;
+          loginMessage.textContent = loginErrorText(error);
+        } finally {
+          if (!signedIn) button.disabled = false;
         }
-
-        loginMessage.className = "message success";
-
-        loginMessage.textContent = "Login successful! Redirecting...";
-
-        setTimeout(() => {
-          window.location.href = "my-account.html";
-        }, 800);
       });
     </script>
 

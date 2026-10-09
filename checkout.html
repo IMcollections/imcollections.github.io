@@ -826,7 +826,7 @@ font-size: 0 !important;
   <strong id="checkoutTax">$0.00</strong>
 </div>
         
-        <p class="checkout-program-links"><a href="refer-a-friend.html" data-referral-popup>Been referred by a friend?</a></p>
+        <p class="checkout-program-links"><a href="refer-a-friend.html" data-referral-popup>Been referred by a friend?</a> <a href="verify-phone.html">Verify Referral Phone</a></p>
 <div class="free-shipping" id="shippingMessage"></div>
 
         <div class="summary-total">
@@ -849,7 +849,7 @@ font-size: 0 !important;
   <a href="Login.html">Sign In</a>
   <span>or</span>
   <a href="Register.html">Register</a>
-  <span>for faster checkout and an additional 15% off your first eligible purchase with COLLECT15. One promo code per order.</span>
+  <span>for faster checkout and an additional 15% off your first eligible purchase with COLLECT15 within 30 days of signup. One promotion or reward per order.</span>
 </div>
 
 <div class="checkout-program-links checkout-program-links-stacked">
@@ -974,6 +974,12 @@ font-size: 0 !important;
 </div>
 
 <div id="cardPaymentSection">
+<div id="savedCardArea" hidden>
+<label for="savedCardSelect">Saved Payment Method</label>
+<select id="savedCardSelect"><option value="">Use a new card</option></select>
+<p id="savedCardMessage" role="status"></p>
+<p><a href="my-account.html#payment">Add / Edit Saved Payment Methods</a></p>
+</div>
       
   <p class="secure-note">
     Pay securely with credit or debit card.
@@ -1164,7 +1170,7 @@ font-size: 0 !important;
   <strong id="bottomTax">$0.00</strong>
 </div>
         
-      <p class="checkout-program-links"><a href="refer-a-friend.html" data-referral-popup>Been referred by a friend?</a></p>
+      <p class="checkout-program-links"><a href="refer-a-friend.html" data-referral-popup>Been referred by a friend?</a> <a href="verify-phone.html">Verify Referral Phone</a></p>
       <div class="free-shipping" id="bottomShippingMessage"></div>
 
         <div class="summary-total">
@@ -1254,6 +1260,8 @@ const squareLocationId =
   "LG5NFQWF";
 
 let squareCard;
+let checkoutSavedCards = [];
+let savedCardsVersion = 0;
 let googlePay;
 let cashAppPay;
 let giftCard;
@@ -1810,14 +1818,16 @@ document.getElementById("applyDiscount").addEventListener("click", async functio
     if (user.id !== referralMemberId) throw new Error("Your account changed. Reload checkout before applying a discount.");
     let amount;
     if (code === "COLLECT15") {
-      const result = await supabaseClient.from("profiles")
-        .select("welcome_discount_code,welcome_discount_used").eq("id", user.id).single();
-      if (result.error || !result.data) throw new Error("We could not verify your welcome discount. Please try again.");
-      if (result.data.welcome_discount_used) throw new Error("Your COLLECT15 welcome discount has already been used.");
-      if (result.data.welcome_discount_code !== "COLLECT15") throw new Error("COLLECT15 is not available for this account.");
+      const result = await supabaseClient.rpc("im_check_my_collect15");
+      if (version !== discountSelectionVersion) return;
+      if (result.error) throw new Error("We could not verify your welcome discount. Please try again.");
+      if (!result.data?.eligible) throw new Error(result.data?.message || "COLLECT15 is not available for this account.");
       amount = Math.round(Math.round(subtotal * 100) * 0.15) / 100;
     } else {
       if (Math.round(subtotal * 100) < 5000) throw new Error("IMREFER10 requires a minimum $50 purchase.");
+      const phoneCheck = await supabaseClient.rpc("im_check_my_new_friend_referral");
+      if (phoneCheck.error) throw new Error("Referral verification could not be checked. Please try again.");
+      if (!phoneCheck.data?.eligible) throw new Error(phoneCheck.data?.message || "Verify your phone for new-friend referral benefits.");
       const result = await supabaseClient.from("referrals").select("id")
         .eq("referred_user_id", user.id).eq("status", "pending").eq("referred_reward_used", false).limit(1).maybeSingle();
       if (result.error || !result.data) throw new Error("This account does not have an available new-friend referral discount.");
@@ -2055,7 +2065,25 @@ document.getElementById("paymentButton").addEventListener(
 
       checkoutNotice("Preparing your payment…");
 
-      const result = await paymentForm.tokenize();
+      const savedCardId = method === "card" ? document.getElementById("savedCardSelect").value : "";
+      const selectedCard = checkoutSavedCards.find(c => c.id === savedCardId);
+      if(savedCardId && !selectedCard) throw new Error("Select an available saved card.");
+      const verificationDetails = {
+        amount: (checkoutAmountCents()/100).toFixed(2), currencyCode: "USD", intent: "CHARGE",
+        customerInitiated: true, sellerKeyedIn: false,
+        billingContact: {
+          givenName: document.getElementById("billingFirstName").value,
+          familyName: document.getElementById("billingLastName").value,
+          email: document.getElementById("guestEmail").value,
+          addressLines: [document.getElementById("billingAddress").value,document.getElementById("billingApartment").value],
+          city: document.getElementById("billingCity").value,
+          state: document.getElementById("billingState").value,
+          postalCode: document.getElementById("billingPostal").value, countryCode: "US"
+        }
+      };
+      const result = method === "card"
+        ? await paymentForm.tokenize(verificationDetails, savedCardId || undefined)
+        : await paymentForm.tokenize();
 
       if (result.status !== "OK") {
         throw new Error(
@@ -2072,6 +2100,7 @@ document.getElementById("paymentButton").addEventListener(
       await invokeOrderPayment({
         attemptId,
         sourceId: result.token,
+        savedCardId,
         ...delivery,
 
         items: checkoutCart.map(item => ({
@@ -2399,6 +2428,12 @@ document
   });
 syncBottomOrderSummary();
     function showPaymentSuccessPopup() {
+  const receiptLink = document.getElementById("successReceiptLink");
+  if (receiptLink) {
+    const available = /^\d{10}$/.test(latestOrderNumber || "");
+    receiptLink.hidden = !available;
+    receiptLink.href = available ? "receipt.html?order=" + encodeURIComponent(latestOrderNumber) : "#";
+  }
   document
     .getElementById("paymentSuccessPopup")
     ?.classList.add("show");
@@ -2442,6 +2477,7 @@ function closePaymentSuccessPopup() {
 >
   CONTINUE
 </button>
+<a id="successReceiptLink" href="#" hidden style="display:block;text-align:center;margin-top:12px;color:#8a651f">View / Print Receipt</a>
   </div>
 </div>
 
@@ -2759,5 +2795,34 @@ const checkoutAccount = (() => {
 })();
 </script>
 
+<script>
+async function loadCheckoutSavedCards() {
+  const stamp=++savedCardsVersion;
+  const area=document.getElementById('savedCardArea'),select=document.getElementById('savedCardSelect');
+  area.hidden=true;select.replaceChildren(new Option('Use a new card',''));checkoutSavedCards=[];updateSavedCardFields();
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  if(stamp!==savedCardsVersion||!session)return;
+  area.hidden=false;
+  const r=await supabaseClient.functions.invoke('member-payment-methods',{
+    body:{action:'list',userAccessToken:session.access_token}
+  });
+  if(stamp!==savedCardsVersion)return;
+  if(r.error||!r.data?.success){document.getElementById('savedCardMessage').textContent='Saved cards could not load. You can enter a new card.';return;}
+  document.getElementById('savedCardMessage').textContent='';
+  checkoutSavedCards=r.data.cards||[];
+  for(const c of checkoutSavedCards){select.add(new Option((c.label?c.label+' — ':'')+c.brand+' •••• '+c.last_four,c.id));}
+  const preferred=checkoutSavedCards.find(c=>c.is_default);if(preferred)select.value=preferred.id;
+  updateSavedCardFields();
+}
+function updateSavedCardFields(){
+  const saved=Boolean(document.getElementById('savedCardSelect').value);
+  document.getElementById('card-container').hidden=saved;
+  document.getElementById('cardholderName').hidden=saved;
+  document.querySelector('label[for="cardholderName"]').hidden=saved;
+}
+document.getElementById('savedCardSelect').addEventListener('change',updateSavedCardFields);
+supabaseClient.auth.onAuthStateChange(event=>{if(['SIGNED_IN','SIGNED_OUT','INITIAL_SESSION'].includes(event))setTimeout(loadCheckoutSavedCards,0);});
+loadCheckoutSavedCards();
+</script>
 </body>
 </html>

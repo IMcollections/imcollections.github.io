@@ -1,4 +1,4 @@
-/* IM Collections update: OCT09-LOGIN-NAV-NEW */
+/* IM Collections update: OCT09-ACCOUNT-LAYOUT-TRACKING */
 /* Shared authenticated account navigation, wishlist and saved Square cards. */
 (() => {
   const styles = document.createElement("style");
@@ -6,6 +6,7 @@
     [hidden]{display:none!important}
     .im-account-select{width:100%;max-width:520px;min-height:48px;padding:12px 42px 12px 16px;border:1px solid #ddd7c9;border-radius:10px;background:#eee9dc;color:#6f501b;font-size:16px;font-weight:600}
     .im-photo-thumbnail{padding:0!important;border:0!important;background:transparent!important;cursor:zoom-in;width:auto!important;margin:0!important}
+    #cartItems .cart-thumb img{cursor:zoom-in}
     .im-photo-dialog{width:min(94vw,700px);max-height:90dvh;overflow:auto;border:0;border-radius:14px;padding:24px;margin:auto;color:#111;background:white}
     .im-photo-dialog::backdrop{background:rgba(0,0,0,.6)}
     .im-photo-heading{display:flex;align-items:start;justify-content:space-between;gap:12px;margin-bottom:18px}
@@ -72,21 +73,25 @@
     if (text != null) n.textContent = text;
     return n;
   };
-  if (
-    document.querySelector("[data-member-links]") &&
-    !document.getElementById("headerLoggedIn")
-  ) {
-    const header = document.querySelector("header");
-    if (
-      header &&
-      !header.querySelector(
-        'a[href="my-account.html"],a[href="my-account.html#summary"]',
-      )
-    ) {
-      const link = el("a", "My Account");
-      link.href = "my-account.html#summary";
-      link.style.cssText = "font-weight:600;margin-left:12px";
-      header.prepend(link);
+  // Account pages already have a section dropdown; keep Back to Shop by itself.
+  if (!document.getElementById("headerLoggedIn")) {
+    for (const link of document.querySelectorAll(
+      'header a[href="my-account.html"],header a[href="my-account.html#summary"]',
+    ))
+      link.remove();
+  }
+  const guestMenu = document.getElementById("headerLoggedOut");
+  if (guestMenu) {
+    guestMenu.replaceChildren();
+    for (const [label, href] of [
+      ["Login", "my-account.html"],
+      ["Register", "Register.html"],
+      ["Refer A Friend", "my-account.html#referral"],
+      ["Track Order", "track-orders.html"],
+    ]) {
+      const link = el("a", label);
+      link.href = href;
+      guestMenu.append(link);
     }
   }
   const routes = [
@@ -122,7 +127,13 @@
               routes[3],
               ["Refer A Friend", "my-account.html#referral"],
             ]
-          : routes;
+          : container.closest("#headerLoggedIn")
+            ? [
+                routes[0],
+                routes[2],
+                ["Refer A Friend", "my-account.html#referral"],
+              ]
+            : routes;
       container.replaceChildren();
       for (const [label, href] of links) {
         const a = el("a", label);
@@ -156,8 +167,12 @@
       host.className = "im-member-nav";
       host.setAttribute("role", "heading");
       host.setAttribute("aria-level", "2");
-      host.dataset.memberOnly = "";
-      host.hidden = true;
+      if (location.pathname.endsWith("track-orders.html")) {
+        host.hidden = false;
+      } else {
+        host.dataset.memberOnly = "";
+        host.hidden = true;
+      }
       host.append(select);
       details.replaceWith(host);
     } else container.replaceChildren(select);
@@ -218,14 +233,18 @@
         img.alt = title.textContent;
         gallery.append(img);
       }
-      photoDialog.replaceChildren(head, gallery);
+      photoDialog.replaceChildren(head);
+      const price = Number(item.price ?? product.price);
+      if (Number.isFinite(price))
+        photoDialog.append(el("p", "$" + price.toFixed(2) + " each"));
       const description = item.description || product.description;
       if (description) photoDialog.append(el("p", description));
-      const size = purchased ? item.size : product.size;
+      const size = item.size || (!purchased ? product.size : null);
       if (size)
         photoDialog.append(
           el("p", (purchased ? "Purchased size: " : "Available size: ") + size),
         );
+      photoDialog.append(gallery);
       if (!purchased) {
         const shop = el("a", "Back to Shopping");
         shop.href = "index.html#featured";
@@ -236,16 +255,16 @@
     }
     draw(item);
     // Old receipts retain their purchased name, price and size; catalog details only enrich the viewer.
-    const id = purchased ? Number(item.id) - 1000000 : Number(item.id);
+    const id =
+      Number(item.id) >= 1000000 ? Number(item.id) - 1000000 : Number(item.id);
     if (
-      purchased &&
       Number.isSafeInteger(id) &&
       id > 0 &&
       (!item.description || !item.images?.length)
     ) {
       const r = await db
         .from("products")
-        .select("name,description,size,image_urls")
+        .select("name,price,description,size,image_urls")
         .eq("id", id)
         .maybeSingle();
       if (!r.error && r.data && run === photoVersion) draw(r.data);
@@ -677,11 +696,47 @@
     if (["SIGNED_IN", "SIGNED_OUT", "INITIAL_SESSION"].includes(event))
       setTimeout(loadMember, 0);
   });
+  // Delegate clicks so newly rendered cart thumbnails also open the swipe gallery.
+  function prepareCartImages() {
+    for (const image of document.querySelectorAll(
+      "#cartItems .cart-thumb img",
+    )) {
+      image.tabIndex = 0;
+      image.setAttribute("role", "button");
+      image.setAttribute("aria-label", "Enlarge " + (image.alt || "product"));
+    }
+  }
+  prepareCartImages();
+  document.addEventListener("keydown", (event) => {
+    if (
+      ["Enter", " "].includes(event.key) &&
+      event.target.matches?.("#cartItems .cart-thumb img")
+    ) {
+      event.preventDefault();
+      event.target.click();
+    }
+  });
+  document.addEventListener("click", (event) => {
+    const image = event.target.closest?.("#cartItems .cart-thumb img");
+    if (!image) return;
+    const row = image.closest(".cart-item");
+    const index = Array.from(
+      document.querySelectorAll("#cartItems .cart-item"),
+    ).indexOf(row);
+    const items = typeof cart !== "undefined" ? cart : [];
+    const item = items[index];
+    if (!item) return;
+    event.preventDefault();
+    openProductPhoto(item);
+  });
   loadMember();
   // Product grids are rendered/replaced by the existing catalog functions.
   if (document.getElementById("headerLoggedIn")) {
     const observer = new MutationObserver((m) => {
-      if (m.some((x) => x.addedNodes.length)) syncHearts();
+      if (m.some((x) => x.addedNodes.length)) {
+        syncHearts();
+        prepareCartImages();
+      }
     });
     observer.observe(document.body, { childList: true, subtree: true });
   }

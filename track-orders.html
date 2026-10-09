@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- IM Collections update: OCT09-LOGIN-NAV-NEW -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -589,6 +590,24 @@
           if (run === generation) byId("trackButton").disabled = false;
         }
       });
+      function loginErrorText(error) {
+        if (
+          error?.code === "invalid_credentials" ||
+          /invalid login credentials/i.test(error?.message || "")
+        ) {
+          return "Incorrect email or password. Please try again, or use Forgot password.";
+        }
+        if (error?.code === "email_not_confirmed")
+          return "Please confirm your email address before signing in.";
+        if (
+          error?.status === 429 ||
+          /rate limit|too many requests/i.test(error?.message || "")
+        ) {
+          return "Too many sign-in attempts. Please wait before trying again.";
+        }
+        return "Unable to sign in right now. Please check your connection and try again.";
+      }
+
       byId("loginForm").addEventListener("submit", async (event) => {
         event.preventDefault();
         byId("loginButton").disabled = true;
@@ -600,9 +619,9 @@
           if (error) throw error;
           byId("password").value = "";
           await account();
-          message("loginMessage", "Signed in.");
+          message("loginMessage", "Signed in successfully.");
         } catch (error) {
-          message("loginMessage", error.message, true);
+          message("loginMessage", loginErrorText(error), true);
         } finally {
           byId("loginButton").disabled = false;
         }

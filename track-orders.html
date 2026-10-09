@@ -1,10 +1,9 @@
 <!doctype html>
-<!-- IM Collections update: OCT09-LOGIN-NAV-NEW -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Track my Orders | IM Collections</title>
+    <title>Track Orders &amp; Returns | IM Collections</title>
 
     <style>
       * {
@@ -369,8 +368,7 @@
     <header>
       <nav aria-label="Account navigation">
         <a href="index.html">Back to Shop</a>
-        <a href="my-account.html">My Account</a
-        ><a href="orders-returns.html">Orders</a>
+        <a href="my-account.html">My Account</a>
       </nav>
 
       <a href="index.html">
@@ -379,16 +377,16 @@
     </header>
 
     <main>
-      <details class="im-member-nav" data-member-only hidden>
-        <summary>My Account</summary>
-        <nav data-member-links></nav>
-      </details>
-
       <p id="pageMessage" class="message" role="status">
         Checking your account…
       </p>
       <section class="card" aria-labelledby="trackHeading">
-        <h2 id="trackHeading">Track My Orders</h2>
+        <details class="im-member-nav" data-member-only hidden>
+          <summary>My Account</summary>
+          <nav data-member-links></nav>
+        </details>
+
+        <span id="trackHeading" hidden>Track my Orders</span>
         <form id="trackForm">
           <div class="return-inputs">
             <div>
@@ -404,22 +402,20 @@
               />
             </div>
             <div>
-              <label for="trackZip">ZIP Code</label>
+              <label for="trackIdentifier">Member ID or Tracking Number</label>
               <input
-                id="trackZip"
+                id="trackIdentifier"
                 type="text"
-                inputmode="numeric"
-                autocomplete="postal-code"
-                pattern="[0-9]{5}(-[0-9]{4})?"
-                maxlength="10"
-                placeholder="ZIP Code used at checkout"
+                autocomplete="off"
+                maxlength="80"
+                placeholder="Member ID or Tracking Number"
                 required
               />
             </div>
           </div>
           <div class="actions" style="margin-top: 20px">
             <button id="trackButton" class="gold" type="submit">
-              Track my Orders
+              Track Orders &amp; Returns
             </button>
           </div>
         </form>
@@ -506,7 +502,7 @@
         message(
           "pageMessage",
           user
-            ? "Enter your order number and the ZIP Code used at checkout."
+            ? "Enter your order number and the Member ID or Tracking Number."
             : "Sign in with the email used at checkout to track your orders and returns.",
         );
       }
@@ -515,11 +511,14 @@
         clearResult();
         const run = ++generation;
         const number = byId("trackOrderNumber").value.trim(),
-          zip = byId("trackZip").value.trim();
-        if (!/^\d{10}$/.test(number) || !byId("trackZip").checkValidity())
+          identifier = byId("trackIdentifier").value.trim();
+        if (
+          !/^\d{10}$/.test(number) ||
+          !byId("trackIdentifier").checkValidity()
+        )
           return message(
             "trackMessage",
-            "Enter a 10-digit order number and the checkout ZIP Code.",
+            "Enter a 10-digit order number and your Member ID or Tracking Number.",
             true,
           );
         if (!user) {
@@ -533,8 +532,8 @@
         message("trackMessage", "Looking up your order…");
         try {
           const { data: order, error } = await client.rpc(
-            "im_track_member_order",
-            { p_order_number: number, p_zip_code: zip },
+            "im_track_member_order_by_identifier",
+            { p_order_number: number, p_identifier: identifier },
           );
           if (run !== generation) return;
           if (error)
@@ -542,7 +541,7 @@
           if (!order)
             return message(
               "trackMessage",
-              "No matching order was found in this account. Check your order number and ZIP Code.",
+              "No matching order was found in this account. Check your order number and Member ID or Tracking Number.",
               true,
             );
           const { data: requests, error: returnError } = await client
@@ -557,7 +556,7 @@
           line(
             "Order Status",
             order.status === "completed"
-              ? "Completed (Shipped)"
+              ? "Completed"
               : order.status === "cancelled"
                 ? "Cancelled"
                 : "Pending",
@@ -630,7 +629,7 @@
         ++generation;
         user = null;
         clearResult();
-        byId("trackZip").value = "";
+        byId("trackIdentifier").value = "";
         byId("trackButton").disabled = false;
         setTimeout(account, 0);
       });

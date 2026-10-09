@@ -1,957 +1,906 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Login | IM Collections</title>
+    <title>Login | IM Collections</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background: #f7f7f7;
-      color: #111;
-      min-height: 100vh;
-    }
-
-    .topbar {
-      background: #050505;
-      color: white;
-      text-align: center;
-      padding: 11px 15px;
-      font-size: 12px;
-      letter-spacing: 1px;
-    }
-
-    header {
-      background: white;
-      border-bottom: 1px solid #ddd;
-      padding: 15px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-
-    .back-home {
-      position: absolute;
-      left: 20px;
-      color: #111;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .logo {
-      width: 72px;
-      height: 72px;
-      object-fit: contain;
-    }
-
-    .page-wrap {
-      width: 100%;
-      max-width: 520px;
-      margin: 0 auto;
-      padding: 45px 20px 60px;
-    }
-
-    .login-card {
-      background: white;
-      border-radius: 14px;
-      padding: 35px 25px;
-      box-shadow: 0 7px 30px rgba(0,0,0,0.08);
-    }
-
-    .login-card h1 {
-      font-family: Georgia, serif;
-      text-align: center;
-      font-size: 32px;
-      margin-bottom: 8px;
-    }
-
-    .subtitle {
-      text-align: center;
-      color: #666;
-      font-size: 14px;
-      line-height: 1.5;
-      margin-bottom: 30px;
-    }
-
-    .form-group {
-      margin-bottom: 18px;
-    }
-
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 7px;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-    }
-
-    input {
-      width: 100%;
-      height: 50px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      padding: 0 14px;
-      font-size: 16px;
-      outline: none;
-    }
-
-    input:focus {
-      border-color: #c9962e;
-    }
-
-    .login-btn {
-      width: 100%;
-      min-height: 52px;
-      border: 0;
-      border-radius: 6px;
-      background: #111;
-      color: white;
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-top: 8px;
-      cursor: pointer;
-    }
-
-    .login-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .message {
-      display: none;
-      margin-top: 18px;
-      padding: 13px;
-      border-radius: 6px;
-      font-size: 13px;
-      line-height: 1.45;
-    }
-
-    .message.success {
-      display: block;
-      background: #e9f7ec;
-      color: #176c2d;
-      border: 1px solid #b7dfc0;
-    }
-
-    .message.error {
-      display: block;
-      background: #fff0f0;
-      color: #a12020;
-      border: 1px solid #efbcbc;
-    }
-
-    .register-text {
-      text-align: center;
-      margin-top: 24px;
-      font-size: 14px;
-      color: #666;
-    }
-
-    .register-text a {
-      color: #111;
-      font-weight: 700;
-    }
-
-    .forgot {
-      text-align: right;
-      margin-top: -6px;
-      margin-bottom: 16px;
-    }
-
-    .forgot a {
-      color: #666;
-      font-size: 12px;
-      text-decoration: none;
-    }
-
-    footer {
-      text-align: center;
-      color: #888;
-      font-size: 12px;
-      padding: 25px 15px;
-    }
-
-    @media (max-width: 520px) {
-      .page-wrap {
-        padding: 25px 14px 45px;
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
 
-      .login-card {
-        padding: 28px 18px;
+      body {
+        font-family: Arial, sans-serif;
+        background: #f7f7f7;
+        color: #111;
+        min-height: 100vh;
       }
 
-      .login-card h1 {
-        font-size: 28px;
+      .topbar {
+        background: #050505;
+        color: white;
+        text-align: center;
+        padding: 11px 15px;
+        font-size: 12px;
+        letter-spacing: 1px;
+      }
+
+      header {
+        background: white;
+        border-bottom: 1px solid #ddd;
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
       }
 
       .back-home {
-        font-size: 12px;
-        left: 14px;
+        position: absolute;
+        left: 20px;
+        color: #111;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
       }
-    }
-    #accountDashboard {
-  width: 100%;
-  max-width: 760px;
-  margin: 0 auto;
-  padding: 30px 24px 45px;
-}
 
-#accountDashboard > h2 {
-  margin: 0 0 28px;
-}
+      .logo {
+        width: 72px;
+        height: 72px;
+        object-fit: contain;
+      }
 
-.account-section {
-  margin-bottom: 30px;
-  padding-bottom: 26px;
-  border-bottom: 1px solid #e5e5e5;
-}
+      .page-wrap {
+        width: 100%;
+        max-width: 520px;
+        margin: 0 auto;
+        padding: 45px 20px 60px;
+      }
 
-.account-section h3 {
-  margin: 0 0 14px;
-}
+      .login-card {
+        background: white;
+        border-radius: 14px;
+        padding: 35px 25px;
+        box-shadow: 0 7px 30px rgba(0, 0, 0, 0.08);
+      }
 
-.account-section p {
-  margin: 7px 0;
-  line-height: 1.5;
-}
+      .login-card h1 {
+        font-family: Georgia, serif;
+        text-align: center;
+        font-size: 32px;
+        margin-bottom: 8px;
+      }
 
-#editProfileBtn,
-#referFriendBtn,
-#logoutBtn {
-  margin-top: 14px;
-  padding: 11px 18px;
-  min-height: 44px;
-  border-radius: 6px;
-  cursor: pointer;
-}
+      .subtitle {
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 30px;
+      }
 
-#logoutBtn {
-  margin-top: 5px;
-}
+      .form-group {
+        margin-bottom: 18px;
+      }
 
-@media (max-width: 600px) {
-  #accountDashboard {
-    padding: 26px 28px 40px;
-  }
+      label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 7px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+      }
 
-  .account-section {
-    margin-bottom: 26px;
-    padding-bottom: 22px;
-  }
-}
+      input {
+        width: 100%;
+        height: 50px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 0 14px;
+        font-size: 16px;
+        outline: none;
+      }
 
-#accountDashboard {
-  background: #f7f7f7;
-}
+      input:focus {
+        border-color: #c9962e;
+      }
 
-.account-section {
-  background: #ffffff;
-  border: 1px solid #e6e6e6;
-  border-radius: 16px;
-  padding: 22px;
-  margin-bottom: 20px;
-}
+      .login-btn {
+        width: 100%;
+        min-height: 52px;
+        border: 0;
+        border-radius: 6px;
+        background: #111;
+        color: white;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-top: 8px;
+        cursor: pointer;
+      }
 
-.account-section h3 {
-  margin-top: 0;
-  margin-bottom: 12px;
-}
+      .login-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
 
-.account-section p:last-child {
-  margin-bottom: 0;
-}
+      .message {
+        display: none;
+        margin-top: 18px;
+        padding: 13px;
+        border-radius: 6px;
+        font-size: 13px;
+        line-height: 1.45;
+      }
 
-#editProfileBtn,
-#referFriendBtn,
-#logoutBtn {
-  width: 100%;
-  border: none;
-  background: #111111;
-  color: #ffffff;
-  font-weight: 600;
-}
+      .message.success {
+        display: block;
+        background: #e9f7ec;
+        color: #176c2d;
+        border: 1px solid #b7dfc0;
+      }
 
-#editProfileBtn:active,
-#referFriendBtn:active,
-#logoutBtn:active {
-  opacity: 0.8;
-}
+      .message.error {
+        display: block;
+        background: #fff0f0;
+        color: #a12020;
+        border: 1px solid #efbcbc;
+      }
 
-#editCountry,
-#saveProfileBtn,
-#cancelProfileBtn {
-  width: 100%;
-  min-height: 48px;
-  margin-top: 12px;
-  padding: 12px 14px;
-  font-size: 16px;
-  border-radius: 8px;
-}
+      .register-text {
+        text-align: center;
+        margin-top: 24px;
+        font-size: 14px;
+        color: #666;
+      }
 
-#editCountry {
-  border: 1px solid #cccccc;
-  background: #ffffff;
-}
+      .register-text a {
+        color: #111;
+        font-weight: 700;
+      }
 
-#saveProfileBtn {
-  border: none;
-  background: #111111;
-  color: #ffffff;
-  font-weight: 600;
-}
+      .forgot {
+        text-align: right;
+        margin-top: -6px;
+        margin-bottom: 16px;
+      }
 
-#cancelProfileBtn {
-  border: 1px solid #cccccc;
-  background: #f3f3f3;
-  color: #111111;
-  font-weight: 600;
-}
+      .forgot a {
+        color: #666;
+        font-size: 12px;
+        text-decoration: none;
+      }
 
-    #changeEmailBtn,
-#saveEmailBtn,
-#cancelEmailBtn {
-  width: 100%;
-  min-height: 48px;
-  margin-top: 12px;
-  padding: 12px 14px;
-  font-size: 16px;
-  border-radius: 8px;
-}
+      footer {
+        text-align: center;
+        color: #888;
+        font-size: 12px;
+        padding: 25px 15px;
+      }
 
-#changeEmailBtn,
-#saveEmailBtn {
-  border: none;
-  background: #111111;
-  color: #ffffff;
-  font-weight: 600;
-}
+      @media (max-width: 520px) {
+        .page-wrap {
+          padding: 25px 14px 45px;
+        }
 
-#cancelEmailBtn {
-  border: 1px solid #cccccc;
-  background: #f3f3f3;
-  color: #111111;
-  font-weight: 600;
-}
+        .login-card {
+          padding: 28px 18px;
+        }
 
-#newEmail {
-  width: 100%;
-  min-height: 48px;
-  margin-top: 12px;
-  padding: 12px 14px;
-  font-size: 16px;
-  border: 1px solid #cccccc;
-  border-radius: 8px;
-  box-sizing: border-box;
-}
+        .login-card h1 {
+          font-size: 28px;
+        }
 
-#changePasswordBtn,
-#savePasswordBtn,
-#cancelPasswordBtn {
-  width: 100%;
-  min-height: 48px;
-  margin-top: 12px;
-  padding: 12px 14px;
-  font-size: 16px;
-  border-radius: 8px;
-}
+        .back-home {
+          font-size: 12px;
+          left: 14px;
+        }
+      }
+      #accountDashboard {
+        width: 100%;
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 30px 24px 45px;
+      }
 
-#changePasswordBtn,
-#savePasswordBtn {
-  border: none;
-  background: #111111;
-  color: #ffffff;
-  font-weight: 600;
-}
+      #accountDashboard > h2 {
+        margin: 0 0 28px;
+      }
 
-#cancelPasswordBtn {
-  border: 1px solid #cccccc;
-  background: #f3f3f3;
-  color: #111111;
-  font-weight: 600;
-}
+      .account-section {
+        margin-bottom: 30px;
+        padding-bottom: 26px;
+        border-bottom: 1px solid #e5e5e5;
+      }
 
-#newPassword,
-#confirmNewPassword {
-  width: 100%;
-  min-height: 48px;
-  margin-top: 12px;
-  padding: 12px 14px;
-  font-size: 16px;
-  border: 1px solid #cccccc;
-  border-radius: 8px;
-  box-sizing: border-box;
-}
+      .account-section h3 {
+        margin: 0 0 14px;
+      }
 
-#referralLink {
-  width: 100%;
-  min-height: 48px;
-  margin-top: 10px;
-  padding: 12px 14px;
-  font-size: 16px;
-  border: 1px solid #cccccc;
-  border-radius: 8px;
-  box-sizing: border-box;
-  background: #ffffff;
-}
+      .account-section p {
+        margin: 7px 0;
+        line-height: 1.5;
+      }
 
-#copyReferralBtn {
-  width: 100%;
-  min-height: 48px;
-  margin-top: 12px;
-  padding: 12px 14px;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  background: #111111;
-  color: #ffffff;
-  font-weight: 600;
-}
+      #editProfileBtn,
+      #referFriendBtn,
+      #logoutBtn {
+        margin-top: 14px;
+        padding: 11px 18px;
+        min-height: 44px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
 
-#referralMessage {
-  margin-top: 10px;
-  font-size: 14px;
-}
-    
-  
-[hidden]{display:none!important}
-.im-member-nav{position:relative;margin:14px 0 24px;color:#8f681e}
-.im-member-nav summary{padding:14px;background:#eee9dc;border-radius:8px;cursor:pointer;font-weight:bold}
-.im-member-nav nav{display:grid;gap:0;background:white;border:1px solid #ddd;border-radius:8px}
-.im-member-nav a{display:block;padding:12px 16px;border-bottom:1px solid #eee;color:#8f681e}
-.im-member-id{color:#8f681e;margin:14px 0;font-weight:bold}
-.im-wish-item{padding:16px 0;border-bottom:1px solid #ddd;display:flex;gap:14px;flex-wrap:wrap}
-.im-wish-item img{width:90px;height:110px;object-fit:contain}
-.im-wish-item button,#memberAddCard,#memberSaveCard,#memberCancelCard{padding:12px 18px;margin:8px;border:0;border-radius:6px;background:#c3a247;color:#111;min-height:44px}
-#memberCardForm label{margin-top:16px}
-#memberCardConsent{width:20px;height:20px;vertical-align:middle}
-.wishlist.active svg{stroke:#167cd3!important;fill:#167cd3!important}
+      #logoutBtn {
+        margin-top: 5px;
+      }
 
-</style>
-</head>
+      @media (max-width: 600px) {
+        #accountDashboard {
+          padding: 26px 28px 40px;
+        }
 
-<body>
+        .account-section {
+          margin-bottom: 26px;
+          padding-bottom: 22px;
+        }
+      }
 
-  <div class="topbar">
-    IM COLLECTIONS • WELCOME BACK
-  </div>
+      #accountDashboard {
+        background: #f7f7f7;
+      }
 
-  <header>
-    <a href="index.html" class="back-home">← Back to Shop</a>
+      .account-section {
+        background: #ffffff;
+        border: 1px solid #e6e6e6;
+        border-radius: 16px;
+        padding: 22px;
+        margin-bottom: 20px;
+      }
 
-    <a href="index.html">
-      <img
-        src="IM-logo.jpg"
-        alt="IM Collections"
-        class="logo"
-      >
-    </a>
-  </header>
+      .account-section h3 {
+        margin-top: 0;
+        margin-bottom: 12px;
+      }
 
-  <main class="page-wrap">
+      .account-section p:last-child {
+        margin-bottom: 0;
+      }
 
-    <div class="login-card" id="loginCard">
+      #editProfileBtn,
+      #referFriendBtn,
+      #logoutBtn {
+        width: 100%;
+        border: none;
+        background: #111111;
+        color: #ffffff;
+        font-weight: 600;
+      }
 
-      <h1>Login</h1>
+      #editProfileBtn:active,
+      #referFriendBtn:active,
+      #logoutBtn:active {
+        opacity: 0.8;
+      }
 
-      <p class="subtitle">
-        Sign in to your IM Collections account.
-      </p>
+      #editCountry,
+      #saveProfileBtn,
+      #cancelProfileBtn {
+        width: 100%;
+        min-height: 48px;
+        margin-top: 12px;
+        padding: 12px 14px;
+        font-size: 16px;
+        border-radius: 8px;
+      }
 
-      <form id="loginForm">
+      #editCountry {
+        border: 1px solid #cccccc;
+        background: #ffffff;
+      }
 
-        <div class="form-group">
-          <label for="email">
-            Email Address
-          </label>
+      #saveProfileBtn {
+        border: none;
+        background: #111111;
+        color: #ffffff;
+        font-weight: 600;
+      }
 
-          <input
-            type="email"
-            id="email"
-            placeholder="Enter your email"
-            autocomplete="email"
-            required
-          >
+      #cancelProfileBtn {
+        border: 1px solid #cccccc;
+        background: #f3f3f3;
+        color: #111111;
+        font-weight: 600;
+      }
+
+      #changeEmailBtn,
+      #saveEmailBtn,
+      #cancelEmailBtn {
+        width: 100%;
+        min-height: 48px;
+        margin-top: 12px;
+        padding: 12px 14px;
+        font-size: 16px;
+        border-radius: 8px;
+      }
+
+      #changeEmailBtn,
+      #saveEmailBtn {
+        border: none;
+        background: #111111;
+        color: #ffffff;
+        font-weight: 600;
+      }
+
+      #cancelEmailBtn {
+        border: 1px solid #cccccc;
+        background: #f3f3f3;
+        color: #111111;
+        font-weight: 600;
+      }
+
+      #newEmail {
+        width: 100%;
+        min-height: 48px;
+        margin-top: 12px;
+        padding: 12px 14px;
+        font-size: 16px;
+        border: 1px solid #cccccc;
+        border-radius: 8px;
+        box-sizing: border-box;
+      }
+
+      #changePasswordBtn,
+      #savePasswordBtn,
+      #cancelPasswordBtn {
+        width: 100%;
+        min-height: 48px;
+        margin-top: 12px;
+        padding: 12px 14px;
+        font-size: 16px;
+        border-radius: 8px;
+      }
+
+      #changePasswordBtn,
+      #savePasswordBtn {
+        border: none;
+        background: #111111;
+        color: #ffffff;
+        font-weight: 600;
+      }
+
+      #cancelPasswordBtn {
+        border: 1px solid #cccccc;
+        background: #f3f3f3;
+        color: #111111;
+        font-weight: 600;
+      }
+
+      #newPassword,
+      #confirmNewPassword {
+        width: 100%;
+        min-height: 48px;
+        margin-top: 12px;
+        padding: 12px 14px;
+        font-size: 16px;
+        border: 1px solid #cccccc;
+        border-radius: 8px;
+        box-sizing: border-box;
+      }
+
+      #referralLink {
+        width: 100%;
+        min-height: 48px;
+        margin-top: 10px;
+        padding: 12px 14px;
+        font-size: 16px;
+        border: 1px solid #cccccc;
+        border-radius: 8px;
+        box-sizing: border-box;
+        background: #ffffff;
+      }
+
+      #copyReferralBtn {
+        width: 100%;
+        min-height: 48px;
+        margin-top: 12px;
+        padding: 12px 14px;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        background: #111111;
+        color: #ffffff;
+        font-weight: 600;
+      }
+
+      #referralMessage {
+        margin-top: 10px;
+        font-size: 14px;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+      .im-member-nav {
+        position: relative;
+        margin: 14px 0 24px;
+        color: #8f681e;
+      }
+      .im-member-nav summary {
+        padding: 14px;
+        background: #eee9dc;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      .im-member-nav nav {
+        display: grid;
+        gap: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      .im-member-nav a {
+        display: block;
+        padding: 12px 16px;
+        border-bottom: 1px solid #eee;
+        color: #8f681e;
+      }
+      .im-member-id {
+        color: #8f681e;
+        margin: 14px 0;
+        font-weight: bold;
+      }
+      .im-wish-item {
+        padding: 16px 0;
+        border-bottom: 1px solid #ddd;
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+      .im-wish-item img {
+        width: 90px;
+        height: 110px;
+        object-fit: contain;
+      }
+      .im-wish-item button,
+      #memberAddCard,
+      #memberSaveCard,
+      #memberCancelCard {
+        padding: 12px 18px;
+        margin: 8px;
+        border: 0;
+        border-radius: 6px;
+        background: #c3a247;
+        color: #111;
+        min-height: 44px;
+      }
+      #memberCardForm label {
+        margin-top: 16px;
+      }
+      #memberCardConsent {
+        width: 20px;
+        height: 20px;
+        vertical-align: middle;
+      }
+      .wishlist.active svg {
+        stroke: #167cd3 !important;
+        fill: #167cd3 !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="topbar">IM COLLECTIONS • WELCOME BACK</div>
+
+    <header>
+      <a href="index.html" class="back-home">← Back to Shop</a>
+
+      <a href="index.html">
+        <img src="IM-logo.jpg" alt="IM Collections" class="logo" />
+      </a>
+    </header>
+
+    <main class="page-wrap">
+      <div class="login-card" id="loginCard">
+        <h1>Login</h1>
+
+        <p class="subtitle">Sign in to your IM Collections account.</p>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="email"> Email Address </label>
+
+            <input
+              type="email"
+              id="email"
+              placeholder="Enter your email"
+              autocomplete="email"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password"> Password </label>
+
+            <input
+              type="password"
+              id="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+
+          <div class="forgot">
+            <a href="#" id="forgotPasswordLink"> Forgot password? </a>
+          </div>
+
+          <button type="submit" class="login-btn" id="loginBtn">
+            Login To My Account
+          </button>
+
+          <div id="loginMessage" class="message"></div>
+        </form>
+
+        <div class="register-text">
+          Don't have an account?
+          <a href="Register.html">Register</a>
         </div>
-
-        <div class="form-group">
-          <label for="password">
-            Password
-          </label>
-
-          <input
-            type="password"
-            id="password"
-            placeholder="Enter your password"
-            autocomplete="current-password"
-            required
-          >
-        </div>
-
-    <div class="forgot">
-  <a href="#" id="forgotPasswordLink">
-    Forgot password?
-  </a>
-</div>
-
-        <button
-          type="submit"
-          class="login-btn"
-          id="loginBtn"
-        >
-          Login To My Account
-        </button>
-
-        <div
-          id="loginMessage"
-          class="message"
-        ></div>
-
-      </form>
-
-      <div class="register-text">
-        Don't have an account?
-        <a href="Register.html">Register</a>
       </div>
+      <div id="accountDashboard" style="display: none">
+        <details class="im-member-nav" data-member-only hidden>
+          <summary>My Account</summary>
+          <nav data-member-links aria-label="My Account sections"></nav>
+        </details>
+        <p id="accountGreeting">Hello, Member!</p>
+        <p id="memberIdentity">Member ID: Loading…</p>
+        <h2 id="accountSectionTitle">Account Summary</h2>
+        <div id="memberSummary">
+          <!-- MEMBERSHIP -->
+          <section class="account-section">
+            <h3>Member Rewards</h3>
 
-    </div>
-<div id="accountDashboard" style="display: none;">
+            <p>
+              Level:
+              <strong id="membershipLevel">Collector</strong>
+            </p>
 
-  <details class="im-member-nav" data-member-only hidden><summary>My Account</summary>
-<nav data-member-links aria-label="My Account sections"></nav></details>
-<h2 id="accountSectionTitle">Account Summary</h2>
-<div id="memberSummary">
+            <p>
+              Points:
+              <strong id="membershipPoints">0</strong>
+            </p>
 
-  <!-- MEMBERSHIP -->
-  <section class="account-section">
-    <h3 id="memberIdentity">Member ID: Loading…</h3>
+            <p>
+              Points Reward Value (coming soon):
+              <strong id="availableReward">$0</strong>
+            </p>
 
-    <p>
-      Level:
-      <strong id="membershipLevel">Collector</strong>
-    </p>
+            <p id="nextRewardText">Earn points to unlock your next reward.</p>
 
-    <p>
-      Points:
-      <strong id="membershipPoints">0</strong>
-    </p>
+            <p>Referral Rewards: $<strong id="referralCredit">0</strong></p>
 
-    <p>
-      Points Reward Value (coming soon):
-      <strong id="availableReward">$0</strong>
-    </p>
+            <p>
+              Visit <a href="collectors-reward.html">Collectors Reward</a> for
+              program details.
+            </p>
+          </section>
 
-    <p id="nextRewardText">
-      Earn points to unlock your next reward.
-    </p>
+          <!-- ADDRESS BOOK | PROFILE -->
+          <section class="account-section">
+            <h3>Collector Profile</h3>
 
-    <p>
-      Referral Rewards:
-      $<strong id="referralCredit">0</strong>
-    </p>
-    
-    <p>Visit <a href="collectors-reward.html">Collectors Reward</a> for program details.</p>
-  </section>
+            <p id="accountName"></p>
+            <p id="accountEmail"></p>
+            <p id="accountPhone"></p>
+            <p id="accountAddress"></p>
+            <div class="change-email-area">
+              <button type="button" id="changeEmailBtn">Change Email</button>
 
+              <div id="changeEmailForm" style="display: none; margin-top: 14px">
+                <input
+                  type="email"
+                  id="newEmail"
+                  placeholder="Enter new email address"
+                  autocomplete="email"
+                />
 
-  <!-- ADDRESS BOOK | PROFILE -->
-  <section class="account-section">
-    <h3>Collector Profile</h3>
+                <button type="button" id="saveEmailBtn">Update Email</button>
 
-    <p id="accountName"></p>
-    <p id="accountEmail"></p>
-    <p id="accountPhone"></p>
-<p id="accountAddress"></p>
-    <div class="change-email-area">
-  <button type="button" id="changeEmailBtn">
-    Change Email
-  </button>
+                <button type="button" id="cancelEmailBtn">Cancel</button>
 
-  <div id="changeEmailForm" style="display: none; margin-top: 14px;">
-    <input
-      type="email"
-      id="newEmail"
-      placeholder="Enter new email address"
-      autocomplete="email"
-    >
+                <p id="emailChangeMessage"></p>
+              </div>
+            </div>
 
-    <button type="button" id="saveEmailBtn">
-      Update Email
-    </button>
+            <div class="change-password-area">
+              <button type="button" id="changePasswordBtn">
+                Change Password
+              </button>
 
-    <button type="button" id="cancelEmailBtn">
-      Cancel
-    </button>
+              <div
+                id="changePasswordForm"
+                style="display: none; margin-top: 14px"
+              >
+                <input
+                  type="password"
+                  id="newPassword"
+                  placeholder="Enter new password"
+                  autocomplete="new-password"
+                />
 
-    <p id="emailChangeMessage"></p>
-  </div>
-</div>
-    
-<div class="change-password-area">
-  <button type="button" id="changePasswordBtn">
-    Change Password
-  </button>
+                <input
+                  type="password"
+                  id="confirmNewPassword"
+                  aria-describedby="accountPasswordMatchStatus"
+                  placeholder="Confirm new password"
+                  autocomplete="new-password"
+                />
 
-  <div id="changePasswordForm" style="display: none; margin-top: 14px;">
+                <p
+                  id="accountPasswordMatchStatus"
+                  role="status"
+                  aria-live="polite"
+                  style="min-height: 1.5em; margin: 8px 0 14px"
+                ></p>
 
-    <input
-      type="password"
-      id="newPassword"
-      placeholder="Enter new password"
-      autocomplete="new-password"
-    >
+                <button type="button" id="savePasswordBtn">
+                  Update Password
+                </button>
 
-    <input
-      type="password"
-      id="confirmNewPassword"
-      aria-describedby="accountPasswordMatchStatus"
-      placeholder="Confirm new password"
-      autocomplete="new-password"
-    >
+                <button type="button" id="cancelPasswordBtn">Cancel</button>
 
-    <p id="accountPasswordMatchStatus" role="status" aria-live="polite" style="min-height:1.5em;margin:8px 0 14px"></p>
+                <p id="passwordChangeMessage"></p>
+              </div>
+            </div>
 
-    <button type="button" id="savePasswordBtn">
-      Update Password
-    </button>
+            <button type="button" id="editProfileBtn">Edit Profile</button>
+            <div id="editProfileForm" style="display: none; margin-top: 18px">
+              <input type="text" id="editFirstName" placeholder="First Name" />
 
-    <button type="button" id="cancelPasswordBtn">
-      Cancel
-    </button>
+              <input type="text" id="editLastName" placeholder="Last Name" />
 
-    <p id="passwordChangeMessage"></p>
+              <input type="tel" id="editPhone" placeholder="Phone Number" />
 
-  </div>
-</div>
+              <input
+                type="text"
+                id="editAddress1"
+                placeholder="Address Line 1"
+              />
 
-    <button type="button" id="editProfileBtn">
-      Edit Profile
-    </button>
-    <div id="editProfileForm" style="display: none; margin-top: 18px;">
+              <input
+                type="text"
+                id="editAddress2"
+                placeholder="Address Line 2"
+              />
 
-  <input
-    type="text"
-    id="editFirstName"
-    placeholder="First Name"
-  >
+              <input type="text" id="editCity" placeholder="City" />
 
-  <input
-    type="text"
-    id="editLastName"
-    placeholder="Last Name"
-  >
+              <input
+                type="text"
+                id="editState"
+                placeholder="State / Province"
+              />
 
-  <input
-    type="tel"
-    id="editPhone"
-    placeholder="Phone Number"
-  >
+              <input
+                type="text"
+                id="editPostalCode"
+                placeholder="Postal Code"
+              />
 
-  <input
-    type="text"
-    id="editAddress1"
-    placeholder="Address Line 1"
-  >
+              <select id="editCountry">
+                <option value="">Select Country</option>
+                <option value="United States">United States</option>
+              </select>
 
-  <input
-    type="text"
-    id="editAddress2"
-    placeholder="Address Line 2"
-  >
+              <button type="button" id="saveProfileBtn">Save Profile</button>
 
-  <input
-    type="text"
-    id="editCity"
-    placeholder="City"
-  >
+              <button type="button" id="cancelProfileBtn">Cancel</button>
 
-  <input
-    type="text"
-    id="editState"
-    placeholder="State / Province"
-  >
+              <p id="profileMessage"></p>
+            </div>
+          </section>
 
-  <input
-    type="text"
-    id="editPostalCode"
-    placeholder="Postal Code"
-  >
+          <!-- REFER A FRIEND -->
+          <section class="account-section">
+            <h3>Refer A Friend</h3>
 
-  <select id="editCountry">
-    <option value="">Select Country</option>
-    <option value="United States">United States</option>
-    
-  </select>
+            <p>
+              Referral Code:
+              <strong id="memberReferralCode">—</strong>
+            </p>
 
-  <button type="button" id="saveProfileBtn">
-    Save Profile
-  </button>
+            <button type="button" id="referFriendBtn">Refer A Friend</button>
 
-  <button type="button" id="cancelProfileBtn">
-    Cancel
-  </button>
+            <div id="referralShareArea" style="display: none; margin-top: 16px">
+              <p>Your Personal Referral Link:</p>
 
-  <p id="profileMessage"></p>
+              <input type="text" id="referralLink" readonly />
 
-</div>
-  </section>
+              <button type="button" id="copyReferralBtn">
+                Copy Referral Link
+              </button>
 
+              <p id="referralMessage"></p>
+            </div>
+          </section>
+        </div>
+        <section id="wishlistSection" class="account-section" hidden>
+          <h3>💙 Wishlist</h3>
+          <div id="memberWishlist"></div>
+          <p><a href="index.html#featured">Find Your Collections</a></p>
+        </section>
+        <section id="paymentSection" class="account-section" hidden>
+          <h3>Payment</h3>
+          <div id="memberCards" aria-live="polite"></div>
+          <div id="memberAddCardHome">
+            <button type="button" id="memberAddCard">
+              Add a New Payment Method
+            </button>
+          </div>
+          <form id="memberCardForm" hidden>
+            <label for="memberCardholder">Name on Card</label>
+            <input
+              id="memberCardholder"
+              autocomplete="cc-name"
+              maxlength="100"
+              required
+            />
+            <label for="memberCardLabel">Card Label (optional)</label>
+            <input
+              id="memberCardLabel"
+              maxlength="60"
+              placeholder="Personal card"
+            />
+            <div id="member-card-container"></div>
+            <label class="im-consent"
+              ><input type="checkbox" id="memberCardConsent" required /> I
+              authorize IM Collections to save this card securely with Square
+              for my future purchases.</label
+            >
+            <div class="im-card-actions" id="memberCardActions">
+              <button type="submit" id="memberSaveCard">Save Card</button>
+              <button type="button" id="memberCancelCard">Cancel</button>
+            </div>
+            <p id="memberCardMessage" role="status"></p>
+          </form>
+        </section>
+        <button type="button" id="logoutBtn">Logout</button>
+      </div>
+    </main>
 
-  <!-- REFER A FRIEND -->
-  <section class="account-section">
-    <h3>Refer A Friend</h3>
+    <footer>© 2026 IM Collections. All Rights Reserved.</footer>
 
-    <p>
-      Referral Code:
-      <strong id="memberReferralCode">—</strong>
-    </p>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <script>
+      const supabaseUrl = "https://vqzjegneplzeoqxcqfeu.supabase.co";
 
-    <button type="button" id="referFriendBtn">
-      Refer A Friend
-    </button>
+      const supabaseKey = "sb_publishable_QDvKrAHvvopp_fuunxTxEA_4v6TD4Jk";
 
-<div id="referralShareArea" style="display: none; margin-top: 16px;">
+      const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-  <p>
-    Your Personal Referral Link:
-  </p>
+      const loginForm = document.getElementById("loginForm");
 
-  <input
-    type="text"
-    id="referralLink"
-    readonly
-  >
+      const loginCard = document.getElementById("loginCard");
 
-  <button type="button" id="copyReferralBtn">
-    Copy Referral Link
-  </button>
+      const loginMessage = document.getElementById("loginMessage");
 
-  <p id="referralMessage"></p>
+      const accountDashboard = document.getElementById("accountDashboard");
 
-</div>
+      const membershipLevel = document.getElementById("membershipLevel");
 
-  </section>
+      const membershipPoints = document.getElementById("membershipPoints");
 
-</div>
-<section id="wishlistSection" class="account-section" hidden>
-<h3>💙 Wishlist</h3><div id="memberWishlist"></div>
-<p><a href="index.html#featured">Find Your Collections</a></p></section>
-<section id="paymentSection" class="account-section" hidden>
-<h3>Payment</h3><div id="memberCards" aria-live="polite"></div>
-<button type="button" id="memberAddCard">Add a New Payment Method</button>
-<form id="memberCardForm" hidden>
-<label for="memberCardholder">Name on Card</label>
-<input id="memberCardholder" autocomplete="cc-name" maxlength="100" required>
-<label for="memberCardLabel">Card Label (optional)</label>
-<input id="memberCardLabel" maxlength="60" placeholder="Personal card">
-<div id="member-card-container"></div>
-<label><input type="checkbox" id="memberCardConsent" required>
-I authorize IM Collections to save this card securely with Square for my future purchases.</label>
-<button type="submit" id="memberSaveCard">Save Card</button>
-<button type="button" id="memberCancelCard">Cancel</button>
-<p id="memberCardMessage" role="status"></p>
-</form>
-<p>To change your card number or expiry, add a replacement card and remove the old one.</p>
-<p><a href="index.html#featured">Shop Now</a></p>
-</section>
-  <button type="button" id="logoutBtn">
-    Logout
-  </button>
+      const availableReward = document.getElementById("availableReward");
 
-</div>
-  </main>
+      const nextRewardText = document.getElementById("nextRewardText");
 
-  <footer>
-    © 2026 IM Collections. All Rights Reserved.
-  </footer>
+      const accountName = document.getElementById("accountName");
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+      const accountEmail = document.getElementById("accountEmail");
 
-  <script>
-    const supabaseUrl =
-      "https://vqzjegneplzeoqxcqfeu.supabase.co";
+      const accountPhone = document.getElementById("accountPhone");
 
-    const supabaseKey =
-      "sb_publishable_QDvKrAHvvopp_fuunxTxEA_4v6TD4Jk";
+      const accountAddress = document.getElementById("accountAddress");
 
-    const supabaseClient =
-      supabase.createClient(
-        supabaseUrl,
-        supabaseKey
+      const memberReferralCode = document.getElementById("memberReferralCode");
+
+      const referralCredit = document.getElementById("referralCredit");
+
+      const logoutBtn = document.getElementById("logoutBtn");
+
+      const editProfileBtn = document.getElementById("editProfileBtn");
+
+      const editProfileForm = document.getElementById("editProfileForm");
+
+      const editFirstName = document.getElementById("editFirstName");
+
+      const editLastName = document.getElementById("editLastName");
+
+      const editPhone = document.getElementById("editPhone");
+
+      const editAddress1 = document.getElementById("editAddress1");
+
+      const editAddress2 = document.getElementById("editAddress2");
+
+      const editCity = document.getElementById("editCity");
+
+      const editState = document.getElementById("editState");
+
+      const editPostalCode = document.getElementById("editPostalCode");
+
+      const editCountry = document.getElementById("editCountry");
+
+      const saveProfileBtn = document.getElementById("saveProfileBtn");
+
+      const cancelProfileBtn = document.getElementById("cancelProfileBtn");
+
+      const profileMessage = document.getElementById("profileMessage");
+
+      const changeEmailBtn = document.getElementById("changeEmailBtn");
+
+      const changeEmailForm = document.getElementById("changeEmailForm");
+
+      const newEmail = document.getElementById("newEmail");
+
+      const saveEmailBtn = document.getElementById("saveEmailBtn");
+
+      const cancelEmailBtn = document.getElementById("cancelEmailBtn");
+
+      const emailChangeMessage = document.getElementById("emailChangeMessage");
+
+      const changePasswordBtn = document.getElementById("changePasswordBtn");
+
+      const changePasswordForm = document.getElementById("changePasswordForm");
+
+      const newPassword = document.getElementById("newPassword");
+
+      const confirmNewPassword = document.getElementById("confirmNewPassword");
+
+      const savePasswordBtn = document.getElementById("savePasswordBtn");
+
+      const cancelPasswordBtn = document.getElementById("cancelPasswordBtn");
+
+      const passwordChangeMessage = document.getElementById(
+        "passwordChangeMessage",
       );
 
-    const loginForm =
-      document.getElementById("loginForm");
+      const referFriendBtn = document.getElementById("referFriendBtn");
 
-    const loginCard =
-  document.getElementById("loginCard");
+      const referralShareArea = document.getElementById("referralShareArea");
 
-    const loginMessage =
-      document.getElementById("loginMessage");
+      const referralLink = document.getElementById("referralLink");
 
-const accountDashboard =
-  document.getElementById("accountDashboard");
+      const copyReferralBtn = document.getElementById("copyReferralBtn");
 
-const membershipLevel =
-  document.getElementById("membershipLevel");
+      const referralMessage = document.getElementById("referralMessage");
 
-const membershipPoints =
-  document.getElementById("membershipPoints");
+      let currentProfile = null;
 
-const availableReward =
-  document.getElementById("availableReward");
+      async function loadAccountDashboard() {
+        const {
+          data: { user },
+          error: userError,
+        } = await supabaseClient.auth.getUser();
 
-const nextRewardText =
-  document.getElementById("nextRewardText");
+        if (userError || !user) {
+          loginCard.style.display = "block";
+          accountDashboard.style.display = "none";
+          return;
+        }
 
-const accountName =
-  document.getElementById("accountName");
-
-const accountEmail =
-  document.getElementById("accountEmail");
-
-const accountPhone =
-  document.getElementById("accountPhone");
-
-const accountAddress =
-  document.getElementById("accountAddress");
-
-const memberReferralCode =
-  document.getElementById("memberReferralCode");
-
-const referralCredit =
-  document.getElementById("referralCredit");
-
-const logoutBtn =
-  document.getElementById("logoutBtn");
-
-    const editProfileBtn =
-  document.getElementById("editProfileBtn");
-
-const editProfileForm =
-  document.getElementById("editProfileForm");
-
-const editFirstName =
-  document.getElementById("editFirstName");
-
-const editLastName =
-  document.getElementById("editLastName");
-
-const editPhone =
-  document.getElementById("editPhone");
-
-const editAddress1 =
-  document.getElementById("editAddress1");
-
-const editAddress2 =
-  document.getElementById("editAddress2");
-
-const editCity =
-  document.getElementById("editCity");
-
-const editState =
-  document.getElementById("editState");
-
-const editPostalCode =
-  document.getElementById("editPostalCode");
-
-const editCountry =
-  document.getElementById("editCountry");
-
-const saveProfileBtn =
-  document.getElementById("saveProfileBtn");
-
-const cancelProfileBtn =
-  document.getElementById("cancelProfileBtn");
-
-const profileMessage =
-  document.getElementById("profileMessage");
-
-    const changeEmailBtn =
-  document.getElementById("changeEmailBtn");
-
-const changeEmailForm =
-  document.getElementById("changeEmailForm");
-
-const newEmail =
-  document.getElementById("newEmail");
-
-const saveEmailBtn =
-  document.getElementById("saveEmailBtn");
-
-const cancelEmailBtn =
-  document.getElementById("cancelEmailBtn");
-
-const emailChangeMessage =
-  document.getElementById("emailChangeMessage");
-
-const changePasswordBtn =
-  document.getElementById("changePasswordBtn");
-
-const changePasswordForm =
-  document.getElementById("changePasswordForm");
-
-const newPassword =
-  document.getElementById("newPassword");
-
-const confirmNewPassword =
-  document.getElementById("confirmNewPassword");
-
-const savePasswordBtn =
-  document.getElementById("savePasswordBtn");
-
-const cancelPasswordBtn =
-  document.getElementById("cancelPasswordBtn");
-
-const passwordChangeMessage =
-  document.getElementById("passwordChangeMessage");
-
-const referFriendBtn =
-  document.getElementById("referFriendBtn");
-
-const referralShareArea =
-  document.getElementById("referralShareArea");
-
-const referralLink =
-  document.getElementById("referralLink");
-
-const copyReferralBtn =
-  document.getElementById("copyReferralBtn");
-
-const referralMessage =
-  document.getElementById("referralMessage");
-
-let currentProfile = null;
-    
-async function loadAccountDashboard() {
-  const {
-    data: { user },
-    error: userError
-  } = await supabaseClient.auth.getUser();
-
- if (userError || !user) {
-  loginCard.style.display = "block";
-  accountDashboard.style.display = "none";
-  return;
-}
-
-  const { data: profile, error: profileError } =
-    await supabaseClient
-      .from("profiles")
-      .select(`
+        const { data: profile, error: profileError } = await supabaseClient
+          .from("profiles")
+          .select(
+            `
         first_name,
         last_name,
         email,
@@ -966,446 +915,407 @@ async function loadAccountDashboard() {
         reward_tier,
         referral_code,
         referral_credit
-      `)
-      .eq("id", user.id)
-      .single();
-
-  if (profileError) {
-    console.error("Profile load error:", profileError);
-    return;
-  }
-
-if (user.email && profile.email !== user.email) {
-  const { error: emailSyncError } =
-    await supabaseClient
-      .from("profiles")
-      .update({
-        email: user.email
-      })
-      .eq("id", user.id);
-
-  if (emailSyncError) {
-    console.error(
-      "Profile email sync error:",
-      emailSyncError
-    );
-  } else {
-    profile.email = user.email;
-  }
-}
-
-currentProfile = profile;
-  
-  loginCard.style.display = "none";
-  accountDashboard.style.display = "block";
-
-  const points = profile.reward_points || 0;
-  const tier = profile.reward_tier || "Collector";
-
-  membershipPoints.textContent = points;
-  membershipLevel.textContent = tier;
-
-  let reward = 0;
-  let nextText = "";
-
-  if (points >= 1200) {
-    reward = 50;
-    nextText = "You have reached Premium Collector. Points reward redemption is coming soon.";
-  } else if (points >= 800) {
-    reward = 30;
-    nextText = `${1200 - points} points to unlock $50 reward.`;
-  } else if (points >= 500) {
-    reward = 20;
-    nextText = `${800 - points} points to unlock $30 reward.`;
-  } else if (points >= 250) {
-    reward = 10;
-    nextText = `${500 - points} points to unlock $20 reward.`;
-  } else {
-    nextText = `${250 - points} points to unlock $10 reward.`;
-  }
-
-  availableReward.textContent = `$${reward}`;
-  nextRewardText.textContent = nextText;
-
-  accountName.textContent =
-    `${profile.first_name || ""} ${profile.last_name || ""}`.trim();
-
-accountEmail.textContent =
-  user.email || profile.email || "";
-
-  accountPhone.textContent =
-    profile.phone || "";
-
-  accountAddress.textContent =
-    [
-      profile.address_line1,
-      profile.address_line2,
-      profile.city,
-      profile.state_province,
-      profile.postal_code,
-      profile.country
-    ]
-      .filter(Boolean)
-      .join(", ");
-
-  memberReferralCode.textContent =
-    profile.referral_code || "—";
-
-  referralCredit.textContent =
-    profile.referral_credit || 0;
-}
-
-    loadAccountDashboard();
-
-referFriendBtn.addEventListener("click", () => {
-  if (!currentProfile?.referral_code) {
-    referralMessage.textContent =
-      "Referral code is not available yet.";
-    return;
-  }
-
-  referralLink.value =
-    `https://imcollections.github.io/Register.html?ref=${currentProfile.referral_code}`;
-
-  referralMessage.textContent = "";
-  referralShareArea.style.display = "block";
-});
-
-copyReferralBtn.addEventListener("click", async () => {
-  const link = referralLink.value;
-
-  if (!link) {
-    referralMessage.textContent =
-      "Referral link is not available.";
-    return;
-  }
-
-  try {
-    await navigator.clipboard.writeText(link);
-
-    referralMessage.textContent =
-      "Referral link copied!";
-  } catch (error) {
-    referralLink.select();
-    referralLink.setSelectionRange(0, 99999);
-
-    document.execCommand("copy");
-
-    referralMessage.textContent =
-      "Referral link copied!";
-  }
-});
-
-changeEmailBtn.addEventListener("click", () => {
-  newEmail.value = currentProfile?.email || "";
-  emailChangeMessage.textContent = "";
-
-  changeEmailForm.style.display = "block";
-  changeEmailBtn.style.display = "none";
-});
-
-cancelEmailBtn.addEventListener("click", () => {
-  changeEmailForm.style.display = "none";
-  changeEmailBtn.style.display = "block";
-  emailChangeMessage.textContent = "";
-});
-
-    saveEmailBtn.addEventListener("click", async () => {
-  const email = newEmail.value.trim();
-
-  if (!email) {
-    emailChangeMessage.textContent =
-      "Please enter a new email address.";
-    return;
-  }
-
-  const { data, error } =
-    await supabaseClient.auth.updateUser({
-      email: email
-    });
-
-  if (error) {
-    console.error("Email update error:", error);
-    emailChangeMessage.textContent =
-      error.message;
-    return;
-  }
-
-  emailChangeMessage.textContent =
-    "Confirmation email sent. Please confirm your new email address.";
-
-  changeEmailForm.style.display = "none";
-  changeEmailBtn.style.display = "block";
-});
-
-const accountPasswordMatchStatus = document.getElementById("accountPasswordMatchStatus");
-function updateAccountPasswordMatch() {
-  const confirmation = confirmNewPassword.value;
-  const mismatch = confirmation.length > 0 && newPassword.value !== confirmation;
-  confirmNewPassword.setCustomValidity(mismatch ? "Passwords do not match." : "");
-  confirmNewPassword.setAttribute("aria-invalid", String(mismatch));
-  accountPasswordMatchStatus.textContent = confirmation.length === 0 ? ""
-    : mismatch ? "Passwords do not match." : "Passwords match.";
-  accountPasswordMatchStatus.style.color = mismatch ? "#b00020" : "#216e26";
-}
-newPassword.addEventListener("input", updateAccountPasswordMatch);
-confirmNewPassword.addEventListener("input", updateAccountPasswordMatch);
-
-changePasswordBtn.addEventListener("click", () => {
-  newPassword.value = "";
-  confirmNewPassword.value = "";
-  updateAccountPasswordMatch();
-  passwordChangeMessage.textContent = "";
-
-  changePasswordForm.style.display = "block";
-  changePasswordBtn.style.display = "none";
-});
-
-cancelPasswordBtn.addEventListener("click", () => {
-  changePasswordForm.style.display = "none";
-  changePasswordBtn.style.display = "block";
-
-  newPassword.value = "";
-  confirmNewPassword.value = "";
-  updateAccountPasswordMatch();
-  passwordChangeMessage.textContent = "";
-});
-
-savePasswordBtn.addEventListener("click", async () => {
-  const password = newPassword.value;
-  const confirmPassword = confirmNewPassword.value;
-
-  passwordChangeMessage.textContent = "";
-
-  if (!password || !confirmPassword) {
-    passwordChangeMessage.textContent =
-      "Please enter and confirm your new password.";
-    return;
-  }
-
-  if (password.length < 8) {
-    passwordChangeMessage.textContent =
-      "Password must be at least 8 characters.";
-    return;
-  }
-
-  if (password !== confirmPassword) {
-    passwordChangeMessage.textContent =
-      "Passwords do not match.";
-    return;
-  }
-
-  const { error } =
-    await supabaseClient.auth.updateUser({
-      password: password
-    });
-
-  if (error) {
-    console.error("Password update error:", error);
-    passwordChangeMessage.textContent =
-      error.message;
-    return;
-  }
-
-  passwordChangeMessage.textContent =
-    "Password updated successfully.";
-
-  newPassword.value = "";
-  confirmNewPassword.value = "";
-  updateAccountPasswordMatch();
-
-  setTimeout(() => {
-    changePasswordForm.style.display = "none";
-    changePasswordBtn.style.display = "block";
-    passwordChangeMessage.textContent = "";
-  }, 1500);
-});
-    
-    editProfileBtn.addEventListener("click", () => {
-  if (!currentProfile) return;
-
-  editFirstName.value =
-    currentProfile.first_name || "";
-
-  editLastName.value =
-    currentProfile.last_name || "";
-
-  editPhone.value =
-    currentProfile.phone || "";
-
-  editAddress1.value =
-    currentProfile.address_line1 || "";
-
-  editAddress2.value =
-    currentProfile.address_line2 || "";
-
-  editCity.value =
-    currentProfile.city || "";
-
-  editState.value =
-    currentProfile.state_province || "";
-
-  editPostalCode.value =
-    currentProfile.postal_code || "";
-
-  editCountry.value =
-    currentProfile.country || "";
-
-  profileMessage.textContent = "";
-
-  editProfileForm.style.display = "block";
-  editProfileBtn.style.display = "none";
-});
-    
-cancelProfileBtn.addEventListener("click", () => {
-  editProfileForm.style.display = "none";
-  editProfileBtn.style.display = "block";
-  profileMessage.textContent = "";
-});
-
-    saveProfileBtn.addEventListener("click", async () => {
-  const {
-    data: { user },
-    error: userError
-  } = await supabaseClient.auth.getUser();
-
-  if (userError || !user) {
-    profileMessage.textContent =
-      "Please sign in again.";
-    return;
-  }
-
-  const updates = {
-    first_name: editFirstName.value.trim(),
-    last_name: editLastName.value.trim(),
-    phone: editPhone.value.trim(),
-    address_line1: editAddress1.value.trim(),
-    address_line2: editAddress2.value.trim(),
-    city: editCity.value.trim(),
-    state_province: editState.value.trim(),
-    postal_code: editPostalCode.value.trim(),
-    country: editCountry.value
-  };
-
-  const { data, error } =
-    await supabaseClient
-      .from("profiles")
-      .update(updates)
-      .eq("id", user.id)
-      .select()
-      .single();
-
-  if (error) {
-    console.error("Profile update error:", error);
-    profileMessage.textContent =
-      "Unable to save profile.";
-    return;
-  }
-
-  currentProfile = data;
-
-  profileMessage.textContent =
-    "Profile updated successfully.";
-
-  await loadAccountDashboard();
-
-  editProfileForm.style.display = "none";
-  editProfileBtn.style.display = "block";
-});
-    
-    logoutBtn.addEventListener("click", async () => {
-  const { error } =
-    await supabaseClient.auth.signOut();
-
-  if (error) {
-    console.error("Logout error:", error);
-    return;
-  }
-
-  window.location.href = "my-account.html" + window.location.hash;
-});
-    
-const forgotPasswordLink =
-  document.getElementById("forgotPasswordLink");
-forgotPasswordLink.addEventListener("click", async function(event) {
-  event.preventDefault();
-
-  const email = document.getElementById("email").value.trim();
-
-  if (!email) {
-    loginMessage.className = "message error";
-    loginMessage.textContent =
-      "Please enter your email address first.";
-    return;
-  }
-
-  const { error } =
-    await supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo:
-        "https://imcollections.github.io/reset-password.html"
-    });
-
-  if (error) {
-    loginMessage.className = "message error";
-    loginMessage.textContent = error.message;
-    return;
-  }
-
-  loginMessage.className = "message success";
-  loginMessage.textContent =
-    "Password reset email sent. Please check your inbox.";
-});
-    loginForm.addEventListener(
-      "submit",
-      async function(event) {
-
+      `,
+          )
+          .eq("id", user.id)
+          .single();
+
+        if (profileError) {
+          console.error("Profile load error:", profileError);
+          return;
+        }
+
+        if (user.email && profile.email !== user.email) {
+          const { error: emailSyncError } = await supabaseClient
+            .from("profiles")
+            .update({
+              email: user.email,
+            })
+            .eq("id", user.id);
+
+          if (emailSyncError) {
+            console.error("Profile email sync error:", emailSyncError);
+          } else {
+            profile.email = user.email;
+          }
+        }
+
+        currentProfile = profile;
+
+        loginCard.style.display = "none";
+        accountDashboard.style.display = "block";
+
+        const points = profile.reward_points || 0;
+        const tier = profile.reward_tier || "Collector";
+
+        membershipPoints.textContent = points;
+        membershipLevel.textContent = tier;
+
+        let reward = 0;
+        let nextText = "";
+
+        if (points >= 1200) {
+          reward = 50;
+          nextText =
+            "You have reached Premium Collector. Points reward redemption is coming soon.";
+        } else if (points >= 800) {
+          reward = 30;
+          nextText = `${1200 - points} points to unlock $50 reward.`;
+        } else if (points >= 500) {
+          reward = 20;
+          nextText = `${800 - points} points to unlock $30 reward.`;
+        } else if (points >= 250) {
+          reward = 10;
+          nextText = `${500 - points} points to unlock $20 reward.`;
+        } else {
+          nextText = `${250 - points} points to unlock $10 reward.`;
+        }
+
+        availableReward.textContent = `$${reward}`;
+        nextRewardText.textContent = nextText;
+
+        accountName.textContent =
+          `${profile.first_name || ""} ${profile.last_name || ""}`.trim();
+
+        accountEmail.textContent = user.email || profile.email || "";
+
+        accountPhone.textContent = profile.phone || "";
+
+        accountAddress.textContent = [
+          profile.address_line1,
+          profile.address_line2,
+          profile.city,
+          profile.state_province,
+          profile.postal_code,
+          profile.country,
+        ]
+          .filter(Boolean)
+          .join(", ");
+
+        memberReferralCode.textContent = profile.referral_code || "—";
+
+        referralCredit.textContent = profile.referral_credit || 0;
+      }
+
+      loadAccountDashboard();
+
+      referFriendBtn.addEventListener("click", () => {
+        if (!currentProfile?.referral_code) {
+          referralMessage.textContent = "Referral code is not available yet.";
+          return;
+        }
+
+        referralLink.value = `https://imcollections.github.io/Register.html?ref=${currentProfile.referral_code}`;
+
+        referralMessage.textContent = "";
+        referralShareArea.style.display = "block";
+      });
+
+      copyReferralBtn.addEventListener("click", async () => {
+        const link = referralLink.value;
+
+        if (!link) {
+          referralMessage.textContent = "Referral link is not available.";
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(link);
+
+          referralMessage.textContent = "Referral link copied!";
+        } catch (error) {
+          referralLink.select();
+          referralLink.setSelectionRange(0, 99999);
+
+          document.execCommand("copy");
+
+          referralMessage.textContent = "Referral link copied!";
+        }
+      });
+
+      changeEmailBtn.addEventListener("click", () => {
+        newEmail.value = currentProfile?.email || "";
+        emailChangeMessage.textContent = "";
+
+        changeEmailForm.style.display = "block";
+        changeEmailBtn.style.display = "none";
+      });
+
+      cancelEmailBtn.addEventListener("click", () => {
+        changeEmailForm.style.display = "none";
+        changeEmailBtn.style.display = "block";
+        emailChangeMessage.textContent = "";
+      });
+
+      saveEmailBtn.addEventListener("click", async () => {
+        const email = newEmail.value.trim();
+
+        if (!email) {
+          emailChangeMessage.textContent = "Please enter a new email address.";
+          return;
+        }
+
+        const { data, error } = await supabaseClient.auth.updateUser({
+          email: email,
+        });
+
+        if (error) {
+          console.error("Email update error:", error);
+          emailChangeMessage.textContent = error.message;
+          return;
+        }
+
+        emailChangeMessage.textContent =
+          "Confirmation email sent. Please confirm your new email address.";
+
+        changeEmailForm.style.display = "none";
+        changeEmailBtn.style.display = "block";
+      });
+
+      const accountPasswordMatchStatus = document.getElementById(
+        "accountPasswordMatchStatus",
+      );
+      function updateAccountPasswordMatch() {
+        const confirmation = confirmNewPassword.value;
+        const mismatch =
+          confirmation.length > 0 && newPassword.value !== confirmation;
+        confirmNewPassword.setCustomValidity(
+          mismatch ? "Passwords do not match." : "",
+        );
+        confirmNewPassword.setAttribute("aria-invalid", String(mismatch));
+        accountPasswordMatchStatus.textContent =
+          confirmation.length === 0
+            ? ""
+            : mismatch
+              ? "Passwords do not match."
+              : "Passwords match.";
+        accountPasswordMatchStatus.style.color = mismatch
+          ? "#b00020"
+          : "#216e26";
+      }
+      newPassword.addEventListener("input", updateAccountPasswordMatch);
+      confirmNewPassword.addEventListener("input", updateAccountPasswordMatch);
+
+      changePasswordBtn.addEventListener("click", () => {
+        newPassword.value = "";
+        confirmNewPassword.value = "";
+        updateAccountPasswordMatch();
+        passwordChangeMessage.textContent = "";
+
+        changePasswordForm.style.display = "block";
+        changePasswordBtn.style.display = "none";
+      });
+
+      cancelPasswordBtn.addEventListener("click", () => {
+        changePasswordForm.style.display = "none";
+        changePasswordBtn.style.display = "block";
+
+        newPassword.value = "";
+        confirmNewPassword.value = "";
+        updateAccountPasswordMatch();
+        passwordChangeMessage.textContent = "";
+      });
+
+      savePasswordBtn.addEventListener("click", async () => {
+        const password = newPassword.value;
+        const confirmPassword = confirmNewPassword.value;
+
+        passwordChangeMessage.textContent = "";
+
+        if (!password || !confirmPassword) {
+          passwordChangeMessage.textContent =
+            "Please enter and confirm your new password.";
+          return;
+        }
+
+        if (password.length < 8) {
+          passwordChangeMessage.textContent =
+            "Password must be at least 8 characters.";
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          passwordChangeMessage.textContent = "Passwords do not match.";
+          return;
+        }
+
+        const { error } = await supabaseClient.auth.updateUser({
+          password: password,
+        });
+
+        if (error) {
+          console.error("Password update error:", error);
+          passwordChangeMessage.textContent = error.message;
+          return;
+        }
+
+        passwordChangeMessage.textContent = "Password updated successfully.";
+
+        newPassword.value = "";
+        confirmNewPassword.value = "";
+        updateAccountPasswordMatch();
+
+        setTimeout(() => {
+          changePasswordForm.style.display = "none";
+          changePasswordBtn.style.display = "block";
+          passwordChangeMessage.textContent = "";
+        }, 1500);
+      });
+
+      editProfileBtn.addEventListener("click", () => {
+        if (!currentProfile) return;
+
+        editFirstName.value = currentProfile.first_name || "";
+
+        editLastName.value = currentProfile.last_name || "";
+
+        editPhone.value = currentProfile.phone || "";
+
+        editAddress1.value = currentProfile.address_line1 || "";
+
+        editAddress2.value = currentProfile.address_line2 || "";
+
+        editCity.value = currentProfile.city || "";
+
+        editState.value = currentProfile.state_province || "";
+
+        editPostalCode.value = currentProfile.postal_code || "";
+
+        editCountry.value = currentProfile.country || "";
+
+        profileMessage.textContent = "";
+
+        editProfileForm.style.display = "block";
+        editProfileBtn.style.display = "none";
+      });
+
+      cancelProfileBtn.addEventListener("click", () => {
+        editProfileForm.style.display = "none";
+        editProfileBtn.style.display = "block";
+        profileMessage.textContent = "";
+      });
+
+      saveProfileBtn.addEventListener("click", async () => {
+        const {
+          data: { user },
+          error: userError,
+        } = await supabaseClient.auth.getUser();
+
+        if (userError || !user) {
+          profileMessage.textContent = "Please sign in again.";
+          return;
+        }
+
+        const updates = {
+          first_name: editFirstName.value.trim(),
+          last_name: editLastName.value.trim(),
+          phone: editPhone.value.trim(),
+          address_line1: editAddress1.value.trim(),
+          address_line2: editAddress2.value.trim(),
+          city: editCity.value.trim(),
+          state_province: editState.value.trim(),
+          postal_code: editPostalCode.value.trim(),
+          country: editCountry.value,
+        };
+
+        const { data, error } = await supabaseClient
+          .from("profiles")
+          .update(updates)
+          .eq("id", user.id)
+          .select()
+          .single();
+
+        if (error) {
+          console.error("Profile update error:", error);
+          profileMessage.textContent = "Unable to save profile.";
+          return;
+        }
+
+        currentProfile = data;
+
+        profileMessage.textContent = "Profile updated successfully.";
+
+        await loadAccountDashboard();
+
+        editProfileForm.style.display = "none";
+        editProfileBtn.style.display = "block";
+      });
+
+      logoutBtn.addEventListener("click", async () => {
+        const { error } = await supabaseClient.auth.signOut();
+
+        if (error) {
+          console.error("Logout error:", error);
+          return;
+        }
+
+        window.location.href = "my-account.html" + window.location.hash;
+      });
+
+      const forgotPasswordLink = document.getElementById("forgotPasswordLink");
+      forgotPasswordLink.addEventListener("click", async function (event) {
         event.preventDefault();
 
-        const email =
-          document.getElementById("email")
-            .value.trim();
+        const email = document.getElementById("email").value.trim();
 
-        const password =
-          document.getElementById("password")
-            .value;
+        if (!email) {
+          loginMessage.className = "message error";
+          loginMessage.textContent = "Please enter your email address first.";
+          return;
+        }
 
-        loginMessage.className =
-          "message";
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(
+          email,
+          {
+            redirectTo: "https://imcollections.github.io/reset-password.html",
+          },
+        );
+
+        if (error) {
+          loginMessage.className = "message error";
+          loginMessage.textContent = error.message;
+          return;
+        }
+
+        loginMessage.className = "message success";
+        loginMessage.textContent =
+          "Password reset email sent. Please check your inbox.";
+      });
+      loginForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const email = document.getElementById("email").value.trim();
+
+        const password = document.getElementById("password").value;
+
+        loginMessage.className = "message";
 
         loginMessage.textContent = "";
 
-        const { data, error } =
-          await supabaseClient.auth
-            .signInWithPassword({
-              email: email,
-              password: password
-            });
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email: email,
+          password: password,
+        });
 
         if (error) {
-          loginMessage.className =
-            "message error";
+          loginMessage.className = "message error";
 
-          loginMessage.textContent =
-            error.message;
+          loginMessage.textContent = error.message;
 
           return;
         }
 
-        loginMessage.className =
-          "message success";
+        loginMessage.className = "message success";
 
-        loginMessage.textContent =
-          "Login successful! Redirecting...";
+        loginMessage.textContent = "Login successful! Redirecting...";
 
         setTimeout(() => {
-  window.location.href =
-    "my-account.html";
-}, 800);
-      }
-    );
-  </script>
+          window.location.href = "my-account.html";
+        }, 800);
+      });
+    </script>
 
-<script src="https://sandbox.web.squarecdn.com/v1/square.js"></script>
-<script src="member-tools.js"></script>
-</body>
+    <script src="https://sandbox.web.squarecdn.com/v1/square.js"></script>
+    <script src="member-tools.js"></script>
+  </body>
 </html>

@@ -425,7 +425,21 @@
   font-size: 14px;
 }
     
-  </style>
+  
+[hidden]{display:none!important}
+.im-member-nav{position:relative;margin:14px 0 24px;color:#8f681e}
+.im-member-nav summary{padding:14px;background:#eee9dc;border-radius:8px;cursor:pointer;font-weight:bold}
+.im-member-nav nav{display:grid;gap:0;background:white;border:1px solid #ddd;border-radius:8px}
+.im-member-nav a{display:block;padding:12px 16px;border-bottom:1px solid #eee;color:#8f681e}
+.im-member-id{color:#8f681e;margin:14px 0;font-weight:bold}
+.im-wish-item{padding:16px 0;border-bottom:1px solid #ddd;display:flex;gap:14px;flex-wrap:wrap}
+.im-wish-item img{width:90px;height:110px;object-fit:contain}
+.im-wish-item button,#memberAddCard,#memberSaveCard,#memberCancelCard{padding:12px 18px;margin:8px;border:0;border-radius:6px;background:#c3a247;color:#111;min-height:44px}
+#memberCardForm label{margin-top:16px}
+#memberCardConsent{width:20px;height:20px;vertical-align:middle}
+.wishlist.active svg{stroke:#167cd3!important;fill:#167cd3!important}
+
+</style>
 </head>
 
 <body>
@@ -515,11 +529,14 @@
     </div>
 <div id="accountDashboard" style="display: none;">
 
-  <h2>Account Summary</h2>
+  <details class="im-member-nav" data-member-only hidden><summary>My Account</summary>
+<nav data-member-links aria-label="My Account sections"></nav></details>
+<h2 id="accountSectionTitle">Account Summary</h2>
+<div id="memberSummary">
 
   <!-- MEMBERSHIP -->
   <section class="account-section">
-    <h3>Membership</h3>
+    <h3 id="memberIdentity">Member ID: Loading…</h3>
 
     <p>
       Level:
@@ -544,6 +561,7 @@
       Referral Rewards:
       $<strong id="referralCredit">0</strong>
     </p>
+    
     <p>Visit <a href="collectors-reward.html">Collectors Reward</a> for program details.</p>
   </section>
 
@@ -674,7 +692,7 @@
   <select id="editCountry">
     <option value="">Select Country</option>
     <option value="United States">United States</option>
-    <option value="Canada">Canada</option>
+    
   </select>
 
   <button type="button" id="saveProfileBtn">
@@ -727,6 +745,28 @@
 
   </section>
 
+</div>
+<section id="wishlistSection" class="account-section" hidden>
+<h3>💙 Wishlist</h3><div id="memberWishlist"></div>
+<p><a href="index.html#featured">Find Your Collections</a></p></section>
+<section id="paymentSection" class="account-section" hidden>
+<h3>Payment</h3><div id="memberCards" aria-live="polite"></div>
+<button type="button" id="memberAddCard">Add a New Payment Method</button>
+<form id="memberCardForm" hidden>
+<label for="memberCardholder">Name on Card</label>
+<input id="memberCardholder" autocomplete="cc-name" maxlength="100" required>
+<label for="memberCardLabel">Card Label (optional)</label>
+<input id="memberCardLabel" maxlength="60" placeholder="Personal card">
+<div id="member-card-container"></div>
+<label><input type="checkbox" id="memberCardConsent" required>
+I authorize IM Collections to save this card securely with Square for my future purchases.</label>
+<button type="submit" id="memberSaveCard">Save Card</button>
+<button type="button" id="memberCancelCard">Cancel</button>
+<p id="memberCardMessage" role="status"></p>
+</form>
+<p>To change your card number or expiry, add a replacement card and remove the old one.</p>
+<p><a href="index.html#featured">Shop Now</a></p>
+</section>
   <button type="button" id="logoutBtn">
     Logout
   </button>
@@ -1282,7 +1322,7 @@ cancelProfileBtn.addEventListener("click", () => {
     return;
   }
 
-  window.location.href = "my-account.html";
+  window.location.href = "my-account.html" + window.location.hash;
 });
     
 const forgotPasswordLink =
@@ -1365,5 +1405,7 @@ forgotPasswordLink.addEventListener("click", async function(event) {
     );
   </script>
 
+<script src="https://sandbox.web.squarecdn.com/v1/square.js"></script>
+<script src="member-tools.js"></script>
 </body>
 </html>

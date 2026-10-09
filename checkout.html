@@ -257,6 +257,7 @@ flex-shrink: 0;
 .checkout-cart-dialog .preview-quantity button { margin: 0; min-width: 44px; background: #fff; border: 1px solid #bbb; }
 .preview-shopping-link { display: inline-block; margin-top: 18px; padding: 12px 18px; border-radius: 4px; background: #c6a34a; color: #111; text-decoration: none; font-weight: 600; }
 .preview-shopping-link:focus-visible { outline: 3px solid #111; outline-offset: 3px; }
+.order-product-details p { margin: 6px 0; font-size: 14px; line-height: 1.5; white-space: pre-line; overflow-wrap: anywhere; }
 .preview-product-details p { white-space: pre-line; overflow-wrap: break-word; }
 .summary-thumbnails img {
   width: 64px;
@@ -826,7 +827,7 @@ font-size: 0 !important;
   <strong id="checkoutTax">$0.00</strong>
 </div>
         
-        <p class="checkout-program-links"><a href="refer-a-friend.html" data-referral-popup>Been referred by a friend?</a> <a href="verify-phone.html">Verify Referral Phone</a></p>
+        <p class="checkout-program-links"><a href="refer-a-friend.html" data-referral-popup>Been referred by a friend?</a> </p>
 <div class="free-shipping" id="shippingMessage"></div>
 
         <div class="summary-total">
@@ -975,10 +976,19 @@ font-size: 0 !important;
 
 <div id="cardPaymentSection">
 <div id="savedCardArea" hidden>
-<label for="savedCardSelect">Saved Payment Method</label>
-<select id="savedCardSelect"><option value="">Use a new card</option></select>
+<label for="savedCardSelect">Payment Method</label>
+<select id="savedCardSelect"><option value="">Add Payment</option></select>
 <p id="savedCardMessage" role="status"></p>
-<p><a href="my-account.html#payment">Add / Edit Saved Payment Methods</a></p>
+<dialog id="deletePaymentDialog" aria-labelledby="deletePaymentTitle" style="width:min(90vw,480px);border:1px solid #dedbd2;border-radius:12px;padding:24px;">
+  <h3 id="deletePaymentTitle">Delete Payment</h3>
+  <label for="deleteCardSelect">Choose a saved payment method</label>
+  <select id="deleteCardSelect"></select>
+  <p id="deleteCardMessage" role="status" aria-live="polite"></p>
+  <div style="display:flex;gap:12px;margin-top:16px;">
+    <button id="confirmDeleteCard" type="button">Delete</button>
+    <button id="cancelDeleteCard" type="button">Cancel</button>
+  </div>
+</dialog>
 </div>
       
   <p class="secure-note">
@@ -1170,7 +1180,7 @@ font-size: 0 !important;
   <strong id="bottomTax">$0.00</strong>
 </div>
         
-      <p class="checkout-program-links"><a href="refer-a-friend.html" data-referral-popup>Been referred by a friend?</a> <a href="verify-phone.html">Verify Referral Phone</a></p>
+      <p class="checkout-program-links"><a href="refer-a-friend.html" data-referral-popup>Been referred by a friend?</a> </p>
       <div class="free-shipping" id="bottomShippingMessage"></div>
 
         <div class="summary-total">
@@ -1827,7 +1837,7 @@ document.getElementById("applyDiscount").addEventListener("click", async functio
       if (Math.round(subtotal * 100) < 5000) throw new Error("IMREFER10 requires a minimum $50 purchase.");
       const phoneCheck = await supabaseClient.rpc("im_check_my_new_friend_referral");
       if (phoneCheck.error) throw new Error("Referral verification could not be checked. Please try again.");
-      if (!phoneCheck.data?.eligible) throw new Error(phoneCheck.data?.message || "Verify your phone for new-friend referral benefits.");
+      if (!phoneCheck.data?.eligible) throw new Error(phoneCheck.data?.message || "This referral discount is not available for this account.");
       const result = await supabaseClient.from("referrals").select("id")
         .eq("referred_user_id", user.id).eq("status", "pending").eq("referred_reward_used", false).limit(1).maybeSingle();
       if (result.error || !result.data) throw new Error("This account does not have an available new-friend referral discount.");
@@ -2227,7 +2237,6 @@ function openCheckoutCartPreview(item) {
     });
     gallery.scrollLeft = 0;
   }
-  content.appendChild(gallery);
   const cached = checkoutPhotoCache.get(item.id);
   drawPhotos(cached?.images || [item.image, ...(Array.isArray(item.images) ? item.images : []), ...(Array.isArray(item.image_urls) ? item.image_urls : [])]);
   const label = document.createElement("p"); label.textContent = `$${Number(item.price).toFixed(2)} each`; content.appendChild(label);
@@ -2255,17 +2264,18 @@ function openCheckoutCartPreview(item) {
       productDetails.appendChild(paragraph);
     }
   }
-  showProductDetails(cached || item); content.appendChild(productDetails);
+  showProductDetails(checkoutItemDetails(item));
+  content.append(productDetails, gallery, quantity);
   if (checkoutCartChangesBlocked()) {
     const note = document.createElement("p"); note.textContent = "Cart changes are paused until your payment status is confirmed.";
     content.appendChild(note);
   }
   if (!dialog.open) dialog.showModal();
-  const catalogId = Number(item.id) - 1000000;
+  const catalogId = checkoutCatalogId(item);
   if (!cached && Number.isSafeInteger(catalogId) && catalogId > 0) {
     supabaseClient.from("products").select("image_urls,quantity,description,size").eq("id", catalogId).maybeSingle().then(({data, error}) => {
       if (error || !data) return;
-      const details = {images: [item.image, ...(Array.isArray(data.image_urls) ? data.image_urls : [])], stock: Math.max(0, Number(data.quantity ?? 1)), description: data.description || "", size: data.size || ""};
+      const details = {images: [item.image, ...(Array.isArray(data.image_urls) ? data.image_urls : [])], stock: Math.max(0, Number(data.quantity ?? 1)), description: data.description || item.description || "", size: item.size || data.size || ""};
       checkoutPhotoCache.set(item.id, details);
       if (version !== checkoutPreviewVersion || !dialog.open) return;
       drawPhotos(details.images); showProductDetails(details);
@@ -2275,6 +2285,52 @@ function openCheckoutCartPreview(item) {
 }
 document.getElementById("checkoutPreviewClose").addEventListener("click", () => document.getElementById("checkoutCartDialog").close());
 
+function checkoutCatalogId(item) {
+  const id = Number(item.product_id ?? item.id);
+  return id >= 1000000 ? id - 1000000 : id;
+}
+function checkoutItemDetails(item) {
+  const cached = checkoutPhotoCache.get(item.id);
+  return {
+    description: cached?.description || item.description || "",
+    size: item.size || cached?.size || ""
+  };
+}
+function appendCheckoutItemDetails(container, item) {
+  const data = checkoutItemDetails(item);
+  const block = document.createElement("div");
+  block.className = "order-product-details";
+  const description = typeof data.description === "string" ? data.description.trim() : "";
+  if (description) {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = description;
+    block.appendChild(paragraph);
+  }
+  const size = Array.isArray(data.size) ? data.size.map(String).join(", ") : String(data.size ?? "").trim();
+  if (size) {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = `Size: ${size}`;
+    block.appendChild(paragraph);
+  }
+  container.appendChild(block);
+}
+async function loadCheckoutItemDetails() {
+  await Promise.allSettled(checkoutCart.map(async item => {
+    const id = checkoutCatalogId(item);
+    if (!Number.isSafeInteger(id) || id <= 0) return;
+    const {data, error} = await supabaseClient.from("products")
+      .select("image_urls,quantity,description,size").eq("id", id).maybeSingle();
+    if (error || !data) return;
+    checkoutPhotoCache.set(item.id, {
+      images: [item.image, ...(Array.isArray(data.image_urls) ? data.image_urls : [])],
+      stock: Math.max(0, Number(data.quantity ?? 1)),
+      description: data.description || item.description || "",
+      size: item.size || data.size || ""
+    });
+  }));
+  renderExpandedSummaryItems();
+  syncBottomOrderSummary();
+}
 function renderExpandedSummaryItems() {
   checkoutItems.replaceChildren();
   checkoutCart.forEach((product, index) => {
@@ -2292,6 +2348,7 @@ function renderExpandedSummaryItems() {
     const name = document.createElement("div"); name.className = "order-name"; name.textContent = product.name;
     const quantity = document.createElement("div"); quantity.className = "order-quantity"; quantity.textContent = `Quantity: ${product.quantity}`;
     details.append(name, quantity);
+    appendCheckoutItemDetails(details, product);
     const price = document.createElement("div"); price.className = "order-price"; price.textContent = `$${(Number(product.price) * product.quantity).toFixed(2)}`;
     row.append(wrapper, details, price); checkoutItems.appendChild(row);
   });
@@ -2308,6 +2365,7 @@ function renderExpandedSummaryItems() {
   });
 });
 renderExpandedSummaryItems(); syncBottomOrderSummary();
+loadCheckoutItemDetails();
 
 function renderSummaryThumbnails() {
   ["orderSummaryThumbnails", "bottomSummaryThumbnails"].forEach(id => {
@@ -2796,32 +2854,167 @@ const checkoutAccount = (() => {
 </script>
 
 <script>
+let selectedCheckoutCard = "";
+let deletingCheckoutCard = false;
+const paymentMenu = document.getElementById("savedCardSelect");
+const deletePaymentDialog = document.getElementById("deletePaymentDialog");
+
+function cardLabel(card) {
+  return (
+    (card.label ? card.label + " — " : "") +
+    card.brand +
+    " •••• " +
+    card.last_four
+  );
+}
+
 async function loadCheckoutSavedCards() {
-  const stamp=++savedCardsVersion;
-  const area=document.getElementById('savedCardArea'),select=document.getElementById('savedCardSelect');
-  area.hidden=true;select.replaceChildren(new Option('Use a new card',''));checkoutSavedCards=[];updateSavedCardFields();
-  const {data:{session}}=await supabaseClient.auth.getSession();
-  if(stamp!==savedCardsVersion||!session)return;
-  area.hidden=false;
-  const r=await supabaseClient.functions.invoke('member-payment-methods',{
-    body:{action:'list',userAccessToken:session.access_token}
-  });
-  if(stamp!==savedCardsVersion)return;
-  if(r.error||!r.data?.success){document.getElementById('savedCardMessage').textContent='Saved cards could not load. You can enter a new card.';return;}
-  document.getElementById('savedCardMessage').textContent='';
-  checkoutSavedCards=r.data.cards||[];
-  for(const c of checkoutSavedCards){select.add(new Option((c.label?c.label+' — ':'')+c.brand+' •••• '+c.last_four,c.id));}
-  const preferred=checkoutSavedCards.find(c=>c.is_default);if(preferred)select.value=preferred.id;
+  const stamp = ++savedCardsVersion;
+  const area = document.getElementById("savedCardArea");
+  area.hidden = true;
+  paymentMenu.replaceChildren(new Option("Add Payment", ""));
+  checkoutSavedCards = [];
+  selectedCheckoutCard = "";
+  updateSavedCardFields();
+  const {
+    data: { session },
+  } = await supabaseClient.auth.getSession();
+  if (stamp !== savedCardsVersion || !session) return;
+  area.hidden = false;
+  const result = await supabaseClient.functions.invoke(
+    "member-payment-methods",
+    {
+      body: { action: "list", userAccessToken: session.access_token },
+    },
+  );
+  if (stamp !== savedCardsVersion) return;
+  const message = document.getElementById("savedCardMessage");
+  if (result.error || !result.data?.success) {
+    message.textContent =
+      "Saved payments could not load. You can enter your card details below.";
+    return;
+  }
+  message.textContent = "";
+  checkoutSavedCards = result.data.cards || [];
+  for (const card of checkoutSavedCards)
+    paymentMenu.add(new Option(cardLabel(card), card.id));
+  const deleteOption = new Option("Delete Payment", "__delete__");
+  deleteOption.disabled = checkoutSavedCards.length === 0;
+  paymentMenu.add(deleteOption);
+  const preferred = checkoutSavedCards.find((card) => card.is_default);
+  if (preferred) paymentMenu.value = preferred.id;
+  selectedCheckoutCard = paymentMenu.value;
   updateSavedCardFields();
 }
-function updateSavedCardFields(){
-  const saved=Boolean(document.getElementById('savedCardSelect').value);
-  document.getElementById('card-container').hidden=saved;
-  document.getElementById('cardholderName').hidden=saved;
-  document.querySelector('label[for="cardholderName"]').hidden=saved;
+
+function updateSavedCardFields() {
+  const saved = checkoutSavedCards.some(
+    (card) => card.id === paymentMenu.value,
+  );
+  document.getElementById("card-container").hidden = saved;
+  document.getElementById("cardholderName").hidden = saved;
+  document.querySelector('label[for="cardholderName"]').hidden = saved;
 }
-document.getElementById('savedCardSelect').addEventListener('change',updateSavedCardFields);
-supabaseClient.auth.onAuthStateChange(event=>{if(['SIGNED_IN','SIGNED_OUT','INITIAL_SESSION'].includes(event))setTimeout(loadCheckoutSavedCards,0);});
+
+paymentMenu.addEventListener("change", () => {
+  if (paymentMenu.value !== "__delete__") {
+    selectedCheckoutCard = paymentMenu.value;
+    updateSavedCardFields();
+    return;
+  }
+  paymentMenu.value = selectedCheckoutCard;
+  if (paymentBusy || localStorage.getItem("imSquarePaymentAttempt")) {
+    document.getElementById("savedCardMessage").textContent =
+      "Finish checking your payment status before deleting a saved payment.";
+    return;
+  }
+  const select = document.getElementById("deleteCardSelect");
+  select.replaceChildren(
+    ...checkoutSavedCards.map((card) => new Option(cardLabel(card), card.id)),
+  );
+  if (selectedCheckoutCard) select.value = selectedCheckoutCard;
+  document.getElementById("deleteCardMessage").textContent = "";
+  if (checkoutSavedCards.length && !deletePaymentDialog.open)
+    deletePaymentDialog.showModal();
+});
+
+document.getElementById("cancelDeleteCard").addEventListener("click", () => {
+  if (!deletingCheckoutCard) deletePaymentDialog.close();
+});
+deletePaymentDialog.addEventListener("cancel", (event) => {
+  if (deletingCheckoutCard) event.preventDefault();
+});
+document
+  .getElementById("confirmDeleteCard")
+  .addEventListener("click", async () => {
+    if (
+      deletingCheckoutCard ||
+      paymentBusy ||
+      localStorage.getItem("imSquarePaymentAttempt")
+    )
+      return;
+    const cardId = document.getElementById("deleteCardSelect").value;
+    const card = checkoutSavedCards.find((card) => card.id === cardId);
+    if (
+      !card ||
+      !confirm(
+        "Delete " + cardLabel(card) + " from your saved payment methods?",
+      )
+    )
+      return;
+    const stamp = savedCardsVersion;
+    deletingCheckoutCard = true;
+    document.getElementById("confirmDeleteCard").disabled = true;
+    document.getElementById("cancelDeleteCard").disabled = true;
+    paymentMenu.disabled = true;
+    setPaymentBusy(true);
+    try {
+      const {
+        data: { session },
+      } = await supabaseClient.auth.getSession();
+      if (!session || stamp !== savedCardsVersion)
+        throw new Error("Sign in again before deleting a payment method.");
+      const result = await supabaseClient.functions.invoke(
+        "member-payment-methods",
+        {
+          body: {
+            action: "remove",
+            cardId,
+            userAccessToken: session.access_token,
+          },
+        },
+      );
+      if (stamp !== savedCardsVersion)
+        throw new Error(
+          "Your account changed. Sign in again to view saved payments.",
+        );
+      if (result.error || !result.data?.success)
+        throw new Error(
+          result.data?.error ||
+            "The payment method could not be deleted. Please try again.",
+        );
+      deletePaymentDialog.close();
+      await loadCheckoutSavedCards();
+      document.getElementById("savedCardMessage").textContent =
+        "Saved payment method deleted.";
+    } catch (error) {
+      document.getElementById("deleteCardMessage").textContent = error.message;
+    } finally {
+      deletingCheckoutCard = false;
+      document.getElementById("confirmDeleteCard").disabled = false;
+      document.getElementById("cancelDeleteCard").disabled = false;
+      paymentMenu.disabled = false;
+      setPaymentBusy(false);
+    }
+  });
+
+supabaseClient.auth.onAuthStateChange((event) => {
+  if (["SIGNED_IN", "SIGNED_OUT", "INITIAL_SESSION"].includes(event)) {
+    if (deletePaymentDialog.open && !deletingCheckoutCard)
+      deletePaymentDialog.close();
+    setTimeout(loadCheckoutSavedCards, 0);
+  }
+});
 loadCheckoutSavedCards();
 </script>
 </body>

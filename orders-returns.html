@@ -475,8 +475,6 @@
     </header>
 
     <main>
-      <h1>Orders</h1>
-
       <p id="pageMessage" class="message" role="status" aria-live="polite">
         Checking your account…
       </p>
@@ -887,8 +885,19 @@
         return selected;
       }
 
-      const cancellationExpiredText =
-        "The 30-minute cancellation window has ended. This order can no longer be cancelled. Once you receive your items, you may request a return under our Return & Refund Policy.";
+      function showCancellationClosed(target, order) {
+        const processed = order.processing_started_at || order.shipped_at;
+        target.replaceChildren(
+          document.createTextNode(
+            "This order can no longer be cancelled. " +
+              (processed ? "Your order has already been processed. " : "") +
+              "Once you receive your items, you may request a return. Please review our ",
+          ),
+        );
+        const policy = node("a", "Return & Refund Policy");
+        policy.href = "return-policy.html";
+        target.append(policy, document.createTextNode("."));
+      }
 
       function cancellationLabel(state) {
         return (
@@ -1019,7 +1028,11 @@
             node("span", statusLabel(order.status), "badge " + order.status),
           );
 
-          card.append(
+          const metadata = node("details");
+          metadata.open = true;
+          metadata.append(node("summary", "Order Details"));
+          card.append(metadata);
+          metadata.append(
             head,
             node(
               "p",
@@ -1037,7 +1050,7 @@
               "receipt.html?order=" + encodeURIComponent(order.order_number);
             const receiptActions = node("div", undefined, "actions");
             receiptActions.append(receiptLink);
-            card.append(receiptActions);
+            metadata.append(receiptActions);
           }
 
           const cancellation = cancellations.find(
@@ -1054,7 +1067,7 @@
               retry.type = "button";
               retry.dataset.cancelOrder = order.id;
               retry.addEventListener("click", () => cancelOrder(order, true));
-              card.append(retry);
+              metadata.append(retry);
             }
           } else if (
             cancellationReady &&
@@ -1076,16 +1089,16 @@
                 hour: "numeric",
                 minute: "2-digit",
               }) +
-              ". The server checks eligibility when you cancel.";
-            card.append(cancel);
+              ".";
+            metadata.append(cancel);
           } else if (
             order.paid_at &&
             order.status !== "cancelled" &&
             Date.now() >= deadline
           ) {
-            cancelMessage.textContent = cancellationExpiredText;
+            showCancellationClosed(cancelMessage, order);
           }
-          card.append(cancelMessage);
+          metadata.append(cancelMessage);
 
           const tracking =
             order.status === "cancelled"
@@ -1095,15 +1108,10 @@
                   ? "Not added yet"
                   : "Available when the shipping label is created");
 
-          card.append(node("p", "Tracking Number: " + tracking));
+          metadata.append(node("p", "Tracking Number: " + tracking));
 
-          const details = node("details");
-          details.open = true;
-
-          details.append(
-            node("summary", "Order Details"),
-            node("h3", "Order Summary"),
-          );
+          const details = node("section");
+          details.append(node("h3", "Order Summary"));
 
           const items = Array.isArray(order.items) ? order.items : [];
 
@@ -1533,7 +1541,7 @@
             button.disabled = true;
             button.textContent = "Cancellation Window Ended";
             const notice = byId("cancelMessage-" + order.id);
-            if (notice) notice.textContent = cancellationExpiredText;
+            if (notice) showCancellationClosed(notice, order);
           }
         });
       }, 10000);
@@ -1541,7 +1549,6 @@
       if (location.hash === "#returnSection") {
         location.replace("returns.html" + location.search);
       }
-      
       loadOrders();
     </script>
     <script>

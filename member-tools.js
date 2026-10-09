@@ -1,3 +1,4 @@
+/* IM Collections update: OCT09-LOGIN-NAV-NEW */
 /* Shared authenticated account navigation, wishlist and saved Square cards. */
 (() => {
   const styles = document.createElement("style");
@@ -76,7 +77,12 @@
     !document.getElementById("headerLoggedIn")
   ) {
     const header = document.querySelector("header");
-    if (header) {
+    if (
+      header &&
+      !header.querySelector(
+        'a[href="my-account.html"],a[href="my-account.html#summary"]',
+      )
+    ) {
       const link = el("a", "My Account");
       link.href = "my-account.html#summary";
       link.style.cssText = "font-weight:600;margin-left:12px";
@@ -148,6 +154,8 @@
     if (details) {
       const host = el("div");
       host.className = "im-member-nav";
+      host.setAttribute("role", "heading");
+      host.setAttribute("aria-level", "2");
       host.dataset.memberOnly = "";
       host.hidden = true;
       host.append(select);

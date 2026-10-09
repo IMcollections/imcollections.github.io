@@ -646,6 +646,7 @@
       setTimeout(loadMember, 0);
   });
   loadMember();
+  
   // Product grids are rendered/replaced by the existing catalog functions.
   if (document.getElementById("headerLoggedIn")) {
     const observer = new MutationObserver((m) => {

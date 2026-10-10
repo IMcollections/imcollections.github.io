@@ -319,54 +319,35 @@
     const loginMessage =
       document.getElementById("loginMessage");
 
-    loginForm.addEventListener(
-      "submit",
-      async function(event) {
+    const loginBtn = document.getElementById("loginBtn");
+    let signingIn = false;
 
-        event.preventDefault();
+    loginForm.addEventListener("submit", async function(event) {
+      event.preventDefault();
+      if (signingIn) return;
+      signingIn = true;
+      loginBtn.disabled = true;
+      loginMessage.className = "message";
+      loginMessage.textContent = "";
 
-        const email =
-          document.getElementById("email")
-            .value.trim();
+      try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email: document.getElementById("email").value.trim(),
+          password: document.getElementById("password").value
+        });
+        if (error) throw error;
+        if (!data?.session) throw new Error("Sign-in could not be completed. Please try again.");
 
-        const password =
-          document.getElementById("password")
-            .value;
-
-        loginMessage.className =
-          "message";
-
-        loginMessage.textContent = "";
-
-        const { data, error } =
-          await supabaseClient.auth
-            .signInWithPassword({
-              email: email,
-              password: password
-            });
-
-        if (error) {
-          loginMessage.className =
-            "message error";
-
-          loginMessage.textContent =
-            error.message;
-
-          return;
-        }
-
-        loginMessage.className =
-          "message success";
-
-        loginMessage.textContent =
-          "Password verified. Signing you in…";
-
-        setTimeout(() => {
-          window.location.href =
-            "index.html";
-        }, 800);
+        loginMessage.className = "message success";
+        loginMessage.textContent = "Signed in successfully. Opening the shop…";
+        window.location.replace("index.html");
+      } catch (error) {
+        loginMessage.className = "message error";
+        loginMessage.textContent = error.message || "Unable to sign in. Please try again.";
+        signingIn = false;
+        loginBtn.disabled = false;
       }
-    );
+    });
   </script>
 
 </body>

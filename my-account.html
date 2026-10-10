@@ -1326,9 +1326,7 @@
           loginMessage.className = "message success";
           loginMessage.textContent = "Signed in successfully.";
           document.getElementById("password").value = "";
-          setTimeout(() => {
-            window.location.href = "my-account.html#summary";
-          }, 800);
+          window.location.replace("index.html");
         } catch (error) {
           loginMessage.className = "message error";
           loginMessage.textContent = loginErrorText(error);

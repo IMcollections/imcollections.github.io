@@ -2041,6 +2041,7 @@ document.getElementById("paymentButton").addEventListener(
 
     setPaymentBusy(true);
 
+    let paymentStage = "account and delivery validation";
     try {
       await checkoutAccount.ready;
       checkoutAccount.checkReady();
@@ -2055,6 +2056,7 @@ document.getElementById("paymentButton").addEventListener(
       checkoutAccount.copyBilling();
       const delivery = deliveryPayload();
       checkoutAccount.validateBilling();
+      paymentStage = "saving checkout preferences";
       await checkoutAccount.savePreference();
 
       const method = document.querySelector(
@@ -2091,22 +2093,26 @@ document.getElementById("paymentButton").addEventListener(
           postalCode: document.getElementById("billingPostal").value, countryCode: "US"
         }
       };
+      paymentStage = "Square card tokenization and buyer verification";
       const result = method === "card"
         ? await paymentForm.tokenize(verificationDetails, savedCardId || undefined)
         : await paymentForm.tokenize();
 
       if (result.status !== "OK") {
         throw new Error(
-          "Please check your payment information and try again."
+          "Square tokenization returned " + String(result.status) +
+          (result.errors?.length ? ": " + result.errors.map(e => e.code || e.type || "UNKNOWN").join(", ") : ". Please check your payment information.")
         );
       }
 
+      paymentStage = "creating payment attempt";
       const attemptId = crypto.randomUUID();
 
       localStorage.setItem(attemptStorageKey, attemptId);
 
       checkoutNotice("Processing payment and saving your order…");
 
+      paymentStage = "server payment and order processing";
       await invokeOrderPayment({
         attemptId,
         sourceId: result.token,
@@ -2131,7 +2137,9 @@ document.getElementById("paymentButton").addEventListener(
       });
     } catch (error) {
       checkoutNotice(
-        error.message || "Unable to prepare payment.",
+        "Payment stopped during " + paymentStage + ". " +
+        (error.message || "Unable to prepare payment.") +
+        (error.code ? " [" + String(error.code) + "]" : ""),
         true
       );
 

@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Returns Admin | IM Collections</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; background: #f7f6f2; color: #171717; font: 16px/1.6 Arial, sans-serif; }
+      header { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 24px; background: white; border-bottom: 1px solid #dedbd2; }
+      header img { width: 64px; }
+      main { max-width: 960px; margin: 32px auto; padding: 0 20px; }
+      h1,h2,h3,a,label { color: #8a651f; }
+      h2,h3 { margin-top: 0; }
+      .card { background: white; border: 1px solid #dedbd2; border-radius: 14px; padding: 24px; margin: 20px 0; overflow-wrap: anywhere; }
+      input,select,textarea { width: 100%; padding: 12px; border: 1px solid #aaa; border-radius: 6px; font: inherit; background: white; margin: 6px 0 14px; }
+      textarea { min-height: 110px; }
+      button { padding: 12px 18px; min-height: 44px; background: #c8a548; border: 0; border-radius: 6px; font: inherit; cursor: pointer; }
+      button:disabled { opacity: .5; cursor: wait; }
+      .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+      .muted { color: #666; }
+      .error { color: #a31515; }
+      .success { color: #306637; }
+      [hidden] { display: none !important; }
+      .address { white-space: pre-line; }
+      .item { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid #eee; }
+      .item img { width: 64px; height: 80px; object-fit: contain; }
+      .tools { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 16px; }
+      .tools button { margin-bottom: 14px; }
+      @media(max-width: 500px) { header { padding: 14px; } .card { padding: 18px; } .tools { grid-template-columns: 1fr; gap: 0; } }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="admin.html">Back to Product Admin</a>
+      <a href="index.html"><img src="IM-logo.jpg" alt="IM Collections" /></a>
+      <button id="signOut" type="button" hidden>Sign Out</button>
+    </header>
+    <main>
+      <h1>Returns Admin</h1>
+      <p id="pageMessage" role="status" aria-live="polite">Checking your account…</p>
+      <section id="loginCard" class="card" hidden>
+        <h2>Administrator Sign In</h2>
+        <form id="loginForm">
+          <label for="email">Email</label>
+          <input id="email" type="email" autocomplete="username" required />
+          <label for="password">Password</label>
+          <input id="password" type="password" autocomplete="current-password" required />
+          <button id="loginButton" type="submit">Sign In</button>
+          <p id="loginMessage" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+      <div id="adminContent" hidden>
+        <details class="card" id="addressSettings">
+          <summary>Return Address Settings</summary>
+          <p>Enter the address where you can receive customer returns. Approved requests keep a copy of the address saved at approval.</p>
+          <form id="addressForm">
+            <label for="returnAddress">Recipient and Full Return Address</label>
+            <textarea id="returnAddress" minlength="15" maxlength="500" placeholder="IM Collections&#10;Street address and apartment/suite&#10;City, State ZIP&#10;United States" required></textarea>
+            <button id="saveAddress" type="submit">Save Return Address</button>
+            <p id="addressMessage" role="status" aria-live="polite"></p>
+          </form>
+        </details>
+        <div class="tools">
+          <div>
+            <label for="statusFilter">Return Status</label>
+            <select id="statusFilter">
+              <option value="requested">Awaiting Review</option>
+              <option value="approved">Ready to Ship</option>
+              <option value="received">Received</option>
+              <option value="refunded">Refunded</option>
+              <option value="declined">Declined</option>
+              <option value="all">All Returns</option>
+            </select>
+          </div>
+          <button id="refreshButton" type="button">Refresh Requests</button>
+        </div>
+        <p class="muted">Showing up to 300 recent requests. Authorize shipping only after verifying the carrier delivery date and the selected items. Refunds are reviewed after the return arrives.</p>
+        <div id="requestList"></div>
+      </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      const client = supabase.createClient(
+        "https://vqzjegneplzeoqxcqfeu.supabase.co",
+        "sb_publishable_QDvKrAHvvopp_fuunxTxEA_4v6TD4Jk",
+      );
+      const byId = (id) => document.getElementById(id);
+      const node = (tag, text, className) => {
+        const element = document.createElement(tag);
+        if (text != null) element.textContent = text;
+        if (className) element.className = className;
+        return element;
+      };
+      const labels = {requested: "Awaiting Review", approved: "Ready to Ship", received: "Received — Refund Review", declined: "Declined", refunded: "Refunded"};
+      let requests = [], generation = 0, returnAddress = "", mutationBusy = false;
+      function notice(id, text, error = false) {
+        byId(id).textContent = text;
+        byId(id).className = error ? "error" : "success";
+      }
+      async function rpc(name, params = {}) {
+        const result = await client.rpc(name, params);
+        if (result.error) throw result.error;
+        return result.data;
+      }
+      function safeImage(src) {
+        try {
+          const url = new URL(src, location.href);
+          return ["https:", "http:"].includes(url.protocol) ? url.href : "";
+        } catch { return ""; }
+      }
+      function emailInstructions(request) {
+        const lines = [
+          "Your IM Collections return has been authorized for shipping.",
+          "Order Number: " + request.order_number,
+          "Return Reference: " + request.id,
+          "", "Items authorized for return:",
+          ...(request.selected_items || []).map(item => (item.name || "Item") + " — Quantity: " + item.quantity + (item.size ? " — Size: " + item.size : "")),
+          "", "Ship to:", request.return_address,
+          "", "Return only the approved items in their original condition, with original packaging, tags, accessories, and included materials where applicable.",
+          "Include your receipt or order number, buyer name and email, and the return reference inside the package.",
+          "Purchase a return shipping label at your expense and retain proof of shipment. Add your carrier and tracking number in My Account → Returns.",
+          "Refund eligibility is confirmed after inspection under our Return & Refund Policy.",
+          "https://imcollections.github.io/return-policy.html",
+          "https://imcollections.github.io/returns.html",
+        ];
+        return "mailto:" + encodeURIComponent(request.customer_email || "") + "?subject=" + encodeURIComponent("IM Collections return shipping instructions — Order " + request.order_number) + "&body=" + encodeURIComponent(lines.join("\n"));
+      }
+      function render() {
+        const host = byId("requestList");
+        host.replaceChildren();
+        const filter = byId("statusFilter").value;
+        const visible = requests.filter(request => filter === "all" || request.status === filter);
+        if (!visible.length) { host.append(node("p", "No return requests match this status.")); return; }
+        for (const request of visible) {
+          const card = node("article", null, "card");
+          card.append(node("h2", "Order Number: " + request.order_number), node("p", "Return Reference: " + request.id), node("p", "Status: " + (labels[request.status] || request.status)), node("p", "Requested: " + new Date(request.created_at).toLocaleDateString("en-US")), node("p", "Customer: " + (request.customer_name || "Not provided")), node("p", "Email: " + (request.customer_email || "Not provided")));
+          if (request.member_id) card.append(node("p", "Member ID: " + request.member_id));
+          if (request.delivered_on) card.append(node("p", "Confirmed delivery date: " + request.delivered_on));
+          card.append(node("h3", "Items Requested for Return"));
+          for (const item of request.selected_items || []) {
+            const row = node("div", null, "item"), copy = node("div");
+            const url = safeImage(item.image);
+            if (url) { const image = node("img"); image.src = url; image.alt = item.name || "Item"; row.append(image); }
+            copy.append(node("strong", item.name || "Item"), node("p", "Quantity: " + item.quantity + (item.size ? " — Size: " + item.size : "")));
+            row.append(copy); card.append(row);
+          }
+          if (request.return_address) card.append(node("h3", "Approved Return Address"), node("p", request.return_address, "address"));
+          if (request.decision_note) card.append(node("p", "Note to customer: " + request.decision_note));
+          if (request.return_tracking_number) card.append(node("p", "Return shipment: " + request.return_carrier + " — " + request.return_tracking_number));
+          const message = node("p"); message.setAttribute("role", "status"); message.setAttribute("aria-live", "polite");
+          const actions = node("div", null, "actions");
+          if (request.status === "requested") {
+            const label = node("label", "Note to Customer (required when declining)");
+            const note = node("textarea"); note.id = "note-" + request.id; note.maxLength = 1000; label.htmlFor = note.id;
+            card.append(label, note);
+            const dateLabel = node("label", "Carrier Delivery Date (required to authorize shipping)");
+            const deliveryDate = node("input"); deliveryDate.type = "date"; deliveryDate.id = "delivered-" + request.id;
+            deliveryDate.max = new Date().toISOString().slice(0, 10); dateLabel.htmlFor = deliveryDate.id;
+            card.append(dateLabel, deliveryDate);
+            for (const [action, text] of [["approve", "Authorize Return Shipping"], ["decline", "Decline Return"]]) {
+              const button = node("button", text); button.type = "button";
+              button.disabled = mutationBusy || (action === "approve" && !returnAddress);
+              button.onclick = () => review(request, action, note.value, message, deliveryDate.value);
+              actions.append(button);
+            }
+          }
+          if (request.status === "approved") {
+            const receive = node("button", "Mark Return Received"); receive.type = "button"; receive.disabled = mutationBusy;
+            receive.onclick = () => review(request, "receive", "", message); actions.append(receive);
+            if (request.customer_email && request.return_address) {
+              const email = node("a", "Draft Approval Email"); email.href = emailInstructions(request); actions.append(email);
+            }
+          }
+          card.append(actions, message); host.append(card);
+        }
+      }
+      async function review(request, action, note, message, deliveredOn = null) {
+        if (mutationBusy) return;
+        if (action === "approve" && !deliveredOn) { message.textContent = "Check the carrier delivery date and enter it before authorizing shipping."; message.className = "error"; return; }
+        if (action === "decline" && !note.trim()) { message.textContent = "Enter a reason for declining this return."; message.className = "error"; return; }
+        if (!confirm(action === "receive" ? "Confirm that these returned items have physically arrived? This does not issue a refund." : (action === "approve" ? "Confirm the carrier delivery date and authorize these items for return shipping?" : "Decline this request and share your reason with the customer?"))) return;
+        mutationBusy = true;
+        document.querySelectorAll("#requestList button").forEach(button => button.disabled = true);
+        const stamp = generation;
+        try {
+          const updated = await rpc("im_review_return", {p_return_id: request.id, p_action: action, p_expected_status: request.status, p_note: note, p_delivered_on: deliveredOn || null});
+          if (stamp !== generation) return;
+          requests = requests.map(item => item.id === request.id ? {...item, ...updated} : item);
+          notice("pageMessage", action === "approve" ? "Return shipping authorized. Instructions are available in the customer's Return History. Use Draft Approval Email to notify them manually." : action === "receive" ? "Return receipt recorded. Inspect the items and issue any eligible refund separately." : "Return declined. The customer can see your note in Return History.");
+        } catch (error) { notice("pageMessage", error.message || "Unable to update this return.", true); }
+        finally { mutationBusy = false; render(); }
+      }
+      async function load() {
+        const stamp = ++generation;
+        byId("adminContent").hidden = true;
+        try {
+          const result = await client.auth.getUser();
+          if (stamp !== generation) return;
+          byId("signOut").hidden = !result.data?.user;
+          byId("loginCard").hidden = !!result.data?.user;
+          if (result.error || !result.data?.user) { notice("pageMessage", "Sign in with your authorized administrator account."); return; }
+          if (!await rpc("im_return_admin_access")) { notice("pageMessage", "This account is not authorized to review returns.", true); return; }
+          const [settings, rows] = await Promise.all([rpc("im_return_admin_settings"), rpc("im_return_admin_list")]);
+          if (stamp !== generation) return;
+          returnAddress = settings.return_address || ""; requests = rows || [];
+          byId("returnAddress").value = returnAddress;
+          byId("addressSettings").open = !returnAddress;
+          byId("adminContent").hidden = false; render();
+          notice("pageMessage", returnAddress ? "Return requests are up to date." : "Save your return address before approving requests.");
+        } catch (error) { if (stamp === generation) notice("pageMessage", error.message || "Unable to load returns.", true); }
+      }
+      byId("addressForm").addEventListener("submit", async event => {
+        event.preventDefault(); byId("saveAddress").disabled = true;
+        const stamp = generation;
+        try {
+          const settings = await rpc("im_return_admin_settings", {p_address: byId("returnAddress").value});
+          if (stamp !== generation) return;
+          returnAddress = settings.return_address;
+          notice("addressMessage", "Return address saved. Future approvals will use this address."); render();
+        } catch (error) { notice("addressMessage", error.message || "Unable to save the address.", true); }
+        finally { byId("saveAddress").disabled = false; }
+      });
+      byId("loginForm").addEventListener("submit", async event => {
+        event.preventDefault(); byId("loginButton").disabled = true;
+        try {
+          const result = await client.auth.signInWithPassword({email: byId("email").value.trim(), password: byId("password").value});
+          if (result.error) throw result.error;
+          byId("password").value = ""; await load();
+        } catch (error) { notice("loginMessage", error.code === "invalid_credentials" ? "Incorrect email or password." : error.message || "Unable to sign in.", true); }
+        finally { byId("loginButton").disabled = false; }
+      });
+      byId("signOut").onclick = async () => {
+        ++generation; requests = []; returnAddress = ""; byId("adminContent").hidden = true; byId("requestList").replaceChildren(); byId("returnAddress").value = "";
+        const result = await client.auth.signOut();
+        if (result.error) notice("pageMessage", "Could not sign out. Try again.", true);
+        else await load();
+      };
+      byId("statusFilter").onchange = render;
+      byId("refreshButton").onclick = () => { if (!mutationBusy) load(); };
+      client.auth.onAuthStateChange(event => {
+        if (event === "SIGNED_OUT") {
+          ++generation; requests = []; byId("adminContent").hidden = true; byId("requestList").replaceChildren(); byId("returnAddress").value = ""; byId("loginCard").hidden = false; byId("signOut").hidden = true;
+          notice("pageMessage", "Sign in with your authorized administrator account.");
+        }
+      });
+      load();
+    </script>
+  </body>
+</html>

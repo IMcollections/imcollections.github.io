@@ -1,5 +1,4 @@
 <!doctype html>
-<!-- IM Collections update: OCT09-LOGIN-NAV-NEW -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -275,6 +274,8 @@
       .success {
         color: #216437;
       }
+      .return-guide { line-height: 1.55; margin: 20px 0; }
+      .return-guide li { margin: 10px 0; }
       .return-note {
         font-size: 14px;
       }
@@ -566,16 +567,21 @@
         <section class="card" id="returnSection">
           <h2>Request a Return</h2>
 
-          <p class="return-note">
-            Returns are available within 30 days of purchase for items in their
-            original condition, with packaging and tags.
-          </p>
-
-          <p>
-            <a href="return-policy.html">
-              Review Returns &amp; Refunds Policy.
-            </a>
-          </p>
+          <div class="return-guide">
+            <h3>How to Complete a Return</h3>
+            <ol>
+              <li>Request a return within 30 days after receiving your item.</li>
+              <li>Enter your order number and Member ID exactly as shown in your account and order details.</li>
+              <li>Select the item or items and quantities you want to return. You may select one item or all eligible items in your order; no reason is required.</li>
+              <li>Tap <strong>Submit Return Request</strong>. We will review your request and show the return address and packing instructions in Return History when your items are authorized for shipping.</li>
+              <li>Once authorized, include your proof of purchase or buyer details (name, checkout email, or order number) inside the package.</li>
+              <li>Purchase and print a shipping label from the shipping company you choose. You pay the return shipping cost for a voluntary return. Add the return tracking number in Return History after mailing.</li>
+            </ol>
+            <p>Items must be in the condition received: unworn, unwashed, with tags and original packaging where applicable.</p>
+            <p><strong>Final Sale items cannot be returned</strong> for a voluntary return. Custom or personalized products, personal care accessories such as beauty products, hazardous materials, flammable liquids, and gases are also excluded from voluntary returns. Legal rights for defective, incorrect, or misrepresented items still apply.</p>
+            <p>Review the <a href="return-policy.html">Returns &amp; Refunds Policy</a> before submitting.</p>
+            <p class="return-note">Your printable return instructions include the address; the shipping company sells and prints the postage label.</p>
+          </div>
 
           <form id="returnForm">
             <label for="returnMemberId">Member ID</label>
@@ -628,6 +634,7 @@
         </section>
         <section class="card">
           <h2>Return History</h2>
+          <button id="refreshReturns" type="button">Refresh Return Status</button>
           <div id="returnHistory"></div>
         </section>
       </div>
@@ -867,7 +874,7 @@
         );
         byId("returnItems").hidden = !available;
         byId("returnSelectionNote").textContent = available
-          ? "Select only the items and quantities you want to return. Wait for approval before mailing them."
+          ? "Select one or all eligible items and quantities. Submit the request, then wait for shipping authorization before mailing."
           : "All items already have a return request. Contact us to change an existing request.";
       }
 
@@ -1303,36 +1310,107 @@
         }
       }
 
+      const returnStatusLabels = {
+        requested: "Awaiting Shipping Authorization",
+        approved: "Ready to Ship — Return Authorized",
+        received: "Received — Under Review",
+        refunded: "Refunded",
+        declined: "Declined",
+      };
+      function returnInstructionSheet(request, order) {
+        const sheet = node("section");
+        sheet.className = "return-instruction-sheet";
+        sheet.style.cssText = "margin-top:20px;line-height:1.6";
+        sheet.append(node("h3", "Return Instructions"), node("p", "Order Number: " + order.order_number), node("p", "Return Reference: " + request.id));
+        if (request.member_id) sheet.append(node("p", "Member ID: " + request.member_id));
+        sheet.append(node("h3", "Approved Items"));
+        for (const item of request.items || order.items || []) {
+          sheet.append(node("p", (item.name || "Item") + " — Quantity: " + item.quantity + (item.size ? " — Size: " + item.size : "")));
+        }
+        sheet.append(node("h3", "Return Address"));
+        const address = node("p", request.return_address);
+        address.style.whiteSpace = "pre-line";
+        sheet.append(address);
+        const steps = node("ol");
+        for (const text of [
+          "Return only the approved items in their original condition. Include original packaging, tags, accessories, and included materials where applicable.",
+          "Place your receipt or order number, buyer name and email, and the return reference inside the package so we can identify your return. You may also include your Member ID.",
+          "Pack your items securely. Buy and print a shipping label from the shipping company you choose using the address above. You pay the voluntary return shipping cost, subject to our Return & Refund Policy.",
+          "Retain your shipment receipt and tracking number. Add the carrier and tracking number below after mailing your package.",
+          "Refund eligibility is confirmed after the returned items are received and inspected under our Return & Refund Policy.",
+        ]) steps.append(node("li", text));
+        sheet.append(steps, node("p", "Buy postage separately from your chosen shipping company. This instruction sheet is not a shipping label."));
+        const policy = node("a", "Return & Refund Policy"); policy.href = "return-policy.html";
+        sheet.append(policy);
+        return sheet;
+      }
+      function printReturnInstructions(sheet, output) {
+        const popup = window.open("", "_blank");
+        if (!popup) { output.textContent = "Allow pop-ups to open the printable return instructions."; return; }
+        popup.opener = null;
+        popup.document.title = "IM Collections Return Instructions";
+        const style = popup.document.createElement("style");
+        style.textContent = "body{font:16px/1.6 Arial,sans-serif;margin:36px;color:#111}h1,h3{color:#79591e}a{color:#111}@media print{body{margin:16mm}}";
+        popup.document.head.append(style);
+        const heading = popup.document.createElement("h1"); heading.textContent = "IM Collections";
+        popup.document.body.append(heading, sheet.cloneNode(true));
+        popup.focus(); popup.print();
+      }
       function renderReturnHistory() {
         const host = byId("returnHistory");
         if (!host) return;
         host.replaceChildren();
-        if (!returns.length) {
-          host.append(node("p", "No return requests yet."));
-          return;
-        }
+        if (!returns.length) { host.append(node("p", "No return requests yet.")); return; }
         for (const request of returns) {
-          const order = orders.find((o) => o.id === request.order_id);
+          const order = orders.find(order => order.id === request.order_id);
           const card = node("article", undefined, "card");
-          card.append(
-            node(
-              "h3",
-              "Order Number: " + (order?.order_number || "Unavailable"),
-            ),
-            node("p", "Return Status: " + request.status),
-          );
-          for (const item of request.items || [])
-            card.append(
-              node(
-                "p",
-                (item.name || "Item") + " — Return quantity: " + item.quantity,
-              ),
-            );
-          const link = node("a", "View Order Details");
-          link.href =
-            "orders-returns.html?order=" +
-            encodeURIComponent(order?.order_number || "");
-          card.append(link);
+          card.append(node("h3", "Order Number: " + (order?.order_number || "Unavailable")), node("p", "Return Status: " + (returnStatusLabels[request.status] || request.status)), node("p", "Return Reference: " + request.id));
+          for (const item of request.items || order?.items || []) {
+            card.append(node("p", (item.name || "Item") + " — Return quantity: " + item.quantity + (item.size ? " — Size: " + item.size : "")));
+          }
+          if (request.decision_note) card.append(node("p", "IM Collections: " + request.decision_note));
+          if (request.status === "requested") card.append(node("p", "Request submitted. Please wait for shipping authorization and the return address before mailing your items."));
+          if (request.status === "received") card.append(node("p", "Your return has been received and is under review. A refund has not been confirmed yet."));
+          const output = node("p"); output.setAttribute("role", "status"); output.setAttribute("aria-live", "polite");
+          if (["approved", "received", "refunded"].includes(request.status) && order) {
+            if (request.return_address) {
+              const sheet = returnInstructionSheet(request, order);
+              card.append(sheet);
+              const print = node("button", "View / Print Return Instructions"); print.type = "button";
+              print.addEventListener("click", () => printReturnInstructions(sheet, output)); card.append(print);
+            } else card.append(node("p", "Contact IM Collections for the return address and instructions before mailing your items."));
+          }
+          if (request.return_tracking_number) card.append(node("p", "Return Carrier: " + request.return_carrier), node("p", "Return Tracking Number: " + request.return_tracking_number));
+          if (request.status === "approved" && request.return_address) {
+            const form = node("form"); form.style.marginTop = "20px";
+            const carrier = node("select"); carrier.id = "returnCarrier-" + request.id;
+            for (const text of ["USPS", "UPS", "FedEx", "Other"]) {
+              const option = node("option", text); option.value = text; carrier.append(option);
+            }
+            if (request.return_carrier) carrier.value = request.return_carrier;
+            const tracking = node("input"); tracking.id = "returnTracking-" + request.id; tracking.type = "text"; tracking.required = true; tracking.minLength = 5; tracking.maxLength = 100; tracking.pattern = "[A-Za-z0-9 -]+"; tracking.placeholder = "Return Tracking Number"; tracking.value = request.return_tracking_number || "";
+            const carrierLabel = node("label", "Return Shipping Carrier"); carrierLabel.htmlFor = carrier.id;
+            const trackingLabel = node("label", "Return Tracking Number"); trackingLabel.htmlFor = tracking.id;
+            const save = node("button", "Save Return Tracking"); save.type = "submit";
+            form.append(carrierLabel, carrier, trackingLabel, tracking, save);
+            form.addEventListener("submit", async event => {
+              event.preventDefault(); save.disabled = true;
+              const stamp = loadVersion, owner = memberId;
+              output.textContent = "Saving return tracking…";
+              try {
+                const result = await client.rpc("im_save_return_tracking", {p_return_id: request.id, p_carrier: carrier.value, p_tracking_number: tracking.value.trim()});
+                if (stamp !== loadVersion || owner !== memberId) return;
+                if (result.error) throw result.error;
+                request.return_carrier = result.data.return_carrier;
+                request.return_tracking_number = result.data.return_tracking_number;
+                output.textContent = "Return tracking saved. IM Collections can now see your return shipment details.";
+              } catch (error) { if (stamp === loadVersion) output.textContent = error.message || "Unable to save return tracking. Please try again."; }
+              finally { save.disabled = false; }
+            });
+            card.append(form);
+          }
+          card.append(output);
+          const link = node("a", "View Order Details"); link.href = "orders-returns.html?order=" + encodeURIComponent(order?.order_number || ""); card.append(link);
           host.append(card);
         }
       }
@@ -1378,7 +1456,7 @@
 
               client
                 .from("return_requests")
-                .select("id,order_id,status,created_at,items,request_key")
+                .select("id,order_id,status,created_at,items,request_key,member_id,decision_note,approved_at,received_at,return_address,return_carrier,return_tracking_number,return_mailed_at")
                 .eq("user_id", user.id),
 
               client
@@ -1523,9 +1601,7 @@
 
           message(
             "returnMessage",
-            "Return request saved. Status: " +
-              data.status +
-              ". Please wait for approval and return instructions before mailing your items.",
+            "Return request submitted. Check Return History for shipping authorization and the return address before buying postage or mailing items.",
           );
 
           await loadOrders();
@@ -1540,6 +1616,7 @@
         }
       });
 
+      byId("refreshReturns").addEventListener("click", loadOrders);
       byId("returnOrderNumber").addEventListener("input", renderReturnChoices);
 
       byId("statusFilter").addEventListener("change", renderOrders);

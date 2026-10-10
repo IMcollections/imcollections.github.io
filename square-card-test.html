@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>IM Collections — Sandbox Card Test</title>
+<style>body{font:16px Arial,sans-serif;background:#f7f7f7;color:#111;margin:0;padding:24px}main{max-width:520px;margin:auto;background:white;border:1px solid #ddd;border-radius:12px;padding:24px}h1{font-size:24px}p{line-height:1.5}button{width:100%;padding:16px;border:0;border-radius:6px;background:#111;color:white;font-weight:bold;font-size:16px}button:disabled{opacity:.5}#status{white-space:pre-wrap;overflow-wrap:anywhere;padding:14px;background:#f1eee4;line-height:1.5}a{color:#806022}</style>
+<script src="https://sandbox.web.squarecdn.com/v1/square.js"></script></head>
+<body><main><a href="index.html">← Back to Shop</a><h1>Sandbox Card Test</h1><p>This checks Square card preparation only. It does not charge a card or create an order.</p><p>Use test card <strong>4111 1111 1111 1111</strong>, expiry <strong>12/28</strong>, CVV <strong>111</strong>, ZIP <strong>94103</strong>.</p><div id="card-container"></div><button id="testButton" disabled>Test Card Preparation</button><p id="status" role="status" aria-live="polite">Loading Square…</p></main>
+<script>
+const statusBox=document.getElementById('status');
+const testButton=document.getElementById('testButton');
+let card;
+function show(message,failed=false){statusBox.textContent=message;statusBox.style.color=failed?'#a12020':'#176c2d';}
+function describe(error){return [error?.name,error?.message,error?.code].filter(Boolean).map(String).join(': ')||'Unknown error';}
+async function initialize(){
+ try{
+  if(!window.Square)throw new Error('Square.js did not load.');
+  const payments=window.Square.payments('sandbox-sq0idb-c7snyR_ZJ25r9nRUu7ZvqA','LG5NFQWF');
+  card=await payments.card();
+  await card.attach('#card-container');
+  show('Ready. Enter the Sandbox test card, then tap Test Card Preparation.');
+  testButton.disabled=false;
+ }catch(error){show('Square initialization failed. '+describe(error),true);}
+}
+testButton.addEventListener('click',async()=>{
+ testButton.disabled=true;
+ show('Testing Square card preparation…');
+ try{
+  const result=await card.tokenize({
+   amount:'1.00',currencyCode:'USD',intent:'CHARGE',customerInitiated:true,sellerKeyedIn:false,
+   billingContact:{givenName:'Test',familyName:'Customer',email:'test@example.com',addressLines:['123 Main Street'],city:'San Francisco',state:'CA',postalCode:'94103',countryCode:'US'}
+  });
+  if(result.status==='OK')show('PASS: Square created a payment token. No charge was made. Send this result to continue fixing checkout.');
+  else show('Card preparation returned '+String(result.status)+'. '+(result.errors||[]).map(e=>[e.code,e.type,e.message].filter(Boolean).join(': ')).join('; '),true);
+ }catch(error){show('Card preparation failed. '+describe(error)+'\nTest time: '+new Date().toISOString(),true);}
+ finally{testButton.disabled=false;}
+});
+initialize();
+</script></body></html>

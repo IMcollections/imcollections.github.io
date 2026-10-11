@@ -1455,7 +1455,7 @@
           error?.code === "invalid_credentials" ||
           /invalid login credentials/i.test(error?.message || "")
         ) {
-          return "Incorrect email or password. Please try again, or use Forgot password.";
+          return "Incorrect credentials. Please try again, or use Forgot password.";
         }
         if (error?.code === "email_not_confirmed")
           return "Please confirm your email address before signing in.";
@@ -1521,7 +1521,7 @@
             "returnMessage",
             "Return request saved. Status: " +
               data.status +
-              ". Follow the return address and instructions in Return History. Refund eligibility is confirmed after receipt and inspection.",
+              ". Send to the return address and follow the instructions in Return History. Refund eligibility is confirmed after receipt and inspection.",
           );
 
           await loadOrders();

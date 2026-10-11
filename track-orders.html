@@ -546,7 +546,7 @@
             );
           const { data: requests, error: returnError } = await client
             .from("return_requests")
-            .select("status,created_at")
+            .select("status,created_at,return_tracking_number")
             .eq("user_id", user.id)
             .eq("order_id", order.id)
             .order("created_at", { ascending: false });
@@ -573,7 +573,7 @@
             returnError
               ? "Unable to load return status. Please try again."
               : requests?.length
-                ? requests[0].status
+                ? (requests[0].status === "requested" && requests[0].return_tracking_number ? "Return Shipped" : ({requested: "Return Requested", approved: "Return Approved — Refund Pending", received: "Return Received — Under Review", declined: "Return Declined", refunded: "Refund Issued"})[requests[0].status] || requests[0].status)
                 : "No return request",
           );
           const link = document.createElement("a");

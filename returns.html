@@ -595,7 +595,8 @@
             </div>
 
             <fieldset id="returnItems" hidden>
-              <legend>Select Items and Quantities to Return</legend>
+              <legend>Purchased Items — Choose What to Return</legend>
+              <div id="returnOrderSummary"></div>
               <div id="returnItemChoices"></div>
             </fieldset>
             <p id="returnSelectionNote" class="return-note" role="status">
@@ -629,8 +630,8 @@
               <li>Request a return within 30 days after receiving your item.</li>
               <li>Enter your order number and Member ID exactly as shown in your account and order details.</li>
               <li>Select the item or items and quantities you want to return. You may select one item or all eligible items in your order; no reason is required.</li>
-              <li>Tap <strong>Submit Return Request</strong>. We will review your request and show the return address and packing instructions in Return History when your items are authorized for shipping.</li>
-              <li>Once authorized, include your proof of purchase or buyer details (name, checkout email, or order number) inside the package.</li>
+              <li>Tap <strong>Submit Return Request</strong>. The return address and packing instructions will appear in Return History immediately. A submitted request does not confirm refund eligibility.</li>
+              <li>Include your proof of purchase or buyer details (name, checkout email, or order number) inside the package.</li>
               <li>Purchase and print a shipping label from the shipping company you choose. You pay the return shipping cost for a voluntary return. Add the return tracking number in Return History after mailing.</li>
             </ol>
             <p>Items must be in the condition received: unworn, unwashed, with tags and original packaging where applicable.</p>
@@ -662,6 +663,7 @@
       let cancellations = [];
       let cancellationReady = false;
       let returnRequestKey = null;
+      let reviewedReturnOrder = null;
       let actionBusy = false;
 
       const selectedOrder = new URLSearchParams(location.search).get("order");
@@ -813,72 +815,90 @@
         return Math.max(0, purchased - held);
       }
 
-      function renderReturnChoices() {
+      function renderReturnChoices(reveal = false) {
         returnRequestKey = null;
+        reviewedReturnOrder = null;
         const choices = byId("returnItemChoices");
         choices.replaceChildren();
+        byId("returnOrderSummary").replaceChildren();
         byId("returnItems").hidden = true;
+        byId("returnButton").disabled = false;
+        byId("returnButton").textContent = "Submit Return Request";
+        if (reveal !== true) {
+          byId("returnSelectionNote").textContent =
+            "Enter your order number, then tap Submit Return Request to view purchased items. No request is sent until you choose items and confirm.";
+          return false;
+        }
         const order = orders.find(
           (o) => o.order_number === byId("returnOrderNumber").value.trim(),
         );
-        if (!order) {
-          byId("returnSelectionNote").textContent =
-            "Enter an order number from your account to choose return items.";
-          return;
-        }
-        if (order.status !== "completed") {
-          byId("returnSelectionNote").textContent =
-            "Returns are available after an order has shipped.";
-          return;
-        }
-        let available = 0;
-        (Array.isArray(order.items) ? order.items : []).forEach(
-          (item, index) => {
-            const remaining = remainingQuantity(order, index);
-            if (!remaining) return;
-            available++;
-            const row = node("div", undefined, "return-choice");
-            const check = node("input");
-            check.type = "checkbox";
-            check.id = "return-line-" + index;
-            check.dataset.lineIndex = String(index);
-            const label = node("label");
-            label.htmlFor = check.id;
-            label.append(
-              node("strong", item.name || "Item"),
-              node(
-                "span",
-                (item.size ? " — Size: " + item.size : "") +
-                  " — Available to return: " +
-                  remaining,
-              ),
-            );
-            const qty = node("input");
-            qty.type = "number";
-            qty.min = "1";
-            qty.max = String(remaining);
-            qty.step = "1";
-            qty.value = "1";
-            qty.disabled = true;
-            qty.setAttribute(
-              "aria-label",
-              "Return quantity for " + (item.name || "item"),
-            );
-            check.addEventListener("change", () => {
-              qty.disabled = !check.checked;
-              returnRequestKey = null;
-            });
-            qty.addEventListener("input", () => {
-              returnRequestKey = null;
-            });
-            row.append(check, label, qty);
-            choices.append(row);
-          },
+        if (!order) throw new Error("Order not found in your account. Check the order number exactly as shown in Orders.");
+        const items = Array.isArray(order.items) ? order.items : [];
+        if (!items.length) throw new Error("Purchased items could not be loaded for this order. Please refresh or contact us.");
+        const eligibleStatus = order.status === "completed";
+        byId("returnOrderSummary").append(
+          node("p", "Order Number: " + order.order_number),
+          node("p", "Order Total: " + money(order.total, order.currency)),
         );
-        byId("returnItems").hidden = !available;
+        let available = 0;
+        items.forEach((item, index) => {
+          const remaining = remainingQuantity(order, index);
+          const eligible = eligibleStatus && remaining > 0;
+          if (eligible) available++;
+          const row = node("div", undefined, "return-choice");
+          const check = node("input");
+          check.type = "checkbox";
+          check.id = "return-line-" + index;
+          check.dataset.lineIndex = String(index);
+          check.disabled = !eligible;
+          const label = node("label");
+          label.htmlFor = check.id;
+          if (item.image) {
+            try {
+              const url = new URL(item.image, location.href);
+              if (["https:", "http:"].includes(url.protocol)) {
+                const img = node("img");
+                img.src = url.href;
+                img.alt = item.name || "Purchased item";
+                img.style.cssText = "width:64px;height:80px;object-fit:contain;display:block;margin-bottom:8px";
+                label.append(img);
+              }
+            } catch (_) {}
+          }
+          label.append(node("strong", item.name || "Item"));
+          if (item.price !== undefined) label.append(node("p", "Price: " + money(item.price, order.currency)));
+          if (item.description) label.append(node("p", item.description));
+          if (item.size) label.append(node("p", "Size: " + item.size));
+          label.append(node("p", "Purchased quantity: " + item.quantity));
+          label.append(node("p", eligible ? "Available to return: " + remaining :
+            (!eligibleStatus ? "Return selection is unavailable for this order status." : "Already included in a return request.")));
+          const qty = node("input");
+          qty.type = "number";
+          qty.min = "1";
+          qty.max = String(remaining);
+          qty.step = "1";
+          qty.value = "1";
+          qty.disabled = true;
+          qty.setAttribute("aria-label", "Return quantity for " + (item.name || "item"));
+          check.addEventListener("change", () => {
+            qty.disabled = !check.checked || check.disabled;
+            returnRequestKey = null;
+          });
+          qty.addEventListener("input", () => { returnRequestKey = null; });
+          row.append(check, label, qty);
+          choices.append(row);
+        });
+        byId("returnItems").hidden = false;
+        byId("returnButton").textContent = "Confirm Return Request";
+        byId("returnButton").disabled = !available;
+        reviewedReturnOrder = available ? order.order_number : null;
         byId("returnSelectionNote").textContent = available
-          ? "Select one or all eligible items and quantities. Submit the request, then wait for shipping authorization before mailing."
-          : "All items already have a return request. Contact us to change an existing request.";
+          ? "Choose one, several, or all eligible items and quantities, then tap Confirm Return Request."
+          : (order.status === "cancelled" ? "Cancelled orders cannot be returned." :
+             !eligibleStatus ? "Your purchased items are shown above. Returns are available after an order has shipped. No return request has been submitted." :
+             "All items already have a return request. Contact us to change an existing request.");
+        byId("returnItems").scrollIntoView({behavior: "smooth", block: "start"});
+        return available > 0;
       }
 
       function selectedReturnItems() {
@@ -886,7 +906,7 @@
         for (const row of byId("returnItemChoices").children) {
           const check = row.querySelector('input[type="checkbox"]');
           const quantity = row.querySelector('input[type="number"]');
-          if (!check?.checked) continue;
+          if (!check?.checked || check.disabled) continue;
           const value = Number(quantity.value);
           if (
             !Number.isInteger(value) ||
@@ -1314,10 +1334,10 @@
       }
 
       const returnStatusLabels = {
-        requested: "Awaiting Shipping Authorization",
-        approved: "Ready to Ship — Return Authorized",
+        requested: "Return Requested",
+        approved: "Return Approved — Refund Pending",
         received: "Received — Under Review",
-        refunded: "Refunded",
+        refunded: "Refund Issued",
         declined: "Declined",
       };
       function returnInstructionSheet(request, order) {
@@ -1326,7 +1346,7 @@
         sheet.style.cssText = "margin-top:20px;line-height:1.6";
         sheet.append(node("h3", "Return Instructions"), node("p", "Order Number: " + order.order_number), node("p", "Return Reference: " + request.id));
         if (request.member_id) sheet.append(node("p", "Member ID: " + request.member_id));
-        sheet.append(node("h3", "Approved Items"));
+        sheet.append(node("h3", "Items Selected for Return"));
         for (const item of request.items || order.items || []) {
           sheet.append(node("p", (item.name || "Item") + " — Quantity: " + item.quantity + (item.size ? " — Size: " + item.size : "")));
         }
@@ -1336,7 +1356,7 @@
         sheet.append(address);
         const steps = node("ol");
         for (const text of [
-          "Return only the approved items in their original condition. Include original packaging, tags, accessories, and included materials where applicable.",
+          "Return only the selected items in their original condition. Include original packaging, tags, accessories, and included materials where applicable.",
           "Place your receipt or order number, buyer name and email, and the return reference inside the package so we can identify your return. You may also include your Member ID.",
           "Pack your items securely. Buy and print a shipping label from the shipping company you choose using the address above. You pay the voluntary return shipping cost, subject to our Return & Refund Policy.",
           "Retain your shipment receipt and tracking number. Add the carrier and tracking number below after mailing your package.",
@@ -1367,15 +1387,17 @@
         for (const request of returns) {
           const order = orders.find(order => order.id === request.order_id);
           const card = node("article", undefined, "card");
-          card.append(node("h3", "Order Number: " + (order?.order_number || "Unavailable")), node("p", "Return Status: " + (returnStatusLabels[request.status] || request.status)), node("p", "Return Reference: " + request.id));
+          card.append(node("h3", "Order Number: " + (order?.order_number || "Unavailable")), node("p", "Return Status: " + (request.status === "requested" && request.return_tracking_number ? "Return Shipped" : returnStatusLabels[request.status] || request.status)), node("p", "Return Reference: " + request.id));
           for (const item of request.items || order?.items || []) {
             card.append(node("p", (item.name || "Item") + " — Return quantity: " + item.quantity + (item.size ? " — Size: " + item.size : "")));
           }
           if (request.decision_note) card.append(node("p", "IM Collections: " + request.decision_note));
-          if (request.status === "requested") card.append(node("p", "Request submitted. Please wait for shipping authorization and the return address before mailing your items."));
+          if (request.status === "requested") card.append(node("p", "Your request has been submitted. Follow the return instructions below. Refund eligibility will be confirmed after we receive and inspect your items."));
+          if (request.status === "approved") card.append(node("p", "Your return was approved after inspection. Your refund has not yet been recorded as issued."));
+          if (request.status === "refunded") card.append(node("p", "Your refund has been recorded as issued to your original payment method. Your provider may take additional time to show it."));
           if (request.status === "received") card.append(node("p", "Your return has been received and is under review. A refund has not been confirmed yet."));
           const output = node("p"); output.setAttribute("role", "status"); output.setAttribute("aria-live", "polite");
-          if (["approved", "received", "refunded"].includes(request.status) && order) {
+          if (["requested", "approved", "received", "refunded"].includes(request.status) && order) {
             if (request.return_address) {
               const sheet = returnInstructionSheet(request, order);
               card.append(sheet);
@@ -1384,7 +1406,7 @@
             } else card.append(node("p", "Contact IM Collections for the return address and instructions before mailing your items."));
           }
           if (request.return_tracking_number) card.append(node("p", "Return Carrier: " + request.return_carrier), node("p", "Return Tracking Number: " + request.return_tracking_number));
-          if (request.status === "approved" && request.return_address) {
+          if (request.status === "requested" && request.return_address) {
             const form = node("form"); form.style.marginTop = "20px";
             const carrier = node("select"); carrier.id = "returnCarrier-" + request.id;
             for (const text of ["USPS", "UPS", "FedEx", "Other"]) {
@@ -1406,7 +1428,8 @@
                 if (result.error) throw result.error;
                 request.return_carrier = result.data.return_carrier;
                 request.return_tracking_number = result.data.return_tracking_number;
-                output.textContent = "Return tracking saved. IM Collections can now see your return shipment details.";
+                await loadOrders();
+                message("returnMessage", "Return tracking saved. IM Collections can now see your return shipment details.");
               } catch (error) { if (stamp === loadVersion) output.textContent = error.message || "Unable to save return tracking. Please try again."; }
               finally { save.disabled = false; }
             });
@@ -1459,7 +1482,7 @@
 
               client
                 .from("return_requests")
-                .select("id,order_id,status,created_at,items,request_key,member_id,decision_note,approved_at,received_at,return_address,return_carrier,return_tracking_number,return_mailed_at")
+                .select("id,order_id,status,created_at,items,request_key,member_id,decision_note,approved_at,received_at,return_address,return_carrier,return_tracking_number,return_mailed_at,workflow_version,refund_reference,refund_amount,refunded_at")
                 .eq("user_id", user.id),
 
               client
@@ -1580,6 +1603,17 @@
       byId("returnForm").addEventListener("submit", async (event) => {
         event.preventDefault();
 
+        if (reviewedReturnOrder !== byId("returnOrderNumber").value.trim()) {
+          try {
+            if (!memberId) throw new Error("Please sign in first.");
+            renderReturnChoices(true);
+            message("returnMessage", "");
+          } catch (error) {
+            message("returnMessage", error.message || "Unable to load purchased items.", true);
+          }
+          return;
+        }
+
         byId("returnButton").disabled = true;
         message("returnMessage", "Submitting your request…");
 
@@ -1604,7 +1638,7 @@
 
           message(
             "returnMessage",
-            "Return request submitted. Check Return History for shipping authorization and the return address before buying postage or mailing items.",
+            "Your return request has been submitted. Follow the return shipping instructions in Return History. We will update your return status when we receive your items. Refund eligibility will be confirmed after inspection.",
           );
 
           await loadOrders();
@@ -1615,12 +1649,15 @@
             true,
           );
         } finally {
-          byId("returnButton").disabled = false;
+          byId("returnButton").disabled = !byId("returnItems").hidden && !reviewedReturnOrder;
         }
       });
 
       byId("refreshReturns").addEventListener("click", loadOrders);
-      byId("returnOrderNumber").addEventListener("input", renderReturnChoices);
+      byId("returnOrderNumber").addEventListener("input", () => {
+        renderReturnChoices();
+        message("returnMessage", "");
+      });
 
       byId("statusFilter").addEventListener("change", renderOrders);
 

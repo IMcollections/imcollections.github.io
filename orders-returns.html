@@ -562,7 +562,7 @@
           <h2>Request a Return</h2>
 
           <p class="return-note">
-            Returns are available within 30 days of purchase for items in their
+            Returns are available within 30 days after receiving your item for items in their
             original condition, with packaging and tags.
           </p>
 
@@ -1256,7 +1256,7 @@
 
           const requests = returns.filter((r) => r.order_id === order.id);
           for (const request of requests) {
-            details.append(node("p", "Return Status: " + request.status));
+            details.append(node("p", "Return Status: " + (({requested: "Return Requested", approved: "Return Approved — Refund Pending", received: "Return Received — Under Review", declined: "Return Declined", refunded: "Refund Issued"})[request.status] || request.status)));
             if (Array.isArray(request.items)) {
               for (const line of request.items) {
                 details.append(
@@ -1310,7 +1310,7 @@
               "h3",
               "Order Number: " + (order?.order_number || "Unavailable"),
             ),
-            node("p", "Return Status: " + request.status),
+            node("p", "Return Status: " + (({requested: "Return Requested", approved: "Return Approved — Refund Pending", received: "Return Received — Under Review", declined: "Return Declined", refunded: "Refund Issued"})[request.status] || request.status)),
           );
           for (const item of request.items || [])
             card.append(
@@ -1521,7 +1521,7 @@
             "returnMessage",
             "Return request saved. Status: " +
               data.status +
-              ". Please wait for approval and return instructions before mailing your items.",
+              ". Follow the return address and instructions in Return History. Refund eligibility is confirmed after receipt and inspection.",
           );
 
           await loadOrders();

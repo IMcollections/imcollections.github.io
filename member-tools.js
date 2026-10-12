@@ -27,12 +27,18 @@
     #memberIdentity{margin:8px 0 18px;font-size:16px;color:#8f681e}
     #accountSectionTitle,#wishlistSection>h3,#paymentSection>h3,#collectionsHeading{display:none}
     #accountGreeting{margin:16px 0 0;font-weight:600}
+    .reward-history-wrap{overflow-x:auto;margin-top:12px}
+    #rewardHistoryTable{width:100%;border-collapse:collapse;text-align:left;min-width:460px}
+    #rewardHistoryTable th,#rewardHistoryTable td{padding:12px 9px;border-bottom:1px solid #e5e0d6;vertical-align:top}
+    #rewardHistoryTable th{color:#76571d}
+    #rewardHistoryTable td:first-child small{display:block;color:#666;margin-top:4px}
+    .reward-history-note{font-size:.92em;color:#666}
 
     .im-member-nav{margin:14px 0 24px;color:#8f681e}
     .im-member-nav summary{padding:14px;background:#eee9dc;border-radius:8px;cursor:pointer;font-weight:bold}
     .im-member-nav nav{display:grid;background:white;border:1px solid #ddd;border-radius:8px}
     .im-member-nav a{display:block;padding:12px 16px;border-bottom:1px solid #eee;color:#8f681e}
-    .wishlist.active svg{stroke:#167cd3!important;fill:#167cd3!important}
+    .wishlist.active svg{stroke:#168641!important;fill:#168641!important}
   `;
   document.head.append(styles);
   function productId(button) {
@@ -96,6 +102,7 @@
   }
   const routes = [
     ["Account Summary", "my-account.html#summary"],
+    ["Track Rewards", "my-account.html#rewards"],
     ["Wishlist", "my-account.html#wishlist"],
     ["Orders", "orders-returns.html#orders"],
     ["Returns", "returns.html"],
@@ -123,14 +130,15 @@
         container.closest("footer") || container.closest("#loggedInAccount")
           ? [
               routes[0],
-              routes[2],
+              routes[1],
               routes[3],
+              routes[4],
               ["Refer A Friend", "my-account.html#referral"],
             ]
           : container.closest("#headerLoggedIn")
             ? [
                 routes[0],
-                routes[2],
+                routes[1],
                 ["Refer A Friend", "my-account.html#referral"],
               ]
             : routes;
@@ -275,13 +283,15 @@
       const active = wishlist.has(productId(b) - 1000000);
       b.classList.toggle("active", active);
       b.setAttribute("aria-pressed", String(active));
+      const savedCount =
+        b.dataset.savedCount || b.querySelector("[data-wishlist-count]")?.textContent || "0";
       b.setAttribute(
         "aria-label",
-        active ? "Remove from wishlist" : "Add to wishlist",
+        `${active ? "Remove" : "Add"} from wishlist. ${savedCount} members saved this item.`,
       );
       if (!b.querySelector("svg")) {
-        const text = active ? "💙" : "♡";
-        if (b.textContent !== text) b.textContent = text;
+        const heart = b.querySelector("[data-wishlist-heart]");
+        if (heart) heart.textContent = active ? "💚" : "♡";
       }
     }
   }
@@ -316,6 +326,7 @@
       if (stamp !== version) return;
       removing ? wishlist.delete(id) : wishlist.add(id);
       syncHearts();
+      window.dispatchEvent(new Event("im-wishlist-updated"));
       if (typeof showToast === "function")
         showToast(removing ? "Removed from wishlist" : "Added to wishlist");
     } catch (e) {
@@ -569,6 +580,8 @@
       routes.find((x) => x[1].endsWith("#" + tab))?.[0] || "Account Summary";
     if (user && tab === "wishlist") renderWishlist();
     if (user && tab === "payment") renderCards();
+    if (name === "rewards" && user)
+      document.getElementById("trackRewardsSection")?.scrollIntoView({ behavior: "smooth", block: "start" });
     if (name === "referral" && user) {
       document.getElementById("referFriendBtn")?.click();
       document
@@ -652,8 +665,8 @@
     const identity = document.getElementById("memberIdentity");
     if (identity)
       identity.textContent = id.error
-        ? "Member ID could not be loaded."
-        : "Member ID: " + (id.data || "Pending");
+        ? "Collectors ID could not be loaded."
+        : "Collectors ID: " + (id.data || "Pending");
     const input = document.getElementById("returnMemberId");
     if (input && !id.error) input.value = id.data || "";
     if (saved.error) {

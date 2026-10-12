@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Login | IM Collections</title>
+    <title>Account Summary | IM Collections</title>
 
     <style>
       * {
@@ -39,13 +39,24 @@
         position: relative;
       }
 
-      .back-home {
+      .account-header-links {
         position: absolute;
         left: 20px;
+        display: grid;
+        gap: 5px;
+        justify-items: start;
+      }
+
+      .account-header-links a {
         color: #111;
         text-decoration: none;
         font-size: 14px;
         font-weight: 600;
+      }
+
+      .account-header-links a:last-child {
+        color: #8f681e;
+        text-decoration: underline;
       }
 
       .logo {
@@ -197,7 +208,7 @@
           font-size: 28px;
         }
 
-        .back-home {
+        .account-header-links {
           font-size: 12px;
           left: 14px;
         }
@@ -501,7 +512,10 @@
     <div class="topbar">IM COLLECTIONS • WELCOME BACK</div>
 
     <header>
-      <a href="index.html" class="back-home">← Back to Shop</a>
+      <div class="account-header-links">
+        <a href="index.html" class="back-home">← Back to Shopping</a>
+        <a href="collectors-reward.html">Rewards Program</a>
+      </div>
 
       <a href="index.html">
         <img src="IM-logo.jpg" alt="IM Collections" class="logo" />
@@ -561,107 +575,40 @@
         </div>
       </div>
       <div id="accountDashboard" style="display: none">
-        <p id="accountGreeting">Hello, Member!</p>
+        <p id="accountGreeting">Hello, Name!</p>
         <details class="im-member-nav" data-member-only hidden>
-          <summary>My Account</summary>
+          <summary>Account Menu</summary>
           <nav data-member-links aria-label="My Account sections"></nav>
         </details>
         <h2 id="accountSectionTitle">Account Summary</h2>
         <div id="memberSummary">
-          <!-- MEMBERSHIP -->
           <section class="account-section">
-            <h3>Member Rewards</h3>
-            <p id="memberIdentity">Member ID: Loading…</p>
+            <h3>Collectors Profile</h3>
+            <p id="memberIdentity">Collectors ID: Loading…</p>
+            <p>Name: <strong id="accountName"></strong></p>
+            <p>Login Email: <strong id="accountEmail"></strong></p>
+            <p>Delivery Address: <strong id="accountAddress"></strong></p>
+            <p>Phone: <strong id="accountPhone"></strong></p>
 
-            <p>
-              Level:
-              <strong id="membershipLevel">Collector</strong>
-            </p>
-
-            <p>
-              Points:
-              <strong id="membershipPoints">0</strong>
-            </p>
-
-            <p>
-              Points Reward Value (coming soon):
-              <strong id="availableReward">$0</strong>
-            </p>
-
-            <p id="nextRewardText">Earn points to unlock your next reward.</p>
-
-            <p>Referral Rewards: $<strong id="referralCredit">0</strong></p>
-
-            <p>
-              Visit <a href="collectors-reward.html">Collectors Reward</a> for
-              program details.
-            </p>
-          </section>
-
-          <!-- ADDRESS BOOK | PROFILE -->
-          <section class="account-section">
-            <h3>Collector Profile</h3>
-
-            <p id="accountName"></p>
-            <p id="accountEmail"></p>
-            <p id="accountPhone"></p>
-            <p id="accountAddress"></p>
             <div class="change-email-area">
               <button type="button" id="changeEmailBtn">Change Email</button>
 
               <div id="changeEmailForm" style="display: none; margin-top: 14px">
-                <input
-                  type="email"
-                  id="newEmail"
-                  placeholder="Enter new email address"
-                  autocomplete="email"
-                />
-
+                <input type="email" id="newEmail" placeholder="Enter new email address" autocomplete="email" />
                 <button type="button" id="saveEmailBtn">Update Email</button>
-
                 <button type="button" id="cancelEmailBtn">Cancel</button>
-
                 <p id="emailChangeMessage"></p>
               </div>
             </div>
 
             <div class="change-password-area">
-              <button type="button" id="changePasswordBtn">
-                Change Password
-              </button>
-
-              <div
-                id="changePasswordForm"
-                style="display: none; margin-top: 14px"
-              >
-                <input
-                  type="password"
-                  id="newPassword"
-                  placeholder="Enter new password"
-                  autocomplete="new-password"
-                />
-
-                <input
-                  type="password"
-                  id="confirmNewPassword"
-                  aria-describedby="accountPasswordMatchStatus"
-                  placeholder="Confirm new password"
-                  autocomplete="new-password"
-                />
-
-                <p
-                  id="accountPasswordMatchStatus"
-                  role="status"
-                  aria-live="polite"
-                  style="min-height: 1.5em; margin: 8px 0 14px"
-                ></p>
-
-                <button type="button" id="savePasswordBtn">
-                  Update Password
-                </button>
-
+              <button type="button" id="changePasswordBtn">Change Password</button>
+              <div id="changePasswordForm" style="display: none; margin-top: 14px">
+                <input type="password" id="newPassword" placeholder="Enter new password" autocomplete="new-password" />
+                <input type="password" id="confirmNewPassword" aria-describedby="accountPasswordMatchStatus" placeholder="Confirm new password" autocomplete="new-password" />
+                <p id="accountPasswordMatchStatus" role="status" aria-live="polite" style="min-height: 1.5em; margin: 8px 0 14px"></p>
+                <button type="button" id="savePasswordBtn">Update Password</button>
                 <button type="button" id="cancelPasswordBtn">Cancel</button>
-
                 <p id="passwordChangeMessage"></p>
               </div>
             </div>
@@ -669,53 +616,61 @@
             <button type="button" id="editProfileBtn">Edit Profile</button>
             <div id="editProfileForm" style="display: none; margin-top: 18px">
               <input type="text" id="editFirstName" placeholder="First Name" />
-
               <input type="text" id="editLastName" placeholder="Last Name" />
-
               <input type="tel" id="editPhone" placeholder="Phone Number" />
-
-              <input
-                type="text"
-                id="editAddress1"
-                placeholder="Address Line 1"
-              />
-
-              <input
-                type="text"
-                id="editAddress2"
-                placeholder="Address Line 2"
-              />
-
+              <input type="text" id="editAddress1" placeholder="Address Line 1" />
+              <input type="text" id="editAddress2" placeholder="Address Line 2" />
               <input type="text" id="editCity" placeholder="City" />
-
-              <input
-                type="text"
-                id="editState"
-                placeholder="State / Province"
-              />
-
-              <input
-                type="text"
-                id="editPostalCode"
-                placeholder="Postal Code"
-              />
-
+              <input type="text" id="editState" placeholder="State / Province" />
+              <input type="text" id="editPostalCode" placeholder="Postal Code" />
               <select id="editCountry">
                 <option value="">Select Country</option>
                 <option value="United States">United States</option>
               </select>
-
               <button type="button" id="saveProfileBtn">Save Profile</button>
-
               <button type="button" id="cancelProfileBtn">Cancel</button>
-
               <p id="profileMessage"></p>
             </div>
           </section>
 
-          <!-- REFER A FRIEND -->
           <section class="account-section">
-            <h3>Refer A Friend</h3>
+            <h3>Collectors Reward</h3>
+
+            <p>
+              Level:
+              <strong id="membershipLevel">Collector</strong>
+            </p>
+
+            <p>
+              Current Points:
+              <strong id="membershipPoints">0</strong>
+            </p>
+
+            <p>
+              Points Reward Value: <strong id="availableReward">$0</strong>
+            </p>
+
+            <p>Points to unlock next reward: <strong id="nextRewardText">Earn points to unlock your next reward.</strong></p>
+          </section>
+
+          <section class="account-section" id="trackRewardsSection">
+            <h3>Track Rewards</h3>
+            <p>See points earned from purchases and sign-up bonuses, point adjustments after refunds, and referral rewards earned or redeemed.</p>
+            <button type="button" id="refreshRewardHistory">Refresh Rewards History</button>
+            <p id="rewardHistoryMessage" role="status" aria-live="polite"></p>
+            <div class="reward-history-wrap">
+              <table id="rewardHistoryTable">
+                <thead><tr><th scope="col">Rewards Date</th><th scope="col">Reward Points</th><th scope="col">Amount ($)</th></tr></thead>
+                <tbody id="rewardHistoryRows"><tr><td colspan="3">Sign in to load your reward history.</td></tr></tbody>
+              </table>
+            </div>
+            <p class="reward-history-note">Points redemption is not available yet. Referral reward redemptions are shown as dollar amounts and do not deduct points.</p>
+          </section>
+
+          <section class="account-section" id="referralSection">
+            <h3>Refer A Friend (Collectors)</h3>
+
+            <p>Referral Rewards: $<strong id="referralCredit">0</strong></p>
 
             <p>
               Referral Code:
@@ -998,8 +953,8 @@
           .join(", ");
 
         memberReferralCode.textContent = profile.referral_code || "—";
-
         referralCredit.textContent = profile.referral_credit || 0;
+        await loadRewardHistory();
       }
 
       loadAccountDashboard();
@@ -1304,6 +1259,71 @@
         return "Unable to sign in right now. Please check your connection and try again.";
       }
 
+      async function loadRewardHistory() {
+        const rows = document.getElementById("rewardHistoryRows");
+        const message = document.getElementById("rewardHistoryMessage");
+        if (!rows) return;
+        rows.replaceChildren();
+        const loadingRow = document.createElement("tr");
+        const loadingCell = document.createElement("td");
+        loadingCell.colSpan = 3;
+        loadingCell.textContent = "Loading rewards history…";
+        loadingRow.append(loadingCell);
+        rows.append(loadingRow);
+        message.textContent = "";
+
+        const { data, error } = await supabaseClient.rpc("im_my_reward_history");
+        if (error) {
+          rows.replaceChildren();
+          const errorRow = document.createElement("tr");
+          const errorCell = document.createElement("td");
+          errorCell.colSpan = 3;
+          errorCell.textContent = "Rewards history is temporarily unavailable.";
+          errorRow.append(errorCell);
+          rows.append(errorRow);
+          message.textContent = "Please install the Rewards History SQL setup in Supabase, then refresh.";
+          console.error("Rewards history error:", error);
+          return;
+        }
+        rows.replaceChildren();
+        if (!data?.length) {
+          const emptyRow = document.createElement("tr");
+          const emptyCell = document.createElement("td");
+          emptyCell.colSpan = 3;
+          emptyCell.textContent = "No rewards activity yet.";
+          emptyRow.append(emptyCell);
+          rows.append(emptyRow);
+          return;
+        }
+
+        for (const entry of data) {
+          const row = document.createElement("tr");
+          const dateCell = document.createElement("td");
+          const date = new Date(entry.rewards_date);
+          dateCell.textContent = Number.isNaN(date.getTime())
+            ? "Date unavailable"
+            : new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short", day: "numeric" }).format(date);
+          const activity = document.createElement("small");
+          activity.textContent = entry.activity || "Rewards activity";
+          dateCell.append(activity);
+
+          const pointsCell = document.createElement("td");
+          const points = Number(entry.reward_points) || 0;
+          pointsCell.textContent = points > 0 ? `+${points}` : points < 0 ? String(points) : "—";
+
+          const amountCell = document.createElement("td");
+          const amount = Number(entry.amount) || 0;
+          const formattedAmount = new Intl.NumberFormat(undefined, {
+            style: "currency", currency: "USD", signDisplay: amount > 0 ? "always" : "auto",
+          }).format(amount);
+          amountCell.textContent = formattedAmount;
+          row.append(dateCell, pointsCell, amountCell);
+          rows.append(row);
+        }
+      }
+
+      document.getElementById("refreshRewardHistory")?.addEventListener("click", loadRewardHistory);
+
       loginForm.addEventListener("submit", async function (event) {
         event.preventDefault();
         const button = document.getElementById("loginBtn");
@@ -1326,7 +1346,9 @@
           loginMessage.className = "message success";
           loginMessage.textContent = "Signed in successfully.";
           document.getElementById("password").value = "";
-          window.location.replace("index.html");
+          setTimeout(() => {
+            window.location.href = "my-account.html#summary";
+          }, 800);
         } catch (error) {
           loginMessage.className = "message error";
           loginMessage.textContent = loginErrorText(error);

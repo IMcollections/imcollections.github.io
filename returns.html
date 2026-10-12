@@ -568,7 +568,7 @@
           <h2>Submit Return Request</h2>
 
           <form id="returnForm">
-            <label for="returnMemberId">Collector ID</label>
+            <label for="returnMemberId">Member ID</label>
             <input
               id="returnMemberId"
               placeholder="IM00000000"
@@ -601,7 +601,7 @@
               <div id="returnItemChoices"></div>
             </fieldset>
             <p id="returnSelectionNote" class="return-note" role="status">
-              Enter an Order Number to choose the items you want to return.
+              Enter an order number to choose the items you want to return.
             </p>
 
             <p>
@@ -621,7 +621,6 @@
         <section class="card">
           <h2>Return History</h2>
           <button id="refreshReturns" type="button">Refresh Return Status</button>
-          <p id="returnLoadMessage" class="message" role="status" aria-live="polite" hidden></p>
           <div id="returnHistory"></div>
         </section>
         <section class="card" id="returnInstructions">
@@ -630,10 +629,10 @@
             <h3>How to Complete a Return</h3>
             <ol>
               <li>Request a return within 30 days after receiving your item.</li>
-              <li>Enter your Order Number and Collector ID exactly as shown in your account and order details.</li>
+              <li>Enter your order number and Member ID exactly as shown in your account and order details.</li>
               <li>Select the item or items and quantities you want to return. You may select one item or all eligible items in your order; no reason is required.</li>
               <li>Tap <strong>Submit Return Request</strong>. The return address and packing instructions will appear in Return History immediately. A submitted request does not confirm refund eligibility.</li>
-              <li>Include your proof of purchase or buyer details (name, checkout email, Collector ID or Order Number) inside the package.</li>
+              <li>Include your proof of purchase or buyer details (name, checkout email, or order number) inside the package.</li>
               <li>Purchase and print a shipping label from the shipping company you choose. You pay the return shipping cost for a voluntary return. Add the return tracking number in Return History after mailing.</li>
             </ol>
             <p>Items must be in the condition received: unworn, unwashed, with tags and original packaging where applicable.</p>
@@ -830,13 +829,13 @@
         byId("returnButton").textContent = "Submit Return Request";
         if (reveal !== true) {
           byId("returnSelectionNote").textContent =
-            "Enter your Order Number, then tap Submit Return Request to view purchased items. No request is sent until you choose items and confirm.";
+            "Enter your order number, then tap Submit Return Request to view purchased items. No request is sent until you choose items and confirm.";
           return false;
         }
         const order = orders.find(
           (o) => o.order_number === byId("returnOrderNumber").value.trim(),
         );
-        if (!order) throw new Error("Order not found in your account. Check the Order Number exactly as shown in Orders.");
+        if (!order) throw new Error("Order not found in your account. Check the order number exactly as shown in Orders.");
         const items = Array.isArray(order.items) ? order.items : [];
         if (!items.length) throw new Error("Purchased items could not be loaded for this order. Please refresh or contact us.");
         const eligibleStatus = order.status === "completed";
@@ -1297,6 +1296,26 @@
 
           details.append(delivery);
 
+          const requests = returns.filter((r) => r.order_id === order.id);
+          for (const request of requests) {
+            details.append(node("p", "Return Status: " + request.status));
+            if (Array.isArray(request.items)) {
+              for (const line of request.items) {
+                details.append(
+                  node(
+                    "p",
+                    (line.name || "Item") +
+                      (line.size ? " — Size: " + line.size : "") +
+                      " — Return quantity: " +
+                      line.quantity,
+                    "muted",
+                  ),
+                );
+              }
+            } else {
+              details.append(node("p", "Whole-order return request", "muted"));
+            }
+          }
           if (
             order.status === "completed" &&
             Array.isArray(order.items) &&
@@ -1330,7 +1349,7 @@
         sheet.className = "return-instruction-sheet";
         sheet.style.cssText = "margin-top:20px;line-height:1.6";
         sheet.append(node("h3", "Return Instructions"), node("p", "Order Number: " + order.order_number), node("p", "Return Reference (unique to this request): " + request.id));
-        if (request.member_id) sheet.append(node("p", "Collector ID: " + request.member_id));
+        if (request.member_id) sheet.append(node("p", "Member ID: " + request.member_id));
         sheet.append(node("h3", "Items Selected for Return"));
         for (const item of request.items || order.items || []) {
           sheet.append(node("p", (item.name || "Item") + " — Quantity: " + item.quantity + (item.size ? " — Size: " + item.size : "")));
@@ -1342,8 +1361,8 @@
         const steps = node("ol");
         for (const text of [
           "Return only the selected items in their original condition. Include original packaging, tags, accessories, and included materials where applicable.",
-          "Place your receipt, Collector ID or Order Number, buyer name and email, and the return reference inside the package so we can identify your return.",
-          "Pack your items securely. Buy and print a shipping label from the shipping company you choose using the address above. Please review the Return & Refund Policy.",
+          "Place your receipt or order number, buyer name and email, and the return reference inside the package so we can identify your return. You may also include your Member ID.",
+          "Pack your items securely. Buy and print a shipping label from the shipping company you choose using the address above. You pay the voluntary return shipping cost, subject to our Return & Refund Policy.",
           "Retain your shipment receipt and tracking number. Add the carrier and tracking number below after mailing your package.",
           "Refund eligibility is confirmed after the returned items are received and inspected under our Return & Refund Policy.",
         ]) steps.append(node("li", text));
@@ -1466,8 +1485,6 @@
         const version = ++loadVersion;
 
         message("pageMessage", "Loading your orders…");
-        byId("returnLoadMessage").hidden = true;
-        byId("returnLoadMessage").textContent = "";
 
         try {
           const {
@@ -1551,11 +1568,9 @@
           renderReturnHistory();
 
           if (returnResult.error || cancellationResult.error) {
-            message("pageMessage", "Your orders are up to date.");
-            byId("returnLoadMessage").hidden = false;
             message(
-              "returnLoadMessage",
-              "Some return or cancellation details could not be loaded. Contact us or try refreshing.",
+              "pageMessage",
+              "Orders loaded, but some return or cancellation details could not be loaded. Contact us or try refreshing.",
               true,
             );
           } else if (

@@ -514,7 +514,6 @@
     <header>
       <div class="account-header-links">
         <a href="index.html" class="back-home">← Back to Shopping</a>
-        <a href="Rewards-Program.html">Rewards Program</a>
       </div>
 
       <a href="index.html">
@@ -575,6 +574,7 @@
         </div>
       </div>
       <div id="accountDashboard" style="display: none">
+        <p><a href="Rewards-Program.html">Rewards Program (Policy)</a></p>
         <p id="accountGreeting">Hello, Name!</p>
         <details class="im-member-nav" data-member-only hidden>
           <summary>Account Menu</summary>
@@ -1344,11 +1344,9 @@
             throw new Error("Unable to sign in. Please try again.");
           signedIn = true;
           loginMessage.className = "message success";
-          loginMessage.textContent = "Signed in successfully.";
+          loginMessage.textContent = "Signed in successfully. Opening the shop…";
           document.getElementById("password").value = "";
-          setTimeout(() => {
-            window.location.href = "my-account.html#summary";
-          }, 800);
+          window.location.replace(new URL("index.html", window.location.href).href);
         } catch (error) {
           loginMessage.className = "message error";
           loginMessage.textContent = loginErrorText(error);

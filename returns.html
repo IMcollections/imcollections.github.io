@@ -621,6 +621,7 @@
         <section class="card">
           <h2>Return History</h2>
           <button id="refreshReturns" type="button">Refresh Return Status</button>
+          <p id="returnLoadMessage" class="message" role="status" aria-live="polite" hidden></p>
           <div id="returnHistory"></div>
         </section>
         <section class="card" id="returnInstructions">
@@ -1296,26 +1297,6 @@
 
           details.append(delivery);
 
-          const requests = returns.filter((r) => r.order_id === order.id);
-          for (const request of requests) {
-            details.append(node("p", "Return Status: " + request.status));
-            if (Array.isArray(request.items)) {
-              for (const line of request.items) {
-                details.append(
-                  node(
-                    "p",
-                    (line.name || "Item") +
-                      (line.size ? " — Size: " + line.size : "") +
-                      " — Return quantity: " +
-                      line.quantity,
-                    "muted",
-                  ),
-                );
-              }
-            } else {
-              details.append(node("p", "Whole-order return request", "muted"));
-            }
-          }
           if (
             order.status === "completed" &&
             Array.isArray(order.items) &&
@@ -1361,7 +1342,7 @@
         const steps = node("ol");
         for (const text of [
           "Return only the selected items in their original condition. Include original packaging, tags, accessories, and included materials where applicable.",
-          "Place your receipt, Collector ID or Order Number, buyer name and email, and the return reference inside the package so we can identify your return. 
+          "Place your receipt, Collector ID or Order Number, buyer name and email, and the return reference inside the package so we can identify your return.",
           "Pack your items securely. Buy and print a shipping label from the shipping company you choose using the address above. Please review the Return & Refund Policy.",
           "Retain your shipment receipt and tracking number. Add the carrier and tracking number below after mailing your package.",
           "Refund eligibility is confirmed after the returned items are received and inspected under our Return & Refund Policy.",
@@ -1485,6 +1466,8 @@
         const version = ++loadVersion;
 
         message("pageMessage", "Loading your orders…");
+        byId("returnLoadMessage").hidden = true;
+        byId("returnLoadMessage").textContent = "";
 
         try {
           const {
@@ -1568,9 +1551,11 @@
           renderReturnHistory();
 
           if (returnResult.error || cancellationResult.error) {
+            message("pageMessage", "Your orders are up to date.");
+            byId("returnLoadMessage").hidden = false;
             message(
-              "pageMessage",
-              "Orders loaded, but some return or cancellation details could not be loaded. Contact us or try refreshing.",
+              "returnLoadMessage",
+              "Some return or cancellation details could not be loaded. Contact us or try refreshing.",
               true,
             );
           } else if (

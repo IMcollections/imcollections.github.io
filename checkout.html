@@ -754,8 +754,7 @@ font-size: 0 !important;
   <div class="logo-area">
     <div class="checkout-header-links">
       <a href="https://imcollections.github.io/" class="back-link"><h2>← Continue Shopping</h2></a>
-      <div id="memberAccountLink" hidden><div class="member-account-nav"><a href="my-account.html">Account Summary</a>
-<a href="Rewards-Program.html">Rewards Program</a></div></div>
+      <div id="memberAccountLink" hidden><div class="member-account-nav"><a href="my-account.html">My Account</a><a href="collectors-reward.html">Collectors Reward</a></div></div>
     </div>
 
     <a href="https://imcollections.github.io/" aria-label="Shop IM Collections"><img src="IM-logo.jpg" alt="IM Collections"></a>
@@ -856,7 +855,7 @@ font-size: 0 !important;
 
 <div class="checkout-program-links checkout-program-links-stacked">
   <a href="refer-a-friend.html" data-referral-popup>Refer a Friend — Give $10, Get $10</a>
-  <a id="guestCollectorsRewardLink" href="Rewards-Program.html">Rewards Program</a>
+  <a id="guestCollectorsRewardLink" href="collectors-reward.html">Collectors Reward</a>
 </div>
 
 <p class="checkout-program-links">Sign up and earn 50 bonus points after your first successful purchase!</p>
@@ -1209,9 +1208,9 @@ type="button"
 
     <span>
       I confirm that I have read and understand the
-      <a href="Terms.html" target="_blank">Terms & Conditions</a>
+      <a href="terms.html" target="_blank">Terms & Conditions</a>
 ,
-      <a href="privacy.html" target="_blank">Policy</a> and
+      <a href="privacy.html" target="_blank">Privacy Policy</a> and
        <a href="cookie.html" target="_blank">Cookie Policy</a>
     </span>
   </label>
@@ -2116,7 +2115,9 @@ document.getElementById("paymentButton").addEventListener(
 
         items: checkoutCart.map(item => ({
           id: item.id,
-          quantity: item.quantity
+          quantity: item.quantity,
+          size: item.size || null,
+          color: item.color || null
         })),
 
         shippingMethod: document.querySelector(
@@ -2264,6 +2265,11 @@ function openCheckoutCartPreview(item) {
       const paragraph = document.createElement("p"); paragraph.textContent = `Size: ${size}`;
       productDetails.appendChild(paragraph);
     }
+    const color = String(item.color || "").trim();
+    if (color) {
+      const paragraph = document.createElement("p"); paragraph.textContent = `Color: ${color}`;
+      productDetails.appendChild(paragraph);
+    }
   }
   showProductDetails(checkoutItemDetails(item));
   content.append(productDetails, gallery, quantity);
@@ -2294,7 +2300,8 @@ function checkoutItemDetails(item) {
   const cached = checkoutPhotoCache.get(item.id);
   return {
     description: cached?.description || item.description || "",
-    size: item.size || cached?.size || ""
+    size: item.size || cached?.size || "",
+    color: item.color || cached?.color || ""
   };
 }
 function appendCheckoutItemDetails(container, item) {
@@ -2311,6 +2318,12 @@ function appendCheckoutItemDetails(container, item) {
   if (size) {
     const paragraph = document.createElement("p");
     paragraph.textContent = `Size: ${size}`;
+    block.appendChild(paragraph);
+  }
+  const color = String(data.color || "").trim();
+  if (color) {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = `Color: ${color}`;
     block.appendChild(paragraph);
   }
   container.appendChild(block);

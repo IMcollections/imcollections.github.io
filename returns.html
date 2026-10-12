@@ -571,10 +571,11 @@
             <label for="returnMemberId">Member ID</label>
             <input
               id="returnMemberId"
-              placeholder="IM00123088"
+              placeholder="IM00000000"
               pattern="IM[0-9]{8}"
               maxlength="10"
               readonly
+              required
               autocomplete="off"
             />
 
@@ -588,7 +589,7 @@
                   inputmode="numeric"
                   pattern="[0-9]{10}"
                   maxlength="10"
-                  placeholder="0318000001"
+                  placeholder="0000000000"
                   required
                 />
               </div>
@@ -637,6 +638,8 @@
             <p>Items must be in the condition received: unworn, unwashed, with tags and original packaging where applicable.</p>
             <p><strong>Final Sale items cannot be returned</strong> for a voluntary return. Custom or personalized products, personal care accessories such as beauty products, hazardous materials, flammable liquids, and gases are also excluded from voluntary returns. Legal rights for defective, incorrect, or misrepresented items still apply.</p>
             <p>Review the <a href="return-policy.html">Returns &amp; Refunds Policy</a> before submitting.</p>
+            <h3>How to Cancel a Return</h3>
+            <p>Open Return History, tap <strong>Cancel Return Request</strong>, and confirm you have not mailed the items. You can cancel within 24 hours after submitting your request, as long as shipment has not been recorded and the items have not been received. If you have already mailed the package, contact IM Collections for help. Cancelling a return does not cancel your purchase. You may request eligible items again.</p>
             <p class="return-note">Your printable return instructions include the address; the shipping company sells and prints the postage label.</p>
           </div>
 
@@ -804,7 +807,7 @@
         const purchased = Number(order.items?.[index]?.quantity) || 0;
         let held = 0;
         for (const request of returns.filter(
-          (r) => r.order_id === order.id && r.status !== "declined",
+          (r) => r.order_id === order.id && !["declined", "cancelled"].includes(r.status),
         )) {
           if (!Array.isArray(request.items)) return 0;
           for (const line of request.items) {
@@ -896,7 +899,7 @@
           ? "Choose one, several, or all eligible items and quantities, then tap Confirm Return Request."
           : (order.status === "cancelled" ? "Cancelled orders cannot be returned." :
              !eligibleStatus ? "Your purchased items are shown above. Returns are available after an order has shipped. No return request has been submitted." :
-             "All items already have a return request. Contact us to change an existing request.");
+             "All items already have a return request. You can cancel an unshipped request in Return History, or contact us to change a shipped request.");
         byId("returnItems").scrollIntoView({behavior: "smooth", block: "start"});
         return available > 0;
       }
@@ -1339,12 +1342,13 @@
         received: "Received — Under Review",
         refunded: "Refund Issued",
         declined: "Declined",
+        cancelled: "Return Cancelled",
       };
       function returnInstructionSheet(request, order) {
         const sheet = node("section");
         sheet.className = "return-instruction-sheet";
         sheet.style.cssText = "margin-top:20px;line-height:1.6";
-        sheet.append(node("h3", "Return Instructions"), node("p", "Order Number: " + order.order_number), node("p", "Return Reference: " + request.id));
+        sheet.append(node("h3", "Return Instructions"), node("p", "Order Number: " + order.order_number), node("p", "Return Reference (unique to this request): " + request.id));
         if (request.member_id) sheet.append(node("p", "Member ID: " + request.member_id));
         sheet.append(node("h3", "Items Selected for Return"));
         for (const item of request.items || order.items || []) {
@@ -1387,7 +1391,7 @@
         for (const request of returns) {
           const order = orders.find(order => order.id === request.order_id);
           const card = node("article", undefined, "card");
-          card.append(node("h3", "Order Number: " + (order?.order_number || "Unavailable")), node("p", "Return Status: " + (request.status === "requested" && request.return_tracking_number ? "Return Shipped" : returnStatusLabels[request.status] || request.status)), node("p", "Return Reference: " + request.id));
+          card.append(node("h3", "Order Number: " + (order?.order_number || "Unavailable")), node("p", "Return Status: " + (request.status === "requested" && request.return_tracking_number ? "Return Shipped" : returnStatusLabels[request.status] || request.status)), node("p", "Return Reference (unique to this request): " + request.id));
           for (const item of request.items || order?.items || []) {
             card.append(node("p", (item.name || "Item") + " — Return quantity: " + item.quantity + (item.size ? " — Size: " + item.size : "")));
           }
@@ -1434,6 +1438,43 @@
               finally { save.disabled = false; }
             });
             card.append(form);
+          }
+          if (request.status === "cancelled") {
+            card.append(node("p", "This return request was cancelled. Your purchase remains unchanged. You may submit a new request if the items are still eligible."));
+            if (request.cancelled_at) card.append(node("p", "Cancelled: " + new Date(request.cancelled_at).toLocaleDateString("en-US")));
+          }
+          if (request.status === "requested") {
+            const cancelBy = new Date(request.created_at).getTime() + 24 * 60 * 60 * 1000;
+            if (!request.return_tracking_number && !request.return_mailed_at && !request.received_at && Number.isFinite(cancelBy) && Date.now() < cancelBy) {
+              const cancel = node("button", "Cancel Return Request"); cancel.type = "button";
+              card.append(node("p", "Changed your mind? Cancel this request only if you have not mailed the items. This does not cancel your purchase."));
+              cancel.addEventListener("click", async () => {
+                if (!confirm("Cancel this return request? Confirm that you have NOT mailed the items. Your purchase will remain unchanged.")) return;
+                const stamp = loadVersion, owner = memberId;
+                cancel.disabled = true; output.textContent = "Cancelling return request…";
+                try {
+                  const result = await client.rpc("im_cancel_account_return", {p_return_id: request.id});
+                  if (stamp !== loadVersion || owner !== memberId) return;
+                  if (result.error) throw result.error;
+                  request.status = result.data.status;
+                  request.cancelled_at = result.data.cancelled_at;
+                  await loadOrders();
+                  if (owner === memberId) message("returnMessage", "Return request cancelled. Your purchase remains unchanged. You can request eligible items again.");
+                } catch (error) {
+                  if (stamp === loadVersion && owner === memberId) output.textContent = error.message || "Unable to cancel this return. Please refresh and try again.";
+                } finally { cancel.disabled = false; }
+              });
+              card.append(cancel);
+              setTimeout(() => {
+                if (!cancel.isConnected) return;
+                cancel.remove();
+                card.append(node("p", "The 24-hour cancellation period has ended. Contact IM Collections if you need help."));
+              }, Math.max(0, cancelBy - Date.now()));
+            } else if (request.return_tracking_number || request.return_mailed_at || request.received_at) {
+              card.append(node("p", "A return shipment has been recorded. Contact IM Collections if you need help changing this return."));
+            } else {
+              card.append(node("p", "The 24-hour cancellation period has ended. Contact IM Collections if you need help."));
+            }
           }
           card.append(output);
           const link = node("a", "View Order Details"); link.href = "orders-returns.html?order=" + encodeURIComponent(order?.order_number || ""); card.append(link);
@@ -1482,7 +1523,7 @@
 
               client
                 .from("return_requests")
-                .select("id,order_id,status,created_at,items,request_key,member_id,decision_note,approved_at,received_at,return_address,return_carrier,return_tracking_number,return_mailed_at,workflow_version,refund_reference,refund_amount,refunded_at")
+                .select("id,order_id,status,created_at,items,request_key,member_id,decision_note,approved_at,received_at,return_address,return_carrier,return_tracking_number,return_mailed_at,cancelled_at,workflow_version,refund_reference,refund_amount,refunded_at")
                 .eq("user_id", user.id),
 
               client

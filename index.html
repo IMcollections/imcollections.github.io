@@ -866,6 +866,26 @@
       transform: scale(1.08);
     }
 
+    .wishlist .wishlist-count {
+      position: absolute;
+      right: -8px;
+      bottom: -7px;
+      min-width: 19px;
+      height: 19px;
+      padding: 0 4px;
+      border: 1px solid #fff;
+      border-radius: 999px;
+      background: #168641;
+      color: #fff;
+      font: 700 10px/17px Arial, sans-serif;
+      text-align: center;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .wishlist { overflow: visible; }
+    .wishlist.active svg { fill: #168641; stroke: #168641; }
+
     .quick-view {
       position: absolute;
       left: 12px;
@@ -912,6 +932,12 @@
       font-size: 11px;
       margin-bottom: 7px;
     }
+
+    .product-view-count { color: var(--gray); font-size: 11px; margin: 0 0 8px; }
+    .modal-variants { display: grid; gap: 12px; margin: 0 0 16px; }
+    .modal-variant-field { display: grid; gap: 6px; color: var(--gray); font-size: 13px; }
+    .modal-variant-field select { width: 100%; min-height: 42px; padding: 8px 12px; border: 1px solid var(--border); background: white; }
+    .cart-item-variant { color: var(--gray); font-size: 12px; margin-top: 3px; }
 
     .product-price {
       display: flex;
@@ -1805,7 +1831,6 @@
   <span class="announcement-message">UP TO 60% OFF ALL ITEMS</span>
   <span class="announcement-message">EXTRA 15% OFF WHEN YOU SIGN UP FOR EMAILS</span>
   <span class="announcement-message">Free Standard Shipping on orders over $75</span>
-<span class="announcement-message">Refer A Friend & Get $10 for both of you</span>
 </div>
 
   <!-- =======================================================
@@ -2556,19 +2581,18 @@ Explore Collections
          <h4>My Account</h4>
 
 <div id="accountLinks">
-    <a href="Login.html">Login</a>
-    <a href="Register.html">Register</a>
-<a href="refer-a-friend.html">Refer A Friend</a>
+  <a href="my-account.html">Account Summary</a>
+  <a href="Login.html">Login</a>
+  <a href="Register.html">Register</a>
+  <a href="refer-a-friend.html">Refer A Friend</a>
   <a href="orders-returns.html">Orders</a>
-  <a href="returns.html">Returns</
-  </div>
+  <a href="returns.html">Returns</a>
+  <a href="track-orders.html">Track Order</a>
+</div>
 
 <div id="loggedInAccount" style="display:none;">
-  <a href="my-account.html" id="myAccountLink">Account Summary</a>
-  <a href="orders-returns.html">Orders</a>
-  <a href="returns.html">Returns</
-<a href="refer-a-friend.html">Refer A Friend</a>
-  <a href="#" id="logoutLink">Logout</a>
+  <nav data-member-links data-member-link-list aria-label="My Account sections"></nav>
+  <a href="#" id="logoutLink">Sign Out</a>
 </div>
 
   </div>
@@ -2581,7 +2605,7 @@ Explore Collections
         <a href="Delivery.html">Shipping & Delivery</a>
        <a href="return-policy.html">Return & Refund Policy</a>
         <a href="#">FAQ</a>
-      <a href="track-orders.html">Track Order</a>
+      <a href="track-orders.html">Track your Order</a>
 
   <div class="footer-column">
 
@@ -2731,6 +2755,8 @@ Explore Collections
           class="modal-price"
           id="modalPrice"
         ></div>
+        <div id="modalVariants" class="modal-variants"></div>
+        <div id="modalViews" class="product-view-count" aria-live="polite">521 views</div>
 
         <button
           class="btn btn-gold"
@@ -2814,6 +2840,7 @@ Explore Collections
         oldPrice: 129.99,
         badge: "New",
         size: "9.5M",
+        sizes: ["6M", "6.5M", "7M", "7.5M", "8M", "8.5M", "9M", "9.5M", "10M", "10.5M", "11M", "11.5M", "12M", "13M"],
         rating: "★★★★☆",
         art: "art-shoe",
         description:
@@ -2837,6 +2864,7 @@ Explore Collections
         id: 5,
         name: "IM Essential Hoodie",
         category: "Clothing",
+        sizes: ["XS", "S", "M", "L", "XL", "2XL"],
         price: 64.99,
         oldPrice: 84.99,
         badge: "Sale",
@@ -3018,6 +3046,22 @@ async function loadSupabaseProducts() {
         size:
           product.size || "",
 
+        sizes:
+          Array.isArray(product.sizes) && product.sizes.length
+            ? product.sizes.map(String)
+            : String(product.category || "").toLowerCase().includes("shoe")
+              ? ["6M", "6.5M", "7M", "7.5M", "8M", "8.5M", "9M", "9.5M", "10M", "10.5M", "11M", "11.5M", "12M", "13M"]
+              : String(product.category || "").toLowerCase().includes("clothing")
+                ? ["XS", "S", "M", "L", "XL", "2XL"]
+                : [],
+
+        colors:
+          Array.isArray(product.colors) && product.colors.length
+            ? product.colors.map(String)
+            : /\b(tee|t-shirt|tshirt)\b/i.test(String(product.name || ""))
+              ? ["White", "Gray", "Black"]
+              : [],
+
         condition:
           product.condition || "",
 
@@ -3045,6 +3089,10 @@ loadCategoryImages();
     localStorage.getItem("imCollectionsCart") || "[]"
   );
     let currentFilter = "All";
+
+    function productHasVariants(product) {
+      return Boolean(product && ((Array.isArray(product.sizes) && product.sizes.length) || (Array.isArray(product.colors) && product.colors.length)));
+    }
 
     /* =======================================================
        PRODUCT RENDERING
@@ -3098,6 +3146,7 @@ loadCategoryImages();
 
               <button
                 class="wishlist"
+                data-product-id="${product.id}"
                 onclick="toggleWishlist(this)"
                 aria-label="Add to wishlist"
               >
@@ -3110,6 +3159,7 @@ loadCategoryImages();
                     stroke-width="1.5"
                   />
                 </svg>
+                <span class="wishlist-count" data-wishlist-count aria-label="0 members saved this item">0</span>
               </button>
 
               <div class="product-art">
@@ -3143,6 +3193,8 @@ loadCategoryImages();
                 ${product.rating}
               </div>
 
+              <div class="product-view-count" data-product-view-count data-product-id="${product.id}" aria-live="polite">521 views</div>
+
               <div class="product-price">
 
                 <span class="price">
@@ -3163,9 +3215,9 @@ loadCategoryImages();
 
               <button
                 class="add-button"
-                onclick="addToCart(${product.id})"
+                onclick="${productHasVariants(product) ? `openQuickView(${product.id})` : `addToCart(${product.id})` }"
               >
-                Add To Cart
+                ${productHasVariants(product) ? "Choose Options" : "Add To Cart"}
               </button>
 
             </div>
@@ -3255,10 +3307,12 @@ function filterSpecialProducts(type) {
 
           <button
             class="wishlist"
+            data-product-id="${product.id}"
             onclick="toggleWishlist(this)"
             aria-label="Add to wishlist"
           >
-            ♡
+            <span data-wishlist-heart>♡</span>
+            <span class="wishlist-count" data-wishlist-count aria-label="0 members saved this item">0</span>
           </button>
 
           ${
@@ -3301,6 +3355,8 @@ function filterSpecialProducts(type) {
             ${product.rating || "★★★★★"}
           </div>
 
+          <div class="product-view-count" data-product-view-count data-product-id="${product.id}" aria-live="polite">521 views</div>
+
           <div class="product-price">
 
             <span class="price">
@@ -3321,9 +3377,9 @@ function filterSpecialProducts(type) {
 
           <button
             class="add-button"
-            onclick="addToCart(${product.id})"
+            onclick="${productHasVariants(product) ? `openQuickView(${product.id})` : `addToCart(${product.id})` }"
           >
-            Add To Cart
+            ${productHasVariants(product) ? "Choose Options" : "Add To Cart"}
           </button>
 
         </div>
@@ -3388,27 +3444,33 @@ function filterSpecialProducts(type) {
        CART
        ======================================================== */
 
-    function addToCart(productId) {
+    function addToCart(productId, selectedSize = "", selectedColor = "") {
 
       const product =
-        products.find(p => p.id === productId);
+        products.find(p => Number(p.id) === Number(productId));
 
       if (!product) return;
+      if (productHasVariants(product) && (!selectedSize && product.sizes?.length || !selectedColor && product.colors?.length)) {
+        openQuickView(productId);
+        showToast("Choose the available options first.");
+        return;
+      }
 
-      const existing =
-        cart.find(item => item.id === productId);
+      const existing = cart.find(item =>
+        Number(item.id) === Number(productId) &&
+        String(item.size || "") === String(selectedSize || "") &&
+        String(item.color || "") === String(selectedColor || "")
+      );
 
       if (existing) {
-
         existing.quantity++;
-
       } else {
-
         cart.push({
           ...product,
+          size: selectedSize || product.size || "",
+          color: selectedColor || product.color || "",
           quantity: 1
         });
-
       }
 
     localStorage.setItem(
@@ -3455,7 +3517,7 @@ openCart();
       } else {
 
         cartItems.innerHTML =
-          cart.map(item => `
+          cart.map((item, index) => `
 
             <div class="cart-item">
 
@@ -3476,11 +3538,13 @@ openCart();
                 <div class="cart-item-price">
                   $${item.price.toFixed(2)}
                 </div>
+                ${item.size ? `<div class="cart-item-variant">Size: ${item.size}</div>` : ""}
+                ${item.color ? `<div class="cart-item-variant">Color: ${item.color}</div>` : ""}
 
                 <div class="quantity">
 
                   <button
-                    onclick="changeQuantity(${item.id}, -1)"
+                    onclick="changeCartQuantity(${index}, -1)"
                   >
                     −
                   </button>
@@ -3490,7 +3554,7 @@ openCart();
                   </span>
 
                   <button
-                    onclick="changeQuantity(${item.id}, 1)"
+                    onclick="changeCartQuantity(${index}, 1)"
                   >
                     +
                   </button>
@@ -3501,7 +3565,7 @@ openCart();
 
               <button
                 class="remove-item"
-                onclick="removeFromCart(${item.id})"
+                onclick="removeCartIndex(${index})"
               >
                 Remove
               </button>
@@ -3541,6 +3605,23 @@ if (subtotal >= freeShippingThreshold) {
 }
 
 shippingProgressFill.style.width = `${progress}%`;
+    }
+
+    function changeCartQuantity(index, change) {
+      const item = cart[index];
+      if (!item) return;
+      item.quantity += change;
+      if (item.quantity <= 0) cart.splice(index, 1);
+      localStorage.setItem("imCollectionsCart", JSON.stringify(cart));
+      updateCart();
+    }
+
+    function removeCartIndex(index) {
+      if (!Number.isInteger(index) || !cart[index]) return;
+      cart.splice(index, 1);
+      localStorage.setItem("imCollectionsCart", JSON.stringify(cart));
+      updateCart();
+      showToast("Item removed from cart");
     }
 
     function changeQuantity(productId, change) {
@@ -3638,6 +3719,31 @@ localStorage.setItem(
         );
 
       if (!product) return;
+      window.imCurrentProductViewId = Number(product.id);
+      if (typeof recordProductView === "function") recordProductView(product.id);
+
+      const variants = document.getElementById("modalVariants");
+      variants.replaceChildren();
+      function addVariantSelect(label, id, options, selectedValue) {
+        if (!Array.isArray(options) || !options.length) return;
+        const wrap = document.createElement("label");
+        wrap.className = "modal-variant-field";
+        wrap.textContent = label;
+        const select = document.createElement("select");
+        select.id = id;
+        select.required = true;
+        for (const value of options) {
+          const option = document.createElement("option");
+          option.value = String(value);
+          option.textContent = String(value);
+          option.selected = String(value) === String(selectedValue || "");
+          select.append(option);
+        }
+        wrap.append(select);
+        variants.append(wrap);
+      }
+      addVariantSelect("Size", "modalSizeSelect", product.sizes, product.size);
+      addVariantSelect("Color", "modalColorSelect", product.colors, product.color);
 
       document.getElementById("modalCategory")
         .textContent =
@@ -3658,6 +3764,10 @@ localStorage.setItem(
       document.getElementById("modalPrice")
         .textContent =
           `$${product.price.toFixed(2)}`;
+      const modalViews = document.getElementById("modalViews");
+      const cardViewBadge = [...document.querySelectorAll("[data-product-view-count]")]
+        .find(badge => Number(badge.dataset.productId) === Number(product.id));
+      if (modalViews && cardViewBadge) modalViews.textContent = cardViewBadge.textContent;
 
      const galleryImages =
   product.images && product.images.length
@@ -3750,11 +3860,10 @@ document.getElementById("modalImage").innerHTML =
 
       document.getElementById("modalAdd")
         .onclick = () => {
-
-          addToCart(product.id);
-
+          const size = document.getElementById("modalSizeSelect")?.value || product.size || "";
+          const color = document.getElementById("modalColorSelect")?.value || product.color || "";
+          addToCart(product.id, size, color);
           closeModal();
-
         };
 
       document
@@ -3887,9 +3996,11 @@ document.getElementById("modalImage").innerHTML =
 
                 <button
                   class="wishlist"
+                  data-product-id="${product.id}"
                   onclick="toggleWishlist(this)"
                 >
-                  ♡
+                  <span data-wishlist-heart>♡</span>
+                  <span class="wishlist-count" data-wishlist-count aria-label="0 members saved this item">0</span>
                 </button>
 
                <div class="product-art">
@@ -3923,6 +4034,8 @@ document.getElementById("modalImage").innerHTML =
                   ${product.rating}
                 </div>
 
+                <div class="product-view-count" data-product-view-count data-product-id="${product.id}" aria-live="polite">521 views</div>
+
                 <div class="product-price">
                   <span class="price">
                     $${product.price.toFixed(2)}
@@ -3931,9 +4044,9 @@ document.getElementById("modalImage").innerHTML =
 
                 <button
                   class="add-button"
-                  onclick="addToCart(${product.id})"
+                  onclick="${productHasVariants(product) ? `openQuickView(${product.id})` : `addToCart(${product.id})` }"
                 >
-                  Add To Cart
+                  ${productHasVariants(product) ? "Choose Options" : "Add To Cart"}
                 </button>
 
               </div>
@@ -4157,6 +4270,8 @@ document.addEventListener(
 updateHeaderAccountMenu();
 updateAccountLinks();
 </script>
-      <script src="member-tools.js"></script>
+      <script src="member-tools.js?v=20261012-feature-updates"></script>
+      <script src="wishlist-counts.js?v=20261012"></script>
+      <script src="product-views.js?v=20261012"></script>
 </body>
 </html>

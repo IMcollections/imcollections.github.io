@@ -601,7 +601,7 @@
               <div id="returnItemChoices"></div>
             </fieldset>
             <p id="returnSelectionNote" class="return-note" role="status">
-              Enter an order number to choose the items you want to return.
+              Enter an Order Number to choose the items you want to return.
             </p>
 
             <p>
@@ -629,10 +629,10 @@
             <h3>How to Complete a Return</h3>
             <ol>
               <li>Request a return within 30 days after receiving your item.</li>
-              <li>Enter your order number and Collector ID exactly as shown in your account and order details.</li>
+              <li>Enter your Order Number and Collector ID exactly as shown in your account and order details.</li>
               <li>Select the item or items and quantities you want to return. You may select one item or all eligible items in your order; no reason is required.</li>
               <li>Tap <strong>Submit Return Request</strong>. The return address and packing instructions will appear in Return History immediately. A submitted request does not confirm refund eligibility.</li>
-              <li>Include your proof of purchase or buyer details (name, checkout email, or order number) inside the package.</li>
+              <li>Include your proof of purchase or buyer details (name, checkout email, Collector ID or Order Number) inside the package.</li>
               <li>Purchase and print a shipping label from the shipping company you choose. You pay the return shipping cost for a voluntary return. Add the return tracking number in Return History after mailing.</li>
             </ol>
             <p>Items must be in the condition received: unworn, unwashed, with tags and original packaging where applicable.</p>
@@ -829,13 +829,13 @@
         byId("returnButton").textContent = "Submit Return Request";
         if (reveal !== true) {
           byId("returnSelectionNote").textContent =
-            "Enter your order number, then tap Submit Return Request to view purchased items. No request is sent until you choose items and confirm.";
+            "Enter your Order Number, then tap Submit Return Request to view purchased items. No request is sent until you choose items and confirm.";
           return false;
         }
         const order = orders.find(
           (o) => o.order_number === byId("returnOrderNumber").value.trim(),
         );
-        if (!order) throw new Error("Order not found in your account. Check the order number exactly as shown in Orders.");
+        if (!order) throw new Error("Order not found in your account. Check the Order Number exactly as shown in Orders.");
         const items = Array.isArray(order.items) ? order.items : [];
         if (!items.length) throw new Error("Purchased items could not be loaded for this order. Please refresh or contact us.");
         const eligibleStatus = order.status === "completed";
@@ -1361,8 +1361,8 @@
         const steps = node("ol");
         for (const text of [
           "Return only the selected items in their original condition. Include original packaging, tags, accessories, and included materials where applicable.",
-          "Place your receipt or order number, buyer name and email, and the return reference inside the package so we can identify your return. You may also include your Collector ID.",
-          "Pack your items securely. Buy and print a shipping label from the shipping company you choose using the address above. You pay the voluntary return shipping cost, subject to our Return & Refund Policy.",
+          "Place your receipt, Collector ID or Order Number, buyer name and email, and the return reference inside the package so we can identify your return. 
+          "Pack your items securely. Buy and print a shipping label from the shipping company you choose using the address above. Please review the Return & Refund Policy.",
           "Retain your shipment receipt and tracking number. Add the carrier and tracking number below after mailing your package.",
           "Refund eligibility is confirmed after the returned items are received and inspected under our Return & Refund Policy.",
         ]) steps.append(node("li", text));

@@ -103,7 +103,7 @@
   const routes = [
     ["Account Summary", "my-account.html#summary"],
     ["Track Rewards", "my-account.html#rewards"],
-    ["Wishlist", "my-account.html#wishlist"],
+    ["Wishlists", "my-account.html#wishlist"],
     ["Orders", "orders-returns.html#orders"],
     ["Returns", "returns.html"],
     ["Track Orders", "track-orders.html"],
@@ -131,6 +131,7 @@
           ? [
               routes[0],
               routes[1],
+              routes[2],
               routes[3],
               routes[4],
               ["Refer A Friend", "my-account.html#referral"],
@@ -139,6 +140,7 @@
             ? [
                 routes[0],
                 routes[1],
+                routes[2],
                 ["Refer A Friend", "my-account.html#referral"],
               ]
             : routes;

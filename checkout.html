@@ -742,7 +742,11 @@ font-size: 0 !important;
   .referral-reward-choice p{margin:0 0 10px;font-size:14px;line-height:1.5}
   .referral-reward-choice button{background:#c8a347;color:#111;border:0;border-radius:4px;padding:12px 16px;font:inherit;cursor:pointer;width:100%}
   .referral-reward-choice button:disabled{opacity:.55;cursor:default}
-  </style>
+  /* Checkout savings breakdown, shared by both summaries. */
+.checkout-discount-row, .checkout-discount-row strong { color: #b42318; }
+.checkout-rewards-note { margin: -2px 0 18px; font-size: 14px; line-height: 1.5; color: #626262; }
+.checkout-rewards-row strong { color: #25633c; }
+</style>
 </head>
 
 <body>
@@ -812,18 +816,23 @@ font-size: 0 !important;
           <strong id="checkoutSubtotal">$0.00</strong>
         </div>
         
-<div class="summary-row">
-  <span>Discount</span>
-  <strong id="checkoutDiscount">-$0.00</strong>
+<div class="summary-row checkout-discount-row">
+  <span>Discount Price:</span>
+  <strong id="checkoutDiscount">−$0.00</strong>
 </div>
+<div class="summary-row checkout-rewards-row">
+  <span>Rewards Price:</span>
+  <strong id="checkoutRewards">$0.00</strong>
+</div>
+<p class="checkout-rewards-note" id="checkoutRewardsNote" aria-live="polite">Not used.</p>
         
         <div class="summary-row">
-  <span class="shipping-summary-label">Standard Shipping</span>
+  <span class="shipping-summary-label">Shipping:</span>
   <strong id="checkoutShipping">$8.99</strong>
 </div>
 
         <div class="summary-row">
-  <span>Estimated Tax</span>
+  <span>Estimated Tax:</span>
   <strong id="checkoutTax">$0.00</strong>
 </div>
         
@@ -1165,18 +1174,23 @@ font-size: 0 !important;
           <strong id="bottomSubtotal">$0.00</strong>
         </div>
         
-<div class="summary-row">
-  <span>Discount</span>
-  <strong id="bottomDiscount">-$0.00</strong>
+<div class="summary-row checkout-discount-row">
+  <span>Discount Price:</span>
+  <strong id="bottomDiscount">−$0.00</strong>
 </div>
+<div class="summary-row checkout-rewards-row">
+  <span>Rewards Price:</span>
+  <strong id="bottomRewards">$0.00</strong>
+</div>
+<p class="checkout-rewards-note" id="bottomRewardsNote" aria-live="polite">Not used.</p>
         
         <div class="summary-row">
-  <span class="shipping-summary-label">Standard Shipping</span>
+  <span class="shipping-summary-label">Shipping:</span>
   <strong id="bottomShipping">$8.99</strong>
 </div>
 
         <div class="summary-row">
-  <span>Estimated Tax</span>
+  <span>Estimated Tax:</span>
   <strong id="bottomTax">$0.00</strong>
 </div>
         
@@ -1514,6 +1528,8 @@ syncBottomOrderSummary();
     }
 
 
+    const checkoutOriginalPrices = new Map();
+
     let subtotal =
       checkoutCart.reduce(
         (total, item) =>
@@ -1586,6 +1602,7 @@ function renderReferralRewardChoice() {
            : limit ? `Usable on this order: $${(usable / 100).toFixed(2)}. No code needed. One promotion or reward per order.`
                    : "A $50 merchandise subtotal is required to use referral rewards.");
   }
+  renderCheckoutSavings();
 }
 function resetReferralMember(memberId) {
   if (referralMemberId !== memberId) {
@@ -1663,6 +1680,50 @@ for (const prefix of ["", "bottom"]) {
 }
 
 
+function checkoutSavingsBreakdown() {
+  let originalCents = 0;
+  let merchandiseCents = 0;
+  for (const item of checkoutCart) {
+    const quantity = Math.max(0, Math.trunc(Number(item.quantity) || 0));
+    const price = Math.max(0, Math.round(Number(item.price) * 100) || 0);
+    const oldValue = checkoutOriginalPrices.has(item.id)
+      ? checkoutOriginalPrices.get(item.id) : (item.oldPrice ?? item.old_price);
+    const original = Math.max(price, Math.round(Number(oldValue) * 100) || 0);
+    merchandiseCents += price * quantity;
+    originalCents += original * quantity;
+  }
+  const offerCents = Math.max(0, Math.round(discountAmount * 100) || 0);
+  return {
+    originalCents,
+    discountCents: originalCents - merchandiseCents + (useReferralRewards ? 0 : offerCents),
+    rewardCents: useReferralRewards ? offerCents : 0
+  };
+}
+function renderCheckoutSavings() {
+  const amounts = checkoutSavingsBreakdown();
+  checkoutSubtotal.textContent = "$" + (amounts.originalCents / 100).toFixed(2);
+  document.getElementById("checkoutDiscount").textContent = "−$" + (amounts.discountCents / 100).toFixed(2);
+  document.getElementById("checkoutRewards").textContent = amounts.rewardCents
+    ? "−$" + (amounts.rewardCents / 100).toFixed(2) : "$0.00";
+  const usable = Math.min(referralBalanceCents, referralRewardLimitCents(Math.round(subtotal * 100)));
+  let note = "Not used. Sign in to check your referral rewards.";
+  if (useReferralRewards) {
+    note = "Used: $" + (amounts.rewardCents / 100).toFixed(2) +
+      ". Remaining rewards after payment: $" + (Math.max(0, referralBalanceCents - amounts.rewardCents) / 100).toFixed(2) + ".";
+  } else if (referralMemberId && !referralBalanceKnown) {
+    note = referralQuoteError ? "Not used. Rewards could not be checked." : "Not used. Checking available rewards…";
+  } else if (referralMemberId) {
+    note = "Not used. Available rewards: $" + (referralBalanceCents / 100).toFixed(2) +
+      ". You can apply $" + (usable / 100).toFixed(2) + " to this order." +
+      (appliedPromoCode && usable > 0 ? " Using rewards replaces your promo discount." : "");
+  }
+  document.getElementById("checkoutRewardsNote").textContent = note;
+  for (const [from,to] of [["checkoutSubtotal","bottomSubtotal"],["checkoutDiscount","bottomDiscount"],
+      ["checkoutRewards","bottomRewards"],["checkoutRewardsNote","bottomRewardsNote"]]) {
+    document.getElementById(to).textContent = document.getElementById(from).textContent;
+  }
+}
+
 function updateCheckoutTotal() {
 
   const discountedSubtotal =
@@ -1711,9 +1772,7 @@ if (standardShippingPrice) {
   });
 } 
 
-  document.getElementById("checkoutDiscount")
-    .textContent =
-    `-$${discountAmount.toFixed(2)}`;
+  renderCheckoutSavings();
 
   document.getElementById("checkoutShipping")
     .textContent =
@@ -1733,7 +1792,7 @@ document.getElementById("orderSummaryTotal").textContent =
 
   document.querySelectorAll(".shipping-summary-label").forEach(label => {
     label.textContent = selectedShippingMethod === "express"
-      ? "Express Shipping" : "Standard Shipping";
+      ? "Shipping (Express):" : "Shipping:";
   });
   if (selectedShippingMethod === "express") {
     shippingMessage.textContent = "Express delivery selected.";
@@ -2041,6 +2100,7 @@ document.getElementById("paymentButton").addEventListener(
 
     setPaymentBusy(true);
 
+    let paymentStage = "account and delivery validation";
     try {
       await checkoutAccount.ready;
       checkoutAccount.checkReady();
@@ -2055,6 +2115,7 @@ document.getElementById("paymentButton").addEventListener(
       checkoutAccount.copyBilling();
       const delivery = deliveryPayload();
       checkoutAccount.validateBilling();
+      paymentStage = "saving checkout preferences";
       await checkoutAccount.savePreference();
 
       const method = document.querySelector(
@@ -2091,22 +2152,26 @@ document.getElementById("paymentButton").addEventListener(
           postalCode: document.getElementById("billingPostal").value, countryCode: "US"
         }
       };
+      paymentStage = "Square card tokenization and buyer verification";
       const result = method === "card"
         ? await paymentForm.tokenize(verificationDetails, savedCardId || undefined)
         : await paymentForm.tokenize();
 
       if (result.status !== "OK") {
         throw new Error(
-          "Please check your payment information and try again."
+          "Square tokenization returned " + String(result.status) +
+          (result.errors?.length ? ": " + result.errors.map(e => e.code || e.type || "UNKNOWN").join(", ") : ". Please check your payment information.")
         );
       }
 
+      paymentStage = "creating payment attempt";
       const attemptId = crypto.randomUUID();
 
       localStorage.setItem(attemptStorageKey, attemptId);
 
       checkoutNotice("Processing payment and saving your order…");
 
+      paymentStage = "server payment and order processing";
       await invokeOrderPayment({
         attemptId,
         sourceId: result.token,
@@ -2115,9 +2180,7 @@ document.getElementById("paymentButton").addEventListener(
 
         items: checkoutCart.map(item => ({
           id: item.id,
-          quantity: item.quantity,
-          size: item.size || null,
-          color: item.color || null
+          quantity: item.quantity
         })),
 
         shippingMethod: document.querySelector(
@@ -2133,7 +2196,9 @@ document.getElementById("paymentButton").addEventListener(
       });
     } catch (error) {
       checkoutNotice(
-        error.message || "Unable to prepare payment.",
+        "Payment stopped during " + paymentStage + ". " +
+        (error.message || "Unable to prepare payment.") +
+        (error.code ? " [" + String(error.code) + "]" : ""),
         true
       );
 
@@ -2265,11 +2330,6 @@ function openCheckoutCartPreview(item) {
       const paragraph = document.createElement("p"); paragraph.textContent = `Size: ${size}`;
       productDetails.appendChild(paragraph);
     }
-    const color = String(item.color || "").trim();
-    if (color) {
-      const paragraph = document.createElement("p"); paragraph.textContent = `Color: ${color}`;
-      productDetails.appendChild(paragraph);
-    }
   }
   showProductDetails(checkoutItemDetails(item));
   content.append(productDetails, gallery, quantity);
@@ -2280,7 +2340,7 @@ function openCheckoutCartPreview(item) {
   if (!dialog.open) dialog.showModal();
   const catalogId = checkoutCatalogId(item);
   if (!cached && Number.isSafeInteger(catalogId) && catalogId > 0) {
-    supabaseClient.from("products").select("image_urls,quantity,description,size").eq("id", catalogId).maybeSingle().then(({data, error}) => {
+    supabaseClient.from("products").select("image_urls,quantity,description,size,old_price").eq("id", catalogId).maybeSingle().then(({data, error}) => {
       if (error || !data) return;
       const details = {images: [item.image, ...(Array.isArray(data.image_urls) ? data.image_urls : [])], stock: Math.max(0, Number(data.quantity ?? 1)), description: data.description || item.description || "", size: item.size || data.size || ""};
       checkoutPhotoCache.set(item.id, details);
@@ -2300,8 +2360,7 @@ function checkoutItemDetails(item) {
   const cached = checkoutPhotoCache.get(item.id);
   return {
     description: cached?.description || item.description || "",
-    size: item.size || cached?.size || "",
-    color: item.color || cached?.color || ""
+    size: item.size || cached?.size || ""
   };
 }
 function appendCheckoutItemDetails(container, item) {
@@ -2320,12 +2379,6 @@ function appendCheckoutItemDetails(container, item) {
     paragraph.textContent = `Size: ${size}`;
     block.appendChild(paragraph);
   }
-  const color = String(data.color || "").trim();
-  if (color) {
-    const paragraph = document.createElement("p");
-    paragraph.textContent = `Color: ${color}`;
-    block.appendChild(paragraph);
-  }
   container.appendChild(block);
 }
 async function loadCheckoutItemDetails() {
@@ -2333,8 +2386,9 @@ async function loadCheckoutItemDetails() {
     const id = checkoutCatalogId(item);
     if (!Number.isSafeInteger(id) || id <= 0) return;
     const {data, error} = await supabaseClient.from("products")
-      .select("image_urls,quantity,description,size").eq("id", id).maybeSingle();
+      .select("image_urls,quantity,description,size,old_price").eq("id", id).maybeSingle();
     if (error || !data) return;
+    checkoutOriginalPrices.set(item.id, data.old_price);
     checkoutPhotoCache.set(item.id, {
       images: [item.image, ...(Array.isArray(data.image_urls) ? data.image_urls : [])],
       stock: Math.max(0, Number(data.quantity ?? 1)),
@@ -2343,6 +2397,7 @@ async function loadCheckoutItemDetails() {
     });
   }));
   renderExpandedSummaryItems();
+  renderCheckoutSavings();
   syncBottomOrderSummary();
 }
 function renderExpandedSummaryItems() {
@@ -2459,6 +2514,8 @@ function syncBottomOrderSummary() {
 
 copyText("checkoutSubtotal", "bottomSubtotal");
 copyText("checkoutDiscount", "bottomDiscount");
+copyText("checkoutRewards", "bottomRewards");
+copyText("checkoutRewardsNote", "bottomRewardsNote");
 copyText("discountMessage", "bottomDiscountMessage");
 copyText("checkoutShipping", "bottomShipping");
   copyText("checkoutTax", "bottomTax");

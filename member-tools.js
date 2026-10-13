@@ -353,7 +353,7 @@
     }
     const r = await db
       .from("products")
-      .select("id,name,price,size,image_urls,quantity,description")
+      .select("*")
       .in("id", [...wishlist]);
     if (stamp !== version) return;
     if (r.error) {
@@ -386,6 +386,73 @@
         copy.append(el("p", "Currently unavailable"));
       const shop = el("a", "Find Your Collections");
       shop.href = "index.html#featured";
+      const choices = {};
+      for (const field of ["size", "color"]) {
+        const options = p[field + "s"];
+        if (!Array.isArray(options) || !options.length) continue;
+        const label = el("label", "Choose " + field + ": ");
+        const select = el("select");
+        const placeholder = el("option", "Select " + field);
+        placeholder.value = "";
+        select.append(placeholder);
+        for (const value of options) {
+          const option = el("option", String(value));
+          option.value = String(value);
+          select.append(option);
+        }
+        label.append(select);
+        copy.append(label);
+        choices[field] = select;
+      }
+      const add = el("button", "Add to Cart");
+      add.type = "button";
+      add.disabled = p.quantity != null && Number(p.quantity) <= 0;
+      const cartMessage = el("p");
+      cartMessage.setAttribute("role", "status");
+      cartMessage.setAttribute("aria-live", "polite");
+      add.onclick = async () => {
+        const size = choices.size ? choices.size.value : p.size || "";
+        const color = choices.color ? choices.color.value : p.color || "";
+        if ((choices.size && !size) || (choices.color && !color)) {
+          cartMessage.textContent = "Choose the available size and color first.";
+          return;
+        }
+        add.disabled = true;
+        try {
+          const fresh = await db.from("products").select("*").eq("id", p.id).single();
+          if (stamp !== version) return;
+          if (fresh.error) throw Error("Could not check this item. Please try again.");
+          const product = fresh.data;
+          const cart = JSON.parse(localStorage.getItem("imCollectionsCart") || "[]");
+          if (!Array.isArray(cart)) throw Error("Your cart could not be loaded.");
+          const id = 1000000 + Number(product.id);
+          const total = cart.filter(item => Number(item.id) === id)
+            .reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+          if (product.quantity != null && total + 1 > Number(product.quantity)) {
+            throw Error("No more stock is available for this item.");
+          }
+          for (const [field, selected] of [["size", size], ["color", color]]) {
+            const available = product[field + "s"];
+            if (Array.isArray(available) && available.length && !available.map(String).includes(selected)) {
+              throw Error("The selected " + field + " is no longer available. Refresh your wishlist.");
+            }
+          }
+          const existing = cart.find(item => Number(item.id) === id
+            && String(item.size || "") === String(size)
+            && String(item.color || "") === String(color));
+          if (existing) existing.quantity = Number(existing.quantity || 0) + 1;
+          else cart.push({ ...product, id, price: Number(product.price),
+            image: safeImage(product.image_urls?.[0]), images: product.image_urls || [],
+            size, color, quantity: 1 });
+          localStorage.setItem("imCollectionsCart", JSON.stringify(cart));
+          window.dispatchEvent(new Event("im-cart-updated"));
+          cartMessage.textContent = product.name + " added to your cart.";
+        } catch (error) {
+          cartMessage.textContent = error.message || "Could not add this item to your cart.";
+        } finally {
+          add.disabled = p.quantity != null && Number(p.quantity) <= 0;
+        }
+      };
       const remove = el("button", "Remove");
       remove.type = "button";
       remove.onclick = async () => {
@@ -406,7 +473,7 @@
         syncHearts();
         renderWishlist();
       };
-      copy.append(shop, remove);
+      copy.append(shop, add, remove, cartMessage);
       row.append(copy);
       target.append(row);
     }

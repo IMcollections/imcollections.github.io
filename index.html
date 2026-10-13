@@ -1903,9 +1903,15 @@
   </div>
 
   <div id="headerLoggedIn" style="display:none;">
-   <a href="my-account.html" id="headerMyAccountLink">Account Summary</a>
-<a href="orders-returns.html"></a>
-    <a href="#" id="headerLogoutLink">Logout</a>
+<nav data-member-links data-member-link-list aria-label="My Account sections">
+    <a href="my-account.html#summary">Account Summary</a>
+    <a href="my-account.html#wishlist">Wishlist</a>
+    <a href="my-account.html#payment">Payment</a>
+    <a href="orders-returns.html#orders">Order</a>
+    <a href="returns.html">Returns</a>
+    <a href="refer-a-friend.html">Refer A Friend</a>
+  </nav>
+    <a href="#" id="headerLogoutLink">Sign Out</a>
   </div>
 
 </div>
@@ -2590,7 +2596,14 @@ Explore Collections
 </div>
 
 <div id="loggedInAccount" style="display:none;">
-  <nav data-member-links data-member-link-list aria-label="My Account sections"></nav>
+  <nav data-member-links data-member-link-list aria-label="My Account sections">
+    <a href="my-account.html#summary">Account Summary</a>
+    <a href="my-account.html#wishlist">Wishlist</a>
+    <a href="my-account.html#payment">Payment</a>
+    <a href="orders-returns.html#orders">Order</a>
+    <a href="returns.html">Returns</a>
+    <a href="refer-a-friend.html">Refer A Friend</a>
+  </nav>
   <a href="#" id="logoutLink">Sign Out</a>
 </div>
 
@@ -4270,6 +4283,22 @@ updateHeaderAccountMenu();
 updateAccountLinks();
 </script>
       <script src="member-tools.js?v=20261012-feature-updates"></script>
+<script>
+// Keep the homepage header and footer menus identical after member-tools builds them.
+(() => {
+  const links = [["Account Summary", "my-account.html#summary"], ["Wishlist", "my-account.html#wishlist"], ["Payment", "my-account.html#payment"], ["Order", "orders-returns.html#orders"], ["Returns", "returns.html"], ["Refer A Friend", "refer-a-friend.html"]];
+  for (const id of ["headerLoggedIn", "loggedInAccount"]) {
+    const nav = document.querySelector("#" + id + " [data-member-links]");
+    if (!nav) continue;
+    nav.replaceChildren(...links.map(([label, href]) => {
+      const link = document.createElement("a");
+      link.textContent = label;
+      link.href = href;
+      return link;
+    }));
+  }
+})();
+</script>
     <script src="wishlist-counts.js?v=20261013-base521"></script>
       <script src="product-views.js?v=20261012"></script>
 </body>

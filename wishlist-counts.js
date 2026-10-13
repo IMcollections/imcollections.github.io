@@ -1,8 +1,9 @@
-/* Cumulative wishlist additions. Removing an item does not decrease the total. */
+/* Every product starts at 521. Successful wishlist additions increase the total; removals do not decrease it. */
 (() => {
   const db = typeof supabaseClient !== "undefined" ? supabaseClient : null;
   if (!db) return;
 
+  const BASE_COUNT = 521;
   let refreshTimer = null;
   let active = false;
   let refreshPending = false;
@@ -25,6 +26,14 @@
       return;
     }
     const buttons = collectButtons();
+    for (const button of buttons) {
+      const badge = button.querySelector("[data-wishlist-count]");
+      if (badge && !button.dataset.wishlistCountLoaded) {
+        badge.textContent = String(BASE_COUNT);
+        badge.setAttribute("aria-label", BASE_COUNT + " total saves");
+        button.dataset.savedCount = String(BASE_COUNT);
+      }
+    }
     const ids = [...new Set(buttons.map(databaseProductId).filter(Boolean))];
     if (!ids.length) return;
 
@@ -40,7 +49,9 @@
       for (const button of buttons) {
         const id = databaseProductId(button);
         if (!id) continue;
-        const count = counts.get(id) || 0;
+        const additions = counts.get(id) || 0;
+        const count = BASE_COUNT + Math.max(0, Number.isFinite(additions) ? additions : 0);
+        button.dataset.wishlistCountLoaded = "true";
         const badge = button.querySelector("[data-wishlist-count]");
         if (!badge) continue;
         if (badge.textContent !== String(count)) badge.textContent = String(count);

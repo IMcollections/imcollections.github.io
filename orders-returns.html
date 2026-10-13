@@ -783,7 +783,7 @@
         const purchased = Number(order.items?.[index]?.quantity) || 0;
         let held = 0;
         for (const request of returns.filter(
-          (r) => r.order_id === order.id && r.status !== "declined",
+          (r) => r.order_id === order.id && !["declined", "cancelled"].includes(r.status),
         )) {
           if (!Array.isArray(request.items)) return 0;
           for (const line of request.items) {
@@ -1256,7 +1256,7 @@
 
           const requests = returns.filter((r) => r.order_id === order.id);
           for (const request of requests) {
-            details.append(node("p", "Return Status: " + (({requested: "Return Requested", approved: "Return Approved — Refund Pending", received: "Return Received — Under Review", declined: "Return Declined", refunded: "Refund Issued"})[request.status] || request.status)));
+            details.append(node("p", "Return Status: " + (({requested: "Return Requested", approved: "Return Approved — Refund Pending", received: "Return Received — Under Review", cancelled: "Return Cancelled", declined: "Return Declined", refunded: "Refund Issued"})[request.status] || request.status)));
             if (Array.isArray(request.items)) {
               for (const line of request.items) {
                 details.append(
@@ -1310,7 +1310,7 @@
               "h3",
               "Order Number: " + (order?.order_number || "Unavailable"),
             ),
-            node("p", "Return Status: " + (({requested: "Return Requested", approved: "Return Approved — Refund Pending", received: "Return Received — Under Review", declined: "Return Declined", refunded: "Refund Issued"})[request.status] || request.status)),
+            node("p", "Return Status: " + (({requested: "Return Requested", approved: "Return Approved — Refund Pending", received: "Return Received — Under Review", cancelled: "Return Cancelled", declined: "Return Declined", refunded: "Refund Issued"})[request.status] || request.status)),
           );
           for (const item of request.items || [])
             card.append(

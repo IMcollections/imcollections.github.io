@@ -568,7 +568,7 @@
           <h2>Submit Return Request</h2>
 
           <form id="returnForm">
-            <label for="returnMemberId">Member ID</label>
+            <label for="returnMemberId">Collector ID</label>
             <input
               id="returnMemberId"
               placeholder="IM00000000"
@@ -601,7 +601,7 @@
               <div id="returnItemChoices"></div>
             </fieldset>
             <p id="returnSelectionNote" class="return-note" role="status">
-              Enter an order number to choose the items you want to return.
+              Enter an Order Number to choose the items you want to return.
             </p>
 
             <p>
@@ -618,10 +618,15 @@
             aria-live="polite"
           ></p>
         </section>
-        <section class="card">
+        <section class="card" id="returnHistorySection">
           <h2>Return History</h2>
           <button id="refreshReturns" type="button">Refresh Return Status</button>
+          <p id="returnLoadMessage" class="message" role="status" aria-live="polite" hidden></p>
           <div id="returnHistory"></div>
+        </section>
+        <section class="card" id="returnStatusSection">
+          <h2>Return Status</h2>
+          <div id="returnStatusList"></div>
         </section>
         <section class="card" id="returnInstructions">
           <h2>Request a Return</h2>
@@ -629,10 +634,10 @@
             <h3>How to Complete a Return</h3>
             <ol>
               <li>Request a return within 30 days after receiving your item.</li>
-              <li>Enter your order number and Member ID exactly as shown in your account and order details.</li>
+              <li>Enter your Order Number and Collector ID exactly as shown in your account and order details.</li>
               <li>Select the item or items and quantities you want to return. You may select one item or all eligible items in your order; no reason is required.</li>
               <li>Tap <strong>Submit Return Request</strong>. The return address and packing instructions will appear in Return History immediately. A submitted request does not confirm refund eligibility.</li>
-              <li>Include your proof of purchase or buyer details (name, checkout email, or order number) inside the package.</li>
+              <li>Include your proof of purchase or buyer details (name, checkout email, Collector ID or Order Number) inside the package.</li>
               <li>Purchase and print a shipping label from the shipping company you choose. You pay the return shipping cost for a voluntary return. Add the return tracking number in Return History after mailing.</li>
             </ol>
             <p>Items must be in the condition received: unworn, unwashed, with tags and original packaging where applicable.</p>
@@ -665,6 +670,7 @@
       let loadVersion = 0;
       let cancellations = [];
       let cancellationReady = false;
+      let returnQueryFailed = false;
       let returnRequestKey = null;
       let reviewedReturnOrder = null;
       let actionBusy = false;
@@ -829,13 +835,13 @@
         byId("returnButton").textContent = "Submit Return Request";
         if (reveal !== true) {
           byId("returnSelectionNote").textContent =
-            "Enter your order number, then tap Submit Return Request to view purchased items. No request is sent until you choose items and confirm.";
+            "Enter your Order Number, then tap Submit Return Request to view purchased items. No request is sent until you choose items and confirm.";
           return false;
         }
         const order = orders.find(
           (o) => o.order_number === byId("returnOrderNumber").value.trim(),
         );
-        if (!order) throw new Error("Order not found in your account. Check the order number exactly as shown in Orders.");
+        if (!order) throw new Error("Order not found in your account. Check the Order Number exactly as shown in Orders.");
         const items = Array.isArray(order.items) ? order.items : [];
         if (!items.length) throw new Error("Purchased items could not be loaded for this order. Please refresh or contact us.");
         const eligibleStatus = order.status === "completed";
@@ -1296,26 +1302,6 @@
 
           details.append(delivery);
 
-          const requests = returns.filter((r) => r.order_id === order.id);
-          for (const request of requests) {
-            details.append(node("p", "Return Status: " + request.status));
-            if (Array.isArray(request.items)) {
-              for (const line of request.items) {
-                details.append(
-                  node(
-                    "p",
-                    (line.name || "Item") +
-                      (line.size ? " — Size: " + line.size : "") +
-                      " — Return quantity: " +
-                      line.quantity,
-                    "muted",
-                  ),
-                );
-              }
-            } else {
-              details.append(node("p", "Whole-order return request", "muted"));
-            }
-          }
           if (
             order.status === "completed" &&
             Array.isArray(order.items) &&
@@ -1349,7 +1335,7 @@
         sheet.className = "return-instruction-sheet";
         sheet.style.cssText = "margin-top:20px;line-height:1.6";
         sheet.append(node("h3", "Return Instructions"), node("p", "Order Number: " + order.order_number), node("p", "Return Reference (unique to this request): " + request.id));
-        if (request.member_id) sheet.append(node("p", "Member ID: " + request.member_id));
+        if (request.member_id) sheet.append(node("p", "Collector ID: " + request.member_id));
         sheet.append(node("h3", "Items Selected for Return"));
         for (const item of request.items || order.items || []) {
           sheet.append(node("p", (item.name || "Item") + " — Quantity: " + item.quantity + (item.size ? " — Size: " + item.size : "")));
@@ -1361,8 +1347,8 @@
         const steps = node("ol");
         for (const text of [
           "Return only the selected items in their original condition. Include original packaging, tags, accessories, and included materials where applicable.",
-          "Place your receipt or order number, buyer name and email, and the return reference inside the package so we can identify your return. You may also include your Member ID.",
-          "Pack your items securely. Buy and print a shipping label from the shipping company you choose using the address above. You pay the voluntary return shipping cost, subject to our Return & Refund Policy.",
+          "Place your receipt, Collector ID or Order Number, buyer name and email, and the return reference inside the package so we can identify your return.",
+          "Pack your items securely. Buy and print a shipping label from the shipping company you choose using the address above. Please review the Return & Refund Policy.",
           "Retain your shipment receipt and tracking number. Add the carrier and tracking number below after mailing your package.",
           "Refund eligibility is confirmed after the returned items are received and inspected under our Return & Refund Policy.",
         ]) steps.append(node("li", text));
@@ -1387,19 +1373,18 @@
         const host = byId("returnHistory");
         if (!host) return;
         host.replaceChildren();
-        if (!returns.length) { host.append(node("p", "No return requests yet.")); return; }
+        if (!returns.length) {
+          host.append(node("p", returnQueryFailed ? "Return history could not be loaded. Use Refresh Return Status to try again." : "No return requests yet."));
+          return;
+        }
         for (const request of returns) {
           const order = orders.find(order => order.id === request.order_id);
           const card = node("article", undefined, "card");
-          card.append(node("h3", "Order Number: " + (order?.order_number || "Unavailable")), node("p", "Return Status: " + (request.status === "requested" && request.return_tracking_number ? "Return Shipped" : returnStatusLabels[request.status] || request.status)), node("p", "Return Reference (unique to this request): " + request.id));
+          card.append(node("h3", "Order Number: " + (order?.order_number || "Unavailable")), node("p", "Return Reference (unique to this request): " + request.id), node("p", "Submitted: " + date(request.created_at)));
           for (const item of request.items || order?.items || []) {
             card.append(node("p", (item.name || "Item") + " — Return quantity: " + item.quantity + (item.size ? " — Size: " + item.size : "")));
           }
           if (request.decision_note) card.append(node("p", "IM Collections: " + request.decision_note));
-          if (request.status === "requested") card.append(node("p", "Your request has been submitted. Follow the return instructions below. Refund eligibility will be confirmed after we receive and inspect your items."));
-          if (request.status === "approved") card.append(node("p", "Your return was approved after inspection. Your refund has not yet been recorded as issued."));
-          if (request.status === "refunded") card.append(node("p", "Your refund has been recorded as issued to your original payment method. Your provider may take additional time to show it."));
-          if (request.status === "received") card.append(node("p", "Your return has been received and is under review. A refund has not been confirmed yet."));
           const output = node("p"); output.setAttribute("role", "status"); output.setAttribute("aria-live", "polite");
           if (["requested", "approved", "received", "refunded"].includes(request.status) && order) {
             if (request.return_address) {
@@ -1481,10 +1466,40 @@
           host.append(card);
         }
       }
+      function renderReturnStatus() {
+        const host = byId("returnStatusList");
+        if (!host) return;
+        host.replaceChildren();
+        if (!returns.length) {
+          host.append(node("p", returnQueryFailed ? "Return statuses could not be loaded." : "No return statuses yet."));
+          return;
+        }
+        for (const request of returns) {
+          const order = orders.find(order => order.id === request.order_id);
+          const status = request.status === "requested" && request.return_tracking_number
+            ? "Return Shipped"
+            : returnStatusLabels[request.status] || request.status;
+          const card = node("article", undefined, "card");
+          card.append(
+            node("h3", "Order Number: " + (order?.order_number || "Unavailable")),
+            node("p", "Return Status: " + status),
+          );
+          if (request.status === "requested") card.append(node("p", request.return_tracking_number ? "Your return is in transit. Refund eligibility will be confirmed after we receive and inspect your items." : "Your request has been submitted. Refund eligibility will be confirmed after we receive and inspect your items."));
+          if (request.status === "received") card.append(node("p", "Your return has been received and is under review. A refund has not been confirmed yet."));
+          if (request.status === "approved") card.append(node("p", "Your return was approved after inspection. Your refund has not yet been recorded as issued."));
+          if (request.status === "refunded") card.append(node("p", "Your refund has been recorded as issued to your original payment method. Your provider may take additional time to show it."));
+          if (request.status === "declined" && request.decision_note) card.append(node("p", "IM Collections: " + request.decision_note));
+          if (request.status === "cancelled") card.append(node("p", "This return request was cancelled. Your purchase remains unchanged."));
+          host.append(card);
+        }
+      }
+
       async function loadOrders() {
         const version = ++loadVersion;
 
         message("pageMessage", "Loading your orders…");
+        byId("returnLoadMessage").hidden = true;
+        byId("returnLoadMessage").textContent = "";
 
         try {
           const {
@@ -1559,6 +1574,7 @@
           orders = orderResult.data || [];
           if (validOrder && !byId("returnOrderNumber").value)
             byId("returnOrderNumber").value = validOrder;
+          returnQueryFailed = Boolean(returnResult.error);
           returns = returnResult.data || [];
           cancellations = cancellationResult.data || [];
           cancellationReady = !cancellationResult.error;
@@ -1566,11 +1582,14 @@
           renderOrders();
           renderReturnChoices();
           renderReturnHistory();
+          renderReturnStatus();
 
           if (returnResult.error || cancellationResult.error) {
+            message("pageMessage", "Your orders are up to date.");
+            byId("returnLoadMessage").hidden = false;
             message(
-              "pageMessage",
-              "Orders loaded, but some return or cancellation details could not be loaded. Contact us or try refreshing.",
+              "returnLoadMessage",
+              "Some return or cancellation details could not be loaded. Contact us or try refreshing.",
               true,
             );
           } else if (
@@ -1738,3 +1757,4 @@
     <script src="member-tools.js"></script>
   </body>
 </html>
+

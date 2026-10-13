@@ -1380,7 +1380,15 @@
         for (const request of returns) {
           const order = orders.find(order => order.id === request.order_id);
           const card = node("article", undefined, "card");
-          card.append(node("h3", "Order Number: " + (order?.order_number || "Unavailable")), node("p", "Return Reference (unique to this request): " + request.id), node("p", "Submitted: " + date(request.created_at)));
+          const historyStatus = request.status === "requested" && request.return_tracking_number
+            ? "Return Shipped"
+            : returnStatusLabels[request.status] || request.status;
+          card.append(
+            node("h3", "Order Number: " + (order?.order_number || "Unavailable")),
+            node("p", "Return Reference (unique to this request): " + request.id),
+            node("p", "Submitted: " + date(request.created_at)),
+            node("p", "Return Status: " + historyStatus),
+          );
           for (const item of request.items || order?.items || []) {
             card.append(node("p", (item.name || "Item") + " — Return quantity: " + item.quantity + (item.size ? " — Size: " + item.size : "")));
           }
@@ -1476,6 +1484,13 @@
         }
         for (const request of returns) {
           const order = orders.find(order => order.id === request.order_id);
+          const cancelBy = new Date(request.created_at).getTime() + 24 * 60 * 60 * 1000;
+          const cancellationWindowEnded = request.status === "requested"
+            && !request.return_tracking_number
+            && !request.return_mailed_at
+            && !request.received_at
+            && Number.isFinite(cancelBy)
+            && Date.now() >= cancelBy;
           const status = request.status === "requested" && request.return_tracking_number
             ? "Return Shipped"
             : returnStatusLabels[request.status] || request.status;
@@ -1484,6 +1499,9 @@
             node("h3", "Order Number: " + (order?.order_number || "Unavailable")),
             node("p", "Return Status: " + status),
           );
+          if (cancellationWindowEnded) {
+            card.append(node("p", "Cancellation period: Ended (24 hours after the request). Your return request is still active. Online cancellation is no longer available; contact IM Collections if you need help."));
+          }
           if (request.status === "requested") card.append(node("p", request.return_tracking_number ? "Your return is in transit. Refund eligibility will be confirmed after we receive and inspect your items." : "Your request has been submitted. Refund eligibility will be confirmed after we receive and inspect your items."));
           if (request.status === "received") card.append(node("p", "Your return has been received and is under review. A refund has not been confirmed yet."));
           if (request.status === "approved") card.append(node("p", "Your return was approved after inspection. Your refund has not yet been recorded as issued."));
@@ -1538,7 +1556,9 @@
 
               client
                 .from("return_requests")
-                .select("id,order_id,status,created_at,items,request_key,member_id,decision_note,approved_at,received_at,return_address,return_carrier,return_tracking_number,return_mailed_at,cancelled_at,workflow_version,refund_reference,refund_amount,refunded_at")
+                // Select the columns this deployment actually has. Optional
+                // workflow columns vary between earlier return migrations.
+                .select("*")
                 .eq("user_id", user.id),
 
               client
@@ -1578,6 +1598,13 @@
           returns = returnResult.data || [];
           cancellations = cancellationResult.data || [];
           cancellationReady = !cancellationResult.error;
+
+          if (returnResult.error) {
+            console.error("Unable to load this member's return requests:", returnResult.error);
+          }
+          if (cancellationResult.error) {
+            console.error("Unable to load this member's order cancellations:", cancellationResult.error);
+          }
 
           renderOrders();
           renderReturnChoices();

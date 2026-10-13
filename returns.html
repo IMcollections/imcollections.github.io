@@ -486,6 +486,12 @@
         margin-top: 26px;
         margin-bottom: 16px;
       }
+      #returnStatusList .totals { max-width: none; width: 100%; }
+      #returnStatusList .return-order-details { margin-top: 18px; }
+      #returnStatusList .return-order-details > summary {
+        color: #896821; font-weight: 700; font-size: 1.2em; cursor: pointer;
+        margin-bottom: 18px;
+      }
     </style>
   </head>
 
@@ -1453,16 +1459,46 @@
           state.readOnly = true;
           state.value = returnDisplayStatus(request.status);
           state.setAttribute("aria-label", "Return Status");
-          card.append(state, node("h3", "Order Details"));
-          for (const item of request.items || order.items || []) {
-            const line = node("div", undefined, "order-item");
-            line.append(node("p", (item.name || "Item") + " — Quantity: " + item.quantity
-              + (item.size ? " — Size: " + item.size : "")
-              + (item.color ? " — Color: " + item.color : "")));
-            if (item.price != null) line.append(node("p", "Item Price: " + money(item.price, order.currency)));
-            card.append(line);
+          card.append(state);
+          const orderDetails = node("details", undefined, "return-order-details");
+          orderDetails.append(node("summary", "Order Details"));
+          const orderSummary = node("section");
+          orderSummary.append(node("h3", "Order Summary"));
+          for (const item of Array.isArray(order.items) ? order.items : []) {
+            const row = node("div", undefined, "item");
+            if (item.image) {
+              try {
+                const url = new URL(item.image, location.href);
+                if (url.protocol === "https:" || url.protocol === "http:") {
+                  const img = node("img");
+                  img.src = url.href;
+                  img.alt = item.name || "Purchased item";
+                  img.loading = "lazy";
+                  row.append(img);
+                }
+              } catch (_) {}
+            }
+            const copy = node("div", undefined, "item-copy");
+            copy.append(node("strong", item.name || "Item"),
+              node("p", "Quantity: " + item.quantity));
+            if (item.size) copy.append(node("p", "Size: " + item.size));
+            if (item.color) copy.append(node("p", "Color: " + item.color));
+            row.append(copy, node("span", money(Number(item.price) * Number(item.quantity), order.currency)));
+            orderSummary.append(row);
           }
-          if (order.total != null) card.append(node("p", "Original Order Total: " + money(order.total, order.currency)));
+          const totals = node("div", undefined, "totals");
+          for (const [label, field] of [
+            ["Subtotal", "subtotal"], ["Discount", "discount"],
+            ["Shipping", "shipping"], ["Tax", "tax"], ["Total", "total"]
+          ]) {
+            const row = node("div", undefined, "summary-row" + (field === "total" ? " total" : ""));
+            row.append(node("span", label), node("span",
+              (field === "discount" ? "−" : "") + money(order[field], order.currency)));
+            totals.append(row);
+          }
+          orderSummary.append(totals);
+          orderDetails.append(orderSummary);
+          card.append(orderDetails);
           const deadline = new Date(request.created_at).getTime() + 24 * 60 * 60 * 1000;
           const period = node("p");
           const output = node("p");

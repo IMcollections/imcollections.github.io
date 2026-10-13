@@ -459,6 +459,33 @@
         stroke: #167cd3 !important;
         fill: #167cd3 !important;
       }
+
+      #returnStatusLookup {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: stretch;
+      }
+      #returnStatusLookup label {
+        grid-column: 1 / -1;
+        margin: 0;
+      }
+      #statusOrderNumber {
+        min-width: 0;
+        width: 100%;
+        margin: 0;
+        min-height: 48px;
+      }
+      #checkReturnStatus {
+        width: auto;
+        margin: 0;
+        min-height: 48px;
+        white-space: nowrap;
+      }
+      #returnStatusResultsHeading {
+        margin-top: 26px;
+        margin-bottom: 16px;
+      }
     </style>
   </head>
 
@@ -630,6 +657,7 @@
             <button id="checkReturnStatus" type="submit">Status</button>
           </form>
           <p id="returnLoadMessage" class="message" role="status" aria-live="polite" hidden></p>
+          <h3 id="returnStatusResultsHeading">Return Status Results</h3>
           <div id="returnStatusList"></div>
         </section>
         <section class="card" id="returnInstructions">
@@ -1425,7 +1453,7 @@
           state.readOnly = true;
           state.value = returnDisplayStatus(request.status);
           state.setAttribute("aria-label", "Return Status");
-          card.append(state, node("h3", "Order Summary"));
+          card.append(state, node("h3", "Order Details"));
           for (const item of request.items || order.items || []) {
             const line = node("div", undefined, "order-item");
             line.append(node("p", (item.name || "Item") + " — Quantity: " + item.quantity

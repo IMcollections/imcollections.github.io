@@ -1,13 +1,15 @@
-/* Public, aggregate wishlist counts. Individual member identities stay private. */
+/* Cumulative wishlist additions. Removing an item does not decrease the total. */
 (() => {
   const db = typeof supabaseClient !== "undefined" ? supabaseClient : null;
   if (!db) return;
 
   let refreshTimer = null;
   let active = false;
+  let refreshPending = false;
 
   function collectButtons() {
-    return [...document.querySelectorAll(".wishlist [data-wishlist-count]")];
+    return [...document.querySelectorAll(".wishlist[data-product-id]")]
+      .filter(button => button.querySelector("[data-wishlist-count]"));
   }
 
   function databaseProductId(button) {
@@ -17,7 +19,11 @@
   }
 
   async function refreshCounts() {
-    if (active || document.visibilityState === "hidden") return;
+    if (document.visibilityState === "hidden") return;
+    if (active) {
+      refreshPending = true;
+      return;
+    }
     const buttons = collectButtons();
     const ids = [...new Set(buttons.map(databaseProductId).filter(Boolean))];
     if (!ids.length) return;
@@ -40,19 +46,23 @@
         if (badge.textContent !== String(count)) badge.textContent = String(count);
         badge.setAttribute(
           "aria-label",
-          `${count} ${count === 1 ? "member has" : "members have"} saved this item`,
+          `${count} total saves`,
         );
         button.dataset.savedCount = String(count);
         const active = button.classList.contains("active");
         button.setAttribute(
           "aria-label",
-          `${active ? "Remove" : "Add"} from wishlist. ${count} ${count === 1 ? "member has" : "members have"} saved this item.`,
+          `${active ? "Remove" : "Add"} from wishlist. ${count} total saves.`,
         );
       }
     } catch (error) {
       console.warn("Wishlist counts could not be refreshed:", error);
     } finally {
       active = false;
+      if (refreshPending) {
+        refreshPending = false;
+        scheduleRefresh();
+      }
     }
   }
 

@@ -1,12 +1,14 @@
-/* IM Collections update: OCT09-ACCOUNT-LAYOUT-TRACKING */
+/* Wishlist Add to Cart: 20261013-wishlist-cart-v2 */
 /* Shared authenticated account navigation, wishlist and saved Square cards. */
 (() => {
   const styles = document.createElement("style");
   styles.textContent = `
+    .im-wishlist-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:14px}
+    .im-wishlist-actions button{margin:0!important;width:auto!important}
+
     [hidden]{display:none!important}
     .im-account-select{width:100%;max-width:520px;min-height:48px;padding:12px 42px 12px 16px;border:1px solid #ddd7c9;border-radius:10px;background:#eee9dc;color:#6f501b;font-size:16px;font-weight:600}
     .im-photo-thumbnail{padding:0!important;border:0!important;background:transparent!important;cursor:zoom-in;width:auto!important;margin:0!important}
-    #cartItems .cart-thumb img{cursor:zoom-in}
     .im-photo-dialog{width:min(94vw,700px);max-height:90dvh;overflow:auto;border:0;border-radius:14px;padding:24px;margin:auto;color:#111;background:white}
     .im-photo-dialog::backdrop{background:rgba(0,0,0,.6)}
     .im-photo-heading{display:flex;align-items:start;justify-content:space-between;gap:12px;margin-bottom:18px}
@@ -27,18 +29,12 @@
     #memberIdentity{margin:8px 0 18px;font-size:16px;color:#8f681e}
     #accountSectionTitle,#wishlistSection>h3,#paymentSection>h3,#collectionsHeading{display:none}
     #accountGreeting{margin:16px 0 0;font-weight:600}
-    .reward-history-wrap{overflow-x:auto;margin-top:12px}
-    #rewardHistoryTable{width:100%;border-collapse:collapse;text-align:left;min-width:460px}
-    #rewardHistoryTable th,#rewardHistoryTable td{padding:12px 9px;border-bottom:1px solid #e5e0d6;vertical-align:top}
-    #rewardHistoryTable th{color:#76571d}
-    #rewardHistoryTable td:first-child small{display:block;color:#666;margin-top:4px}
-    .reward-history-note{font-size:.92em;color:#666}
 
     .im-member-nav{margin:14px 0 24px;color:#8f681e}
     .im-member-nav summary{padding:14px;background:#eee9dc;border-radius:8px;cursor:pointer;font-weight:bold}
     .im-member-nav nav{display:grid;background:white;border:1px solid #ddd;border-radius:8px}
     .im-member-nav a{display:block;padding:12px 16px;border-bottom:1px solid #eee;color:#8f681e}
-    .wishlist.active svg{stroke:#168641!important;fill:#168641!important}
+    .wishlist.active svg{stroke:#167cd3!important;fill:#167cd3!important}
   `;
   document.head.append(styles);
   function productId(button) {
@@ -79,31 +75,21 @@
     if (text != null) n.textContent = text;
     return n;
   };
-  // Account pages already have a section dropdown; keep Back to Shop by itself.
-  if (!document.getElementById("headerLoggedIn")) {
-    for (const link of document.querySelectorAll(
-      'header a[href="my-account.html"],header a[href="my-account.html#summary"]',
-    ))
-      link.remove();
-  }
-  const guestMenu = document.getElementById("headerLoggedOut");
-  if (guestMenu) {
-    guestMenu.replaceChildren();
-    for (const [label, href] of [
-      ["Login", "my-account.html"],
-      ["Register", "Register.html"],
-      ["Refer A Friend", "my-account.html#referral"],
-      ["Track Order", "track-orders.html"],
-    ]) {
-      const link = el("a", label);
-      link.href = href;
-      guestMenu.append(link);
+  if (
+    document.querySelector("[data-member-links]") &&
+    !document.getElementById("headerLoggedIn")
+  ) {
+    const header = document.querySelector("header");
+    if (header) {
+      const link = el("a", "My Account");
+      link.href = "my-account.html#summary";
+      link.style.cssText = "font-weight:600;margin-left:12px";
+      header.prepend(link);
     }
   }
   const routes = [
     ["Account Summary", "my-account.html#summary"],
-    ["Track Rewards", "my-account.html#rewards"],
-    ["Wishlists", "my-account.html#wishlist"],
+    ["Wishlist", "my-account.html#wishlist"],
     ["Orders", "orders-returns.html#orders"],
     ["Returns", "returns.html"],
     ["Track Orders", "track-orders.html"],
@@ -130,20 +116,11 @@
         container.closest("footer") || container.closest("#loggedInAccount")
           ? [
               routes[0],
-              routes[1],
               routes[2],
               routes[3],
-              routes[4],
               ["Refer A Friend", "my-account.html#referral"],
             ]
-          : container.closest("#headerLoggedIn")
-            ? [
-                routes[0],
-                routes[1],
-                routes[2],
-                ["Refer A Friend", "my-account.html#referral"],
-              ]
-            : routes;
+          : routes;
       container.replaceChildren();
       for (const [label, href] of links) {
         const a = el("a", label);
@@ -175,14 +152,8 @@
     if (details) {
       const host = el("div");
       host.className = "im-member-nav";
-      host.setAttribute("role", "heading");
-      host.setAttribute("aria-level", "2");
-      if (location.pathname.endsWith("track-orders.html")) {
-        host.hidden = false;
-      } else {
-        host.dataset.memberOnly = "";
-        host.hidden = true;
-      }
+      host.dataset.memberOnly = "";
+      host.hidden = true;
       host.append(select);
       details.replaceWith(host);
     } else container.replaceChildren(select);
@@ -243,18 +214,14 @@
         img.alt = title.textContent;
         gallery.append(img);
       }
-      photoDialog.replaceChildren(head);
-      const price = Number(item.price ?? product.price);
-      if (Number.isFinite(price))
-        photoDialog.append(el("p", "$" + price.toFixed(2) + " each"));
+      photoDialog.replaceChildren(head, gallery);
       const description = item.description || product.description;
       if (description) photoDialog.append(el("p", description));
-      const size = item.size || (!purchased ? product.size : null);
+      const size = purchased ? item.size : product.size;
       if (size)
         photoDialog.append(
           el("p", (purchased ? "Purchased size: " : "Available size: ") + size),
         );
-      photoDialog.append(gallery);
       if (!purchased) {
         const shop = el("a", "Back to Shopping");
         shop.href = "index.html#featured";
@@ -265,16 +232,16 @@
     }
     draw(item);
     // Old receipts retain their purchased name, price and size; catalog details only enrich the viewer.
-    const id =
-      Number(item.id) >= 1000000 ? Number(item.id) - 1000000 : Number(item.id);
+    const id = purchased ? Number(item.id) - 1000000 : Number(item.id);
     if (
+      purchased &&
       Number.isSafeInteger(id) &&
       id > 0 &&
       (!item.description || !item.images?.length)
     ) {
       const r = await db
         .from("products")
-        .select("name,price,description,size,image_urls")
+        .select("name,description,size,image_urls")
         .eq("id", id)
         .maybeSingle();
       if (!r.error && r.data && run === photoVersion) draw(r.data);
@@ -285,15 +252,13 @@
       const active = wishlist.has(productId(b) - 1000000);
       b.classList.toggle("active", active);
       b.setAttribute("aria-pressed", String(active));
-      const savedCount =
-        b.dataset.savedCount || b.querySelector("[data-wishlist-count]")?.textContent || "0";
       b.setAttribute(
         "aria-label",
-        `${active ? "Remove" : "Add"} from wishlist. ${savedCount} members saved this item.`,
+        active ? "Remove from wishlist" : "Add to wishlist",
       );
       if (!b.querySelector("svg")) {
-        const heart = b.querySelector("[data-wishlist-heart]");
-        if (heart) heart.textContent = active ? "💚" : "♡";
+        const text = active ? "💙" : "♡";
+        if (b.textContent !== text) b.textContent = text;
       }
     }
   }
@@ -328,7 +293,6 @@
       if (stamp !== version) return;
       removing ? wishlist.delete(id) : wishlist.add(id);
       syncHearts();
-      window.dispatchEvent(new Event("im-wishlist-updated"));
       if (typeof showToast === "function")
         showToast(removing ? "Removed from wishlist" : "Added to wishlist");
     } catch (e) {
@@ -473,7 +437,10 @@
         syncHearts();
         renderWishlist();
       };
-      copy.append(shop, add, remove, cartMessage);
+      const actions = el("div");
+      actions.className = "im-wishlist-actions";
+      actions.append(shop, add, remove);
+      copy.append(actions, cartMessage);
       row.append(copy);
       target.append(row);
     }
@@ -649,8 +616,6 @@
       routes.find((x) => x[1].endsWith("#" + tab))?.[0] || "Account Summary";
     if (user && tab === "wishlist") renderWishlist();
     if (user && tab === "payment") renderCards();
-    if (name === "rewards" && user)
-      document.getElementById("trackRewardsSection")?.scrollIntoView({ behavior: "smooth", block: "start" });
     if (name === "referral" && user) {
       document.getElementById("referFriendBtn")?.click();
       document
@@ -734,8 +699,8 @@
     const identity = document.getElementById("memberIdentity");
     if (identity)
       identity.textContent = id.error
-        ? "Collectors ID could not be loaded."
-        : "Collectors ID: " + (id.data || "Pending");
+        ? "Member ID could not be loaded."
+        : "Member ID: " + (id.data || "Pending");
     const input = document.getElementById("returnMemberId");
     if (input && !id.error) input.value = id.data || "";
     if (saved.error) {
@@ -778,51 +743,12 @@
     if (["SIGNED_IN", "SIGNED_OUT", "INITIAL_SESSION"].includes(event))
       setTimeout(loadMember, 0);
   });
-  // Delegate clicks so newly rendered cart thumbnails also open the swipe gallery.
-  function prepareCartImages() {
-    for (const image of document.querySelectorAll(
-      "#cartItems .cart-thumb img",
-    )) {
-      image.tabIndex = 0;
-      image.setAttribute("role", "button");
-      image.setAttribute("aria-label", "Enlarge " + (image.alt || "product"));
-    }
-  }
-  prepareCartImages();
-  document.addEventListener("keydown", (event) => {
-    if (
-      ["Enter", " "].includes(event.key) &&
-      event.target.matches?.("#cartItems .cart-thumb img")
-    ) {
-      event.preventDefault();
-      event.target.click();
-    }
-  });
-  document.addEventListener("click", (event) => {
-    const image = event.target.closest?.("#cartItems .cart-thumb img");
-    if (!image) return;
-    const row = image.closest(".cart-item");
-    const index = Array.from(
-      document.querySelectorAll("#cartItems .cart-item"),
-    ).indexOf(row);
-    const items = typeof cart !== "undefined" ? cart : [];
-    const item = items[index];
-    if (!item) return;
-    event.preventDefault();
-    openProductPhoto(item);
-  });
   loadMember();
   // Product grids are rendered/replaced by the existing catalog functions.
   if (document.getElementById("headerLoggedIn")) {
     const observer = new MutationObserver((m) => {
-      if (m.some((x) => x.addedNodes.length)) {
-        syncHearts();
-        prepareCartImages();
-      }
+      if (m.some((x) => x.addedNodes.length)) syncHearts();
     });
-    
     observer.observe(document.body, { childList: true, subtree: true });
   }
 })();
-
-

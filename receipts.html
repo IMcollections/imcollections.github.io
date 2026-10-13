@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Order Receipt | IM Collections</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:16px/1.55 Arial,sans-serif;background:#f7f6f2;color:#222}header{background:#111;color:#c9a44c;padding:18px;text-align:center;letter-spacing:3px}main{max-width:850px;margin:24px auto;padding:0 18px}nav,.actions{display:flex;gap:18px;flex-wrap:wrap;margin:20px 0}a{color:#8a651f}h1,h2{color:#8a651f;line-height:1.3}.card{padding:28px;border:1px solid #dedbd2;border-radius:12px;background:#fff;margin:20px 0}.logo{width:80px;height:80px;object-fit:contain}.receipt-head{display:flex;justify-content:space-between;gap:20px;align-items:center}.badge{padding:10px;background:#fff3d2;border:1px solid #c9a44c;font-weight:bold}.row{display:flex;justify-content:space-between;gap:18px;margin:10px 0}.total{font-weight:bold;font-size:21px;border-top:2px solid #222;padding-top:12px}.totals{max-width:360px;margin:24px 0 24px auto}.items{border-top:1px solid #ddd;border-bottom:1px solid #ddd}.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;padding:16px 0;border-bottom:1px solid #eee}.item:last-child{border:0}.item p{margin:4px 0}.muted{color:#626262}.error{color:#a42626}.message{min-height:24px}.wrap{overflow-wrap:anywhere}.login-card{max-width:440px;margin:auto}label{display:block;margin:12px 0 6px}input,button{font:inherit}input{width:100%;padding:12px;border:1px solid #aaa;border-radius:5px}button,.button{display:inline-block;background:#c9a44c;color:#111;padding:12px 18px;border:0;border-radius:6px;cursor:pointer;text-decoration:none}button:disabled{opacity:.5;cursor:wait}.login-card button{margin-top:20px}.policy-note{border-top:1px solid #ddd;padding-top:18px}[hidden]{display:none!important}a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #c9a44c;outline-offset:3px}@media(max-width:540px){.card{padding:20px}.receipt-head{align-items:flex-start}.logo{width:60px;height:60px}h1{font-size:26px}}
+@media print{body{background:#fff;font-size:11pt}header,nav,.actions,#pageMessage,#loginCard{display:none!important}main{padding:0;max-width:none;margin:0}.card{border:0;padding:0;margin:0;box-shadow:none}.item,.total,.receipt-head{break-inside:avoid}a{color:#222;text-decoration:none}.badge{background:transparent} @page{margin:15mm}}
+</style></head><body><header>IM COLLECTIONS</header><main>
+<nav aria-label="Receipt navigation"><a href="orders-returns.html">Orders &amp; Returns</a><a href="track-orders.html">Track Orders &amp; Returns</a><a href="index.html#featured">Back to Shopping</a></nav>
+<p id="pageMessage" class="message" role="status" aria-live="polite">Loading receipt…</p>
+    <section id="loginCard" class="card login-card" hidden>
+      <h2>Sign in to view your receipt</h2>
+
+      <form id="loginForm">
+        <label for="email">Email Address</label>
+        <input
+          id="email"
+          type="email"
+          autocomplete="email"
+          placeholder="Email address"
+          required
+        >
+
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          autocomplete="current-password"
+          placeholder="Password"
+          required
+        >
+
+        <button id="loginButton" type="submit">
+          Sign In
+        </button>
+      </form>
+
+      <p id="loginMessage" class="message" role="status"></p>
+
+      <p>
+        Not a member?
+        <a href="Register.html">Register</a>
+      </p>
+
+      <p>
+        <a href="my-account.html">Forgot your password?</a>
+      </p>
+    </section>
+
+
+<article id="receipt" class="card" hidden>
+<div class="receipt-head"><div><h1>Order Receipt</h1><p>IM Collections</p></div><img src="IM-logo.jpg" class="logo" alt="IM Collections"></div>
+<p id="testNotice" class="badge" hidden>TEST RECEIPT — Square Sandbox. This is not proof of a live payment.</p>
+<div id="orderInfo" class="wrap"></div>
+<h2>Purchased Items</h2><div id="receiptItems" class="items"></div>
+<div id="receiptTotals" class="totals"></div>
+<h2>Delivery Information</h2><div id="delivery" class="wrap"></div>
+<div class="policy-note"><p>Keep this receipt as proof of purchase. For a return, include a copy of this receipt or your order number, name, and checkout email inside the package.</p><p>See our <a href="return-policy.html">Returns &amp; Refund Policy</a>. This receipt records the original purchase; later refunds are recorded separately.</p></div>
+</article>
+<div id="receiptActions" class="actions" hidden><button id="printReceipt" type="button">Print / Save PDF</button><a id="orderLink" class="button" href="orders-returns.html">View Order Details</a></div>
+</main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+    const client = supabase.createClient(
+      "https://vqzjegneplzeoqxcqfeu.supabase.co",
+      "sb_publishable_QDvKrAHvvopp_fuunxTxEA_4v6TD4Jk"
+    );
+
+    const byId = id => document.getElementById(id);
+
+
+// The current payment endpoint uses Square Sandbox. Change only after production deployment.
+const RECEIPT_SANDBOX = true;
+let loadVersion=0;
+const orderNumber=new URLSearchParams(location.search).get('order')||'';
+function node(tag,text,className){const el=document.createElement(tag);if(text!==undefined)el.textContent=String(text);if(className)el.className=className;return el;}
+function message(id,text,error=false){byId(id).textContent=text;byId(id).className='message '+(error?'error':'');}
+function money(value,currency='USD'){const amount=Number(value);return new Intl.NumberFormat('en-US',{style:'currency',currency:currency==='CAD'?'CAD':'USD'}).format(Number.isFinite(amount)?amount:0);}
+function dated(value){const d=new Date(value);return value&&!Number.isNaN(d.getTime())?d.toLocaleString('en-US',{month:'2-digit',day:'2-digit',year:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'}):'Not available';}
+function clearReceipt(){byId('receipt').hidden=true;byId('receiptActions').hidden=true;for(const id of ['orderInfo','receiptItems','receiptTotals','delivery'])byId(id).replaceChildren();document.title='Order Receipt | IM Collections';}
+function renderReceipt(order){
+  clearReceipt();
+  if(!order.paid_at||!order.payment_id)throw new Error('A receipt is available only for a confirmed, paid order.');
+  const info=byId('orderInfo');
+  for(const [label,value] of [['Receipt / Order Number',order.order_number],['Payment Date',dated(order.paid_at)],['Checkout Email',order.customer_email||'Not available'],['Payment Provider',order.payment_provider||'Not available'],['Payment Method',({card:'Card',giftcard:'Gift Card',googlepay:'Google Pay'})[order.payment_method]||order.payment_method||'Not available'],['Transaction Reference',order.payment_id]])info.append(node('p',label+': '+value));
+  const address=order.shipping_address||{};
+  const name=[address.first_name,address.last_name].filter(Boolean).join(' ');
+  if(name)info.append(node('p','Customer: '+name));
+  if(order.status==='cancelled')info.append(node('p','Order Status: Cancelled. This original receipt does not confirm whether a refund has been completed.'));
+  else info.append(node('p','Payment confirmed. Shipment progress is shown in Orders & Returns.'));
+  for(const item of Array.isArray(order.items)?order.items:[]){
+    const row=node('div',undefined,'item'),copy=node('div');
+    copy.append(node('strong',item.name||'Item'),node('p','Quantity: '+item.quantity+' · Unit price: '+money(item.price,order.currency),'muted'));
+    if(item.size)copy.append(node('p','Size: '+item.size));
+    row.append(copy,node('strong',money(Number(item.price)*Number(item.quantity),order.currency)));byId('receiptItems').append(row);
+  }
+  for(const [label,field] of [['Merchandise Subtotal','subtotal'],['Discount / Reward','discount'],['Shipping','shipping'],['Tax','tax'],['Total Paid','total']]){
+    const row=node('div',undefined,'row'+(field==='total'?' total':''));row.append(node('span',label),node('span',(field==='discount'?'−':'')+money(order[field],order.currency)));byId('receiptTotals').append(row);
+  }
+  const lines=[name,address.address_line1||address.address,address.address_line2||address.apartment,[address.city,address.state_province||address.state,address.postal_code].filter(Boolean).join(', '),address.country];
+  for(const text of lines)if(text)byId('delivery').append(node('p',text));
+  if(address.shipping_method)byId('delivery').append(node('p','Delivery: '+(address.shipping_method==='express'?'Express':'Standard')));
+  byId('testNotice').hidden=!(RECEIPT_SANDBOX&&order.payment_provider==='square');
+  byId('orderLink').href='orders-returns.html?order='+encodeURIComponent(order.order_number);
+  document.title='IM-Receipt-'+order.order_number;
+  byId('receipt').hidden=false;byId('receiptActions').hidden=false;
+}
+async function loadReceipt(){
+  const version=++loadVersion;clearReceipt();byId('loginCard').hidden=true;
+  if(!/^\d{10}$/.test(orderNumber)){message('pageMessage','Open a receipt from a successful order in Orders & Returns.',true);return;}
+  message('pageMessage','Loading your receipt…');
+  try{
+    const {data:{user},error:authError}=await client.auth.getUser();if(version!==loadVersion)return;
+    if(authError||!user){byId('loginCard').hidden=false;message('pageMessage','Sign in with your checkout email to view this receipt. Guest buyers can register and confirm that email first.');return;}
+    // Server-side claiming requires a confirmed email and never exposes other guest orders.
+    if(user.email_confirmed_at)await client.rpc('im_claim_guest_orders');
+    if(version!==loadVersion)return;
+    const {data:order,error}=await client.from('orders').select('*').eq('user_id',user.id).eq('order_number',orderNumber).maybeSingle();
+    if(version!==loadVersion)return;
+    if(error)throw new Error('Unable to load your receipt. Please try again.');
+    if(!order)throw new Error('This receipt is not available in this account. Use the confirmed email used at checkout.');
+    renderReceipt(order);message('pageMessage','Receipt ready. Print it or save it as a PDF.');
+  }catch(error){if(version===loadVersion){clearReceipt();message('pageMessage',error.message||'Unable to load receipt.',true);}}
+}
+byId('printReceipt').addEventListener('click',()=>{if(!byId('receipt').hidden)window.print();});
+byId('loginForm').addEventListener('submit',async event=>{
+  event.preventDefault();byId('loginButton').disabled=true;
+  try{const {error}=await client.auth.signInWithPassword({email:byId('email').value.trim(),password:byId('password').value});if(error)throw error;byId('password').value='';await loadReceipt();}
+  catch(error){message('loginMessage',error.message||'Unable to sign in.',true);}
+  finally{byId('loginButton').disabled=false;}
+});
+client.auth.onAuthStateChange(()=>{++loadVersion;clearReceipt();setTimeout(loadReceipt,0);});
+loadReceipt();
+</script></body></html>

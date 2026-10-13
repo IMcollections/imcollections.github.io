@@ -1254,26 +1254,6 @@
 
           details.append(delivery);
 
-          const requests = returns.filter((r) => r.order_id === order.id);
-          for (const request of requests) {
-            details.append(node("p", "Return Status: " + (({requested: "Return Requested", approved: "Return Approved — Refund Pending", received: "Return Received — Under Review", cancelled: "Return Cancelled", declined: "Return Declined", refunded: "Refund Issued"})[request.status] || request.status)));
-            if (Array.isArray(request.items)) {
-              for (const line of request.items) {
-                details.append(
-                  node(
-                    "p",
-                    (line.name || "Item") +
-                      (line.size ? " — Size: " + line.size : "") +
-                      " — Return quantity: " +
-                      line.quantity,
-                    "muted",
-                  ),
-                );
-              }
-            } else {
-              details.append(node("p", "Whole-order return request", "muted"));
-            }
-          }
           if (
             order.status === "completed" &&
             Array.isArray(order.items) &&

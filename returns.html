@@ -620,12 +620,16 @@
         </section>
         <section class="card" id="returnHistorySection">
           <h2>Return History</h2>
-          <button id="refreshReturns" type="button">Refresh Return Status</button>
-          <p id="returnLoadMessage" class="message" role="status" aria-live="polite" hidden></p>
           <div id="returnHistory"></div>
         </section>
         <section class="card" id="returnStatusSection">
           <h2>Return Status</h2>
+          <form id="returnStatusLookup">
+            <label for="statusOrderNumber">Enter Order Number</label>
+            <input id="statusOrderNumber" type="text" inputmode="numeric" placeholder="0000000000" pattern="[0-9]{10}" maxlength="10" required />
+            <button id="checkReturnStatus" type="submit">Status</button>
+          </form>
+          <p id="returnLoadMessage" class="message" role="status" aria-live="polite" hidden></p>
           <div id="returnStatusList"></div>
         </section>
         <section class="card" id="returnInstructions">
@@ -636,15 +640,15 @@
               <li>Request a return within 30 days after receiving your item.</li>
               <li>Enter your Order Number and Collector ID exactly as shown in your account and order details.</li>
               <li>Select the item or items and quantities you want to return. You may select one item or all eligible items in your order; no reason is required.</li>
-              <li>Tap <strong>Submit Return Request</strong>. The return address and packing instructions will appear in Return History immediately. A submitted request does not confirm refund eligibility.</li>
+              <li>Tap <strong>Submit Return Request</strong>. Use Return Status to look up your submitted request. A submitted request does not confirm refund eligibility.</li>
               <li>Include your proof of purchase or buyer details (name, checkout email, Collector ID or Order Number) inside the package.</li>
-              <li>Purchase and print a shipping label from the shipping company you choose. You pay the return shipping cost for a voluntary return. Add the return tracking number in Return History after mailing.</li>
+              <li>Purchase and print a shipping label from the shipping company you choose. You pay the return shipping cost for a voluntary return. Keep your shipping receipt and tracking number after mailing.</li>
             </ol>
             <p>Items must be in the condition received: unworn, unwashed, with tags and original packaging where applicable.</p>
             <p><strong>Final Sale items cannot be returned</strong> for a voluntary return. Custom or personalized products, personal care accessories such as beauty products, hazardous materials, flammable liquids, and gases are also excluded from voluntary returns. Legal rights for defective, incorrect, or misrepresented items still apply.</p>
             <p>Review the <a href="return-policy.html">Returns &amp; Refunds Policy</a> before submitting.</p>
             <h3>How to Cancel a Return</h3>
-            <p>Open Return History, tap <strong>Cancel Return Request</strong>, and confirm you have not mailed the items. You can cancel within 24 hours after submitting your request, as long as shipment has not been recorded and the items have not been received. If you have already mailed the package, contact IM Collections for help. Cancelling a return does not cancel your purchase. You may request eligible items again.</p>
+            <p>Open Return Status, enter your Order Number, tap <strong>Status</strong>, then tap <strong>Cancel Return Request</strong>, and confirm you have not mailed the items. You can cancel within 24 hours after submitting your request, as long as shipment has not been recorded and the items have not been received. If you have already mailed the package, contact IM Collections for help. Cancelling a return does not cancel your purchase. You may request eligible items again.</p>
             <p class="return-note">Your printable return instructions include the address; the shipping company sells and prints the postage label.</p>
           </div>
 
@@ -1374,140 +1378,105 @@
         if (!host) return;
         host.replaceChildren();
         if (!returns.length) {
-          host.append(node("p", returnQueryFailed ? "Return history could not be loaded. Use Refresh Return Status to try again." : "No return requests yet."));
+          host.append(node("p", returnQueryFailed ? "Return history could not be loaded. Enter your order number in Return Status and tap Status to try again." : "No return requests yet."));
           return;
         }
         for (const request of returns) {
           const order = orders.find(order => order.id === request.order_id);
           const card = node("article", undefined, "card");
-          const historyStatus = request.status === "requested" && request.return_tracking_number
-            ? "Return Shipped"
-            : returnStatusLabels[request.status] || request.status;
           card.append(
             node("h3", "Order Number: " + (order?.order_number || "Unavailable")),
-            node("p", "Return Reference (unique to this request): " + request.id),
-            node("p", "Submitted: " + date(request.created_at)),
-            node("p", "Return Status: " + historyStatus),
+            node("p", "Returned Date: " + (request.received_at ? date(request.received_at) : "Not received")),
           );
-          for (const item of request.items || order?.items || []) {
-            card.append(node("p", (item.name || "Item") + " — Return quantity: " + item.quantity + (item.size ? " — Size: " + item.size : "")));
-          }
-          if (request.decision_note) card.append(node("p", "IM Collections: " + request.decision_note));
-          const output = node("p"); output.setAttribute("role", "status"); output.setAttribute("aria-live", "polite");
-          if (["requested", "approved", "received", "refunded"].includes(request.status) && order) {
-            if (request.return_address) {
-              const sheet = returnInstructionSheet(request, order);
-              card.append(sheet);
-              const print = node("button", "View / Print Return Instructions"); print.type = "button";
-              print.addEventListener("click", () => printReturnInstructions(sheet, output)); card.append(print);
-            } else card.append(node("p", "Contact IM Collections for the return address and instructions before mailing your items."));
-          }
-          if (request.return_tracking_number) card.append(node("p", "Return Carrier: " + request.return_carrier), node("p", "Return Tracking Number: " + request.return_tracking_number));
-          if (request.status === "requested" && request.return_address) {
-            const form = node("form"); form.style.marginTop = "20px";
-            const carrier = node("select"); carrier.id = "returnCarrier-" + request.id;
-            for (const text of ["USPS", "UPS", "FedEx", "Other"]) {
-              const option = node("option", text); option.value = text; carrier.append(option);
-            }
-            if (request.return_carrier) carrier.value = request.return_carrier;
-            const tracking = node("input"); tracking.id = "returnTracking-" + request.id; tracking.type = "text"; tracking.required = true; tracking.minLength = 5; tracking.maxLength = 100; tracking.pattern = "[A-Za-z0-9 -]+"; tracking.placeholder = "Return Tracking Number"; tracking.value = request.return_tracking_number || "";
-            const carrierLabel = node("label", "Return Shipping Carrier"); carrierLabel.htmlFor = carrier.id;
-            const trackingLabel = node("label", "Return Tracking Number"); trackingLabel.htmlFor = tracking.id;
-            const save = node("button", "Save Return Tracking"); save.type = "submit";
-            form.append(carrierLabel, carrier, trackingLabel, tracking, save);
-            form.addEventListener("submit", async event => {
-              event.preventDefault(); save.disabled = true;
-              const stamp = loadVersion, owner = memberId;
-              output.textContent = "Saving return tracking…";
-              try {
-                const result = await client.rpc("im_save_return_tracking", {p_return_id: request.id, p_carrier: carrier.value, p_tracking_number: tracking.value.trim()});
-                if (stamp !== loadVersion || owner !== memberId) return;
-                if (result.error) throw result.error;
-                request.return_carrier = result.data.return_carrier;
-                request.return_tracking_number = result.data.return_tracking_number;
-                await loadOrders();
-                message("returnMessage", "Return tracking saved. IM Collections can now see your return shipment details.");
-              } catch (error) { if (stamp === loadVersion) output.textContent = error.message || "Unable to save return tracking. Please try again."; }
-              finally { save.disabled = false; }
-            });
-            card.append(form);
-          }
-          if (request.status === "cancelled") {
-            card.append(node("p", "This return request was cancelled. Your purchase remains unchanged. You may submit a new request if the items are still eligible."));
-            if (request.cancelled_at) card.append(node("p", "Cancelled: " + new Date(request.cancelled_at).toLocaleDateString("en-US")));
-          }
-          if (request.status === "requested") {
-            const cancelBy = new Date(request.created_at).getTime() + 24 * 60 * 60 * 1000;
-            if (!request.return_tracking_number && !request.return_mailed_at && !request.received_at && Number.isFinite(cancelBy) && Date.now() < cancelBy) {
-              const cancel = node("button", "Cancel Return Request"); cancel.type = "button";
-              card.append(node("p", "Changed your mind? Cancel this request only if you have not mailed the items. This does not cancel your purchase."));
-              cancel.addEventListener("click", async () => {
-                if (!confirm("Cancel this return request? Confirm that you have NOT mailed the items. Your purchase will remain unchanged.")) return;
-                const stamp = loadVersion, owner = memberId;
-                cancel.disabled = true; output.textContent = "Cancelling return request…";
-                try {
-                  const result = await client.rpc("im_cancel_account_return", {p_return_id: request.id});
-                  if (stamp !== loadVersion || owner !== memberId) return;
-                  if (result.error) throw result.error;
-                  request.status = result.data.status;
-                  request.cancelled_at = result.data.cancelled_at;
-                  await loadOrders();
-                  if (owner === memberId) message("returnMessage", "Return request cancelled. Your purchase remains unchanged. You can request eligible items again.");
-                } catch (error) {
-                  if (stamp === loadVersion && owner === memberId) output.textContent = error.message || "Unable to cancel this return. Please refresh and try again.";
-                } finally { cancel.disabled = false; }
-              });
-              card.append(cancel);
-              setTimeout(() => {
-                if (!cancel.isConnected) return;
-                cancel.remove();
-                card.append(node("p", "The 24-hour cancellation period has ended. Contact IM Collections if you need help."));
-              }, Math.max(0, cancelBy - Date.now()));
-            } else if (request.return_tracking_number || request.return_mailed_at || request.received_at) {
-              card.append(node("p", "A return shipment has been recorded. Contact IM Collections if you need help changing this return."));
-            } else {
-              card.append(node("p", "The 24-hour cancellation period has ended. Contact IM Collections if you need help."));
-            }
-          }
-          card.append(output);
-          const link = node("a", "View Order Details"); link.href = "orders-returns.html?order=" + encodeURIComponent(order?.order_number || ""); card.append(link);
           host.append(card);
         }
+      }
+      function returnDisplayStatus(status) {
+        if (status === "cancelled") return "Cancelled";
+        if (["completed", "refunded"].includes(status)) return "Completed";
+        // A closed, declined request must not imply a refund was issued.
+        if (status === "declined") return "Completed (Declined)";
+        return "Pending";
       }
       function renderReturnStatus() {
         const host = byId("returnStatusList");
         if (!host) return;
         host.replaceChildren();
-        if (!returns.length) {
-          host.append(node("p", returnQueryFailed ? "Return statuses could not be loaded." : "No return statuses yet."));
+        const number = byId("statusOrderNumber").value.trim();
+        if (!number) {
+          host.append(node("p", "Enter your order number and tap Status."));
           return;
         }
-        for (const request of returns) {
-          const order = orders.find(order => order.id === request.order_id);
-          const cancelBy = new Date(request.created_at).getTime() + 24 * 60 * 60 * 1000;
-          const cancellationWindowEnded = request.status === "requested"
-            && !request.return_tracking_number
-            && !request.return_mailed_at
-            && !request.received_at
-            && Number.isFinite(cancelBy)
-            && Date.now() >= cancelBy;
-          const status = request.status === "requested" && request.return_tracking_number
-            ? "Return Shipped"
-            : returnStatusLabels[request.status] || request.status;
+        if (returnQueryFailed) {
+          host.append(node("p", "Return status could not be loaded. Tap Status to try again."));
+          return;
+        }
+        const order = orders.find(order => String(order.order_number) === number);
+        const matches = order ? returns.filter(request => request.order_id === order.id) : [];
+        if (!matches.length) {
+          host.append(node("p", "No return request found for this order in your account."));
+          return;
+        }
+        for (const request of matches) {
           const card = node("article", undefined, "card");
-          card.append(
-            node("h3", "Order Number: " + (order?.order_number || "Unavailable")),
-            node("p", "Return Status: " + status),
-          );
-          if (cancellationWindowEnded) {
-            card.append(node("p", "Cancellation period: Ended (24 hours after the request). Your return request is still active. Online cancellation is no longer available; contact IM Collections if you need help."));
+          card.append(node("h3", "Order Number: " + number));
+          const state = node("input");
+          state.type = "text";
+          state.readOnly = true;
+          state.value = returnDisplayStatus(request.status);
+          state.setAttribute("aria-label", "Return Status");
+          card.append(state, node("h3", "Order Summary"));
+          for (const item of request.items || order.items || []) {
+            const line = node("div", undefined, "order-item");
+            line.append(node("p", (item.name || "Item") + " — Quantity: " + item.quantity
+              + (item.size ? " — Size: " + item.size : "")
+              + (item.color ? " — Color: " + item.color : "")));
+            if (item.price != null) line.append(node("p", "Item Price: " + money(item.price, order.currency)));
+            card.append(line);
           }
-          if (request.status === "requested") card.append(node("p", request.return_tracking_number ? "Your return is in transit. Refund eligibility will be confirmed after we receive and inspect your items." : "Your request has been submitted. Refund eligibility will be confirmed after we receive and inspect your items."));
-          if (request.status === "received") card.append(node("p", "Your return has been received and is under review. A refund has not been confirmed yet."));
-          if (request.status === "approved") card.append(node("p", "Your return was approved after inspection. Your refund has not yet been recorded as issued."));
-          if (request.status === "refunded") card.append(node("p", "Your refund has been recorded as issued to your original payment method. Your provider may take additional time to show it."));
-          if (request.status === "declined" && request.decision_note) card.append(node("p", "IM Collections: " + request.decision_note));
-          if (request.status === "cancelled") card.append(node("p", "This return request was cancelled. Your purchase remains unchanged."));
+          if (order.total != null) card.append(node("p", "Original Order Total: " + money(order.total, order.currency)));
+          const deadline = new Date(request.created_at).getTime() + 24 * 60 * 60 * 1000;
+          const period = node("p");
+          const output = node("p");
+          output.setAttribute("role", "status");
+          output.setAttribute("aria-live", "polite");
+          const cancel = node("button", "Cancel Return Request");
+          cancel.type = "button";
+          function updateCancellation() {
+            const expired = !Number.isFinite(deadline) || Date.now() >= deadline;
+            period.textContent = Number.isFinite(deadline)
+              ? "Cancellation period: 24 hours after submission. " + (expired ? "Ended: " : "Ends: ") + new Date(deadline).toLocaleString("en-US")
+              : "Cancellation period unavailable.";
+            cancel.disabled = expired || request.status !== "requested"
+              || Boolean(request.return_tracking_number || request.return_mailed_at || request.received_at);
+          }
+          updateCancellation();
+          if (request.status !== "cancelled") {
+            card.append(period, cancel);
+            if (Number.isFinite(deadline) && Date.now() < deadline) {
+              setTimeout(() => { if (cancel.isConnected) updateCancellation(); }, Math.max(0, deadline - Date.now()));
+            }
+          }
+          cancel.addEventListener("click", async () => {
+            updateCancellation();
+            if (cancel.disabled) return;
+            if (!confirm("Cancel this return request? Confirm that you have not mailed the items and want to keep them. Your purchase will remain unchanged.")) return;
+            const stamp = loadVersion, owner = memberId;
+            cancel.disabled = true;
+            output.textContent = "Cancelling return request…";
+            try {
+              const result = await client.rpc("im_cancel_account_return", { p_return_id: request.id });
+              if (stamp !== loadVersion || owner !== memberId) return;
+              if (result.error) throw result.error;
+              await loadOrders();
+            } catch (error) {
+              if (stamp === loadVersion && owner === memberId) {
+                output.textContent = error.message || "Unable to cancel this return request.";
+                updateCancellation();
+              }
+            }
+          });
+          card.append(output);
           host.append(card);
         }
       }
@@ -1725,7 +1694,7 @@
 
           message(
             "returnMessage",
-            "Your return request has been submitted. Follow the return shipping instructions in Return History. We will update your return status when we receive your items. Refund eligibility will be confirmed after inspection.",
+            "Your return request has been submitted. Contact IM Collections for return shipping instructions. We will update your return status when we receive your items. Refund eligibility will be confirmed after inspection.",
           );
 
           await loadOrders();
@@ -1740,7 +1709,13 @@
         }
       });
 
-      byId("refreshReturns").addEventListener("click", loadOrders);
+      byId("returnStatusLookup").addEventListener("submit", async event => {
+        event.preventDefault();
+        const button = byId("checkReturnStatus");
+        button.disabled = true;
+        try { await loadOrders(); }
+        finally { button.disabled = false; }
+      });
       byId("returnOrderNumber").addEventListener("input", () => {
         renderReturnChoices();
         message("returnMessage", "");

@@ -1875,25 +1875,6 @@
     .swipe-gallery-arrow.next { right: 4px; }
     .swipe-gallery-footer { display: flex; flex-direction: column; align-items: center; gap: 9px; padding-top: 10px; color: #555; font-size: 12px; }
     @media (max-width: 650px) { .swipe-gallery { padding: 8px; } .swipe-gallery-stage { min-height: 250px; } .swipe-gallery-stage img { height: min(47vh, 360px); } }
-
-
-/* Cart photo preview and saved wishlist */
-.cart-thumb-button{display:block;padding:0;border:0;background:transparent;cursor:zoom-in;width:90px;height:110px;}
-.cart-thumb-button:focus-visible,.cart-heart:focus-visible{outline:3px solid #c9962e;outline-offset:3px;}
-.cart-quantity-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-.cart-heart{border:0;background:transparent;font-size:28px;line-height:1;padding:5px;cursor:pointer;color:#777;}
-.cart-heart.is-saved{color:#c9962e;}
-.cart-photo-overlay{display:none;position:fixed;inset:0;z-index:6000;background:rgba(0,0,0,.88);align-items:center;justify-content:center;padding:56px 12px 25px;}
-.cart-photo-overlay.active{display:flex;}
-.cart-photo-close{position:absolute;top:14px;right:18px;border:0;background:transparent;color:white;font-size:34px;cursor:pointer;z-index:2;}
-.cart-photo-frame{width:min(700px,100%);max-height:calc(100dvh - 100px);position:relative;}
-.cart-photo-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;}
-.cart-photo-track::-webkit-scrollbar{display:none;}
-.cart-photo-track img{flex:0 0 100%;width:100%;height:min(70dvh,650px);object-fit:contain;scroll-snap-align:center;user-select:none;}
-.cart-photo-arrow{position:absolute;top:50%;transform:translateY(-50%);border:0;border-radius:50%;background:rgba(255,255,255,.8);color:#111;width:36px;height:40px;font-size:28px;cursor:pointer;}
-.cart-photo-arrow.prev{left:0;}.cart-photo-arrow.next{right:0;}
-@media(max-width:650px){.cart-photo-arrow{display:none;}}
-
   </style>
 </head>
 
@@ -3344,7 +3325,7 @@ loadCategoryImages();
               }
 
               <button
-                class="wishlist ${isProductSaved(product.id) ? 'active' : ''}"
+                class="wishlist"
                 data-product-id="${product.id}"
                 onclick="toggleWishlist(this)"
                 aria-label="Add to wishlist"
@@ -3463,80 +3444,16 @@ loadCategoryImages();
        WISHLIST
        ======================================================== */
 
-    const savedWishlistKey = "imCollectionsWishlist";
-    let savedWishlist = (() => {
-      try { const value = JSON.parse(localStorage.getItem(savedWishlistKey) || "[]"); return Array.isArray(value) ? value.map(String) : []; }
-      catch { return []; }
-    })();
-    function isProductSaved(id) { return savedWishlist.includes(String(id)); }
-    function setProductSaved(id) {
-      const key = String(id);
-      if (isProductSaved(key)) savedWishlist = savedWishlist.filter(value => value !== key);
-      else savedWishlist.push(key);
-      localStorage.setItem(savedWishlistKey, JSON.stringify(savedWishlist));
-      document.querySelectorAll(".wishlist[data-product-id]").forEach(button => {
-        if (String(button.dataset.productId) === key) {
-          const saved = isProductSaved(key);
-          button.classList.toggle("active", saved);
-          button.setAttribute("aria-pressed", String(saved));
-          const heart = button.querySelector("[data-wishlist-heart]");
-          if (heart) heart.textContent = saved ? "💛" : "♡";
-        }
-      });
-      updateCart();
-      showToast(isProductSaved(key) ? "Added to wishlist" : "Removed from wishlist");
-    }
-    function toggleWishlist(button) { setProductSaved(button.dataset.productId); }
-    function toggleCartWishlist(index) { if (cart[index]) setProductSaved(cart[index].id); }
-    function syncWishlistButtons() {
-      document.querySelectorAll(".wishlist[data-product-id]").forEach(button => {
-        const saved = isProductSaved(button.dataset.productId);
-        button.classList.toggle("active", saved);
-        button.setAttribute("aria-pressed", String(saved));
-        const heart = button.querySelector("[data-wishlist-heart]");
-        if (heart) heart.textContent = saved ? "💛" : "♡";
-      });
-    }
+    function toggleWishlist(button) {
 
-    function openCartPhotos(index) {
-      const item = cart[index];
-      if (!item) return;
-      const photos = (Array.isArray(item.images) && item.images.length ? item.images : [item.image]).filter(Boolean);
-      const track = document.getElementById("cartPhotoTrack");
-      track.replaceChildren();
-      photos.forEach((url, i) => {
-        const img = document.createElement("img");
-        img.src = url;
-        img.alt = item.name + " product photo";
-        img.draggable = false;
-        track.append(img);
-      });
-      document.querySelectorAll(".cart-photo-arrow").forEach(button => button.hidden = photos.length < 2);
-      const overlay = document.getElementById("cartPhotoOverlay");
-      overlay.classList.add("active");
-      overlay.setAttribute("aria-hidden", "false");
-      track.scrollLeft = 0;
-      overlay.querySelector(".cart-photo-close").focus();
+      button.classList.toggle("active");
+
+      showToast(
+        button.classList.contains("active")
+          ? "Added to wishlist"
+          : "Removed from wishlist"
+      );
     }
-    function moveCartPhoto(direction) {
-      const track = document.getElementById("cartPhotoTrack");
-      track.scrollBy({left: track.clientWidth * direction, behavior: "smooth"});
-    }
-    function closeCartPhotos() {
-      const overlay = document.getElementById("cartPhotoOverlay");
-      overlay.classList.remove("active");
-      overlay.setAttribute("aria-hidden", "true");
-      document.getElementById("cartBtn").focus();
-    }
-    document.getElementById("cartPhotoOverlay").addEventListener("click", event => {
-      if (event.target.id === "cartPhotoOverlay") closeCartPhotos();
-    });
-    document.addEventListener("keydown", event => {
-      if (!document.getElementById("cartPhotoOverlay").classList.contains("active")) return;
-      if (event.key === "Escape") closeCartPhotos();
-      if (event.key === "ArrowRight") moveCartPhoto(1);
-      if (event.key === "ArrowLeft") moveCartPhoto(-1);
-    });
 
     /* =======================================================
        CART
@@ -3620,9 +3537,11 @@ openCart();
             <div class="cart-item">
 
               <div class="cart-thumb">
-  <button type="button" class="cart-thumb-button" onclick="openCartPhotos(${index})" aria-label="Enlarge and swipe photos of this product">
-    <img src="${item.image}" alt="${item.name}" class="cart-product-image">
-  </button>
+  <img
+    src="${item.image}"
+    alt="${item.name}"
+    class="cart-product-image"
+  >
 </div>
 
               <div>
@@ -3637,15 +3556,24 @@ openCart();
                 ${item.size ? `<div class="cart-item-variant">Size: ${item.size}</div>` : ""}
                 ${item.color ? `<div class="cart-item-variant">Color: ${item.color}</div>` : ""}
 
-                <div class="cart-quantity-actions">
-                  <div class="quantity">
-                    <button onclick="changeCartQuantity(${index}, -1)" aria-label="Decrease quantity">−</button>
-                    <span>${item.quantity}</span>
-                    <button onclick="changeCartQuantity(${index}, 1)" aria-label="Increase quantity">+</button>
-                  </div>
-                  <button type="button" class="cart-heart ${isProductSaved(item.id) ? 'is-saved' : ''}"
-                    onclick="toggleCartWishlist(${index})" aria-pressed="${isProductSaved(item.id)}"
-                    aria-label="${isProductSaved(item.id) ? 'Remove from' : 'Add to'} wishlist">${isProductSaved(item.id) ? '💛' : '♡'}</button>
+                <div class="quantity">
+
+                  <button
+                    onclick="changeCartQuantity(${index}, -1)"
+                  >
+                    −
+                  </button>
+
+                  <span>
+                    ${item.quantity}
+                  </span>
+
+                  <button
+                    onclick="changeCartQuantity(${index}, 1)"
+                  >
+                    +
+                  </button>
+
                 </div>
 
               </div>
@@ -4089,7 +4017,7 @@ localStorage.setItem(
                 </div>
 
                 <button
-                  class="wishlist ${isProductSaved(product.id) ? 'active' : ''}"
+                  class="wishlist"
                   data-product-id="${product.id}"
                   onclick="toggleWishlist(this)"
                 >

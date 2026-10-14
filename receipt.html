@@ -4,9 +4,6 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Order Receipt | IM Collections</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Allura&display=swap" rel="stylesheet" />
     <!-- PAGE STYLES: screen, mobile, and printing -->
     <style>
       * {
@@ -23,13 +20,14 @@
       header {
         background: #111;
         color: #c9a44c;
-        padding: 18px;
+        padding: 16px 10px;
         text-align: center;
-        font-family: "Allura", cursive;
-        font-size: 46px;
-        font-weight: 600;
-        letter-spacing: 1px;
-        line-height: 1.15;
+        font-family: "Lucida Calligraphy", "Lucida Handwriting", cursive;
+        font-size: clamp(23px, 5.2vw, 34px);
+        font-weight: normal;
+        letter-spacing: 0;
+        line-height: 1.2;
+        white-space: nowrap;
       }
       main {
         max-width: 850px;
@@ -180,12 +178,6 @@
           width: 60px;
           height: 60px;
         }
-        header {
-          font-size: 40px;
-        }
-        .receipt-head .receipt-brand {
-          font-size: 36px;
-        }
         h1 {
           font-size: 26px;
         }
@@ -267,10 +259,12 @@
         margin: 0;
       }
       .receipt-head .receipt-brand {
-        font-family: "Allura", cursive;
-        font-size: 42px;
-        font-weight: 600;
-        line-height: 1.1;
+        font-family: "Lucida Calligraphy", "Lucida Handwriting", cursive;
+        font-size: clamp(20px, 4.5vw, 28px);
+        font-weight: normal;
+        line-height: 1.2;
+        letter-spacing: 0;
+        white-space: nowrap;
         color: #111;
       }
       .item {

@@ -260,6 +260,17 @@
           <option value="Accessories">Accessories</option>
           <option value="Toys">Toys</option>
           <option value="Open Box">Open Box</option>
+          <option value="Essentials">Essentials</option>
+          <option value="Vintage">Vintage Items</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="department">Department</label>
+        <select id="department">
+          <option value="Unisex">Unisex / All</option>
+          <option value="Men">Men</option>
+          <option value="Women">Women</option>
         </select>
       </div>
 
@@ -645,6 +656,8 @@ if (editingProductId) {
 
         category: category,
 
+        department: document.getElementById("department").value,
+
         size:
           size || null,
 
@@ -755,6 +768,8 @@ function resetForm() {
     .getElementById("category")
     .value = "";
 
+  document.getElementById("department").value = "Unisex";
+
   document
     .getElementById("size")
     .value = "";
@@ -828,7 +843,7 @@ const productsList =
 productsList.innerHTML = data.map(product => `
   <div class="product-admin-item">
     <strong>${product.name || "Unnamed Product"}</strong><br>
-    <span>$${product.price || "0.00"}</span><br><br>
+    <span>$${product.price || "0.00"} · ${product.category || "Other"} · ${product.department || "Unisex"}</span><br><br>
 
     <button type="button" onclick="editProduct(${product.id})">
       Edit
@@ -878,6 +893,7 @@ editingProductId = id;
   document.getElementById("description").value = data.description || "";
 document.getElementById("oldPrice").value = data.old_price || "";
 document.getElementById("category").value = data.category || "";
+document.getElementById("department").value = ["Men", "Women", "Unisex"].includes(data.department) ? data.department : "Unisex";
 document.getElementById("size").value = data.size || "";
 document.getElementById("condition").value = data.condition || "";
 document.getElementById("quantity").value = data.quantity || 1;

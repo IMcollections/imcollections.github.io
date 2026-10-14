@@ -624,6 +624,10 @@
        FEATURED PRODUCTS
        ========================================================= */
 
+    .department-selector { display:flex; justify-content:center; gap:10px; margin:0 0 28px; flex-wrap:wrap; }
+    .department-btn { border:1px solid var(--black); background:#fff; color:#111; min-width:110px; padding:13px 22px; font-weight:750; cursor:pointer; }
+    .department-btn.active, .department-btn:hover { background:var(--black); color:var(--gold-light); }
+
     .product-toolbar {
       display: flex;
       justify-content: space-between;
@@ -1861,6 +1865,9 @@
       </div>
 
       <nav class="desktop-nav">
+        <a href="#featured" onclick="selectDepartment('Men')">Men</a>
+        <a href="#featured" onclick="selectDepartment('Women')">Women</a>
+        <a href="#featured" onclick="selectDepartment('All')">Shop All</a>
         <a href="#featured">New Arrivals</a>
 <a href="#featured">Best Sellers</a>
         <a href="#categories">Shop</a>
@@ -1957,6 +1964,9 @@
       </div>
 
       <div class="mobile-menu-links">
+        <a href="#featured" onclick="selectDepartment('Men')">Shop Men</a>
+        <a href="#featured" onclick="selectDepartment('Women')">Shop Women</a>
+        <a href="#featured" onclick="selectDepartment('All')">Shop All Departments</a>
 
   <a href="#featured"
      onclick="filterProducts('All')">
@@ -2299,6 +2309,12 @@ Explore Collections
 
       </div>
 
+      <div class="department-selector" role="group" aria-label="Shop by department">
+        <button type="button" class="department-btn active" data-department="All">Shop All</button>
+        <button type="button" class="department-btn" data-department="Men">Men</button>
+        <button type="button" class="department-btn" data-department="Women">Women</button>
+      </div>
+
       <div class="product-toolbar">
 
         <div class="filter-buttons">
@@ -2352,6 +2368,8 @@ Explore Collections
             Accessories
           </button>
    
+       <button class="filter-btn" data-filter="Essentials">Essentials</button>
+
        <button
             class="filter-btn"
             data-filter="Electronics"
@@ -3025,6 +3043,9 @@ async function loadSupabaseProducts() {
         category:
           product.category || "Accessories",
 
+        department:
+          product.department || "Unisex",
+
         image:
           images.length > 0
             ? images[0]
@@ -3100,6 +3121,22 @@ loadCategoryImages();
     localStorage.getItem("imCollectionsCart") || "[]"
   );
     let currentFilter = "All";
+    let currentDepartment = "All";
+
+    function selectDepartment(department) {
+      currentDepartment = ["Men", "Women"].includes(department) ? department : "All";
+      document.querySelectorAll(".department-btn").forEach(button => {
+        const active = button.dataset.department === currentDepartment;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+      renderProducts(currentFilter);
+      document.getElementById("featured").scrollIntoView({behavior:"smooth"});
+    }
+
+    document.querySelectorAll(".department-btn").forEach(button =>
+      button.addEventListener("click", () => selectDepartment(button.dataset.department))
+    );
 
     function productHasVariants(product) {
       return Boolean(product && ((Array.isArray(product.sizes) && product.sizes.length) || (Array.isArray(product.colors) && product.colors.length)));
@@ -3119,12 +3156,23 @@ loadCategoryImages();
 
       currentFilter = filter;
 
-      const filtered =
-        filter === "All"
-          ? products
-          : products.filter(
-              product => product.category === filter
-            );
+      const filtered = products.filter(product => {
+        const dept = String(product.department || "Unisex").toLowerCase();
+        const departmentMatch = currentDepartment === "All" || dept === "unisex" || dept === currentDepartment.toLowerCase();
+        const cat = String(product.category || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+        const name = String(product.name || "").toLowerCase();
+        const badge = String(product.badge || "").toLowerCase();
+        const categoryMatch = filter === "All" ||
+          (filter === "NewArrivals" && badge === "new") ||
+          (filter === "BestSellers" && badge === "best seller") ||
+          (filter === "Sale" && (badge.includes("sale") || Number(product.oldPrice) > Number(product.price))) ||
+          (filter === "OpenBox" && (cat.includes("openbox") || badge.includes("open box"))) ||
+          (filter === "Vintage" && (cat.includes("vintage") || name.includes("vintage"))) ||
+          (filter === "Clothing" && ["clothing", "apparel", "clothes"].includes(cat)) ||
+          (filter === "Accessories" && ["accessories", "watches"].includes(cat)) ||
+          cat === String(filter).toLowerCase().replace(/[^a-z0-9]/g, "");
+        return departmentMatch && categoryMatch;
+      });
 
       productCount.textContent =
         `${filtered.length} product${filtered.length === 1 ? "" : "s"}`;

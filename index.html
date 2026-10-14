@@ -1821,6 +1821,60 @@
     transform: translateY(0);
   }
 }
+
+    /* Consistent text color and type in shop-by-department and product filters */
+    .department-btn, .filter-btn {
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .35px;
+      color: #111;
+      border-color: #dedbd6;
+    }
+    .department-btn.active, .department-btn:hover,
+    .filter-btn.active, .filter-btn:hover {
+      background: #111;
+      border-color: #111;
+      color: #fff;
+    }
+    .product-preview-trigger {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      padding: 0;
+    }
+    .product-preview-trigger > img { width: 100%; height: 100%; object-fit: contain; }
+    .product-preview-trigger .product-art { pointer-events: none; }
+    .product-preview-trigger:focus-visible { outline: 3px solid var(--gold); outline-offset: -4px; }
+    @media (hover: none) { .quick-view { opacity: 1; transform: none; } }
+
+
+    /* Swipe photos directly in storefront cards; no photo counter/dots. */
+    .product-card-media { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+    .product-card-photo { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; -webkit-user-drag: none; }
+    .product-card-media .product-art { pointer-events: none; }
+    .card-photo-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 4; border: none; background: rgba(255,255,255,.85); color: #111; border-radius: 50%; width: 30px; height: 30px; font-size: 24px; line-height: 24px; display: grid; place-items: center; opacity: 0; }
+    .card-photo-arrow.prev { left: 7px; } .card-photo-arrow.next { right: 7px; }
+    .product-card-media:hover .card-photo-arrow, .card-photo-arrow:focus-visible { opacity: 1; }
+    @media (hover:none) { .card-photo-arrow { display: none; } }
+
+    /* Swipeable Quick View gallery */
+    .modal-image { min-width: 0; }
+    .swipe-gallery { width: 100%; max-width: 100%; padding: 14px; }
+    .swipe-gallery-stage { position: relative; width: 100%; min-height: 300px; display: flex; align-items: center; justify-content: center; overflow: hidden; touch-action: pan-y; user-select: none; }
+    .swipe-gallery-stage img { display: block; width: 100%; height: min(57vh, 440px); object-fit: contain; pointer-events: none; }
+    .swipe-gallery-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid #ddd; border-radius: 50%; background: rgba(255,255,255,.94); color: #111; font-size: 26px; line-height: 1; cursor: pointer; }
+    .swipe-gallery-arrow.prev { left: 4px; }
+    .swipe-gallery-arrow.next { right: 4px; }
+    .swipe-gallery-footer { display: flex; flex-direction: column; align-items: center; gap: 9px; padding-top: 10px; color: #555; font-size: 12px; }
+    @media (max-width: 650px) { .swipe-gallery { padding: 8px; } .swipe-gallery-stage { min-height: 250px; } .swipe-gallery-stage img { height: min(47vh, 360px); } }
   </style>
 </head>
 
@@ -3152,6 +3206,69 @@ loadCategoryImages();
     const productCount =
       document.getElementById("productCount");
 
+    // The storefront photo changes on swipe. Tapping opens product details.
+    function cardPhotos(product) {
+      return Array.isArray(product.images) && product.images.length
+        ? product.images.filter(Boolean)
+        : (product.image ? [product.image] : []);
+    }
+
+    function renderCardPhoto(product) {
+      const photos = cardPhotos(product);
+      const safeName = String(product.name || "Product").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+      return `<div class="product-card-media" data-photo-index="0" data-product-id="${product.id}" role="button" tabindex="0" aria-label="Tap for details; swipe for more photos of ${safeName}">
+        ${photos.length ? `<img class="product-card-photo" src="${photos[0]}" alt="${safeName}" loading="lazy" draggable="false">` : `<span class="product-art"><span class="${product.art || ''}"></span></span>`}
+        ${photos.length > 1 ? `<button type="button" class="card-photo-arrow prev" aria-label="Previous photo" data-card-direction="-1">‹</button><button type="button" class="card-photo-arrow next" aria-label="Next photo" data-card-direction="1">›</button>` : ''}
+      </div>`;
+    }
+
+    function changeCardPhoto(media, amount) {
+      const product = products.find(p => Number(p.id) === Number(media.dataset.productId));
+      if (!product) return;
+      const photos = cardPhotos(product);
+      if (photos.length < 2) return;
+      const next = (Number(media.dataset.photoIndex || 0) + amount + photos.length) % photos.length;
+      media.dataset.photoIndex = String(next);
+      const img = media.querySelector('.product-card-photo');
+      if (img) img.src = photos[next];
+    }
+
+    let cardSwipeStart = null;
+    productGrid.addEventListener('touchstart', e => {
+      const media = e.target.closest('.product-card-media');
+      if (!media || e.touches.length !== 1) return;
+      cardSwipeStart = { media, x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }, { passive: true });
+    productGrid.addEventListener('touchend', e => {
+      if (!cardSwipeStart || !e.changedTouches.length) return;
+      const { media, x, y } = cardSwipeStart;
+      cardSwipeStart = null;
+      const dx = e.changedTouches[0].clientX - x;
+      const dy = e.changedTouches[0].clientY - y;
+      if (Math.abs(dx) > 35 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+        media.dataset.lastSwiped = String(Date.now());
+        changeCardPhoto(media, dx < 0 ? 1 : -1);
+      }
+    }, { passive: true });
+    productGrid.addEventListener('touchcancel', () => { cardSwipeStart = null; }, { passive: true });
+    productGrid.addEventListener('click', e => {
+      const arrow = e.target.closest('[data-card-direction]');
+      if (arrow) {
+        e.preventDefault(); e.stopPropagation();
+        changeCardPhoto(arrow.closest('.product-card-media'), Number(arrow.dataset.cardDirection));
+        return;
+      }
+      const media = e.target.closest('.product-card-media');
+      if (!media) return;
+      if (Date.now() - Number(media.dataset.lastSwiped || 0) < 600) { e.preventDefault(); return; }
+      openQuickView(Number(media.dataset.productId));
+    });
+    productGrid.addEventListener('keydown', e => {
+      if (!e.target.matches('.product-card-media')) return;
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openQuickView(Number(e.target.dataset.productId)); }
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); changeCardPhoto(e.target, e.key === 'ArrowRight' ? 1 : -1); }
+    });
+
     function renderProducts(filter = "All") {
 
       currentFilter = filter;
@@ -3169,7 +3286,10 @@ loadCategoryImages();
           (filter === "OpenBox" && (cat.includes("openbox") || badge.includes("open box"))) ||
           (filter === "Vintage" && (cat.includes("vintage") || name.includes("vintage"))) ||
           (filter === "Clothing" && ["clothing", "apparel", "clothes"].includes(cat)) ||
-          (filter === "Accessories" && ["accessories", "watches"].includes(cat)) ||
+          (filter === "Accessories" && ["accessories", "watches", "jewelry"].includes(cat)) ||
+          (filter === "Essentials" && ["essentials", "personalaccessories"].includes(cat)) ||
+          (filter === "Electronics" && ["electronics", "electronicstech", "gadgetselectronics", "gadgets"].includes(cat)) ||
+          (filter === "Toys" && ["toys", "toysandhobbies", "toyshobbies"].includes(cat)) ||
           cat === String(filter).toLowerCase().replace(/[^a-z0-9]/g, "");
         return departmentMatch && categoryMatch;
       });
@@ -3221,13 +3341,7 @@ loadCategoryImages();
                 <span class="wishlist-count" data-wishlist-count aria-label="521 members saved this item">521</span>
               </button>
 
-              <div class="product-art">
-  ${
-    product.image
-      ? `<img src="${product.image}" alt="${product.name}" style="width:100%;height:100%;object-fit:contain;">`
-      : `<div class="${product.art}"></div>`
-  }
-</div>
+              ${renderCardPhoto(product)}
 
               <button
                 class="quick-view"
@@ -3312,176 +3426,17 @@ loadCategoryImages();
       });
 
     function filterProducts(category) {
-function filterSpecialProducts(type) {
-
-  currentFilter = "All";
-
-  let filtered = [];
-
-  if (type === "new") {
-    filtered = products.filter(product =>
-      product.badge === "New"
-    );
-  }
-
-  if (type === "bestsellers") {
-    filtered = products.filter(product =>
-      product.badge === "Best Seller"
-    );
-  }
-
-  if (type === "sale") {
-    filtered = products.filter(product =>
-      product.badge === "Sale" ||
-      product.oldPrice
-    );
-  }
-
-  productCount.textContent =
-    `${filtered.length} product${filtered.length === 1 ? "" : "s"}`;
-
-  productGrid.innerHTML = filtered
-    .map(product => `
-
-      <article
-        class="product-card"
-        data-category="${product.category}"
-      >
-
-        <div class="product-image">
-
-          ${
-            product.badge
-              ? `
-                <div class="product-badge ${
-                  product.badge === "Sale"
-                    ? "sale"
-                    : ""
-                }">
-                  ${product.badge}
-                </div>
-              `
-              : ""
-          }
-
-          <button
-            class="wishlist"
-            data-product-id="${product.id}"
-            onclick="toggleWishlist(this)"
-            aria-label="Add to wishlist"
-          >
-            <span data-wishlist-heart>♡</span>
-            <span class="wishlist-count" data-wishlist-count aria-label="521 members saved this item">521</span>
-          </button>
-
-          ${
-            product.image
-              ? `
-                <img
-                  class="product-photo"
-                  src="${product.image}"
-                  alt="${product.name}"
-                  loading="lazy"
-                >
-              `
-              : `
-                <div class="product-art">
-                  <div class="${product.art}"></div>
-                </div>
-              `
-          }
-
-          <button
-            class="quick-view"
-            onclick="openQuickView(${product.id})"
-          >
-            Quick View
-          </button>
-
-        </div>
-
-        <div class="product-info">
-
-          <div class="product-category">
-            ${product.category}
-          </div>
-
-          <div class="product-name">
-            ${product.name}
-          </div>
-
-          <div class="product-rating">
-            ${product.rating || "★★★★★"}
-          </div>
-
-          <div class="product-view-count" data-product-view-count data-product-id="${product.id}" aria-live="polite">521 views</div>
-
-          <div class="product-price">
-
-            <span class="price">
-              $${Number(product.price).toFixed(2)}
-            </span>
-
-            ${
-              product.oldPrice
-                ? `
-                  <span class="old-price">
-                    $${Number(product.oldPrice).toFixed(2)}
-                  </span>
-                `
-                : ""
-            }
-
-          </div>
-
-          <button
-            class="add-button"
-            onclick="${productHasVariants(product) ? `openQuickView(${product.id})` : `addToCart(${product.id})` }"
-          >
-            ${productHasVariants(product) ? "Choose Options" : "Add To Cart"}
-          </button>
-
-        </div>
-
-      </article>
-
-    `)
-    .join("");
-
-  document
-    .getElementById("featured")
-    .scrollIntoView({
-      behavior: "smooth"
-    });
-}
-      const button =
-        document.querySelector(
-          `.filter-btn[data-filter="${category}"]`
-        );
-
-      if (button) {
-
-        document
-          .querySelectorAll(".filter-btn")
-          .forEach(btn =>
-            btn.classList.remove("active")
-          );
-
-        button.classList.add("active");
-
-      }
-
+      const button = document.querySelector(`.filter-btn[data-filter="${category}"]`);
+      document.querySelectorAll(".filter-btn").forEach(btn => {
+        btn.classList.toggle("active", btn === button);
+      });
       renderProducts(category);
+      document.getElementById("featured").scrollIntoView({ behavior: "smooth" });
+    }
 
-      setTimeout(() => {
-
-        document
-          .getElementById("featured")
-          .scrollIntoView({
-            behavior: "smooth"
-          });
-
-      }, 50);
+    function filterSpecialProducts(type) {
+      const target = type === "new" ? "NewArrivals" : type === "bestsellers" ? "BestSellers" : "Sale";
+      filterProducts(target);
     }
 
     /* =======================================================
@@ -3770,6 +3725,92 @@ localStorage.setItem(
        QUICK VIEW
        ======================================================== */
 
+
+    // Gallery state is reset every time another product is opened.
+    let activeGalleryImages = [];
+    let activeGalleryIndex = 0;
+    let galleryTouchStartX = null;
+    let galleryTouchStartY = null;
+
+    function showGalleryPhoto(index) {
+      if (!activeGalleryImages.length) return;
+      activeGalleryIndex = (index + activeGalleryImages.length) % activeGalleryImages.length;
+      const main = document.getElementById("swipeGalleryPhoto");
+      if (!main) return;
+      main.src = activeGalleryImages[activeGalleryIndex];
+      main.alt = `Product photo ${activeGalleryIndex + 1} of ${activeGalleryImages.length}`;
+
+    }
+
+    function renderSwipeGallery(images, productName, artClass) {
+      const container = document.getElementById("modalImage");
+      container.replaceChildren();
+      activeGalleryImages = (images || []).filter(url => typeof url === "string" && url.trim());
+      activeGalleryIndex = 0;
+      if (!activeGalleryImages.length) {
+        const art = document.createElement("div");
+        art.className = "product-art";
+        const shape = document.createElement("div");
+        shape.className = artClass || "";
+        art.append(shape);
+        container.append(art);
+        return;
+      }
+      const gallery = document.createElement("div");
+      gallery.className = "swipe-gallery";
+      const stage = document.createElement("div");
+      stage.className = "swipe-gallery-stage";
+      stage.setAttribute("aria-label", `${productName} product photos; swipe left or right`);
+      const photo = document.createElement("img");
+      photo.id = "swipeGalleryPhoto";
+      photo.draggable = false;
+      stage.append(photo);
+      const footer = document.createElement("div");
+      footer.className = "swipe-gallery-footer";
+      if (activeGalleryImages.length > 1) {
+        for (const [direction, label, symbol] of [[-1, "Previous photo", "‹"], [1, "Next photo", "›"]]) {
+          const arrow = document.createElement("button");
+          arrow.type = "button";
+          arrow.className = `swipe-gallery-arrow ${direction < 0 ? "prev" : "next"}`;
+          arrow.textContent = symbol;
+          arrow.setAttribute("aria-label", label);
+          arrow.addEventListener("click", () => showGalleryPhoto(activeGalleryIndex + direction));
+          stage.append(arrow);
+        }
+        const hint = document.createElement("span");
+        hint.textContent = "Swipe left or right to view photos";
+        footer.append(hint);
+      }
+      stage.addEventListener("touchstart", e => {
+        if (e.touches.length !== 1) return;
+        galleryTouchStartX = e.touches[0].clientX;
+        galleryTouchStartY = e.touches[0].clientY;
+      }, { passive: true });
+      stage.addEventListener("touchend", e => {
+        if (galleryTouchStartX === null || !e.changedTouches.length) return;
+        const dx = e.changedTouches[0].clientX - galleryTouchStartX;
+        const dy = e.changedTouches[0].clientY - galleryTouchStartY;
+        galleryTouchStartX = null;
+        galleryTouchStartY = null;
+        if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+          showGalleryPhoto(activeGalleryIndex + (dx < 0 ? 1 : -1));
+        }
+      }, { passive: true });
+      stage.addEventListener("touchcancel", () => {
+        galleryTouchStartX = null;
+        galleryTouchStartY = null;
+      });
+      gallery.append(stage, footer);
+      container.append(gallery);
+      showGalleryPhoto(0);
+    }
+
+    document.addEventListener("keydown", event => {
+      if (!document.getElementById("quickModal").classList.contains("active")) return;
+      if (event.key === "ArrowRight") showGalleryPhoto(activeGalleryIndex + 1);
+      if (event.key === "ArrowLeft") showGalleryPhoto(activeGalleryIndex - 1);
+    });
+
     function openQuickView(productId) {
 
       const product =
@@ -3835,87 +3876,8 @@ localStorage.setItem(
       ? [product.image]
       : [];
 
-document.getElementById("modalImage").innerHTML =
-  galleryImages.length
-    ? `
-      <div class="product-gallery">
-        <img
-          id="galleryMainImage"
-          src="${galleryImages[0]}"
-          alt="${product.name}"
-          style="width:100%; max-height:420px; object-fit:contain;"
-        >
-
-        <div style="
-          display:flex;
-          gap:8px;
-          overflow-x:auto;
-          margin-top:12px;
-          padding-bottom:5px;
-        ">
-          ${galleryImages.map((img, index) => `
-            <img
-              src="${img}"
-              alt="${product.name} photo ${index + 1}"
-              onclick="document.getElementById('galleryMainImage').src=this.src"
-              style="
-                width:70px;
-                height:70px;
-                object-fit:cover;
-                cursor:pointer;
-                border:1px solid #ddd;
-              "
-            >
-          `).join("")}
-        </div>
-      </div>
-    `
-    : `
-      <div class="product-art">
-        <div class="${product.art}"></div>
-      </div>
-    `;
-
-document.getElementById("modalImage").innerHTML =
-  galleryImages.length
-    ? `
-      <div class="product-gallery">
-        <img
-          id="galleryMainImage"
-          src="${galleryImages[0]}"
-          alt="${product.name}"
-          style="width:100%; max-height:420px; object-fit:contain;"
-        >
-
-        <div style="
-          display:flex;
-          gap:8px;
-          overflow-x:auto;
-          margin-top:12px;
-          padding-bottom:5px;
-        ">
-          ${galleryImages.map((img, index) => `
-            <img
-              src="${img}"
-              alt="${product.name} photo ${index + 1}"
-              onclick="document.getElementById('galleryMainImage').src=this.src"
-              style="
-                width:70px;
-                height:70px;
-                object-fit:cover;
-                cursor:pointer;
-                border:1px solid #ddd;
-              "
-            >
-          `).join("")}
-        </div>
-      </div>
-    `
-    : `
-      <div class="product-art">
-        <div class="${product.art}"></div>
-      </div>
-    `;
+// Build a swipeable gallery of every product photo (including Supabase uploads).
+      renderSwipeGallery(galleryImages, product.name, product.art);
 
       document.getElementById("modalAdd")
         .onclick = () => {
@@ -4062,13 +4024,7 @@ document.getElementById("modalImage").innerHTML =
                   <span class="wishlist-count" data-wishlist-count aria-label="521 members saved this item">521</span>
                 </button>
 
-               <div class="product-art">
-    ${
-        product.image
-            ? `<img src="${product.image}" alt="${product.name}">`
-            : `<div class="${product.art}"></div>`
-    }
-</div>
+               ${renderCardPhoto(product)}
 
                 <button
                   class="quick-view"

@@ -3,6 +3,29 @@
 <style>
 *{box-sizing:border-box}body{margin:0;font:16px/1.55 Arial,sans-serif;background:#f7f6f2;color:#222}header{background:#111;color:#c9a44c;padding:18px;text-align:center;letter-spacing:3px}main{max-width:850px;margin:24px auto;padding:0 18px}nav,.actions{display:flex;gap:18px;flex-wrap:wrap;margin:20px 0}a{color:#8a651f}h1,h2{color:#8a651f;line-height:1.3}.card{padding:28px;border:1px solid #dedbd2;border-radius:12px;background:#fff;margin:20px 0}.logo{width:80px;height:80px;object-fit:contain}.receipt-head{display:flex;justify-content:space-between;gap:20px;align-items:center}.badge{padding:10px;background:#fff3d2;border:1px solid #c9a44c;font-weight:bold}.row{display:flex;justify-content:space-between;gap:18px;margin:10px 0}.total{font-weight:bold;font-size:21px;border-top:2px solid #222;padding-top:12px}.totals{max-width:360px;margin:24px 0 24px auto}.items{border-top:1px solid #ddd;border-bottom:1px solid #ddd}.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;padding:16px 0;border-bottom:1px solid #eee}.item:last-child{border:0}.item p{margin:4px 0}.muted{color:#626262}.error{color:#a42626}.message{min-height:24px}.wrap{overflow-wrap:anywhere}.login-card{max-width:440px;margin:auto}label{display:block;margin:12px 0 6px}input,button{font:inherit}input{width:100%;padding:12px;border:1px solid #aaa;border-radius:5px}button,.button{display:inline-block;background:#c9a44c;color:#111;padding:12px 18px;border:0;border-radius:6px;cursor:pointer;text-decoration:none}button:disabled{opacity:.5;cursor:wait}.login-card button{margin-top:20px}.policy-note{border-top:1px solid #ddd;padding-top:18px}[hidden]{display:none!important}a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #c9a44c;outline-offset:3px}@media(max-width:540px){.card{padding:20px}.receipt-head{align-items:flex-start}.logo{width:60px;height:60px}h1{font-size:26px}}
 @media print{body{background:#fff;font-size:11pt}header,nav,.actions,#pageMessage,#loginCard{display:none!important}main{padding:0;max-width:none;margin:0}.card{border:0;padding:0;margin:0;box-shadow:none}.item,.total,.receipt-head{break-inside:avoid}a{color:#222;text-decoration:none}.badge{background:transparent} @page{margin:15mm}}
+
+/* Receipt branding and paper layout. */
+#receipt{position:relative;isolation:isolate}
+.watermark{position:absolute;z-index:-1;left:50%;top:38%;transform:translate(-50%,-50%);width:62%;max-width:390px;opacity:.05;pointer-events:none}
+.logo{width:100px;height:100px;filter:drop-shadow(1px 2px 2px #b8aa86)}
+h2{font-size:19px;margin-top:28px;break-after:avoid}
+.receipt-head{border-bottom:2px solid #c9a44c;padding-bottom:18px}
+.receipt-head h1{margin:0 0 8px}.receipt-head p{margin:0}
+.item{grid-template-columns:64px minmax(0,1fr) auto;align-items:start}
+.item img{width:64px;height:76px;object-fit:contain}.item-photo{min-height:50px}
+.item .description{white-space:pre-line;overflow-wrap:anywhere;font-size:14px;color:#555}
+.item-price{white-space:nowrap;font-variant-numeric:tabular-nums}
+.deduction{color:#b42318}.totals{width:100%;max-width:380px}
+.print-help{font-size:14px;color:#626262}
+@media(max-width:420px){.item{grid-template-columns:50px minmax(0,1fr);gap:10px}.item img{width:50px;height:65px}.item-price{grid-column:2}.card{padding:16px}.logo{width:70px;height:70px}}
+@media print{
+  @page{size:auto;margin:15mm}
+  .print-help{display:none!important}#receipt{border-radius:0}
+  .logo{filter:none}.watermark{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  .totals,.policy-note{break-inside:avoid}.item{break-inside:auto;page-break-inside:auto}
+  .item img{break-inside:avoid}.item p{orphans:3;widows:3}
+  h1,h2{color:#78591f}.policy-note{font-size:9pt}
+}
 </style></head><body><header>IM COLLECTIONS</header><main>
 <nav aria-label="Receipt navigation"><a href="orders-returns.html">Orders &amp; Returns</a><a href="track-orders.html">Track Orders &amp; Returns</a><a href="index.html#featured">Back to Shopping</a></nav>
 <p id="pageMessage" class="message" role="status" aria-live="polite">Loading receipt…</p>
@@ -49,18 +72,20 @@
 <article id="receipt" class="card" hidden>
 <div class="receipt-head"><div><h1>Order Receipt</h1><p>IM Collections</p></div><img src="IM-logo.jpg" class="logo" alt="IM Collections"></div>
 <p id="testNotice" class="badge" hidden>TEST RECEIPT — Square Sandbox. This is not proof of a live payment.</p>
-<div id="orderInfo" class="wrap"></div>
-<h2>Purchased Items</h2><div id="receiptItems" class="items"></div>
+<img src="IM-logo.jpg" class="watermark" alt="" aria-hidden="true">
+<h2>Order Received By:</h2><div id="delivery" class="wrap"></div>
+<h2>Order Details:</h2><div id="orderInfo" class="wrap"></div>
+<h2>Order Summary</h2><div id="receiptItems" class="items"></div>
 <div id="receiptTotals" class="totals"></div>
-<h2>Delivery Information</h2><div id="delivery" class="wrap"></div>
 <div class="policy-note"><p>Keep this receipt as proof of purchase. For a return, include a copy of this receipt or your order number, name, and checkout email inside the package.</p><p>See our <a href="return-policy.html">Returns &amp; Refund Policy</a>. This receipt records the original purchase; later refunds are recorded separately.</p></div>
 </article>
 <div id="receiptActions" class="actions" hidden><button id="printReceipt" type="button">Print / Save PDF</button><a id="orderLink" class="button" href="orders-returns.html">View Order Details</a></div>
+<p class="print-help">To keep a copy, choose Print / Save PDF. On iPhone, open the print preview, then use Share to save it to Files.</p>
 </main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
-    const client = supabase.createClient(
+    const client = window.supabase ? window.supabase.createClient(
       "https://vqzjegneplzeoqxcqfeu.supabase.co",
       "sb_publishable_QDvKrAHvvopp_fuunxTxEA_4v6TD4Jk"
-    );
+    ) : null;
 
     const byId = id => document.getElementById(id);
 
@@ -77,25 +102,42 @@ function clearReceipt(){byId('receipt').hidden=true;byId('receiptActions').hidde
 function renderReceipt(order){
   clearReceipt();
   if(!order.paid_at||!order.payment_id)throw new Error('A receipt is available only for a confirmed, paid order.');
-  const info=byId('orderInfo');
-  for(const [label,value] of [['Receipt / Order Number',order.order_number],['Payment Date',dated(order.paid_at)],['Checkout Email',order.customer_email||'Not available'],['Payment Provider',order.payment_provider||'Not available'],['Payment Method',({card:'Card',giftcard:'Gift Card',googlepay:'Google Pay'})[order.payment_method]||order.payment_method||'Not available'],['Transaction Reference',order.payment_id]])info.append(node('p',label+': '+value));
   const address=order.shipping_address||{};
-  const name=[address.first_name,address.last_name].filter(Boolean).join(' ');
-  if(name)info.append(node('p','Customer: '+name));
-  if(order.status==='cancelled')info.append(node('p','Order Status: Cancelled. This original receipt does not confirm whether a refund has been completed.'));
-  else info.append(node('p','Payment confirmed. Shipment progress is shown in Orders & Returns.'));
+  const name=[address.first_name,address.last_name].filter(Boolean).join(' ')||address.full_name||address.name||'Not available';
+  const lines=[address.address_line1||address.address,address.address_line2||address.apartment,[address.city,address.state_province||address.state,address.postal_code].filter(Boolean).join(', '),address.country].filter(Boolean);
+  const delivery=byId('delivery');
+  for(const [label,value] of [['Name',name],['Address',lines.join('\n')||'Not available'],['Email Address',order.customer_email||'Not available']]){
+    const p=node('p');p.append(node('strong',label+': '),node('span',value));p.style.whiteSpace='pre-line';delivery.append(p);
+  }
+  const info=byId('orderInfo');
+  const method=({card:'Card',giftcard:'Gift Card',googlepay:'Google Pay',applepay:'Apple Pay',cashapp:'Cash App Pay'})[order.payment_method]||order.payment_method;
+  for(const [label,value] of [['Order Number',order.order_number],['Purchased Order Date',dated(order.paid_at)],['Payment Method',method||order.payment_provider||'Not available']]){
+    const p=node('p');p.append(node('strong',label+': '),node('span',value));info.append(p);
+  }
+  if(order.status==='cancelled')info.append(node('p','Order Status: Cancelled. This original receipt does not confirm whether a refund has been completed.','error'));
   for(const item of Array.isArray(order.items)?order.items:[]){
-    const row=node('div',undefined,'item'),copy=node('div');
-    copy.append(node('strong',item.name||'Item'),node('p','Quantity: '+item.quantity+' · Unit price: '+money(item.price,order.currency),'muted'));
+    const row=node('div',undefined,'item'),copy=node('div'),photo=node('div',undefined,'item-photo');
+    const image=item.image||(Array.isArray(item.images)?item.images[0]:'');
+    if(image){try{
+      const url=new URL(image,location.href);
+      if(['https:','http:'].includes(url.protocol)){
+        const img=node('img');img.src=url.href;img.alt=item.name||'Purchased item';img.addEventListener('error',()=>{img.hidden=true;});photo.append(img);
+      }
+    }catch(_){}}
+    copy.append(node('strong',item.name||'Item'));
+    if(item.description)copy.append(node('p',item.description,'description'));
+    copy.append(node('p','Quantity: '+item.quantity),node('p','Unit price: '+money(item.price,order.currency),'muted'));
     if(item.size)copy.append(node('p','Size: '+item.size));
-    row.append(copy,node('strong',money(Number(item.price)*Number(item.quantity),order.currency)));byId('receiptItems').append(row);
+    if(item.color)copy.append(node('p','Color: '+item.color));
+    row.append(photo,copy,node('strong',money(Number(item.price)*Number(item.quantity),order.currency),'item-price'));
+    byId('receiptItems').append(row);
   }
-  for(const [label,field] of [['Merchandise Subtotal','subtotal'],['Discount / Reward','discount'],['Shipping','shipping'],['Tax','tax'],['Total Paid','total']]){
-    const row=node('div',undefined,'row'+(field==='total'?' total':''));row.append(node('span',label),node('span',(field==='discount'?'−':'')+money(order[field],order.currency)));byId('receiptTotals').append(row);
+  // Existing saved orders have one combined discount field. Do not invent a split.
+  for(const [label,field] of [['Subtotal','subtotal'],['Discount / Rewards Used','discount'],['Shipping','shipping'],['Tax','tax'],['Total Paid','total']]){
+    const row=node('div',undefined,'row'+(field==='total'?' total':field==='discount'?' deduction':''));
+    row.append(node('span',label),node('span',(field==='discount'&&Number(order[field])>0?'−':'')+money(order[field],order.currency)));
+    byId('receiptTotals').append(row);
   }
-  const lines=[name,address.address_line1||address.address,address.address_line2||address.apartment,[address.city,address.state_province||address.state,address.postal_code].filter(Boolean).join(', '),address.country];
-  for(const text of lines)if(text)byId('delivery').append(node('p',text));
-  if(address.shipping_method)byId('delivery').append(node('p','Delivery: '+(address.shipping_method==='express'?'Express':'Standard')));
   byId('testNotice').hidden=!(RECEIPT_SANDBOX&&order.payment_provider==='square');
   byId('orderLink').href='orders-returns.html?order='+encodeURIComponent(order.order_number);
   document.title='IM-Receipt-'+order.order_number;
@@ -104,6 +146,7 @@ function renderReceipt(order){
 async function loadReceipt(){
   const version=++loadVersion;clearReceipt();byId('loginCard').hidden=true;
   if(!/^\d{10}$/.test(orderNumber)){message('pageMessage','Open a receipt from a successful order in Orders & Returns.',true);return;}
+  if(!client){message('pageMessage','Receipt service could not load. Check your connection and reload this page.',true);return;}
   message('pageMessage','Loading your receipt…');
   try{
     const {data:{user},error:authError}=await client.auth.getUser();if(version!==loadVersion)return;
@@ -125,6 +168,6 @@ byId('loginForm').addEventListener('submit',async event=>{
   catch(error){message('loginMessage',error.message||'Unable to sign in.',true);}
   finally{byId('loginButton').disabled=false;}
 });
-client.auth.onAuthStateChange(()=>{++loadVersion;clearReceipt();setTimeout(loadReceipt,0);});
+if(client)client.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'||event==='SIGNED_IN'||event==='USER_UPDATED'){++loadVersion;clearReceipt();setTimeout(loadReceipt,0);}});
 loadReceipt();
 </script></body></html>

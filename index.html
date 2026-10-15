@@ -1931,6 +1931,115 @@
     .hero[data-design-hero] { background-size:cover; background-position:center; }
     .promo-visual[data-design-promo] { background-size:cover; background-position:center; }
     @media (max-width:650px) { .category-card { min-height:185px; } }
+
+/* ==============================================================
+   IM COLLECTIONS • EDITORIAL HOMEPAGE 2026
+   Layout styling only: original shopping, account and product JS stay.
+   Uploaded design images still load from public.site_design_images.
+   ============================================================== */
+:root { --editorial-ink:#161616; --editorial-warm:#f1ebe1; }
+body { background:#fff; color:var(--editorial-ink); }
+.announcement { min-height:36px; padding:6px 12px; background:#0b0b0b; font-size:10px; }
+.announcement-message { letter-spacing:1.2px; }
+.header { background:rgba(255,255,255,.98); }
+.header-inner { min-height:82px; }
+.logo { width:74px; height:74px; }
+/* Full-width, photographic-ready storefront banner. */
+.hero {
+  min-height:540px; overflow:hidden; color:#161616;
+  background:linear-gradient(115deg,#f5f1ea 1%,#eae3d8 55%,#d9cec1 100%);
+}
+.hero::before { display:none; }
+.hero::after { display:none; }
+.hero-inner { min-height:540px; grid-template-columns: minmax(0,1fr) minmax(260px,.94fr); gap:34px; }
+.hero-copy { max-width:600px; padding:70px 0; }
+.hero .eyebrow { color:#987328; font-size:12px; letter-spacing:3px; margin-bottom:16px; }
+.hero h1 { font-size:clamp(53px,6vw,86px); line-height:.98; color:#181818; }
+.hero h1 span { color:#bb8d31; }
+.hero-description { color:#3e3b37; font-size:16px; line-height:1.75; max-width:420px; }
+.hero .btn-gold { background:#111; border-color:#111; color:white; }
+.hero .btn-gold:hover { background:#343434; }
+.hero .btn-outline-light { background:transparent; color:#151515; border-color:#161616; }
+.hero .btn-outline-light:hover { background:#161616; color:white; }
+.hero-display { height:470px; }
+.display-circle { width:min(380px,95%); height:380px; border:1px solid rgba(58,47,35,.2); background:radial-gradient(circle,rgba(255,255,255,.65),rgba(255,255,255,0) 68%); }
+.display-card { box-shadow:0 16px 32px rgba(40,29,10,.14); }
+.display-bag { background:linear-gradient(145deg,#9d7957,#453a2d); }
+.display-accessories { background:radial-gradient(circle,#eee9e0 34%,#a78953 35% 43%,#36332f 44% 52%,#d9bb78 53%); }
+.display-shoe { background:linear-gradient(125deg,#e4ded3,#9e9585); }
+.hero[data-design-hero] { background-position:center; background-size:cover; color:#fff; }
+.hero[data-design-hero] .eyebrow { color:#f2ce72; }
+.hero[data-design-hero] h1, .hero[data-design-hero] .hero-description { color:#fff; }
+.hero[data-design-hero] .btn-outline-light { color:#fff; border-color:#fff; background:rgba(0,0,0,.13); }
+.hero[data-design-hero] .btn-outline-light:hover { background:#fff; color:#111; }
+.hero[data-design-hero] .hero-display { visibility:hidden; }
+/* Four editorial image tiles per row on desktop, two on mobile. */
+#categories { padding:56px 0 55px; }
+#categories .section-heading { margin-bottom:28px; }
+#categories .section-heading h2 { font-size:clamp(30px,4vw,43px); }
+.category-grid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+.category-card { min-height:245px; padding:0; border-radius:2px; background:#e9e4dc; transform:none; }
+.category-card:nth-child(2n) { background:#e0dfda; }
+.category-card:nth-child(3n) { background:#e8ded2; }
+.category-card::before { background:linear-gradient(to bottom,rgba(0,0,0,.03) 20%,rgba(0,0,0,.66) 100%); }
+.category-card:hover { transform:translateY(-3px); }
+.category-visual { color:rgba(61,51,43,.18); text-transform:uppercase; letter-spacing:1px; font-size:clamp(16px,2vw,28px); }
+.category-info { width:100%; padding:18px 14px; text-align:center; }
+.category-info h3 { font-family:inherit; font-weight:800; font-size:17px; text-transform:uppercase; letter-spacing:1px; margin:0; }
+.category-info span { display:none; }
+/* category image preview stays legible, even when user has uploaded photos */
+.category-visual[data-managed-image="true"] { background-position:center; }
+.trust-grid { min-height:88px; }
+.trust-item { justify-content:flex-start; }
+.trust-item strong { font-size:11px; }
+#featured { padding:58px 0 80px; }
+#featured .section-heading { margin-bottom:25px; }
+#featured .section-heading h2 { font-size:clamp(34px,4vw,48px); }
+.department-selector { justify-content:flex-start; margin:0 0 12px; }
+.department-btn, .filter-btn { text-transform:uppercase; font-size:12px; padding:10px 15px; letter-spacing:.5px; }
+.product-grid { gap:18px; }
+.product-image { background:#f4f1ec; }
+.promo { background:#eee9e2; color:#161616; }
+.promo-copy { padding:65px 0; }
+.promo-copy .eyebrow { color:#a27a2c; }
+.promo-copy p { color:#49443b; }
+.promo-visual { background:linear-gradient(135deg,#ded2bf,#ada08d); }
+.promo-watch { box-shadow:0 20px 40px rgba(0,0,0,.18); }
+.promo .btn-gold { background:#111; color:#fff; }
+.feature-grid { gap:14px; }
+.feature-card { padding:30px 23px; }
+.newsletter { background:#f4f0ea; }
+footer { background:#101010; }
+@media (max-width:850px) {
+ .hero-inner { grid-template-columns:1fr; min-height:520px; text-align:left; padding:35px 0; }
+ .hero-copy { margin:0; padding:28px 0 8px; }
+ .hero-description { margin:0 0 28px; }
+ .hero-buttons { justify-content:flex-start; }
+ .hero-display { display:none; }
+ .category-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+ .category-card { min-height:180px; }
+ .category-info h3 { font-size:13px; }
+}
+@media (max-width:650px) {
+ .header-inner { min-height:68px; }
+ .logo { width:58px; height:58px; }
+ .hero { min-height:490px; }
+ .hero-inner { min-height:490px; padding:48px 0; display:flex; align-items:center; }
+ .hero-copy { padding:0; max-width:100%; }
+ .hero h1 { font-size:clamp(50px,11vw,72px); }
+ .hero-description { font-size:14px; line-height:1.65; }
+ .hero .eyebrow { font-size:10px; letter-spacing:2px; }
+ .hero-buttons { display:flex; flex-wrap:nowrap; gap:10px; }
+ .hero-buttons .btn { min-height:48px; padding:0 17px; font-size:10px; }
+ #categories { padding:40px 0; }
+ .category-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+ .category-card { min-height:200px; }
+ .category-info h3 { font-size:14px; }
+ #featured { padding:42px 0 60px; }
+ .promo-copy { text-align:left; }
+ .promo-copy p { margin-left:0; margin-right:0; }
+}
+
   </style>
 </head>
 
@@ -2077,7 +2186,6 @@
       <div class="mobile-menu-links">
         <a href="#featured" onclick="selectDepartment('Men')">Shop Men</a>
         <a href="#featured" onclick="selectDepartment('Women')">Shop Women</a>
-        <a href="#featured" onclick="selectDepartment('All')">Shop All Departments</a>
 
   <a href="#featured"
      onclick="filterProducts('All')">
@@ -2158,9 +2266,7 @@
 
       <div class="hero-copy">
 
-        <div class="eyebrow">
-          The IM Collections
-        </div>
+        <div class="eyebrow">WELCOME TO IM COLLECTIONS</div>
 
         <h1>
           Style.<br />
@@ -2169,9 +2275,7 @@
         </h1>
 
         <p class="hero-description">
-          Discover a curated collection of fashion, accessories,
-          gadgets and everyday essentials designed to elevate
-          the way you live, work and express yourself.
+          Discover something for every part of life, from personal style to the things you use every day.
         </p>
 
         <div class="hero-buttons">
@@ -2286,13 +2390,11 @@ Shop Women
 
       <div class="section-heading">
 
-        <div class="eyebrow">Shop IM Collections</div>
+        <div class="eyebrow">DISCOVER IM COLLECTIONS</div>
 
-        <h2>Featured Products</h2>
+        <h2>Shop by Category</h2>
 
-        <p>
-          Our most wanted pieces, electronics and accessories.
-        </p>
+        <p>Explore clothing, technology, everyday essentials, collectibles, and more.</p>
 
       </div>
 
@@ -2408,13 +2510,12 @@ Shop Women
 
       <div class="section-heading">
 
-        <div class="eyebrow">Shop IM Collections</div>
+        <div class="eyebrow">CURATED FOR YOU</div>
 
         <h2>Find Your Collections</h2>
 
         <p>
-         From everyday essentials to statement pieces,
-          discover something made for your lifestyle.
+         New finds, favorites, and unexpected discoveries—selected for your lifestyle.
         </p>
 
       </div>
@@ -3218,7 +3319,7 @@ async function loadSupabaseProducts() {
   products.splice(0, products.length, ...onlineProducts);
 
 renderProducts("All");
-loadCategoryImages();
+// Category photographs are controlled by Website Design Manager.
 }
    let cart =
   JSON.parse(

@@ -2315,18 +2315,20 @@ footer { background:#101010; }
         </p>
 
         <div class="hero-buttons">
-               <a
-          href="#heroDepartmentResults"
+               <button
+          type="button"
           class="btn btn-gold"
+          data-hero-department="Men"
+          aria-pressed="false"
           onclick="selectDepartment('Men')"
         >
           Shop Men
-        </a>
+        </button>
 
-          <a href="#heroDepartmentResults" class="btn btn-outline-light"
+          <button type="button" class="btn btn-outline-light" data-hero-department="Women" aria-pressed="false"
 onclick="selectDepartment('Women')">
 Shop Women
-  </a>
+  </button>
         </div>
         <div id="heroDepartmentResults" class="hero-department-results" hidden>
           <div class="hero-department-heading"><h2 id="heroDepartmentTitle">Shop Men</h2>
@@ -3332,37 +3334,45 @@ loadCategoryImages();
       featured.classList.toggle("department-results-near-hero", belowHero);
     }
 
+    // Preserve the chosen department when Supabase loads products asynchronously.
+    // The hero controls are buttons, so tapping them never follows a competing # link.
     function selectDepartment(department) {
       currentDepartment = ["Men", "Women"].includes(department) ? department : "All";
       currentFilter = "All";
+
       document.querySelectorAll(".department-btn").forEach(button => {
         const active = button.dataset.department === currentDepartment;
         button.classList.toggle("active", active);
         button.setAttribute("aria-pressed", String(active));
       });
+      document.querySelectorAll("[data-hero-department]").forEach(button => {
+        const active = button.dataset.heroDepartment === currentDepartment;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
       document.querySelectorAll(".filter-btn").forEach(button => button.classList.remove("active"));
+
       positionProductSection(false);
       renderProducts("All");
       showHeroDepartment(currentDepartment);
-      document.getElementById("heroDepartmentResults").scrollIntoView({behavior:"smooth", block:"nearest"});
+      // Keep the current selection in view; don't jump to #featured.
     }
 
     function showHeroDepartment(department) {
-      const panel = document.getElementById('heroDepartmentResults');
-      const grid = document.getElementById('heroDepartmentGrid');
-      document.getElementById('heroDepartmentTitle').textContent =
-        department === 'All' ? 'Shop All' : 'Shop ' + department;
+      const panel = document.getElementById("heroDepartmentResults");
+      const grid = document.getElementById("heroDepartmentGrid");
+      if (!panel || !grid) return;
+      // Never allow an older asynchronous refresh to overwrite a newer choice.
+      if (department !== currentDepartment) return;
+      document.getElementById("heroDepartmentTitle").textContent =
+        department === "All" ? "Shop All" : "Shop " + department;
 
-      // The existing storefront renders the full product cards first.
-      // Reuse those exact cards, rather than building a different miniature design.
-      const cards = [...productGrid.querySelectorAll('.product-card')].slice(0, 4);
+      const cards = [...productGrid.querySelectorAll(".product-card")].slice(0, 4);
       grid.replaceChildren(...cards.map(card => card.cloneNode(true)));
-      if (!cards.length) {
-        grid.textContent = 'No products in this selection yet.';
-      }
+      if (!cards.length) grid.textContent = "No products in this selection yet.";
       panel.hidden = false;
       refreshWishlistHearts();
-      window.dispatchEvent(new Event('im-wishlist-updated'));
+      window.dispatchEvent(new Event("im-wishlist-updated"));
     }
 
     document.querySelectorAll(".department-btn").forEach(button =>

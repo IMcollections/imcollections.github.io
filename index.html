@@ -1933,6 +1933,14 @@
       text-align:center;
       box-sizing:border-box;
     }
+
+    /* Stable gold heart states for both cart and product cards. */
+    .wishlist .im-heart-outline, .cart-wishlist .im-heart-outline { display:block; }
+    .wishlist .im-heart-solid, .cart-wishlist .im-heart-solid { display:none; }
+    .wishlist.active .im-heart-outline, .cart-wishlist.active .im-heart-outline { display:none; }
+    .wishlist.active .im-heart-solid, .cart-wishlist.active .im-heart-solid { display:block; }
+    .wishlist .im-heart-solid path, .cart-wishlist .im-heart-solid path { fill:#c9962e !important; stroke:#c9962e !important; }
+    .wishlist .im-heart-outline path, .cart-wishlist .im-heart-outline path { fill:none !important; stroke:#c9962e !important; }
   </style>
 </head>
 
@@ -3382,7 +3390,7 @@ loadCategoryImages();
                 onclick="toggleWishlist(this)"
                 aria-label="Add to wishlist"
               >
-                <svg class="im-heart-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="#c9962e" d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg>
+                <svg class="im-heart-icon im-heart-outline" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="#c9962e" stroke-width="1.8" d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg><svg class="im-heart-icon im-heart-solid" viewBox="0 0 24 24" aria-hidden="true"><path fill="#c9962e" stroke="#c9962e" stroke-width="1.8" d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg>
                 <span class="wishlist-count" data-wishlist-count aria-label="521 members saved this item">521</span>
               </button>
 
@@ -3504,14 +3512,9 @@ loadCategoryImages();
         button.classList.toggle("active", active);
         button.setAttribute("aria-pressed", String(active));
         button.setAttribute("aria-label", active ? "Remove from wishlist" : "Add to wishlist");
-        const path = button.querySelector(".im-heart-icon path");
-        if (path) {
-          // Apply the fill to the shape itself, rather than relying on inherited SVG CSS.
-          path.setAttribute("fill", active ? "#c9962e" : "none");
-          path.setAttribute("stroke", "#c9962e");
-          path.style.fill = active ? "#c9962e" : "none";
-          path.style.stroke = "#c9962e";
-        }
+        // Two independent icons; selected state controls which is displayed.
+        // No SVG fill mutation or inherited CSS required.
+
       });
     }
     function toggleWishlist(button) {
@@ -3642,7 +3645,7 @@ openCart();
 
                 </div>
                 <button type="button" class="cart-wishlist" data-product-id="${item.id}"
-                  aria-label="Add to wishlist" aria-pressed="false"><svg class="im-heart-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="#c9962e" d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg></button>
+                  aria-label="Add to wishlist" aria-pressed="false"><svg class="im-heart-icon im-heart-outline" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="#c9962e" stroke-width="1.8" d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg><svg class="im-heart-icon im-heart-solid" viewBox="0 0 24 24" aria-hidden="true"><path fill="#c9962e" stroke="#c9962e" stroke-width="1.8" d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg></button>
                 </div>
 
               </div>
@@ -4108,7 +4111,7 @@ localStorage.setItem(
                   data-product-id="${product.id}"
                   onclick="toggleWishlist(this)"
                 >
-                  <svg class="im-heart-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="#c9962e" d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg>
+                  <svg class="im-heart-icon im-heart-outline" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="#c9962e" stroke-width="1.8" d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg><svg class="im-heart-icon im-heart-solid" viewBox="0 0 24 24" aria-hidden="true"><path fill="#c9962e" stroke="#c9962e" stroke-width="1.8" d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg>
                   <span class="wishlist-count" data-wishlist-count aria-label="521 members saved this item">521</span>
                 </button>
 

@@ -2060,6 +2060,8 @@ footer { background:#101010; }
 .hero-department-heading h2 {font:600 19px Georgia,serif;}
 .hero-department-heading button {border:0;background:transparent;font-size:25px;}
 .hero-department-grid {display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px;}
+.hero-department-group[hidden] { display:none!important; }
+.hero-department-grid:has(> .hero-department-group) { display:block; }
 .hero-department-grid .product-card {background:#fff; padding:0 0 10px; min-width:0;}
 .hero-department-grid .product-image {height:auto; aspect-ratio:4/5;}
 .hero-department-grid .product-info {padding:10px 6px 0;}
@@ -2078,6 +2080,11 @@ footer { background:#101010; }
 /* Keep images tidy, and let slides swipe horizontally. */
 .category-card {touch-action:pan-y;}
 @media(max-width:650px) {.hero-department-results {max-height:none;overflow:visible;} }
+
+/* Stable Men/Women selection indicators */
+.hero-buttons [data-hero-department].active { background:#111; color:#fff; border-color:#111; }
+.hero-buttons [data-hero-department]:not(.active) { background:transparent; color:#111; border:1px solid #111; }
+.hero-department-group[hidden] {display:none!important;}
   </style>
 </head>
 
@@ -2332,7 +2339,7 @@ Shop Women
         </div>
         <div id="heroDepartmentResults" class="hero-department-results" hidden>
           <div class="hero-department-heading"><h2 id="heroDepartmentTitle">Shop Men</h2>
-            <button type="button" onclick="document.getElementById('heroDepartmentResults').hidden=true" aria-label="Close product preview">×</button></div>
+            <button type="button" onclick="document.getElementById('heroDepartmentResults').hidden=true; document.querySelectorAll('[data-hero-department]').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); }); heroActiveDepartment=null" aria-label="Close product preview">×</button></div>
           <div id="heroDepartmentGrid" class="hero-department-grid"></div>
           <a class="hero-department-more" href="#featured">View all products →</a>
         </div>
@@ -3308,8 +3315,11 @@ async function loadSupabaseProducts() {
   */
   products.splice(0, products.length, ...onlineProducts);
 
+const heroChosenBeforeLoad = currentDepartment;
+currentDepartment = "All";
 renderProducts("All");
-if (document.getElementById('heroDepartmentResults') && !document.getElementById('heroDepartmentResults').hidden) showHeroDepartment(currentDepartment);
+currentDepartment = heroChosenBeforeLoad;
+buildHeroDepartmentCards();
 loadCategoryImages();
 }
    let cart =
@@ -3334,45 +3344,76 @@ loadCategoryImages();
       featured.classList.toggle("department-results-near-hero", belowHero);
     }
 
-    // Preserve the chosen department when Supabase loads products asynchronously.
-    // The hero controls are buttons, so tapping them never follows a competing # link.
-    function selectDepartment(department) {
-      currentDepartment = ["Men", "Women"].includes(department) ? department : "All";
-      currentFilter = "All";
+    // Hero department cards are prepared once and kept in the DOM.
+    // Switching Men/Women only changes which set is visible, so cards do not
+    // reload and the preview does not bounce to another department.
+    let heroActiveDepartment = null;
+    let heroPreviewReady = false;
 
-      document.querySelectorAll(".department-btn").forEach(button => {
-        const active = button.dataset.department === currentDepartment;
-        button.classList.toggle("active", active);
-        button.setAttribute("aria-pressed", String(active));
-      });
+    function setHeroButtonState(department) {
       document.querySelectorAll("[data-hero-department]").forEach(button => {
-        const active = button.dataset.heroDepartment === currentDepartment;
+        const active = button.dataset.heroDepartment === department;
         button.classList.toggle("active", active);
         button.setAttribute("aria-pressed", String(active));
       });
-      document.querySelectorAll(".filter-btn").forEach(button => button.classList.remove("active"));
+    }
 
-      positionProductSection(false);
-      renderProducts("All");
-      showHeroDepartment(currentDepartment);
-      // Keep the current selection in view; don't jump to #featured.
+    function buildHeroDepartmentCards() {
+      const grid = document.getElementById("heroDepartmentGrid");
+      if (!grid) return;
+      const allCards = [...productGrid.querySelectorAll(".product-card")];
+      const groups = document.createDocumentFragment();
+      for (const department of ["Men", "Women"]) {
+        const group = document.createElement("div");
+        group.className = "hero-department-grid hero-department-group";
+        group.dataset.previewDepartment = department;
+        group.hidden = true;
+        const matches = allCards.filter(card => {
+          const id = Number(card.querySelector(".wishlist[data-product-id]")?.dataset.productId);
+          const product = products.find(item => Number(item.id) === id);
+          const value = String(product?.department || "Unisex").toLowerCase();
+          return value === "unisex" || value === department.toLowerCase();
+        }).slice(0, 4);
+        if (matches.length) {
+          group.append(...matches.map(card => card.cloneNode(true)));
+        } else {
+          const empty = document.createElement("p");
+          empty.textContent = "No products in this selection yet.";
+          group.append(empty);
+        }
+        groups.append(group);
+      }
+      grid.replaceChildren(groups);
+      heroPreviewReady = true;
+      if (heroActiveDepartment) showHeroDepartment(heroActiveDepartment);
+    }
+
+    function selectDepartment(department) {
+      const chosen = department === "Women" ? "Women" : department === "Men" ? "Men" : "All";
+      currentDepartment = chosen;
+      heroActiveDepartment = chosen === "All" ? null : chosen;
+      document.querySelectorAll(".department-btn").forEach(button => {
+        const active = button.dataset.department === chosen;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+      setHeroButtonState(heroActiveDepartment);
+      // Do not rebuild the storefront product cards when changing the hero tabs.
+      // Regular category filters continue to use the existing renderProducts logic.
+      if (heroActiveDepartment) showHeroDepartment(heroActiveDepartment);
+      else document.getElementById("heroDepartmentResults").hidden = true;
     }
 
     function showHeroDepartment(department) {
+      if (!heroPreviewReady || department !== heroActiveDepartment) return;
       const panel = document.getElementById("heroDepartmentResults");
-      const grid = document.getElementById("heroDepartmentGrid");
-      if (!panel || !grid) return;
-      // Never allow an older asynchronous refresh to overwrite a newer choice.
-      if (department !== currentDepartment) return;
-      document.getElementById("heroDepartmentTitle").textContent =
-        department === "All" ? "Shop All" : "Shop " + department;
-
-      const cards = [...productGrid.querySelectorAll(".product-card")].slice(0, 4);
-      grid.replaceChildren(...cards.map(card => card.cloneNode(true)));
-      if (!cards.length) grid.textContent = "No products in this selection yet.";
+      if (!panel) return;
+      document.getElementById("heroDepartmentTitle").textContent = "Shop " + department;
+      panel.querySelectorAll("[data-preview-department]").forEach(group => {
+        group.hidden = group.dataset.previewDepartment !== department;
+      });
       panel.hidden = false;
       refreshWishlistHearts();
-      window.dispatchEvent(new Event("im-wishlist-updated"));
     }
 
     document.querySelectorAll(".department-btn").forEach(button =>

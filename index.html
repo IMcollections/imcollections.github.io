@@ -3491,12 +3491,22 @@ loadCategoryImages();
         button.classList.toggle("active", active);
         button.setAttribute("aria-pressed", String(active));
         button.setAttribute("aria-label", active ? "Remove from wishlist" : "Add to wishlist");
+        const icon = button.querySelector(".im-heart-icon");
+        if (icon) {
+          icon.style.setProperty("fill", active ? "#c9962e" : "none", "important");
+          icon.style.setProperty("stroke", "#c9962e", "important");
+        }
       });
       document.querySelectorAll(".cart-wishlist[data-product-id]").forEach(button => {
         const active = isWishlisted(button.dataset.productId);
         button.classList.toggle("active", active);
         button.setAttribute("aria-pressed", String(active));
         button.setAttribute("aria-label", active ? "Remove from wishlist" : "Add to wishlist");
+        const icon = button.querySelector(".im-heart-icon");
+        if (icon) {
+          icon.style.setProperty("fill", active ? "#c9962e" : "none", "important");
+          icon.style.setProperty("stroke", "#c9962e", "important");
+        }
       });
     }
     function toggleWishlist(button) {

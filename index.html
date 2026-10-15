@@ -2085,6 +2085,13 @@ footer { background:#101010; }
 .hero-buttons [data-hero-department].active { background:#111; color:#fff; border-color:#111; }
 .hero-buttons [data-hero-department]:not(.active) { background:transparent; color:#111; border:1px solid #111; }
 .hero-department-group[hidden] {display:none!important;}
+
+    /* Category selection: results expand directly underneath the tiles. */
+    #categories #featured { padding: 35px 0 10px; scroll-margin-top: 96px; }
+    #categories #featured .container { width:100%; }
+    #categories #featured.category-collection-active .section-heading { margin-bottom: 22px; }
+    #categories #featured.category-collection-active .department-selector { display:none; }
+    #categories #featured.category-collection-active .product-toolbar { margin-bottom:16px; }
   </style>
 </head>
 
@@ -2454,7 +2461,7 @@ Shop Women
         <a
           class="category-card"
           href="#featured"
-          onclick="filterProducts('Bags')"
+          onclick="event.preventDefault(); filterProducts('Bags')"
         >
           <div class="category-visual" data-category="Bags">BAG</div>
           <div class="category-info">
@@ -2466,7 +2473,7 @@ Shop Women
         <a
           class="category-card"
           href="#featured"
-          onclick="filterProducts('Electronics')"
+          onclick="event.preventDefault(); filterProducts('Electronics')"
         >
           <div class="category-visual" data-category="Electronics">Electronics</div>
           <div class="category-info">
@@ -2478,7 +2485,7 @@ Shop Women
         <a
           class="category-card"
           href="#featured"
-          onclick="filterProducts('Accessories')"
+          onclick="event.preventDefault(); filterProducts('Accessories')"
         >
           <div class="category-visual" data-category="Accessories">TIME</div>
           <div class="category-info">
@@ -2490,7 +2497,7 @@ Shop Women
         <a
           class="category-card"
           href="#featured"
-          onclick="filterProducts('Shoes')"
+          onclick="event.preventDefault(); filterProducts('Shoes')"
         >
           <div class="category-visual" data-category="Shoes">STEP</div>
           <div class="category-info">
@@ -2502,7 +2509,7 @@ Shop Women
         <a
           class="category-card"
           href="#featured"
-          onclick="filterProducts('Clothing')"
+          onclick="event.preventDefault(); filterProducts('Clothing')"
         >
           <div class="category-visual" data-category="Clothing">Fashion</div>
           <div class="category-info">
@@ -2514,7 +2521,7 @@ Shop Women
         <a
           class="category-card"
           href="#featured"
-          onclick="filterProducts('Toys')"
+          onclick="event.preventDefault(); filterProducts('Toys')"
         >
           <div class="category-visual" data-category="Toys">FUNKO</div>
           <div class="category-info">
@@ -2526,7 +2533,7 @@ Shop Women
        <a
           class="category-card"
           href="#featured"
-          onclick="filterProducts('Watches')"
+          onclick="event.preventDefault(); filterProducts('Watches')"
         >
           <div class="category-visual" data-category="Watches">WATCHES</div>
           <div class="category-info">
@@ -2538,7 +2545,7 @@ Shop Women
    <a
           class="category-card"
           href="#featured"
-          onclick="filterProducts('Vintage')"
+          onclick="event.preventDefault(); filterProducts('Vintage')"
         >
           <div class="category-visual" data-category="Vintage">Vintage Style</div>
           <div class="category-info">
@@ -3339,7 +3346,10 @@ loadCategoryImages();
       if (belowHero) {
         hero.insertAdjacentElement("afterend", featured);
       } else {
-        categories.insertAdjacentElement("afterend", featured);
+        // Place results immediately after the category tiles, within their section.
+        const tiles = categories.querySelector(".category-grid");
+        if (tiles) tiles.insertAdjacentElement("afterend", featured);
+        else categories.insertAdjacentElement("afterend", featured);
       }
       featured.classList.toggle("department-results-near-hero", belowHero);
     }
@@ -3704,8 +3714,12 @@ loadCategoryImages();
       });
 
     function filterProducts(category) {
-      // Category tiles show all matching products beneath the category images.
+      // A category tile opens its own complete product collection under the tiles.
       currentDepartment = "All";
+      heroActiveDepartment = null;
+      const heroPanel = document.getElementById("heroDepartmentResults");
+      if (heroPanel) heroPanel.hidden = true;
+      setHeroButtonState(null);
       document.querySelectorAll(".department-btn").forEach(btn => {
         const active = btn.dataset.department === "All";
         btn.classList.toggle("active", active);
@@ -3717,7 +3731,18 @@ loadCategoryImages();
         btn.classList.toggle("active", btn === button);
       });
       renderProducts(category);
-      document.getElementById("featured").scrollIntoView({ behavior: "smooth", block: "start" });
+      const section = document.getElementById("featured");
+      section.classList.add("category-collection-active");
+      const names = {
+        Bags: "Bags", Electronics: "Electronics & Tech",
+        Accessories: "Accessories", Shoes: "Shoes", Clothing: "Clothing",
+        Toys: "Toys & Hobbies", Watches: "Watches", Vintage: "Vintage Items",
+        Essentials: "Essentials", OpenBox: "Open Box", NewArrivals: "New Arrivals",
+        BestSellers: "Best Sellers", Sale: "Sale"
+      };
+      const heading = section.querySelector(".section-heading h2");
+      if (heading) heading.textContent = "Shop " + (names[category] || category);
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function filterSpecialProducts(type) {
@@ -4635,35 +4660,78 @@ updateAccountLinks();
   };
   function startSlideshow(element, urls, mode) {
     if (!element || !urls.length) return;
-    let index=0;
-    const show=()=>{
-      const url=urls[index];
-      const shade=mode==='hero' ? 'linear-gradient(90deg,rgba(255,255,255,.83),rgba(255,255,255,.18)),' :
-        mode==='category' ? 'linear-gradient(to bottom,rgba(0,0,0,.04),rgba(0,0,0,.48)),' : '';
-      element.style.backgroundImage=shade+'url("'+String(url).replace(/"/g,'%22')+'")';
-      element.style.backgroundSize='cover';element.style.backgroundPosition='center';
-    };
-    show();
-    if (mode==='hero') {
-      element.dataset.designHero='true';
-      element.classList.add('design-slideshow-light');
-      element.querySelectorAll('.display-card,.display-circle').forEach(item=>{item.style.visibility='hidden';});
+    const slides = [...new Set(urls.filter(url => typeof url === 'string' && url.trim()))];
+    if (!slides.length) return;
+
+    // The category's full-size .category-visual covers the tile background.
+    // Paint the visible layer, not the hidden parent background.
+    const picture = mode === 'category'
+      ? element.querySelector('.category-visual') || element
+      : element;
+    if (mode === 'category') {
+      picture.dataset.managedImage = 'true';
+      picture.textContent = '';
     }
-    if (mode==='promo') element.querySelectorAll('.promo-watch,.promo-ring').forEach(item=>item.style.display='none');
-    if (urls.length<2) return;
-    const advance=(by)=>{index=(index+by+urls.length)%urls.length;show();};
-    const timer=setInterval(()=>{if(!document.hidden) advance(1);},5000);
-    let down=null;
-    element.addEventListener('touchstart',e=>{
-      if(e.touches.length===1) down={x:e.touches[0].clientX,y:e.touches[0].clientY};
-    },{passive:true});
-    element.addEventListener('touchend',e=>{
-      if(!down || !e.changedTouches.length)return;
-      const dx=e.changedTouches[0].clientX-down.x,dy=e.changedTouches[0].clientY-down.y;
-      down=null;
-      if(Math.abs(dx)>45 && Math.abs(dx)>Math.abs(dy)*1.25)advance(dx<0?1:-1);
-    },{passive:true});
-    window.addEventListener('pagehide',()=>clearInterval(timer),{once:true});
+
+    let index = 0;
+    function show() {
+      const shade = mode === 'hero'
+        ? 'linear-gradient(90deg, rgba(255,255,255,.83), rgba(255,255,255,.18)), '
+        : mode === 'category'
+          ? 'linear-gradient(to bottom, rgba(0,0,0,.03), rgba(0,0,0,.30)), '
+          : '';
+      const safe = slides[index].replace(/\"/g, '%22');
+      picture.style.backgroundImage = shade + 'url("' + safe + '")';
+      picture.style.backgroundSize = 'cover';
+      picture.style.backgroundPosition = 'center';
+      picture.style.backgroundRepeat = 'no-repeat';
+    }
+    show();
+    if (mode === 'hero') {
+      element.dataset.designHero = 'true';
+      element.classList.add('design-slideshow-light');
+      element.querySelectorAll('.display-card, .display-circle')
+        .forEach(item => { item.style.visibility = 'hidden'; });
+    }
+    if (mode === 'promo') {
+      element.querySelectorAll('.promo-watch, .promo-ring')
+        .forEach(item => { item.style.display = 'none'; });
+    }
+    if (slides.length < 2) return;
+
+    const advance = amount => {
+      index = (index + amount + slides.length) % slides.length;
+      show();
+    };
+    setInterval(() => {
+      if (!document.hidden && element.isConnected) advance(1);
+    }, 5000);
+
+    let gesture = null;
+    let ignoreClickUntil = 0;
+    element.addEventListener('touchstart', event => {
+      if (event.touches.length === 1) {
+        gesture = {x:event.touches[0].clientX, y:event.touches[0].clientY};
+      }
+    }, {passive:true});
+    element.addEventListener('touchend', event => {
+      if (!gesture || !event.changedTouches.length) return;
+      const dx = event.changedTouches[0].clientX - gesture.x;
+      const dy = event.changedTouches[0].clientY - gesture.y;
+      gesture = null;
+      if (Math.abs(dx) > 35 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+        advance(dx < 0 ? 1 : -1);
+        ignoreClickUntil = Date.now() + 650;
+      }
+    }, {passive:true});
+    element.addEventListener('touchcancel', () => { gesture = null; }, {passive:true});
+    // Swipe gestures must not activate the category tile link.
+    element.addEventListener('click', event => {
+      if (Date.now() < ignoreClickUntil) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    }, true);
   }
   async function loadImages(){
     const {data,error}=await client.from('site_design_images').select('slot,image_url,image_urls');

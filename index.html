@@ -1894,24 +1894,44 @@
     @media (max-width: 430px) { .product-image { height: 295px; } }
 
   
-    /* A single source of truth for gold hearts: the path's fill attribute. */
-      display:block; width:27px; height:27px;
-      stroke:#c9962e; stroke-width:1.8;
-      stroke-linecap:round; stroke-linejoin:round;
+    /* Restore SVG dimensions: missing selector made cart hearts invisible. */
+    .wishlist .im-heart-icon, .cart-wishlist .im-heart-icon {
+      display:block;
+      width:27px;
+      height:27px;
+      min-width:27px;
+      min-height:27px;
+      stroke:#c9962e;
+      stroke-width:1.8;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      overflow:visible;
       pointer-events:none;
+    }
+    .wishlist .im-heart-icon path, .cart-wishlist .im-heart-icon path {
+      stroke:#c9962e;
     }
     .cart-wishlist { color:#c9962e; }
     .cart-photo-open { display:block; padding:0; border:0; cursor:zoom-in; font:inherit; }
     .cart-photo-open:focus-visible, .cart-wishlist:focus-visible { outline:3px solid #c9962e; outline-offset:2px; }
-    /* Align Shop All / Men / Women evenly with the category controls below. */
+    /* Department buttons: natural widths, aligned with category buttons. */
     .department-selector {
-      display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
-      width:100%; justify-content:stretch; gap:8px;
-      margin:0 0 8px; padding:0;
+      display:flex;
+      justify-content:flex-start;
+      align-items:center;
+      flex-wrap:wrap;
+      width:100%;
+      gap:8px;
+      margin:0 0 8px;
+      padding:0;
     }
     .department-selector .department-btn {
-      min-width:0; width:100%; padding:13px 5px;
-      text-align:center; box-sizing:border-box;
+      flex:0 0 auto;
+      width:auto;
+      min-width:0;
+      padding:10px 16px;
+      text-align:center;
+      box-sizing:border-box;
     }
   </style>
 </head>
@@ -3362,7 +3382,7 @@ loadCategoryImages();
                 onclick="toggleWishlist(this)"
                 aria-label="Add to wishlist"
               >
-                <svg class="im-heart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg>
+                <svg class="im-heart-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="#c9962e" d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg>
                 <span class="wishlist-count" data-wishlist-count aria-label="521 members saved this item">521</span>
               </button>
 
@@ -3622,7 +3642,7 @@ openCart();
 
                 </div>
                 <button type="button" class="cart-wishlist" data-product-id="${item.id}"
-                  aria-label="Add to wishlist" aria-pressed="false"><svg class="im-heart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg></button>
+                  aria-label="Add to wishlist" aria-pressed="false"><svg class="im-heart-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="#c9962e" d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg></button>
                 </div>
 
               </div>
@@ -4088,7 +4108,7 @@ localStorage.setItem(
                   data-product-id="${product.id}"
                   onclick="toggleWishlist(this)"
                 >
-                  <svg class="im-heart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg>
+                  <svg class="im-heart-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="#c9962e" d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg>
                   <span class="wishlist-count" data-wishlist-count aria-label="521 members saved this item">521</span>
                 </button>
 

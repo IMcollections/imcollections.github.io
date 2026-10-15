@@ -196,7 +196,7 @@ select {
    <div class="hidden" id="editor">
     <div class="card">
      <h2>
-      Choose a website image
+      Choose website images
      </h2>
      <label for="slot">
       Image location
@@ -258,27 +258,28 @@ select {
        </p>
       </div>
      </div>
+     <div id="slideSelection" class="slide-selection" aria-live="polite"></div>
      <div class="drop-zone" id="dropZone" role="button" tabindex="0">
       <strong>
-       Drag &amp; Drop an Image Here
+       Drag &amp; Drop Images Here
       </strong>
       <span>
        or tap to choose an image from your phone
       </span>
      </div>
-     <input accept="image/jpeg,image/png,image/webp,image/gif" hidden="" id="imageInput" type="file"/>
+     <input accept="image/jpeg,image/png,image/webp,image/gif" hidden="" id="imageInput" type="file" multiple=""/>
      <p class="hint">
       JPG, PNG, WebP or GIF. Maximum 8 MB. The website layout will not change.
      </p>
      <div class="actions">
       <button class="btn" id="save">
-       Publish / Replace Image
+       Publish / Replace Slideshow
       </button>
       <button class="btn btn-outline" id="clearSelection">
-       Clear New Image
+       Clear Selected Images
       </button>
       <button class="btn btn-danger" id="remove">
-       Remove Published Image
+       Remove All Published Images
       </button>
      </div>
      <div aria-live="polite" class="message" id="message" role="status">
@@ -325,46 +326,63 @@ const SLOTS=[{
   "id": "watches", "name": "Watches", "hint": "Featured category image"
 }];
 const $=id=>document.getElementById(id);
-let imageFile=null,imageBytes=null,previewURL=null,images=new Map(),busy=false;
-function message(text,error=false){
-  $('message').className='message '+(error?'error':'success');
-  $('message').textContent=text;
+let selectedFiles = [];
+let images = new Map();
+let imageLists = new Map();
+let busy = false;
+let previewURLs = [];
+function message(text, error=false) {
+  $('message').className = 'message ' + (error ? 'error' : 'success');
+  $('message').textContent = text;
 }
-function resetPreview(){
-  imageFile=null;
-  imageBytes=null;
-  if(previewURL)URL.revokeObjectURL(previewURL);
-  previewURL=null;
-  $('imageInput').value='';
+function resetPreview() {
+  for (const url of previewURLs) URL.revokeObjectURL(url);
+  previewURLs = [];
+  selectedFiles = [];
+  $('imageInput').value = '';
   $('newImage').removeAttribute('src');
   $('newImage').classList.add('hidden');
   $('newPlaceholder').classList.remove('hidden');
-  $('newLabel').textContent='New image (not published)';
+  $('newLabel').textContent = 'New images (not published)';
+  $('slideSelection').replaceChildren();
 }
-async function setSelectedFile(file){
-  if(!file)return;
-  if(!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)) return message('Choose a JPG, PNG, WebP, or GIF image.',true);
-  if(file.size>8*1024*1024) return message('Image is larger than 8 MB.',true);
-  resetPreview();
-  try {
-    // Read before resetting the iPhone file input. Keep actual bytes in memory.
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    if(!bytes.byteLength) throw new Error('Selected image has no content. Choose it again.');
-    imageBytes=bytes;
-    imageFile=file;
-    const blob = new Blob([bytes], {
-      type:file.type
-    });
-    previewURL=URL.createObjectURL(blob);
-    $('newImage').src=previewURL;
-    $('newImage').classList.remove('hidden');
-    $('newPlaceholder').classList.add('hidden');
-    $('newLabel').textContent=file.name+' — ready to publish';
-    message('Image ready ('+Math.round(bytes.byteLength/1024)+' KB). Tap Publish / Replace Image.');
-  } catch(e) {
-    resetPreview();
-    message('Could not read image: '+e.message,true);
+async function setSelectedFiles(files) {
+  const accepted = [...files];
+  for (const file of accepted) {
+    if (!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)) {
+      message('Only JPG, PNG, WebP and GIF are supported.', true); continue;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      message('Each image must be 8 MB or smaller.', true); continue;
+    }
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      if (!bytes.byteLength) throw new Error('Empty image');
+      selectedFiles.push({file, bytes});
+    } catch(e) { message('Could not read ' + file.name + ': ' + e.message, true); }
   }
+  renderNewPreviews();
+}
+function renderNewPreviews() {
+  for (const url of previewURLs) URL.revokeObjectURL(url);
+  previewURLs = [];
+  const area = $('slideSelection');
+  area.replaceChildren();
+  selectedFiles.forEach(({file, bytes}, index) => {
+    const url = URL.createObjectURL(new Blob([bytes], {type:file.type}));
+    previewURLs.push(url);
+    const card = document.createElement('div'); card.className = 'slide';
+    const img = document.createElement('img'); img.src = url; img.alt = file.name;
+    const label = document.createElement('small'); label.textContent = (index + 1) + '. ' + file.name;
+    const remove = document.createElement('button'); remove.type = 'button';
+    remove.textContent = 'Remove'; remove.onclick = () => { selectedFiles.splice(index,1); renderNewPreviews(); };
+    card.append(img,label,remove); area.append(card);
+  });
+  const hasImages = selectedFiles.length > 0;
+  $('newPlaceholder').classList.toggle('hidden', hasImages);
+  $('newImage').classList.add('hidden');
+  $('newLabel').textContent = hasImages ? selectedFiles.length + ' images queued (publishing replaces the current slideshow)' : 'No new images selected';
+  if (hasImages) message(selectedFiles.length + ' images ready. Tap Publish / Replace Slideshow.');
 }
 function selected(){
   return $('slot').value
@@ -378,6 +396,7 @@ function showCurrent(){
   if(url)$('currentImage').src=url;
   else $('currentImage').removeAttribute('src');
   $('remove').disabled=!url;
+  $('currentImage').title = (imageLists.get(s.id)||[]).length + ' published slides';
 }
 function renderOverview(){
   const root=$('overview');
@@ -417,9 +436,10 @@ function renderOverview(){
 async function reload(){
   const {
     data,error
-  }=await db.from('site_design_images').select('slot,image_url');
+  }=await db.from('site_design_images').select('slot,image_url,image_urls');
   if(error)throw error;
   images=new Map((data||[]).map(r=>[r.slot,r.image_url]));
+  imageLists=new Map((data||[]).map(r=>[r.slot,Array.isArray(r.image_urls)&&r.image_urls.length ? r.image_urls : (r.image_url?[r.image_url]:[])]));
   showCurrent();
   renderOverview()
 }
@@ -448,46 +468,41 @@ $('dropZone').ondragleave=()=>$('dropZone').classList.remove('dragover');
 $('dropZone').ondrop=e=>{
   e.preventDefault();
   $('dropZone').classList.remove('dragover');
-  setSelectedFile(e.dataTransfer.files[0])
+  setSelectedFiles(e.dataTransfer.files)
 };
-$('imageInput').onchange=e=>setSelectedFile(e.target.files[0]);
+$('imageInput').onchange=e=>setSelectedFiles(e.target.files);
 $('clearSelection').onclick=()=>{
   resetPreview();
   message('New image cleared. Published image unchanged.')
 };
-$('save').onclick=async()=>{
-  if(busy)return;
-  if(!imageFile||!imageBytes?.byteLength)return message('Choose an image first.',true);
+$('save').onclick = async () => {
+  if (busy) return;
+  if (!selectedFiles.length) return message('Select images to publish first.', true);
   setBusy(true);
-  const slot=selected();
-  let path=null;
-  try{
-    const extension=imageFile.type==='image/png'?'png':imageFile.type==='image/webp'?'webp':imageFile.type==='image/gif'?'gif':'jpg';
-    path=slot+'/'+crypto.randomUUID()+'.'+extension;
-    message('Uploading image…');
-    const up=await db.storage.from(BUCKET).upload(path,imageBytes,{
-      cacheControl:'3600',upsert:false,contentType:imageFile.type
-    });
-    if(up.error)throw up.error;
-    const publicUrl=db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
-    message('Saving image location…');
-    const {
-      error
-    }=await db.from('site_design_images').upsert({
-      slot,image_url:publicUrl,storage_path:path
-    },{
-      onConflict:'slot'
-    });
-    if(error)throw error;
+  const slot = selected();
+  try {
+    const urls = [];
+    for (const {file, bytes} of selectedFiles) {
+      const extension = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : file.type === 'image/gif' ? 'gif' : 'jpg';
+      const path = slot + '/' + crypto.randomUUID() + '.' + extension;
+      message('Uploading ' + (urls.length + 1) + ' of ' + selectedFiles.length + ' images…');
+      const {error: uploadError} = await db.storage.from(BUCKET).upload(path, bytes, {
+        cacheControl:'3600', upsert:false, contentType:file.type
+      });
+      if (uploadError) throw uploadError;
+      urls.push(db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl);
+    }
+    const {error} = await db.from('site_design_images').upsert({
+      slot, image_url:urls[0], image_urls:urls,
+      storage_path:null, updated_at:new Date().toISOString()
+    }, {onConflict:'slot'});
+    if (error) throw error;
     resetPreview();
     await reload();
-    message('Image published! The homepage can now display this image.');
-  }catch(e){
-    message('Could not publish: '+(e.message||e),true)
-  }finally{
-    setBusy(false);
-    showCurrent()
-  }
+    message(urls.length + ' slideshow images published! Swipe or wait for the next slide on the homepage.');
+  } catch(e) {
+    message('Could not publish: ' + (e.message || e),true);
+  } finally { setBusy(false); showCurrent(); }
 };
 $('remove').onclick=async()=>{
   if(busy||!images.get(selected()))return;

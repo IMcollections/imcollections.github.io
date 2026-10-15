@@ -2040,6 +2040,13 @@ footer { background:#101010; }
  .promo-copy p { margin-left:0; margin-right:0; }
 }
 
+    /* Navigation result placement: leave product, cart and checkout logic intact. */
+    #featured.department-results-near-hero {
+      padding-top: 36px;
+      scroll-margin-top: 92px;
+      border-bottom: 1px solid var(--border);
+    }
+    #featured { scroll-margin-top: 92px; }
   </style>
 </head>
 
@@ -3167,7 +3174,8 @@ onclick="filterProducts('BestSellers')"
     const category = box.dataset.category;
 
     const product = products.find(
-      item => item.category.toLowerCase() === category.toLowerCase()
+      item => item.category.toLowerCase() === category.toLowerCase() ||
+        (category === "Watches" && /\bwatch(es)?\b/i.test(item.name || ""))
     );
 
     if (product && product.image && !box.dataset.managedImage) {
@@ -3317,7 +3325,8 @@ async function loadSupabaseProducts() {
   products.splice(0, products.length, ...onlineProducts);
 
 renderProducts("All");
-// Category photographs are controlled by Website Design Manager.
+// Use product photos as fallback; Design Manager photos replace these when available.
+loadCategoryImages();
 }
    let cart =
   JSON.parse(
@@ -3326,15 +3335,33 @@ renderProducts("All");
     let currentFilter = "All";
     let currentDepartment = "All";
 
+    // Display the selected department immediately below the hero banner.
+    // Return the same product section below the category tiles when browsing a category.
+    function positionProductSection(belowHero) {
+      const featured = document.getElementById("featured");
+      const categories = document.getElementById("categories");
+      const hero = document.querySelector(".hero");
+      if (!featured || !categories || !hero) return;
+      if (belowHero) {
+        hero.insertAdjacentElement("afterend", featured);
+      } else {
+        categories.insertAdjacentElement("afterend", featured);
+      }
+      featured.classList.toggle("department-results-near-hero", belowHero);
+    }
+
     function selectDepartment(department) {
       currentDepartment = ["Men", "Women"].includes(department) ? department : "All";
+      currentFilter = "All";
       document.querySelectorAll(".department-btn").forEach(button => {
         const active = button.dataset.department === currentDepartment;
         button.classList.toggle("active", active);
         button.setAttribute("aria-pressed", String(active));
       });
-      renderProducts(currentFilter);
-      document.getElementById("featured").scrollIntoView({behavior:"smooth"});
+      document.querySelectorAll(".filter-btn").forEach(button => button.classList.remove("active"));
+      positionProductSection(currentDepartment !== "All");
+      renderProducts("All");
+      document.getElementById("featured").scrollIntoView({behavior:"smooth", block:"start"});
     }
 
     document.querySelectorAll(".department-btn").forEach(button =>
@@ -3569,12 +3596,20 @@ renderProducts("All");
       });
 
     function filterProducts(category) {
+      // Category tiles show all matching products beneath the category images.
+      currentDepartment = "All";
+      document.querySelectorAll(".department-btn").forEach(btn => {
+        const active = btn.dataset.department === "All";
+        btn.classList.toggle("active", active);
+        btn.setAttribute("aria-pressed", String(active));
+      });
+      positionProductSection(false);
       const button = document.querySelector(`.filter-btn[data-filter="${category}"]`);
       document.querySelectorAll(".filter-btn").forEach(btn => {
         btn.classList.toggle("active", btn === button);
       });
       renderProducts(category);
-      document.getElementById("featured").scrollIntoView({ behavior: "smooth" });
+      document.getElementById("featured").scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function filterSpecialProducts(type) {

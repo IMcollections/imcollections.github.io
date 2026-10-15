@@ -2059,7 +2059,17 @@ footer { background:#101010; }
 .hero-department-heading {display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
 .hero-department-heading h2 {font:600 19px Georgia,serif;}
 .hero-department-heading button {border:0;background:transparent;font-size:25px;}
-.hero-department-grid {display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px;}
+.hero-department-grid {display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px;}
+.hero-department-grid .product-card {background:#fff; padding:0 0 10px; min-width:0;}
+.hero-department-grid .product-image {height:auto; aspect-ratio:4/5;}
+.hero-department-grid .product-info {padding:10px 6px 0;}
+.hero-department-grid .product-card .quick-view {font-size:9px; padding:0 7px;}
+.hero-department-grid .product-name {font-size:13px;}
+.hero-department-grid .product-card-photo {object-fit:contain;}
+.hero-department-grid .product-view-count {margin:2px 0 7px;}
+.hero-department-grid .add-button {min-height:38px; font-size:10px;}
+.hero-department-grid .wishlist {right:7px;top:7px;}
+@media(min-width:900px) {.hero-department-grid {grid-template-columns:repeat(4,minmax(0,1fr));}}
 .hero-department-product {cursor:pointer; border:0;background:transparent;text-align:left;min-width:0;}
 .hero-department-product img {width:100%; aspect-ratio:4/3;object-fit:contain;background:#f2efea;}
 .hero-department-product strong {display:block;font-size:12px;margin-top:6px;line-height:1.35;}
@@ -2067,7 +2077,7 @@ footer { background:#101010; }
 .hero-department-more {display:block;margin-top:12px;font-size:12px;text-decoration:underline;font-weight:700;}
 /* Keep images tidy, and let slides swipe horizontally. */
 .category-card {touch-action:pan-y;}
-@media(max-width:650px) {.hero-department-results {max-height:410px;overflow-y:auto;} }
+@media(max-width:650px) {.hero-department-results {max-height:none;overflow:visible;} }
   </style>
 </head>
 
@@ -2699,62 +2709,6 @@ onclick="filterProducts('BestSellers')"
   </section>
 
   <!-- =======================================================
-       WHY IM Collections
-       ======================================================== -->
-
-  <section class="section">
-
-    <div class="container">
-
-      <div class="section-heading">
-
-        <div class="eyebrow">The IM Difference</div>
-
-        <h2>More Than A Store</h2>
-
-        <p>
-          IM Collections brings fashion, technology and
-          everyday lifestyle essentials together in one place.
-        </p>
-
-      </div>
-
-      <div class="feature-grid">
-
-        <div class="feature-card">
-          <div class="feature-number">01</div>
-          <h3>Curated For You</h3>
-          <p>
-            We focus on pieces that combine style, function
-            and everyday versatility.
-          </p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-number">02</div>
-          <h3>Style Meets Technology</h3>
-          <p>
-            Shop fashion and modern gadgets side by side,
-            making it easy to build your complete lifestyle.
-          </p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-number">03</div>
-          <h3>Made To Stand Out</h3>
-          <p>
-            From statement accessories to everyday essentials,
-            discover pieces with personality.
-          </p>
-        </div>
-
-      </div>
-
-    </div>
-
-  </section>
-
-  <!-- =======================================================
        NEWSLETTER
        ======================================================== -->
 
@@ -3015,6 +2969,8 @@ onclick="filterProducts('BestSellers')"
           id="modalRating"
         ></div>
 
+        <div id="modalViews" class="product-view-count" aria-live="polite">521 views</div>
+
         <p id="modalDescription"></p>
 
         <div
@@ -3022,7 +2978,6 @@ onclick="filterProducts('BestSellers')"
           id="modalPrice"
         ></div>
         <div id="modalVariants" class="modal-variants"></div>
-        <div id="modalViews" class="product-view-count" aria-live="polite">521 views</div>
 
         <button
           class="btn btn-gold"
@@ -3395,27 +3350,21 @@ loadCategoryImages();
     function showHeroDepartment(department) {
       const panel = document.getElementById('heroDepartmentResults');
       const grid = document.getElementById('heroDepartmentGrid');
-      document.getElementById('heroDepartmentTitle').textContent = department === 'All' ? 'Shop All' : 'Shop ' + department;
-      const matches = products.filter(item => {
-        const group = String(item.department || 'Unisex').toLowerCase();
-        return department === 'All' || group === department.toLowerCase() || group === 'unisex';
-      }).slice(0,4);
-      grid.replaceChildren();
-      for (const item of matches) {
-        const button = document.createElement('button'); button.type='button';
-        button.className='hero-department-product';
-        const img=document.createElement('img');
-        img.src = (Array.isArray(item.images)&&item.images[0]) || item.image || 'IM-logo.jpg';
-        img.alt=item.name || 'Product'; img.loading='lazy';
-        const title=document.createElement('strong'); title.textContent=item.name || 'Product';
-        const price=document.createElement('span'); price.textContent='$'+Number(item.price||0).toFixed(2);
-        button.append(img,title,price);
-        button.onclick=()=>openQuickView(Number(item.id));
-        grid.append(button);
+      document.getElementById('heroDepartmentTitle').textContent =
+        department === 'All' ? 'Shop All' : 'Shop ' + department;
+
+      // The existing storefront renders the full product cards first.
+      // Reuse those exact cards, rather than building a different miniature design.
+      const cards = [...productGrid.querySelectorAll('.product-card')].slice(0, 4);
+      grid.replaceChildren(...cards.map(card => card.cloneNode(true)));
+      if (!cards.length) {
+        grid.textContent = 'No products in this selection yet.';
       }
-      if (!matches.length) grid.textContent='No products in this selection yet.';
-      panel.hidden=false;
+      panel.hidden = false;
+      refreshWishlistHearts();
+      window.dispatchEvent(new Event('im-wishlist-updated'));
     }
+
     document.querySelectorAll(".department-btn").forEach(button =>
       button.addEventListener("click", () => selectDepartment(button.dataset.department))
     );
@@ -3495,6 +3444,62 @@ loadCategoryImages();
       if (!e.target.matches('.product-card-media')) return;
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openQuickView(Number(e.target.dataset.productId)); }
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); changeCardPhoto(e.target, e.key === 'ArrowRight' ? 1 : -1); }
+    });
+
+    // The Men/Women preview uses cloned storefront cards, so attach the same
+    // swipe / tap interaction to that preview grid without altering the main grid.
+    const heroProductGrid = document.getElementById('heroDepartmentGrid');
+    let heroSwipeStart = null;
+    heroProductGrid.addEventListener('touchstart', event => {
+      const media = event.target.closest('.product-card-media');
+      if (!media || event.touches.length !== 1) return;
+      heroSwipeStart = {
+        media,
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY
+      };
+    }, { passive: true });
+    heroProductGrid.addEventListener('touchend', event => {
+      if (!heroSwipeStart || !event.changedTouches.length) return;
+      const { media, x, y } = heroSwipeStart;
+      heroSwipeStart = null;
+      const dx = event.changedTouches[0].clientX - x;
+      const dy = event.changedTouches[0].clientY - y;
+      if (Math.abs(dx) > 35 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+        media.dataset.lastSwiped = String(Date.now());
+        changeCardPhoto(media, dx < 0 ? 1 : -1);
+      }
+    }, { passive: true });
+    heroProductGrid.addEventListener('touchcancel', () => {
+      heroSwipeStart = null;
+    }, { passive: true });
+    heroProductGrid.addEventListener('click', event => {
+      const arrow = event.target.closest('[data-card-direction]');
+      if (arrow) {
+        event.preventDefault();
+        event.stopPropagation();
+        changeCardPhoto(arrow.closest('.product-card-media'),
+          Number(arrow.dataset.cardDirection));
+        return;
+      }
+      const media = event.target.closest('.product-card-media');
+      if (!media) return;
+      if (Date.now() - Number(media.dataset.lastSwiped || 0) < 600) {
+        event.preventDefault();
+        return;
+      }
+      openQuickView(Number(media.dataset.productId));
+    });
+    heroProductGrid.addEventListener('keydown', event => {
+      const media = event.target.closest('.product-card-media');
+      if (!media) return;
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openQuickView(Number(media.dataset.productId));
+      } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        event.preventDefault();
+        changeCardPhoto(media, event.key === 'ArrowRight' ? 1 : -1);
+      }
     });
 
     function renderProducts(filter = "All") {
@@ -4125,7 +4130,7 @@ localStorage.setItem(
       const modalViews = document.getElementById("modalViews");
       const cardViewBadge = [...document.querySelectorAll("[data-product-view-count]")]
         .find(badge => Number(badge.dataset.productId) === Number(product.id));
-      if (modalViews && cardViewBadge) modalViews.textContent = cardViewBadge.textContent;
+      if (modalViews) modalViews.textContent = cardViewBadge?.textContent || '521 views';
 
      const galleryImages =
   product.images && product.images.length

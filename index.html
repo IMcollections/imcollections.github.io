@@ -1909,6 +1909,17 @@
     .wishlist.active svg { stroke: #c9962e !important; fill: #c9962e !important; }
     .wishlist [data-wishlist-heart] { color: #c9962e !important; font-family: Arial, sans-serif; font-size: 24px; line-height: 1; }
     .cart-wishlist, .cart-wishlist.active { color: #c9962e !important; font-family: Arial, sans-serif; font-size: 28px; line-height: 1; }
+
+    /* Single SVG heart for storefront, search results, and cart; no emoji rendering. */
+    .wishlist .im-heart-icon, .cart-wishlist .im-heart-icon {
+      display: block !important; width: 27px !important; height: 27px !important;
+      stroke: #c9962e !important; fill: transparent !important;
+      stroke-width: 1.8 !important; stroke-linecap: round; stroke-linejoin: round;
+      pointer-events: none;
+    }
+    .wishlist.active .im-heart-icon, .cart-wishlist.active .im-heart-icon {
+      stroke: #c9962e !important; fill: #c9962e !important;
+    }
   </style>
 </head>
 
@@ -3358,15 +3369,7 @@ loadCategoryImages();
                 onclick="toggleWishlist(this)"
                 aria-label="Add to wishlist"
               >
-                <svg
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"
-                    stroke-width="1.5"
-                  />
-                </svg>
+                <svg class="im-heart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg>
                 <span class="wishlist-count" data-wishlist-count aria-label="521 members saved this item">521</span>
               </button>
 
@@ -3486,15 +3489,12 @@ loadCategoryImages();
       document.querySelectorAll(".wishlist[data-product-id]").forEach(button => {
         const active = isWishlisted(button.dataset.productId);
         button.classList.toggle("active", active);
-        const heart = button.querySelector("[data-wishlist-heart]");
-        if (heart) heart.textContent = active ? "♥" : "♡";
         button.setAttribute("aria-pressed", String(active));
         button.setAttribute("aria-label", active ? "Remove from wishlist" : "Add to wishlist");
       });
       document.querySelectorAll(".cart-wishlist[data-product-id]").forEach(button => {
         const active = isWishlisted(button.dataset.productId);
         button.classList.toggle("active", active);
-        button.textContent = active ? "♥" : "♡";
         button.setAttribute("aria-pressed", String(active));
         button.setAttribute("aria-label", active ? "Remove from wishlist" : "Add to wishlist");
       });
@@ -3631,7 +3631,7 @@ openCart();
 
                 </div>
                 <button type="button" class="cart-wishlist" data-product-id="${item.id}"
-                  onclick="toggleWishlist(this)" aria-label="Add to wishlist" aria-pressed="false">♡</button>
+                  onclick="toggleWishlist(this)" aria-label="Add to wishlist" aria-pressed="false"><svg class="im-heart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg></button>
                 </div>
 
               </div>
@@ -4081,7 +4081,7 @@ localStorage.setItem(
                   data-product-id="${product.id}"
                   onclick="toggleWishlist(this)"
                 >
-                  <span data-wishlist-heart>♡</span>
+                  <svg class="im-heart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg>
                   <span class="wishlist-count" data-wishlist-count aria-label="521 members saved this item">521</span>
                 </button>
 

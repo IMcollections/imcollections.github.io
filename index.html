@@ -1875,6 +1875,34 @@
     .swipe-gallery-arrow.next { right: 4px; }
     .swipe-gallery-footer { display: flex; flex-direction: column; align-items: center; gap: 9px; padding-top: 10px; color: #555; font-size: 12px; }
     @media (max-width: 650px) { .swipe-gallery { padding: 8px; } .swipe-gallery-stage { min-height: 250px; } .swipe-gallery-stage img { height: min(47vh, 360px); } }
+  
+    /* Shop layout: one Shop All control, tighter department/category grouping. */
+    .department-selector { margin-bottom: 8px; gap: 8px; }
+    .product-toolbar { margin-bottom: 20px; }
+    .filter-buttons { gap: 8px; }
+    .department-btn, .filter-btn { font-size: 13px; font-weight: 700; color: #111; }
+    .department-btn.active, .filter-btn.active { color: #fff; }
+
+    /* Larger images and a smaller unobtrusive Full View control. */
+    .product-image { height: 440px; }
+    .product-card .quick-view { left: auto; right: 10px; bottom: 10px; width: auto;
+      height: 34px; min-height: 34px; padding: 0 13px; border-radius: 3px;
+      background: rgba(255,255,255,.94); color: #111; font-size: 10px;
+      opacity: 1; transform: none; z-index: 5; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+    .product-card-photo { object-fit: contain; }
+    .cart-action-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .cart-wishlist { display: inline-flex; align-items: center; justify-content: center;
+      margin-top: 12px; width: 36px; height: 34px; border: 1px solid #ddd;
+      background: white; color: #111; font-size: 23px; cursor: pointer; }
+    .cart-wishlist.active { color: #c9962e; }
+    @media (max-width: 650px) {
+      .product-image { height: 330px; }
+      .product-card .quick-view { right: 7px; bottom: 7px; font-size: 9px; height: 30px; min-height: 30px; padding: 0 9px; }
+      .department-selector { margin-bottom: 6px; }
+      .product-toolbar { margin-bottom: 16px; }
+    }
+    @media (max-width: 430px) { .product-image { height: 295px; } }
+
   </style>
 </head>
 
@@ -2374,12 +2402,6 @@ Explore Collections
 
         <div class="filter-buttons">
 
-          <button
-            class="filter-btn active"
-            data-filter="All"
-          >
-            All
-          </button>
 
     <button
             class="filter-btn"
@@ -3400,6 +3422,7 @@ loadCategoryImages();
 
         `)
         .join("");
+      refreshWishlistHearts();
     }
 
     /* =======================================================
@@ -3444,15 +3467,38 @@ loadCategoryImages();
        WISHLIST
        ======================================================== */
 
+    // Keep cart and storefront hearts synchronized in this browser.
+    const imWishlistStorageKey = "imCollectionsWishlistIds";
+    function wishlistIds() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(imWishlistStorageKey) || "[]");
+        return Array.isArray(saved) ? saved.map(String) : [];
+      } catch { return []; }
+    }
+    function isWishlisted(id) { return wishlistIds().includes(String(id)); }
+    function refreshWishlistHearts() {
+      document.querySelectorAll(".wishlist[data-product-id]").forEach(button => {
+        const active = isWishlisted(button.dataset.productId);
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+        button.setAttribute("aria-label", active ? "Remove from wishlist" : "Add to wishlist");
+      });
+      document.querySelectorAll(".cart-wishlist[data-product-id]").forEach(button => {
+        const active = isWishlisted(button.dataset.productId);
+        button.classList.toggle("active", active);
+        button.textContent = active ? "💛" : "♡";
+        button.setAttribute("aria-pressed", String(active));
+        button.setAttribute("aria-label", active ? "Remove from wishlist" : "Add to wishlist");
+      });
+    }
     function toggleWishlist(button) {
-
-      button.classList.toggle("active");
-
-      showToast(
-        button.classList.contains("active")
-          ? "Added to wishlist"
-          : "Removed from wishlist"
-      );
+      const id = String(button.dataset.productId || "");
+      if (!id) return;
+      const saved = new Set(wishlistIds());
+      if (saved.has(id)) saved.delete(id); else saved.add(id);
+      localStorage.setItem(imWishlistStorageKey, JSON.stringify([...saved]));
+      refreshWishlistHearts();
+      showToast(saved.has(id) ? "Added to wishlist" : "Removed from wishlist");
     }
 
     /* =======================================================
@@ -3556,6 +3602,7 @@ openCart();
                 ${item.size ? `<div class="cart-item-variant">Size: ${item.size}</div>` : ""}
                 ${item.color ? `<div class="cart-item-variant">Color: ${item.color}</div>` : ""}
 
+                <div class="cart-action-row">
                 <div class="quantity">
 
                   <button
@@ -3575,6 +3622,9 @@ openCart();
                   </button>
 
                 </div>
+                <button type="button" class="cart-wishlist" data-product-id="${item.id}"
+                  onclick="toggleWishlist(this)" aria-label="Add to wishlist" aria-pressed="false">♡</button>
+                </div>
 
               </div>
 
@@ -3590,6 +3640,8 @@ openCart();
           `).join("");
 
       }
+
+      refreshWishlistHearts();
 
       const subtotal =
         cart.reduce(

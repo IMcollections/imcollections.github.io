@@ -2047,6 +2047,27 @@ footer { background:#101010; }
       border-bottom: 1px solid var(--border);
     }
     #featured { scroll-margin-top: 92px; }
+
+/* Preserve readable text over editorial photo slides. */
+.hero.design-slideshow-light h1,.hero.design-slideshow-light .hero-description { color:#171717!important; }
+.hero.design-slideshow-light .eyebrow { color:#92702a!important; }
+.hero.design-slideshow-light .btn-outline-light {color:#171717!important;border-color:#171717!important;}
+/* IM Collections: Men / Women preview directly below the hero buttons. */
+.hero-department-results[hidden] {display:none!important;}
+.hero-department-results {margin-top:24px; padding:14px; background:rgba(255,255,255,.94); color:#171717;
+  border:1px solid #d9d0c2; box-shadow:0 8px 22px #00000010; width:100%;}
+.hero-department-heading {display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+.hero-department-heading h2 {font:600 19px Georgia,serif;}
+.hero-department-heading button {border:0;background:transparent;font-size:25px;}
+.hero-department-grid {display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px;}
+.hero-department-product {cursor:pointer; border:0;background:transparent;text-align:left;min-width:0;}
+.hero-department-product img {width:100%; aspect-ratio:4/3;object-fit:contain;background:#f2efea;}
+.hero-department-product strong {display:block;font-size:12px;margin-top:6px;line-height:1.35;}
+.hero-department-product span {font-size:12px;color:#655c4b;}
+.hero-department-more {display:block;margin-top:12px;font-size:12px;text-decoration:underline;font-weight:700;}
+/* Keep images tidy, and let slides swipe horizontally. */
+.category-card {touch-action:pan-y;}
+@media(max-width:650px) {.hero-department-results {max-height:410px;overflow-y:auto;} }
   </style>
 </head>
 
@@ -2285,17 +2306,23 @@ footer { background:#101010; }
 
         <div class="hero-buttons">
                <a
-          href="#featured"
+          href="#heroDepartmentResults"
           class="btn btn-gold"
           onclick="selectDepartment('Men')"
         >
           Shop Men
         </a>
 
-          <a href="#featured" class="btn btn-outline-light"
+          <a href="#heroDepartmentResults" class="btn btn-outline-light"
 onclick="selectDepartment('Women')">
 Shop Women
   </a>
+        </div>
+        <div id="heroDepartmentResults" class="hero-department-results" hidden>
+          <div class="hero-department-heading"><h2 id="heroDepartmentTitle">Shop Men</h2>
+            <button type="button" onclick="document.getElementById('heroDepartmentResults').hidden=true" aria-label="Close product preview">×</button></div>
+          <div id="heroDepartmentGrid" class="hero-department-grid"></div>
+          <a class="hero-department-more" href="#featured">View all products →</a>
         </div>
 
       </div>
@@ -3190,7 +3217,7 @@ onclick="filterProducts('BestSellers')"
   });
 }
 
-// loadCategoryImages();
+// Category fallback runs after Supabase products load.
       /* =======================================================
    SUPABASE PRODUCTS
    ======================================================== */
@@ -3325,7 +3352,7 @@ async function loadSupabaseProducts() {
   products.splice(0, products.length, ...onlineProducts);
 
 renderProducts("All");
-// Use product photos as fallback; Design Manager photos replace these when available.
+if (document.getElementById('heroDepartmentResults') && !document.getElementById('heroDepartmentResults').hidden) showHeroDepartment(currentDepartment);
 loadCategoryImages();
 }
    let cart =
@@ -3359,11 +3386,36 @@ loadCategoryImages();
         button.setAttribute("aria-pressed", String(active));
       });
       document.querySelectorAll(".filter-btn").forEach(button => button.classList.remove("active"));
-      positionProductSection(currentDepartment !== "All");
+      positionProductSection(false);
       renderProducts("All");
-      document.getElementById("featured").scrollIntoView({behavior:"smooth", block:"start"});
+      showHeroDepartment(currentDepartment);
+      document.getElementById("heroDepartmentResults").scrollIntoView({behavior:"smooth", block:"nearest"});
     }
 
+    function showHeroDepartment(department) {
+      const panel = document.getElementById('heroDepartmentResults');
+      const grid = document.getElementById('heroDepartmentGrid');
+      document.getElementById('heroDepartmentTitle').textContent = department === 'All' ? 'Shop All' : 'Shop ' + department;
+      const matches = products.filter(item => {
+        const group = String(item.department || 'Unisex').toLowerCase();
+        return department === 'All' || group === department.toLowerCase() || group === 'unisex';
+      }).slice(0,4);
+      grid.replaceChildren();
+      for (const item of matches) {
+        const button = document.createElement('button'); button.type='button';
+        button.className='hero-department-product';
+        const img=document.createElement('img');
+        img.src = (Array.isArray(item.images)&&item.images[0]) || item.image || 'IM-logo.jpg';
+        img.alt=item.name || 'Product'; img.loading='lazy';
+        const title=document.createElement('strong'); title.textContent=item.name || 'Product';
+        const price=document.createElement('span'); price.textContent='$'+Number(item.price||0).toFixed(2);
+        button.append(img,title,price);
+        button.onclick=()=>openQuickView(Number(item.id));
+        grid.append(button);
+      }
+      if (!matches.length) grid.textContent='No products in this selection yet.';
+      panel.hidden=false;
+    }
     document.querySelectorAll(".department-btn").forEach(button =>
       button.addEventListener("click", () => selectDepartment(button.dataset.department))
     );
@@ -4512,48 +4564,71 @@ updateAccountLinks();
       <script src="product-views.js?v=20261012"></script>
 
 <script>
-/* IM Collections Design Manager → Homepage (images only). */
+/* IM Collections — multiple photos per Design Manager slot.
+   Automatic advance and touch-swipe; older single-image records still work. */
 (() => {
   const client = window.supabase?.createClient(
     'https://vqzjegneplzeoqxcqfeu.supabase.co',
     'sb_publishable_QDvKrAHvvopp_fuunxTxEA_4v6TD4Jk',
-    { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } }
+    {auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}}
   );
   if (!client) return;
-  const categorySlots = { bags:'Bags', electronics:'Electronics', accessories:'Accessories',
-    shoes:'Shoes', clothing:'Clothing', toys:'Toys', vintage:'Vintage', watches:'Watches' };
-  function applyImage(el, url, dark = true) {
-    if (!el || !url) return;
-    const escaped = String(url).replace(/"/g, '%22');
-    el.style.backgroundImage = (dark ? 'linear-gradient(90deg, rgba(0,0,0,.52), rgba(0,0,0,.08)), ' : '') + 'url("' + escaped + '")';
-    el.style.backgroundSize = 'cover';
-    el.style.backgroundPosition = 'center';
-  }
-  async function loadManagedImages() {
-    const {data, error} = await client.from('site_design_images').select('slot,image_url');
-    if (error) { console.warn('Managed images unavailable:', error.message); return; }
-    const images = Object.fromEntries((data || []).map(row => [row.slot, row.image_url]));
-    for (const [slot, category] of Object.entries(categorySlots)) {
-      const el = [...document.querySelectorAll('.category-visual[data-category]')]
-        .find(item => item.dataset.category === category);
-      if (el && images[slot]) {
-        applyImage(el, images[slot]);
-        el.dataset.managedImage = 'true';
-        el.textContent = '';
-      }
+  const categorySlots = {
+    bags:'Bags', electronics:'Electronics', accessories:'Accessories',
+    shoes:'Shoes', clothing:'Clothing', toys:'Toys', vintage:'Vintage', watches:'Watches'
+  };
+  function startSlideshow(element, urls, mode) {
+    if (!element || !urls.length) return;
+    let index=0;
+    const show=()=>{
+      const url=urls[index];
+      const shade=mode==='hero' ? 'linear-gradient(90deg,rgba(255,255,255,.83),rgba(255,255,255,.18)),' :
+        mode==='category' ? 'linear-gradient(to bottom,rgba(0,0,0,.04),rgba(0,0,0,.48)),' : '';
+      element.style.backgroundImage=shade+'url("'+String(url).replace(/"/g,'%22')+'")';
+      element.style.backgroundSize='cover';element.style.backgroundPosition='center';
+    };
+    show();
+    if (mode==='hero') {
+      element.dataset.designHero='true';
+      element.classList.add('design-slideshow-light');
+      element.querySelectorAll('.display-card,.display-circle').forEach(item=>{item.style.visibility='hidden';});
     }
-    const hero = document.querySelector('.hero');
-    const isMobile = matchMedia('(max-width: 650px)').matches;
-    const heroURL = (isMobile && images['hero-mobile']) || images['hero-desktop'];
-    if (heroURL) { applyImage(hero, heroURL); hero.dataset.designHero='true'; }
-    if (images.promo) {
-      const promo = document.querySelector('.promo-visual');
-      applyImage(promo, images.promo, false);
-      promo.dataset.designPromo='true';
-      promo.querySelectorAll('.promo-ring,.promo-watch').forEach(el => { el.style.display='none'; });
-    }
+    if (mode==='promo') element.querySelectorAll('.promo-watch,.promo-ring').forEach(item=>item.style.display='none');
+    if (urls.length<2) return;
+    const advance=(by)=>{index=(index+by+urls.length)%urls.length;show();};
+    const timer=setInterval(()=>{if(!document.hidden) advance(1);},5000);
+    let down=null;
+    element.addEventListener('touchstart',e=>{
+      if(e.touches.length===1) down={x:e.touches[0].clientX,y:e.touches[0].clientY};
+    },{passive:true});
+    element.addEventListener('touchend',e=>{
+      if(!down || !e.changedTouches.length)return;
+      const dx=e.changedTouches[0].clientX-down.x,dy=e.changedTouches[0].clientY-down.y;
+      down=null;
+      if(Math.abs(dx)>45 && Math.abs(dx)>Math.abs(dy)*1.25)advance(dx<0?1:-1);
+    },{passive:true});
+    window.addEventListener('pagehide',()=>clearInterval(timer),{once:true});
   }
-  loadManagedImages();
+  async function loadImages(){
+    const {data,error}=await client.from('site_design_images').select('slot,image_url,image_urls');
+    if(error){console.warn('Design image loading failed:',error.message);return;}
+    const lists=new Map((data||[]).map(row=>[
+      row.slot,Array.isArray(row.image_urls)&&row.image_urls.length ? row.image_urls : (row.image_url?[row.image_url]:[])
+    ]));
+    for(const [slot,category] of Object.entries(categorySlots)){
+      const visual=[...document.querySelectorAll('.category-visual[data-category]')].find(el=>el.dataset.category===category);
+      const tile=visual?.closest('.category-card');
+      const urls=lists.get(slot)||[];
+      if(tile && urls.length){startSlideshow(tile,urls,'category');if(visual) visual.textContent='';}
+    }
+    const mobile=matchMedia('(max-width:650px)').matches;
+    const hero=lists.get(mobile?'hero-mobile':'hero-desktop')||[];
+    const fallback=lists.get('hero-desktop')||[];
+    if(hero.length||fallback.length)startSlideshow(document.querySelector('.hero'),hero.length?hero:fallback,'hero');
+    const promo=lists.get('promo')||[];
+    if(promo.length)startSlideshow(document.querySelector('.promo-visual'),promo,'promo');
+  }
+  loadImages();
 })();
 </script>
 </body>

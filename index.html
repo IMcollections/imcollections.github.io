@@ -625,7 +625,7 @@
        ========================================================= */
 
     .department-selector { display:flex; justify-content:flex-start; gap:8px; margin:0 0 28px; flex-wrap:wrap; }
-    .department-btn { border:1px solid var(--black); background:#fff; color:#111; min-width:0; padding:10px 16px; font-weight:750; cursor:pointer; }
+    .department-btn { border:1px solid var(--black); background:#fff; color:#111; min-width:0; padding:10px 16px; font-weight:750; cursor:pointer; text-transform:uppercase; }
     .department-btn.active, .department-btn:hover { background:var(--black); color:var(--gold-light); }
 
     .product-toolbar {
@@ -1920,6 +1920,17 @@
     .wishlist.active .im-heart-icon, .cart-wishlist.active .im-heart-icon {
       stroke: #c9962e !important; fill: #c9962e !important;
     }
+
+    /* Images managed through design-manager.html — no changes to product cards. */
+    .category-card { min-height: 240px; isolation:isolate; }
+    .category-card::before { z-index: 1; pointer-events:none; }
+    .category-visual { inset: 0; width:100%; height:100%; top:0; left:0;
+      transform:none; font-size:clamp(20px,3vw,43px); display:grid;place-items:center;
+      overflow:hidden; color:rgba(0,0,0,.14); background-position:center;background-size:cover; }
+    .category-info { z-index:2; }
+    .hero[data-design-hero] { background-size:cover; background-position:center; }
+    .promo-visual[data-design-promo] { background-size:cover; background-position:center; }
+    @media (max-width:650px) { .category-card { min-height:185px; } }
   </style>
 </head>
 
@@ -1965,9 +1976,9 @@
       </div>
 
       <nav class="desktop-nav">
-        <a href="#featured" onclick="selectDepartment('Men')">MEN</a>
-        <a href="#featured" onclick="selectDepartment('Women')">WOMEN</a>
-        <a href="#featured" onclick="selectDepartment('All')">SHOP ALL</a>
+        <a href="#featured" onclick="selectDepartment('Men')">Men</a>
+        <a href="#featured" onclick="selectDepartment('Women')">Women</a>
+        <a href="#featured" onclick="selectDepartment('All')">Shop All</a>
         <a href="#featured">New Arrivals</a>
 <a href="#featured">Best Sellers</a>
         <a href="#categories">Shop</a>
@@ -2167,16 +2178,15 @@
                <a
           href="#featured"
           class="btn btn-gold"
-          onclick="filterProducts('Accessories')"
+          onclick="selectDepartment('Men')"
         >
-          Shop Watches
+          Shop Men
         </a>
 
           <a href="#featured" class="btn btn-outline-light"
-onclick="filterProducts('All')">
-Explore Collections
-  </a> 
-          </a>
+onclick="selectDepartment('Women')">
+Shop Women
+  </a>
         </div>
 
       </div>
@@ -2363,12 +2373,12 @@ Explore Collections
        <a
           class="category-card"
           href="#featured"
-          onclick="filterProducts('OpenBox')"
+          onclick="filterProducts('Watches')"
         >
-          <div class="category-visual" data-category="Open Box">Pre-Owned</div>
+          <div class="category-visual" data-category="Watches">WATCHES</div>
           <div class="category-info">
-            <h3>Open Box</h3>
-            <span>Slightly Used</span>
+            <h3>Watches</h3>
+            <span>Discover timepieces</span>
           </div>
         </a>
 
@@ -3061,7 +3071,7 @@ onclick="filterProducts('BestSellers')"
       item => item.category.toLowerCase() === category.toLowerCase()
     );
 
-    if (product && product.image) {
+    if (product && product.image && !box.dataset.managedImage) {
       box.style.backgroundImage =
         `linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.55)), url("${product.image}")`;
 
@@ -3327,6 +3337,7 @@ loadCategoryImages();
           (filter === "Vintage" && (cat.includes("vintage") || name.includes("vintage"))) ||
           (filter === "Clothing" && ["clothing", "apparel", "clothes"].includes(cat)) ||
           (filter === "Accessories" && ["accessories", "watches", "jewelry"].includes(cat)) ||
+          (filter === "Watches" && (cat === "watches" || cat === "watch" || /\bwatch(es)?\b/i.test(name))) ||
           (filter === "Essentials" && ["essentials", "personalaccessories"].includes(cat)) ||
           (filter === "Electronics" && ["electronics", "electronicstech", "gadgetselectronics", "gadgets"].includes(cat)) ||
           (filter === "Toys" && ["toys", "toysandhobbies", "toyshobbies"].includes(cat)) ||
@@ -4365,5 +4376,51 @@ updateAccountLinks();
 </script>
     <script src="wishlist-counts.js?v=20261013-base521"></script>
       <script src="product-views.js?v=20261012"></script>
+
+<script>
+/* IM Collections Design Manager → Homepage (images only). */
+(() => {
+  const client = window.supabase?.createClient(
+    'https://vqzjegneplzeoqxcqfeu.supabase.co',
+    'sb_publishable_QDvKrAHvvopp_fuunxTxEA_4v6TD4Jk',
+    { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } }
+  );
+  if (!client) return;
+  const categorySlots = { bags:'Bags', electronics:'Electronics', accessories:'Accessories',
+    shoes:'Shoes', clothing:'Clothing', toys:'Toys', vintage:'Vintage', watches:'Watches' };
+  function applyImage(el, url, dark = true) {
+    if (!el || !url) return;
+    const escaped = String(url).replace(/"/g, '%22');
+    el.style.backgroundImage = (dark ? 'linear-gradient(90deg, rgba(0,0,0,.52), rgba(0,0,0,.08)), ' : '') + 'url("' + escaped + '")';
+    el.style.backgroundSize = 'cover';
+    el.style.backgroundPosition = 'center';
+  }
+  async function loadManagedImages() {
+    const {data, error} = await client.from('site_design_images').select('slot,image_url');
+    if (error) { console.warn('Managed images unavailable:', error.message); return; }
+    const images = Object.fromEntries((data || []).map(row => [row.slot, row.image_url]));
+    for (const [slot, category] of Object.entries(categorySlots)) {
+      const el = [...document.querySelectorAll('.category-visual[data-category]')]
+        .find(item => item.dataset.category === category);
+      if (el && images[slot]) {
+        applyImage(el, images[slot]);
+        el.dataset.managedImage = 'true';
+        el.textContent = '';
+      }
+    }
+    const hero = document.querySelector('.hero');
+    const isMobile = matchMedia('(max-width: 650px)').matches;
+    const heroURL = (isMobile && images['hero-mobile']) || images['hero-desktop'];
+    if (heroURL) { applyImage(hero, heroURL); hero.dataset.designHero='true'; }
+    if (images.promo) {
+      const promo = document.querySelector('.promo-visual');
+      applyImage(promo, images.promo, false);
+      promo.dataset.designPromo='true';
+      promo.querySelectorAll('.promo-ring,.promo-watch').forEach(el => { el.style.display='none'; });
+    }
+  }
+  loadManagedImages();
+})();
+</script>
 </body>
 </html>

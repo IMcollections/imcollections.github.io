@@ -1903,6 +1903,12 @@
     }
     @media (max-width: 430px) { .product-image { height: 295px; } }
 
+  
+    /* IM Collections: use identical brand-gold outline/filled wishlist hearts. */
+    .wishlist svg { stroke: #c9962e !important; fill: none !important; }
+    .wishlist.active svg { stroke: #c9962e !important; fill: #c9962e !important; }
+    .wishlist [data-wishlist-heart] { color: #c9962e !important; font-family: Arial, sans-serif; font-size: 24px; line-height: 1; }
+    .cart-wishlist, .cart-wishlist.active { color: #c9962e !important; font-family: Arial, sans-serif; font-size: 28px; line-height: 1; }
   </style>
 </head>
 
@@ -3480,13 +3486,15 @@ loadCategoryImages();
       document.querySelectorAll(".wishlist[data-product-id]").forEach(button => {
         const active = isWishlisted(button.dataset.productId);
         button.classList.toggle("active", active);
+        const heart = button.querySelector("[data-wishlist-heart]");
+        if (heart) heart.textContent = active ? "♥" : "♡";
         button.setAttribute("aria-pressed", String(active));
         button.setAttribute("aria-label", active ? "Remove from wishlist" : "Add to wishlist");
       });
       document.querySelectorAll(".cart-wishlist[data-product-id]").forEach(button => {
         const active = isWishlisted(button.dataset.productId);
         button.classList.toggle("active", active);
-        button.textContent = active ? "💛" : "♡";
+        button.textContent = active ? "♥" : "♡";
         button.setAttribute("aria-pressed", String(active));
         button.setAttribute("aria-label", active ? "Remove from wishlist" : "Add to wishlist");
       });

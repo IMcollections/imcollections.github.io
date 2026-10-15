@@ -1920,6 +1920,11 @@
     .wishlist.active .im-heart-icon, .cart-wishlist.active .im-heart-icon {
       stroke: #c9962e !important; fill: #c9962e !important;
     }
+    /* Cart controls: enlarged tappable photo, reliable gold heart. */
+    .cart-photo-open { display:block; padding:0; border:0; cursor:zoom-in; font:inherit; }
+    .cart-photo-open:focus-visible, .cart-wishlist:focus-visible { outline:3px solid #c9962e; outline-offset:2px; }
+    .cart-wishlist .im-heart-icon { fill:none !important; stroke:#c9962e !important; }
+    .cart-wishlist.active .im-heart-icon { fill:#c9962e !important; stroke:#c9962e !important; }
   </style>
 </head>
 
@@ -3600,13 +3605,9 @@ openCart();
 
             <div class="cart-item">
 
-              <div class="cart-thumb">
-  <img
-    src="${item.image}"
-    alt="${item.name}"
-    class="cart-product-image"
-  >
-</div>
+              <button type="button" class="cart-thumb cart-photo-open" data-product-id="${item.id}" aria-label="View photos of ${String(item.name).replace(/&/g, '&amp;').replace(/"/g, '&quot;')}">
+  <img src="${item.image}" alt="${item.name}" class="cart-product-image">
+</button>
 
               <div>
 
@@ -3641,7 +3642,7 @@ openCart();
 
                 </div>
                 <button type="button" class="cart-wishlist" data-product-id="${item.id}"
-                  onclick="toggleWishlist(this)" aria-label="Add to wishlist" aria-pressed="false"><svg class="im-heart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg></button>
+                  aria-label="Add to wishlist" aria-pressed="false"><svg class="im-heart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.8c0 5.2-8.8 10-8.8 10S3.2 14 3.2 8.8A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></svg></button>
                 </div>
 
               </div>
@@ -3791,6 +3792,26 @@ localStorage.setItem(
         }
 
       });
+
+    // One listener for controls rebuilt whenever the cart changes.
+    // Only add actions are counted elsewhere; removal must never subtract.
+    document.getElementById("cartItems").addEventListener("click", event => {
+      const heart = event.target.closest(".cart-wishlist[data-product-id]");
+      if (heart) {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleWishlist(heart);
+        // Make the visual state explicit even when other stylesheet rules exist.
+        refreshWishlistHearts();
+        return;
+      }
+      const photo = event.target.closest(".cart-photo-open[data-product-id]");
+      if (photo) {
+        event.preventDefault();
+        event.stopPropagation();
+        openQuickView(Number(photo.dataset.productId));
+      }
+    });
 
     /* =======================================================
        QUICK VIEW
@@ -3966,12 +3987,8 @@ localStorage.setItem(
     }
 
     function closeModal() {
-
-      document
-        .getElementById("quickModal")
-        .classList.remove("active");
-
-      document.body.style.overflow = "";
+      document.getElementById("quickModal").classList.remove("active");
+      document.body.style.overflow = document.getElementById("cartOverlay").classList.contains("active") ? "hidden" : "";
     }
 
     document

@@ -857,13 +857,13 @@
     .wishlist svg {
       width: 17px;
       height: 17px;
-      stroke: #111;
+      stroke: var(--gold);
       fill: transparent;
     }
 
     .wishlist.active svg {
-      fill: #b82e2e;
-      stroke: #b82e2e;
+      fill: var(--gold);
+      stroke: var(--gold);
     }
 
     .wishlist:hover {
@@ -888,7 +888,7 @@
     }
 
     .wishlist { overflow: visible; }
-    .wishlist.active svg { fill: #168641; stroke: #168641; }
+    .wishlist.active svg { fill: var(--gold); stroke: var(--gold); }
 
     .quick-view {
       position: absolute;
@@ -1893,8 +1893,8 @@
     .cart-action-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .cart-wishlist { display: inline-flex; align-items: center; justify-content: center;
       margin-top: 12px; width: 36px; height: 34px; border: 1px solid #ddd;
-      background: white; color: #111; font-size: 23px; cursor: pointer; }
-    .cart-wishlist.active { color: #c9962e; }
+      background: white; color: var(--gold); font-size: 23px; cursor: pointer; }
+    .cart-wishlist.active { color: var(--gold); }
     @media (max-width: 650px) {
       .product-image { height: 330px; }
       .product-card .quick-view { right: 7px; bottom: 7px; font-size: 9px; height: 30px; min-height: 30px; padding: 0 9px; }
@@ -2854,7 +2854,6 @@ onclick="filterProducts('BestSellers')"
           class="product-rating"
           id="modalRating"
         ></div>
-        <div id="modalViews" class="product-view-count" aria-live="polite">521 views</div>
 
         <p id="modalDescription"></p>
 
@@ -2863,6 +2862,7 @@ onclick="filterProducts('BestSellers')"
           id="modalPrice"
         ></div>
         <div id="modalVariants" class="modal-variants"></div>
+        <div id="modalViews" class="product-view-count" aria-live="polite">521 views</div>
 
         <button
           class="btn btn-gold"
@@ -4356,6 +4356,6 @@ updateAccountLinks();
 })();
 </script>
     <script src="wishlist-counts.js?v=20261013-base521"></script>
-      <script src="products-views.js?v=20261012"></script>
+      <script src="product-views.js?v=20261012"></script>
 </body>
 </html>

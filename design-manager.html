@@ -11,47 +11,38 @@
   <style>
    * {
   box-sizing:border-box}
-
 body {
   margin:0;
   padding:20px;
   background:#f5f5f5;
   color:#111;
   font:16px Arial,Helvetica,sans-serif}
-
 .wrap {
   max-width:760px;
   margin:auto}
-
 header {
   text-align:center;
   margin:12px 0 28px}
-
 header h1 {
   font-size:30px;
   margin:0 0 8px}
-
 header p {
   color:#666;
   margin:0}
-
 .card {
   background:#fff;
   border-radius:16px;
   padding:20px;
   box-shadow:0 4px 20px #00000013;
   margin-bottom:20px}
-
 .card h2 {
   font-size:19px;
   margin:0 0 14px}
-
 label {
   display:block;
   font-weight:700;
   font-size:14px;
   margin-bottom:8px}
-
 select {
   width:100%;
   padding:12px;
@@ -59,12 +50,10 @@ select {
   border-radius:10px;
   font-size:16px;
   background:white}
-
 .hint {
   color:#666;
   font-size:13px;
   margin:9px 0 15px}
-
 .drop-zone {
   border:2px dashed #999;
   border-radius:14px;
@@ -72,49 +61,40 @@ select {
   padding:35px 20px;
   cursor:pointer;
   background:#fafafa}
-
 .drop-zone.dragover {
   border-color:#c9962e;
   background:#fbf5e8}
-
 .drop-zone strong {
   display:block;
   font-size:18px;
   margin-bottom:8px}
-
 .drop-zone span {
   color:#777;
   font-size:14px}
-
 .preview-grid {
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
   gap:12px;
   margin:18px 0}
-
 .preview {
   border:1px solid #e2e2e2;
   border-radius:10px;
   overflow:hidden;
   min-width:0}
-
 .preview img {
   width:100%;
   aspect-ratio:4/3;
   object-fit:cover;
   display:block}
-
 .preview p {
   font-size:12px;
   padding:8px;
   margin:0;
   word-break:break-word}
-
 .actions {
   display:flex;
   gap:10px;
   flex-wrap:wrap}
-
 .btn {
   border:0;
   border-radius:11px;
@@ -125,38 +105,30 @@ select {
   padding:14px 18px;
   cursor:pointer;
   flex:1}
-
 .btn:disabled {
   opacity:.5;
   cursor:not-allowed}
-
 .btn-outline {
   background:#fff;
   color:#111;
   border:1px solid #aaa}
-
 .btn-danger {
   background:#fff;
   color:#ab2828;
   border:1px solid #c97e7e}
-
 .message {
   margin-top:14px;
   font-size:14px;
   font-weight:700;
   line-height:1.5}
-
 .message.error {
   color:#b02b2b}
-
 .message.success {
   color:#138a36}
-
 .overview {
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
   gap:12px}
-
 .slot {
   background:#fff;
   border:1px solid #e5e5e5;
@@ -164,7 +136,6 @@ select {
   padding:9px;
   text-align:left;
   cursor:pointer}
-
 .slot img,.slot .empty {
   width:100%;
   aspect-ratio:5/3;
@@ -174,15 +145,12 @@ select {
   display:grid;
   place-items:center;
   color:#888}
-
 .slot strong {
   font-size:13px;
   display:block;
   margin:8px 0 2px}
-
 .slot small {
   color:#666}
-
 .pill {
   display:inline-block;
   color:#fff;
@@ -191,14 +159,11 @@ select {
   border-radius:6px;
   font-size:12px;
   margin-top:10px}
-
 .hidden {
   display:none!important}
-
 @media(max-width:520px) {
   .overview {
   grid-template-columns:1fr 1fr}
-
 .actions {
   flex-direction:column}
 }
@@ -259,10 +224,10 @@ select {
        Accessories
       </option>
       <option value="electronics">
-       Electronics & Tech
+       Electronics &amp; Tech
       </option>
       <option value="toys">
-       Toys & Hobbies
+       Toys &amp; Hobbies
       </option>
       <option value="vintage">
        Vintage Items
@@ -295,7 +260,7 @@ select {
      </div>
      <div class="drop-zone" id="dropZone" role="button" tabindex="0">
       <strong>
-       Drag & Drop an Image Here
+       Drag &amp; Drop an Image Here
       </strong>
       <span>
        or tap to choose an image from your phone
@@ -336,24 +301,230 @@ select {
 const SUPABASE_KEY="sb_publishable_QDvKrAHvvopp_fuunxTxEA_4v6TD4Jk";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const BUCKET="site-design-images";
-const SLOTS=[{"id": "hero-desktop", "name": "Hero Banner \u2014 Desktop", "hint": "Wide banner, recommended 1920 \u00d7 850"}, {"id": "hero-mobile", "name": "Hero Banner \u2014 Mobile", "hint": "Portrait crop, recommended 900 \u00d7 1200"}, {"id": "promo", "name": "Promotional Banner", "hint": "Wide banner, recommended 1400 \u00d7 700"}, {"id": "clothing", "name": "Clothing", "hint": "Category image"}, {"id": "shoes", "name": "Shoes", "hint": "Category image"}, {"id": "bags", "name": "Bags", "hint": "Category image"}, {"id": "accessories", "name": "Accessories", "hint": "Category image"}, {"id": "electronics", "name": "Electronics & Tech", "hint": "Category image"}, {"id": "toys", "name": "Toys & Hobbies", "hint": "Category image"}, {"id": "vintage", "name": "Vintage Items", "hint": "Category image"}, {"id": "watches", "name": "Watches", "hint": "Featured category image"}];
+const SLOTS=[{
+  "id": "hero-desktop", "name": "Hero Banner \u2014 Desktop", "hint": "Wide banner, recommended 1920 \u00d7 850"
+}, {
+  "id": "hero-mobile", "name": "Hero Banner \u2014 Mobile", "hint": "Portrait crop, recommended 900 \u00d7 1200"
+}, {
+  "id": "promo", "name": "Promotional Banner", "hint": "Wide banner, recommended 1400 \u00d7 700"
+}, {
+  "id": "clothing", "name": "Clothing", "hint": "Category image"
+}, {
+  "id": "shoes", "name": "Shoes", "hint": "Category image"
+}, {
+  "id": "bags", "name": "Bags", "hint": "Category image"
+}, {
+  "id": "accessories", "name": "Accessories", "hint": "Category image"
+}, {
+  "id": "electronics", "name": "Electronics & Tech", "hint": "Category image"
+}, {
+  "id": "toys", "name": "Toys & Hobbies", "hint": "Category image"
+}, {
+  "id": "vintage", "name": "Vintage Items", "hint": "Category image"
+}, {
+  "id": "watches", "name": "Watches", "hint": "Featured category image"
+}];
 const $=id=>document.getElementById(id);
-let imageFile=null,previewURL=null,images=new Map(),busy=false;
-function message(text,error=false){$('message').className='message '+(error?'error':'success');$('message').textContent=text;}
-function resetPreview(){imageFile=null;if(previewURL)URL.revokeObjectURL(previewURL);previewURL=null;$('imageInput').value='';$('newImage').removeAttribute('src');$('newImage').classList.add('hidden');$('newPlaceholder').classList.remove('hidden');$('newLabel').textContent='New image (not published)';}
-function setSelectedFile(file){if(!file)return;if(!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type))return message('Choose a JPG, PNG, WebP, or GIF image.',true);if(file.size>8*1024*1024)return message('Image is larger than 8 MB. Please choose a smaller image.',true);resetPreview();imageFile=file;previewURL=URL.createObjectURL(file);$('newImage').src=previewURL;$('newImage').classList.remove('hidden');$('newPlaceholder').classList.add('hidden');$('newLabel').textContent=file.name+' — ready to publish';message('Preview ready. Tap Publish / Replace Image to save.');}
-function selected(){return $('slot').value}
-function showCurrent(){const s=SLOTS.find(x=>x.id===selected());$('slotHint').textContent=s.hint;const url=images.get(s.id);$('currentPlaceholder').classList.toggle('hidden',!!url);$('currentImage').classList.toggle('hidden',!url);if(url)$('currentImage').src=url;else $('currentImage').removeAttribute('src');$('remove').disabled=!url;}
-function renderOverview(){const root=$('overview');root.replaceChildren();for(const s of SLOTS){const card=document.createElement('button');card.type='button';card.className='slot';const url=images.get(s.id);if(url){const img=document.createElement('img');img.src=url;img.alt=s.name;card.append(img)}else{const empty=document.createElement('div');empty.className='empty';empty.textContent='No image yet';card.append(empty)}const title=document.createElement('strong');title.textContent=s.name;const status=document.createElement('small');status.textContent=url?'Published':'Not set';card.append(title,status);card.onclick=()=>{$('slot').value=s.id;resetPreview();showCurrent();message('Selected '+s.name+'.');window.scrollTo({top:0,behavior:'smooth'})};root.append(card)}}
-async function reload(){const {data,error}=await db.from('site_design_images').select('slot,image_url');if(error)throw error;images=new Map((data||[]).map(r=>[r.slot,r.image_url]));showCurrent();renderOverview()}
-function setBusy(b){busy=b;for(const id of ['save','clearSelection','slot'])$(id).disabled=b;$('remove').disabled=b||!images.get(selected())}
-$('slot').onchange=()=>{resetPreview();showCurrent();message('')};
-$('dropZone').onclick=()=>$('imageInput').click();$('dropZone').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('imageInput').click()}};
-$('dropZone').ondragover=e=>{e.preventDefault();$('dropZone').classList.add('dragover')};$('dropZone').ondragleave=()=>$('dropZone').classList.remove('dragover');$('dropZone').ondrop=e=>{e.preventDefault();$('dropZone').classList.remove('dragover');setSelectedFile(e.dataTransfer.files[0])};
-$('imageInput').onchange=e=>setSelectedFile(e.target.files[0]);$('clearSelection').onclick=()=>{resetPreview();message('New image cleared. Published image unchanged.')};
-$('save').onclick=async()=>{if(busy)return;if(!imageFile)return message('Choose an image first.',true);setBusy(true);const slot=selected();let path=null;try{const extension=imageFile.type==='image/png'?'png':imageFile.type==='image/webp'?'webp':imageFile.type==='image/gif'?'gif':'jpg';path=slot+'/'+crypto.randomUUID()+'.'+extension;message('Uploading image…');const up=await db.storage.from(BUCKET).upload(path,imageFile,{cacheControl:'3600',upsert:false,contentType:imageFile.type});if(up.error)throw up.error;const publicUrl=db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;message('Saving image location…');const {error}=await db.from('site_design_images').upsert({slot,image_url:publicUrl,storage_path:path},{onConflict:'slot'});if(error)throw error;resetPreview();await reload();message('Image published! The homepage can now display this image.');}catch(e){message('Could not publish: '+(e.message||e),true)}finally{setBusy(false);showCurrent()}};
-$('remove').onclick=async()=>{if(busy||!images.get(selected()))return;if(!confirm('Remove this image from the website? The original product images are not affected.'))return;setBusy(true);try{const {error}=await db.from('site_design_images').delete().eq('slot',selected());if(error)throw error;await reload();message('Published image removed. Website fallback will appear.')}catch(e){message('Could not remove: '+(e.message||e),true)}finally{setBusy(false);showCurrent()}};
-(async()=>{try{const {data:{user},error:authError}=await db.auth.getUser();if(authError||!user){$('authStatus').textContent='Please sign in first.';$('loginLink').classList.remove('hidden');return}const {data:admin,error}=await db.from('site_design_admins').select('user_id').eq('user_id',user.id).maybeSingle();if(error)throw error;if(!admin){$('authStatus').textContent='Signed in, but this account has not been authorized for design editing. Complete the SQL setup using this account’s user ID.';const code=document.createElement('code');code.style.display='block';code.style.marginTop='12px';code.style.wordBreak='break-all';code.textContent='Your user ID: '+user.id;$('gate').append(code);return}$('gate').classList.add('hidden');$('editor').classList.remove('hidden');await reload();message('Ready to manage website images.')}catch(e){$('authStatus').textContent='Setup incomplete or access denied: '+(e.message||e)}})();
+let imageFile=null,imageBytes=null,previewURL=null,images=new Map(),busy=false;
+function message(text,error=false){
+  $('message').className='message '+(error?'error':'success');
+  $('message').textContent=text;
+}
+function resetPreview(){
+  imageFile=null;
+  imageBytes=null;
+  if(previewURL)URL.revokeObjectURL(previewURL);
+  previewURL=null;
+  $('imageInput').value='';
+  $('newImage').removeAttribute('src');
+  $('newImage').classList.add('hidden');
+  $('newPlaceholder').classList.remove('hidden');
+  $('newLabel').textContent='New image (not published)';
+}
+async function setSelectedFile(file){
+  if(!file)return;
+  if(!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)) return message('Choose a JPG, PNG, WebP, or GIF image.',true);
+  if(file.size>8*1024*1024) return message('Image is larger than 8 MB.',true);
+  resetPreview();
+  try {
+    // Read before resetting the iPhone file input. Keep actual bytes in memory.
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    if(!bytes.byteLength) throw new Error('Selected image has no content. Choose it again.');
+    imageBytes=bytes;
+    imageFile=file;
+    const blob = new Blob([bytes], {
+      type:file.type
+    });
+    previewURL=URL.createObjectURL(blob);
+    $('newImage').src=previewURL;
+    $('newImage').classList.remove('hidden');
+    $('newPlaceholder').classList.add('hidden');
+    $('newLabel').textContent=file.name+' — ready to publish';
+    message('Image ready ('+Math.round(bytes.byteLength/1024)+' KB). Tap Publish / Replace Image.');
+  } catch(e) {
+    resetPreview();
+    message('Could not read image: '+e.message,true);
+  }
+}
+function selected(){
+  return $('slot').value
+}
+function showCurrent(){
+  const s=SLOTS.find(x=>x.id===selected());
+  $('slotHint').textContent=s.hint;
+  const url=images.get(s.id);
+  $('currentPlaceholder').classList.toggle('hidden',!!url);
+  $('currentImage').classList.toggle('hidden',!url);
+  if(url)$('currentImage').src=url;
+  else $('currentImage').removeAttribute('src');
+  $('remove').disabled=!url;
+}
+function renderOverview(){
+  const root=$('overview');
+  root.replaceChildren();
+  for(const s of SLOTS){
+    const card=document.createElement('button');
+    card.type='button';
+    card.className='slot';
+    const url=images.get(s.id);
+    if(url){
+      const img=document.createElement('img');
+      img.src=url;
+      img.alt=s.name;
+      card.append(img)
+    }else{
+      const empty=document.createElement('div');
+      empty.className='empty';
+      empty.textContent='No image yet';
+      card.append(empty)
+    }const title=document.createElement('strong');
+    title.textContent=s.name;
+    const status=document.createElement('small');
+    status.textContent=url?'Published':'Not set';
+    card.append(title,status);
+    card.onclick=()=>{
+      $('slot').value=s.id;
+      resetPreview();
+      showCurrent();
+      message('Selected '+s.name+'.');
+      window.scrollTo({
+        top:0,behavior:'smooth'
+      })
+    };
+    root.append(card)
+  }
+}
+async function reload(){
+  const {
+    data,error
+  }=await db.from('site_design_images').select('slot,image_url');
+  if(error)throw error;
+  images=new Map((data||[]).map(r=>[r.slot,r.image_url]));
+  showCurrent();
+  renderOverview()
+}
+function setBusy(b){
+  busy=b;
+  for(const id of ['save','clearSelection','slot'])$(id).disabled=b;
+  $('remove').disabled=b||!images.get(selected())
+}
+$('slot').onchange=()=>{
+  resetPreview();
+  showCurrent();
+  message('')
+};
+$('dropZone').onclick=()=>$('imageInput').click();
+$('dropZone').onkeydown=e=>{
+  if(e.key==='Enter'||e.key===' '){
+    e.preventDefault();
+    $('imageInput').click()
+  }
+};
+$('dropZone').ondragover=e=>{
+  e.preventDefault();
+  $('dropZone').classList.add('dragover')
+};
+$('dropZone').ondragleave=()=>$('dropZone').classList.remove('dragover');
+$('dropZone').ondrop=e=>{
+  e.preventDefault();
+  $('dropZone').classList.remove('dragover');
+  setSelectedFile(e.dataTransfer.files[0])
+};
+$('imageInput').onchange=e=>setSelectedFile(e.target.files[0]);
+$('clearSelection').onclick=()=>{
+  resetPreview();
+  message('New image cleared. Published image unchanged.')
+};
+$('save').onclick=async()=>{
+  if(busy)return;
+  if(!imageFile||!imageBytes?.byteLength)return message('Choose an image first.',true);
+  setBusy(true);
+  const slot=selected();
+  let path=null;
+  try{
+    const extension=imageFile.type==='image/png'?'png':imageFile.type==='image/webp'?'webp':imageFile.type==='image/gif'?'gif':'jpg';
+    path=slot+'/'+crypto.randomUUID()+'.'+extension;
+    message('Uploading image…');
+    const up=await db.storage.from(BUCKET).upload(path,imageBytes,{
+      cacheControl:'3600',upsert:false,contentType:imageFile.type
+    });
+    if(up.error)throw up.error;
+    const publicUrl=db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+    message('Saving image location…');
+    const {
+      error
+    }=await db.from('site_design_images').upsert({
+      slot,image_url:publicUrl,storage_path:path
+    },{
+      onConflict:'slot'
+    });
+    if(error)throw error;
+    resetPreview();
+    await reload();
+    message('Image published! The homepage can now display this image.');
+  }catch(e){
+    message('Could not publish: '+(e.message||e),true)
+  }finally{
+    setBusy(false);
+    showCurrent()
+  }
+};
+$('remove').onclick=async()=>{
+  if(busy||!images.get(selected()))return;
+  if(!confirm('Remove this image from the website? The original product images are not affected.'))return;
+  setBusy(true);
+  try{
+    const {
+      error
+    }=await db.from('site_design_images').delete().eq('slot',selected());
+    if(error)throw error;
+    await reload();
+    message('Published image removed. Website fallback will appear.')
+  }catch(e){
+    message('Could not remove: '+(e.message||e),true)
+  }finally{
+    setBusy(false);
+    showCurrent()
+  }
+};
+(async()=>{
+  try{
+    const {
+      data:{
+        user
+      },error:authError
+    }=await db.auth.getUser();if(authError||!user){
+      $('authStatus').textContent='Please sign in first.';$('loginLink').classList.remove('hidden');return
+    }const {
+      data:admin,error
+    }=await db.from('site_design_admins').select('user_id').eq('user_id',user.id).maybeSingle();if(error)throw error;if(!admin){
+      $('authStatus').textContent='Signed in, but this account has not been authorized for design editing. Complete the SQL setup using this account’s user ID.';const code=document.createElement('code');code.style.display='block';code.style.marginTop='12px';code.style.wordBreak='break-all';code.textContent='Your user ID: '+user.id;$('gate').append(code);return
+    }$('gate').classList.add('hidden');$('editor').classList.remove('hidden');await reload();message('Ready to manage website images.')
+  }catch(e){
+    $('authStatus').textContent='Setup incomplete or access denied: '+(e.message||e)
+  }
+})();
   </script>
  </body>
 </html>
+

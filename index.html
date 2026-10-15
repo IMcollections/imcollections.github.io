@@ -4159,7 +4159,6 @@ localStorage.setItem(
 
       if (!product) return;
       window.imCurrentProductViewId = Number(product.id);
-      if (typeof recordProductView === "function") recordProductView(product.id);
 
       const variants = document.getElementById("modalVariants");
       variants.replaceChildren();
@@ -4207,6 +4206,10 @@ localStorage.setItem(
       const cardViewBadge = [...document.querySelectorAll("[data-product-view-count]")]
         .find(badge => Number(badge.dataset.productId) === Number(product.id));
       if (modalViews) modalViews.textContent = cardViewBadge?.textContent || '521 views';
+      // Record after setting the initial modal count so the async result stays visible.
+      if (typeof recordProductView === "function") {
+        recordProductView(product.id);
+      }
 
      const galleryImages =
   product.images && product.images.length
@@ -4642,7 +4645,7 @@ updateAccountLinks();
 })();
 </script>
     <script src="wishlist-counts.js?v=20261013-base521"></script>
-      <script src="product-views.js?v=20261012"></script>
+      <script src="products-views.js?v=20261015-views-fix"></script>
 
 <script>
 /* IM Collections — multiple photos per Design Manager slot.

@@ -2108,6 +2108,17 @@ footer { background:#101010; }
     #categories #featured.category-collection-active .section-heading { margin-bottom: 22px; }
     #categories #featured.category-collection-active .department-selector { display:none; }
     #categories #featured.category-collection-active .product-toolbar { margin-bottom:16px; }
+  
+    /* Cart photo and name open the existing product Full View. */
+    .cart-thumb-button { display:block; padding:0; border:0; cursor:pointer; text-align:left; }
+    .cart-thumb-button:focus-visible, .cart-product-name-button:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+    .cart-product-name-button { display:block; padding:0; border:0; background:transparent; text-align:left; color:inherit; cursor:pointer; }
+    .cart-wishlist-notice[hidden] { display:none !important; }
+    .cart-wishlist-notice { position:fixed; left:12px; right:12px; bottom:max(16px,env(safe-area-inset-bottom)); z-index:5500; display:flex; align-items:center; gap:12px; padding:12px 14px; background:#111; color:white; box-shadow:0 6px 28px rgba(0,0,0,.3); font-size:13px; }
+    .cart-wishlist-notice img { flex:none; width:42px; height:48px; object-fit:contain; background:#eee; }
+    .cart-wishlist-notice span { flex:1; min-width:0; }
+    .cart-wishlist-notice a { color:#fff; text-decoration:underline; font-weight:700; flex:none; }
+    .cart-wishlist-notice-close { border:0; background:none; color:#fff; font-size:22px; padding:0 2px; }
   </style>
 </head>
 
@@ -2988,6 +2999,13 @@ onclick="filterProducts('BestSellers')"
        ======================================================== -->
 
   <div class="toast" id="toast"></div>
+  <!-- Cart wishlist confirmation; separate from standard storefront toast. -->
+  <div id="cartWishlistNotice" class="cart-wishlist-notice" role="status" aria-live="polite" hidden>
+    <img id="cartWishlistNoticeImage" alt="" width="42" height="48">
+    <span id="cartWishlistNoticeText">Item added to your wishlist</span>
+    <a href="my-account.html#wishlist" id="cartWishlistNoticeLink">View</a>
+    <button type="button" class="cart-wishlist-notice-close" onclick="dismissCartWishlistNotice()" aria-label="Close notification">×</button>
+  </div>
 
   <!-- =======================================================
        JAVASCRIPT
@@ -3759,7 +3777,35 @@ loadCategoryImages();
       if (saved.has(id)) saved.delete(id); else saved.add(id);
       localStorage.setItem(imWishlistStorageKey, JSON.stringify([...saved]));
       refreshWishlistHearts();
-      showToast(saved.has(id) ? "Added to wishlist" : "Removed from wishlist");
+      const added = saved.has(id);
+      showToast(added ? "Added to wishlist" : "Removed from wishlist");
+      if (button.classList.contains("cart-wishlist")) {
+        if (added) showCartWishlistNotice(id);
+        else dismissCartWishlistNotice();
+      }
+    }
+
+    /* Cart wishlist confirmation: link opens the member Wishlist section. */
+    let cartWishlistNoticeTimer;
+    function dismissCartWishlistNotice() {
+      clearTimeout(cartWishlistNoticeTimer);
+      const notice = document.getElementById("cartWishlistNotice");
+      if (notice) notice.hidden = true;
+    }
+    function showCartWishlistNotice(id) {
+      const notice = document.getElementById("cartWishlistNotice");
+      if (!notice) return;
+      const product = products.find(p => String(p.id) === String(id)) ||
+        cart.find(p => String(p.id) === String(id));
+      const photo = product?.image || product?.images?.[0] || "";
+      const image = document.getElementById("cartWishlistNoticeImage");
+      image.src = photo;
+      image.hidden = !photo;
+      document.getElementById("cartWishlistNoticeText").textContent =
+        `${product?.name || "Item"} added to your wishlist`;
+      notice.hidden = false;
+      clearTimeout(cartWishlistNoticeTimer);
+      cartWishlistNoticeTimer = setTimeout(dismissCartWishlistNotice, 5500);
     }
 
     /* =======================================================
@@ -3843,19 +3889,19 @@ openCart();
 
             <div class="cart-item">
 
-              <div class="cart-thumb">
-  <img
-    src="${item.image}"
-    alt="${item.name}"
-    class="cart-product-image"
-  >
-</div>
+              <button type="button" class="cart-thumb cart-thumb-button"
+                onclick="openQuickView(Number(this.dataset.productId))"
+                data-product-id="${item.id}" aria-label="View product details and photos">
+                <img src="${item.image || (Array.isArray(item.images) ? item.images[0] : '') || ''}"
+                  alt="${item.name}" class="cart-product-image">
+              </button>
 
               <div>
 
-                <div class="cart-item-name">
-                  ${item.name}
-                </div>
+                <button type="button" class="cart-item-name cart-product-name-button"
+                  data-product-id="${item.id}"
+                  onclick="openQuickView(Number(this.dataset.productId))"
+                  aria-label="View details for ${item.name}">${item.name}</button>
 
                 <div class="cart-item-price">
                   $${item.price.toFixed(2)}

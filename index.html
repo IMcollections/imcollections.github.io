@@ -2128,6 +2128,28 @@ footer { background:#101010; }
     .cart-wishlist-notice [hidden] { display:none !important; }
     .cart-wishlist-notice a:not([hidden]), .cart-wishlist-notice button.wishlist-notice-action:not([hidden]) { display:inline-block; }
     .cart-wishlist-notice { max-width:560px; margin-inline:auto; }
+
+/* IM COLLECTIONS — CART WISHLIST HEART FIX */
+
+.cart-wishlist .im-heart-icon,
+.cart-wishlist .im-heart-icon path {
+  stroke: #c9962e !important;
+  stroke-width: 1.8 !important;
+  stroke-linejoin: round;
+}
+
+.cart-wishlist:not(.active) .im-heart-icon,
+.cart-wishlist:not(.active) .im-heart-icon path {
+  fill: none !important;
+}
+
+.cart-wishlist.active .im-heart-icon,
+.cart-wishlist.active .im-heart-icon path,
+.cart-wishlist[aria-pressed="true"] .im-heart-icon,
+.cart-wishlist[aria-pressed="true"] .im-heart-icon path {
+  fill: #c9962e !important;
+}
+
   </style>
 </head>
 
@@ -3766,35 +3788,37 @@ loadCategoryImages();
       } catch { return []; }
     }
     function isWishlisted(id) { return wishlistIds().includes(String(id)); }
-    function refreshWishlistHearts() {
-      document.querySelectorAll(".wishlist[data-product-id]").forEach(button => {
-        const active = isWishlisted(button.dataset.productId);
-        button.classList.toggle("active", active);
-        button.setAttribute("aria-pressed", String(active));
-        button.setAttribute("aria-label", active ? "Remove from wishlist" : "Add to wishlist");
-      });
-      document.querySelectorAll(".cart-wishlist[data-product-id]").forEach(button => {
-        const active = isWishlisted(button.dataset.productId);
-        button.classList.toggle("active", active);
-        button.setAttribute("aria-pressed", String(active));
-        button.setAttribute("aria-label", active ? "Remove from wishlist" : "Add to wishlist");
-        // Set the actual SVG path, not only the button class. Mobile Safari
-        // can retain an old SVG paint value after a dynamic cart update.
-        const heart = button.querySelector(".im-heart-icon");
-        const path = heart?.querySelector("path");
-        if (heart) {
-          heart.setAttribute("stroke", "#c9962e");
-          heart.setAttribute("fill", active ? "#c9962e" : "none");
-          heart.style.setProperty("fill", active ? "#c9962e" : "none", "important");
-        }
-        if (path) {
-          path.setAttribute("stroke", "#c9962e");
-          path.setAttribute("fill", active ? "#c9962e" : "none");
-          path.style.setProperty("--im-cart-heart-fill", active ? "#c9962e" : "none");
-          path.style.setProperty("fill", active ? "#c9962e" : "none", "important");
-        }
-      });
-    }
+  
+function refreshWishlistHearts() {
+  document
+    .querySelectorAll(
+      ".wishlist[data-product-id], .cart-wishlist[data-product-id]"
+    )
+    .forEach(button => {
+      const active = isWishlisted(button.dataset.productId);
+
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+      button.setAttribute(
+        "aria-label",
+        active ? "Remove from wishlist" : "Add to wishlist"
+      );
+
+      const svg = button.querySelector(".im-heart-icon");
+      const path = svg?.querySelector("path");
+
+      if (svg && path) {
+        const fill = active ? "#c9962e" : "none";
+
+        svg.style.setProperty("stroke", "#c9962e", "important");
+        svg.style.setProperty("fill", fill, "important");
+
+        path.style.setProperty("stroke", "#c9962e", "important");
+        path.style.setProperty("fill", fill, "important");
+      }
+    });
+}
+
     function toggleWishlist(button) {
       const id = String(button.dataset.productId || "");
       if (!id) return;
@@ -3817,33 +3841,59 @@ loadCategoryImages();
       clearTimeout(cartWishlistNoticeTimer);
       cartWishlistUndoId = null;
       const notice = document.getElementById("cartWishlistNotice");
-      if (notice) notice.hidden = true;
+      if (notice) {
+  notice.hidden = true;
+  notice.style.display = "none";
+}
     }
-    function showCartWishlistNotice(id, added = true) {
-      const notice = document.getElementById("cartWishlistNotice");
-      if (!notice) return;
-      const product = products.find(p => String(p.id) === String(id)) ||
-        cart.find(p => String(p.id) === String(id));
-      const photo = product?.image || product?.images?.[0] || "";
-      const image = document.getElementById("cartWishlistNoticeImage");
-      if (photo) image.src = photo;
-      else image.removeAttribute("src");
-      image.hidden = !photo;
-      document.getElementById("cartWishlistNoticeText").textContent =
-        added ? `${product?.name || "Item"} added to your wishlist`
-              : `${product?.name || "Item"} removed from your wishlist`;
-      const viewLink = document.getElementById("cartWishlistNoticeLink");
-      const undoButton = document.getElementById("cartWishlistUndoBtn");
-      viewLink.hidden = !added;
-      undoButton.hidden = added;
-      viewLink.style.display = added ? "inline-block" : "none";
-      undoButton.style.display = added ? "none" : "inline-block";
-      cartWishlistUndoId = added ? null : String(id);
-      notice.hidden = false;
-      clearTimeout(cartWishlistNoticeTimer);
-      cartWishlistNoticeTimer = setTimeout(dismissCartWishlistNotice, 5500);
-    }
-    document.getElementById("cartWishlistUndoBtn").addEventListener("click", () => {
+    
+function showCartWishlistNotice(id, added = true) {
+  const notice = document.getElementById("cartWishlistNotice");
+  if (!notice) return;
+
+  const product =
+    products.find(p => String(p.id) === String(id)) ||
+    cart.find(p => String(p.id) === String(id));
+
+  const image = document.getElementById("cartWishlistNoticeImage");
+  const message = document.getElementById("cartWishlistNoticeText");
+  const viewLink = document.getElementById("cartWishlistNoticeLink");
+  const undoButton = document.getElementById("cartWishlistUndoBtn");
+
+  const photo = product?.image || product?.images?.[0] || "";
+
+  if (photo) image.src = photo;
+  else image.removeAttribute("src");
+
+  image.hidden = !photo;
+
+  message.textContent = added
+    ? "Item added to your wishlist"
+    : "Item removed from your wishlist";
+
+  viewLink.hidden = !added;
+  undoButton.hidden = added;
+
+  viewLink.style.display = added ? "inline-block" : "none";
+  undoButton.style.display = added ? "none" : "inline-block";
+
+  viewLink.textContent = "View";
+  viewLink.href = "my-account.html#wishlist";
+  undoButton.textContent = "Undo";
+
+  cartWishlistUndoId = added ? null : String(id);
+
+  notice.hidden = false;
+  notice.style.display = "flex";
+
+  clearTimeout(cartWishlistNoticeTimer);
+  cartWishlistNoticeTimer = setTimeout(
+    dismissCartWishlistNotice,
+    5500
+  );
+}
+
+document.getElementById("cartWishlistUndoBtn").addEventListener("click", () => {
       const id = cartWishlistUndoId;
       if (!id) return;
       const saved = new Set(wishlistIds());

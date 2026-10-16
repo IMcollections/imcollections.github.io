@@ -264,10 +264,14 @@
     .mobile-menu-panel {
       width: min(360px, 88%);
       height: 100%;
+      height: 100dvh;
       background: white;
       padding: 28px;
       transform: translateX(-100%);
       transition: 0.3s ease;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
     }
 
     .mobile-menu.active .mobile-menu-panel {
@@ -285,6 +289,10 @@
       display: flex;
       flex-direction: column;
     }
+
+    .mobile-menu-links [hidden] { display: none !important; }
+    .mobile-menu-links #mobileGuestLinks,
+    .mobile-menu-links #mobileMemberLinks { width: 100%; }
 
     .mobile-menu-links a {
       padding: 18px 0;
@@ -2127,7 +2135,7 @@ footer { background:#101010; }
       </button>
 
       <div class="logo-wrap">
-        <a href="#">
+        <a href="index.html" aria-label="Return to IM Collections homepage">
           <img
             src="IM-logo.jpg"
             alt="IM Collections"
@@ -2221,11 +2229,9 @@ footer { background:#101010; }
     <div class="mobile-menu-panel">
 
       <div class="mobile-menu-top">
-        <img
-          src="IM-logo.jpg"
-          alt="IM Collections"
-          style="width:55px;height:55px;object-fit:contain;"
-        />
+        <a href="index.html" aria-label="Return to IM Collections homepage">
+          <img src="IM-logo.jpg" alt="IM Collections" style="width:55px;height:55px;object-fit:contain;" />
+        </a>
 
         <button
           class="close-button"
@@ -2236,40 +2242,36 @@ footer { background:#101010; }
         </button>
       </div>
 
-      <div class="mobile-menu-links">
-    <a href="my-account.html#summary">Account Summary</a>
-<a href="my-account.html#wishlist">My Wishlist</a>
-  <a href="my-account.html#summary">My Rewards</a>
-        <a href="#featured" onclick="selectDepartment('Men')">Shop Men</a>
-        <a href="#featured" onclick="selectDepartment('Women')">Shop Women</a>
-        <a href="#featured" onclick="selectDepartment('All')">Shop All </a>
-  <a href="#featured"
-     onclick="filterProducts('NewArrivals')">
-    New Arrivals
-  </a>
-
-  <a href="#featured"
-  onclick="filterProducts('BestSellers')">
-    Best Sellers
-  </a>
-
-  <a href="#featured"
-     onclick="filterProducts('Sale')">
-    Sale
-  </a>
-
-  <a href="#featured"
-     onclick="filterProducts('Vintage')">
-    Vintage Items
-  </a> 
-
-  <a href="#featured"
-     onclick="filterProducts('OpenBox')">
-    Open Box Deals
-  </a>
-
-  <a href="#" id="logoutLink">Sign Out</a>
-</div>
+      <div class="mobile-menu-links" aria-label="Mobile shopping menu">
+        <div id="mobileGuestLinks" hidden>
+          <a href="Login.html">Login</a>
+          <a href="Register.html">Register</a>
+          <a href="refer-a-friend.html">Refer A Friend</a>
+          <a href="#featured" onclick="filterProducts('Watches')">Shop Watches</a>
+          <a href="#featured" onclick="filterProducts('Clothing')">Shop Clothing</a>
+          <a href="#featured" onclick="filterProducts('Shoes')">Shop Shoes</a>
+          <a href="#featured" onclick="filterProducts('BestSellers')">Best Sellers</a>
+        </div>
+        <div id="mobileMemberLinks" hidden>
+          <a href="my-account.html#summary">Account Summary</a>
+          <a href="my-account.html#wishlist">My Wishlist</a>
+          <a href="collectors-reward.html">My Rewards</a>
+          <a href="orders-returns.html#orders">My Orders</a>
+          <a href="returns.html">Returns</a>
+          <a href="refer-a-friend.html">Refer A Friend</a>
+          <a href="#featured" onclick="selectDepartment('Men')">Shop Men</a>
+          <a href="#featured" onclick="selectDepartment('Women')">Shop Women</a>
+          <a href="#featured" onclick="filterProducts('Watches')">Shop Watches</a>
+          <a href="#featured" onclick="filterProducts('Clothing')">Shop Clothing</a>
+          <a href="#featured" onclick="filterProducts('Shoes')">Shop Shoes</a>
+          <a href="#featured" onclick="filterProducts('BestSellers')">Best Sellers</a>
+          <a href="#featured" onclick="filterProducts('NewArrivals')">New Arrivals</a>
+          <a href="#featured" onclick="filterProducts('Sale')">Sale</a>
+          <a href="#featured" onclick="filterProducts('Vintage')">Vintage Items</a>
+          <a href="#featured" onclick="filterProducts('OpenBox')">Open Box Deals</a>
+          <a href="#" id="mobileMenuSignOut">Sign Out</a>
+        </div>
+      </div>
 
 </div>
 
@@ -4237,10 +4239,39 @@ localStorage.setItem(
     const mobileMenu =
       document.getElementById("mobileMenu");
 
+    // Mobile menu uses the website's existing Supabase Auth session.
+    const mobileGuestLinks = document.getElementById("mobileGuestLinks");
+    const mobileMemberLinks = document.getElementById("mobileMemberLinks");
+    async function updateMobileMenuAccess(sessionOverride) {
+      try {
+        const session = sessionOverride === undefined
+          ? (await supabaseClient.auth.getSession()).data.session
+          : sessionOverride;
+        mobileGuestLinks.hidden = Boolean(session);
+        mobileMemberLinks.hidden = !session;
+      } catch (error) {
+        console.warn("Mobile menu authentication check failed", error);
+        mobileGuestLinks.hidden = false;
+        mobileMemberLinks.hidden = true;
+      }
+    }
+    updateMobileMenuAccess();
+    supabaseClient.auth.onAuthStateChange((_event, session) => {
+      updateMobileMenuAccess(session);
+    });
+    document.getElementById("mobileMenuSignOut").addEventListener("click", async (event) => {
+      event.preventDefault();
+      const { error } = await supabaseClient.auth.signOut();
+      if (error) { showToast("Unable to sign out. Please try again."); return; }
+      window.location.href = "index.html";
+    });
+
+
     document
       .getElementById("mobileMenuBtn")
       .addEventListener("click", () => {
 
+        updateMobileMenuAccess();
         mobileMenu.classList.add("active");
 
         document.body.style.overflow = "hidden";

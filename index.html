@@ -2117,8 +2117,12 @@ footer { background:#101010; }
     .cart-wishlist-notice { position:fixed; left:12px; right:12px; bottom:max(16px,env(safe-area-inset-bottom)); z-index:5500; display:flex; align-items:center; gap:12px; padding:12px 14px; background:#111; color:white; box-shadow:0 6px 28px rgba(0,0,0,.3); font-size:13px; }
     .cart-wishlist-notice img { flex:none; width:42px; height:48px; object-fit:contain; background:#eee; }
     .cart-wishlist-notice span { flex:1; min-width:0; }
-    .cart-wishlist-notice a { color:#fff; text-decoration:underline; font-weight:700; flex:none; }
+    .cart-wishlist-notice a, .cart-wishlist-notice .wishlist-notice-action { color:#fff; text-decoration:underline; font-weight:700; flex:none; border:0; background:transparent; font:inherit; cursor:pointer; padding:8px 2px; }
     .cart-wishlist-notice-close { border:0; background:none; color:#fff; font-size:22px; padding:0 2px; }
+
+    /* Cart wishlist paint: make both outline and selected fill explicit. */
+    .cart-wishlist .im-heart-icon path { stroke:#c9962e !important; fill:none; }
+    .cart-wishlist.active .im-heart-icon path { fill:#c9962e !important; }
   </style>
 </head>
 
@@ -3004,6 +3008,7 @@ onclick="filterProducts('BestSellers')"
     <img id="cartWishlistNoticeImage" alt="" width="42" height="48">
     <span id="cartWishlistNoticeText">Item added to your wishlist</span>
     <a href="my-account.html#wishlist" id="cartWishlistNoticeLink">View</a>
+    <button type="button" id="cartWishlistUndoBtn" class="wishlist-notice-action" hidden>Undo</button>
     <button type="button" class="cart-wishlist-notice-close" onclick="dismissCartWishlistNotice()" aria-label="Close notification">×</button>
   </div>
 
@@ -3768,6 +3773,18 @@ loadCategoryImages();
         button.classList.toggle("active", active);
         button.setAttribute("aria-pressed", String(active));
         button.setAttribute("aria-label", active ? "Remove from wishlist" : "Add to wishlist");
+        // Set the actual SVG path, not only the button class. Mobile Safari
+        // can retain an old SVG paint value after a dynamic cart update.
+        const heart = button.querySelector(".im-heart-icon");
+        const path = heart?.querySelector("path");
+        if (heart) {
+          heart.style.setProperty("stroke", "#c9962e", "important");
+          heart.style.setProperty("fill", active ? "#c9962e" : "none", "important");
+        }
+        if (path) {
+          path.style.setProperty("stroke", "#c9962e", "important");
+          path.style.setProperty("fill", active ? "#c9962e" : "none", "important");
+        }
       });
     }
     function toggleWishlist(button) {
@@ -3778,35 +3795,51 @@ loadCategoryImages();
       localStorage.setItem(imWishlistStorageKey, JSON.stringify([...saved]));
       refreshWishlistHearts();
       const added = saved.has(id);
-      showToast(added ? "Added to wishlist" : "Removed from wishlist");
       if (button.classList.contains("cart-wishlist")) {
-        if (added) showCartWishlistNotice(id);
-        else dismissCartWishlistNotice();
+        showCartWishlistNotice(id, added);
+      } else {
+        showToast(added ? "Added to wishlist" : "Removed from wishlist");
       }
     }
 
-    /* Cart wishlist confirmation: link opens the member Wishlist section. */
+    /* Cart wishlist notice: View on save; Undo on removal. */
     let cartWishlistNoticeTimer;
+    let cartWishlistUndoId = null;
     function dismissCartWishlistNotice() {
       clearTimeout(cartWishlistNoticeTimer);
+      cartWishlistUndoId = null;
       const notice = document.getElementById("cartWishlistNotice");
       if (notice) notice.hidden = true;
     }
-    function showCartWishlistNotice(id) {
+    function showCartWishlistNotice(id, added = true) {
       const notice = document.getElementById("cartWishlistNotice");
       if (!notice) return;
       const product = products.find(p => String(p.id) === String(id)) ||
         cart.find(p => String(p.id) === String(id));
       const photo = product?.image || product?.images?.[0] || "";
       const image = document.getElementById("cartWishlistNoticeImage");
-      image.src = photo;
+      if (photo) image.src = photo;
+      else image.removeAttribute("src");
       image.hidden = !photo;
       document.getElementById("cartWishlistNoticeText").textContent =
-        `${product?.name || "Item"} added to your wishlist`;
+        added ? `${product?.name || "Item"} added to your wishlist`
+              : `${product?.name || "Item"} removed from your wishlist`;
+      document.getElementById("cartWishlistNoticeLink").hidden = !added;
+      document.getElementById("cartWishlistUndoBtn").hidden = added;
+      cartWishlistUndoId = added ? null : String(id);
       notice.hidden = false;
       clearTimeout(cartWishlistNoticeTimer);
       cartWishlistNoticeTimer = setTimeout(dismissCartWishlistNotice, 5500);
     }
+    document.getElementById("cartWishlistUndoBtn").addEventListener("click", () => {
+      const id = cartWishlistUndoId;
+      if (!id) return;
+      const saved = new Set(wishlistIds());
+      saved.add(id);
+      localStorage.setItem(imWishlistStorageKey, JSON.stringify([...saved]));
+      refreshWishlistHearts();
+      showCartWishlistNotice(id, true);
+    });
 
     /* =======================================================
        CART

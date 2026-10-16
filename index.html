@@ -2121,8 +2121,13 @@ footer { background:#101010; }
     .cart-wishlist-notice-close { border:0; background:none; color:#fff; font-size:22px; padding:0 2px; }
 
     /* Cart wishlist paint: make both outline and selected fill explicit. */
-    .cart-wishlist .im-heart-icon path { stroke:#c9962e !important; fill:none; }
-    .cart-wishlist.active .im-heart-icon path { fill:#c9962e !important; }
+    /* Cart hearts: explicit state on the SVG path, not inherited paint. */
+    .cart-wishlist .im-heart-icon path { stroke:#c9962e !important; fill:var(--im-cart-heart-fill, none) !important; }
+    .cart-wishlist[aria-pressed="true"] .im-heart-icon path { --im-cart-heart-fill:#c9962e; }
+    .cart-wishlist[aria-pressed="false"] .im-heart-icon path { --im-cart-heart-fill:none; }
+    .cart-wishlist-notice [hidden] { display:none !important; }
+    .cart-wishlist-notice a:not([hidden]), .cart-wishlist-notice button.wishlist-notice-action:not([hidden]) { display:inline-block; }
+    .cart-wishlist-notice { max-width:560px; margin-inline:auto; }
   </style>
 </head>
 
@@ -2879,7 +2884,7 @@ onclick="filterProducts('BestSellers')"
        CART DRAWER
        ======================================================== -->
 
-  <div class="cart-overlay" id="cartOverlay">
+  <div class="cart-overlay" id="cartOverlay" data-cart-fix-version="20261016-verified-2">
 
     <aside class="cart-drawer">
 
@@ -3778,11 +3783,14 @@ loadCategoryImages();
         const heart = button.querySelector(".im-heart-icon");
         const path = heart?.querySelector("path");
         if (heart) {
-          heart.style.setProperty("stroke", "#c9962e", "important");
+          heart.setAttribute("stroke", "#c9962e");
+          heart.setAttribute("fill", active ? "#c9962e" : "none");
           heart.style.setProperty("fill", active ? "#c9962e" : "none", "important");
         }
         if (path) {
-          path.style.setProperty("stroke", "#c9962e", "important");
+          path.setAttribute("stroke", "#c9962e");
+          path.setAttribute("fill", active ? "#c9962e" : "none");
+          path.style.setProperty("--im-cart-heart-fill", active ? "#c9962e" : "none");
           path.style.setProperty("fill", active ? "#c9962e" : "none", "important");
         }
       });
@@ -3824,8 +3832,12 @@ loadCategoryImages();
       document.getElementById("cartWishlistNoticeText").textContent =
         added ? `${product?.name || "Item"} added to your wishlist`
               : `${product?.name || "Item"} removed from your wishlist`;
-      document.getElementById("cartWishlistNoticeLink").hidden = !added;
-      document.getElementById("cartWishlistUndoBtn").hidden = added;
+      const viewLink = document.getElementById("cartWishlistNoticeLink");
+      const undoButton = document.getElementById("cartWishlistUndoBtn");
+      viewLink.hidden = !added;
+      undoButton.hidden = added;
+      viewLink.style.display = added ? "inline-block" : "none";
+      undoButton.style.display = added ? "none" : "inline-block";
       cartWishlistUndoId = added ? null : String(id);
       notice.hidden = false;
       clearTimeout(cartWishlistNoticeTimer);

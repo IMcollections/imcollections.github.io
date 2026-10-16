@@ -54,6 +54,12 @@
         font-weight: 600;
       }
 
+      /* Hide a redundant My Account link injected into this page's header.
+         Keep Back to Shopping, the logo, and the account dropdown intact. */
+      header a[href*="my-account.html"] {
+        display: none !important;
+      }
+
       .account-header-links a:last-child {
         color: #8f681e;
         text-decoration: underline;

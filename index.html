@@ -2346,6 +2346,29 @@ footer { background:#101010; }
   .hero-copy .im-filter-panel { width: 100%; }
 }
 
+
+/* Version 13: one readable active hero control at a time. */
+.hero-buttons [data-hero-department],
+.hero-buttons .im-filter-toggle {
+  background: transparent;
+  color: #111;
+  border: 1px solid #111;
+}
+.hero-buttons [data-hero-department].active,
+.hero-buttons .im-filter-toggle[aria-expanded="true"] {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+.hero-buttons [data-hero-department].active:hover,
+.hero-buttons .im-filter-toggle[aria-expanded="true"]:hover,
+.hero-buttons [data-hero-department].active:focus-visible,
+.hero-buttons .im-filter-toggle[aria-expanded="true"]:focus-visible {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
 </style>
 </head>
 
@@ -3614,6 +3637,11 @@ loadCategoryImages();
         button.setAttribute("aria-pressed", String(active));
       });
       setHeroButtonState(heroActiveDepartment);
+      // Only one hero panel can be active: choosing Men/Women closes Filter.
+      const filterPanel = document.getElementById('imFilterPanel');
+      const filterToggle = document.getElementById('imFilterToggle');
+      if (filterPanel) filterPanel.hidden = true;
+      if (filterToggle) filterToggle.setAttribute('aria-expanded', 'false');
       // Do not rebuild the storefront product cards when changing the hero tabs.
       // Regular category filters continue to use the existing renderProducts logic.
       if (heroActiveDepartment) showHeroDepartment(heroActiveDepartment);
@@ -3947,7 +3975,14 @@ loadCategoryImages();
       toggle.addEventListener('click', () => {
         panel.hidden = !panel.hidden;
         toggle.setAttribute('aria-expanded', String(!panel.hidden));
-        if (!panel.hidden) refreshSizeOptions();
+        if (!panel.hidden) {
+          // Opening Filter deselects both department buttons and hides their preview.
+          heroActiveDepartment = null;
+          setHeroButtonState(null);
+          const departmentPreview = document.getElementById('heroDepartmentResults');
+          if (departmentPreview) departmentPreview.hidden = true;
+          refreshSizeOptions();
+        }
       });
       fields.forEach(id => document.getElementById(id).addEventListener('change', () => {
         // Department selector in this panel is independent of the hero previews.

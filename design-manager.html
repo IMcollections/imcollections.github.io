@@ -167,6 +167,7 @@ select {
 .actions {
   flex-direction:column}
 }
+  .slide-selection{display:grid;gap:10px;margin:16px 0}.slide{display:flex;align-items:center;gap:10px;border:1px solid #ddd;padding:8px;border-radius:9px}.slide img{height:65px;width:75px;object-fit:cover}.slide small{flex:1;overflow-wrap:anywhere}.slide button{padding:8px;background:#fff;border:1px solid #bbb;border-radius:6px}
   /* Hero slide editor */
   .hero-controls {margin:16px 0; padding:16px; background:#fbf8f1; border:1px solid #e5d8b9; border-radius:12px}
   .hero-controls select {margin-bottom:8px}
@@ -267,6 +268,13 @@ select {
        </p>
       </div>
      </div>
+      <div id="promoControls" class="hero-controls hidden">
+        <label for="promoMode">Promotional slideshow behavior</label>
+        <select id="promoMode"><option value="auto">Automatic slideshow (every 5 seconds) + swipe</option><option value="swipe-only">Swipe only</option></select>
+        <p class="hint">Arrange uploaded promotional photos with Move Up/Down. The first photo appears first.</p>
+        <div id="promoPublished" class="hero-slide-list"></div>
+        <button type="button" class="btn btn-outline" id="savePromoOrder">Save Published Photos &amp; Mode</button>
+      </div>
      <div id="slideSelection" class="slide-selection" aria-live="polite"></div>
      <div class="drop-zone" id="dropZone" role="button" tabindex="0">
       <strong>
@@ -340,6 +348,9 @@ let images = new Map();
 let imageLists = new Map();
 let busy = false;
 let previewURLs = [];
+let rawImageLists = new Map();
+const validImageUrl = url => typeof url === "string" && /^https?:\/\//i.test(url.trim());
+const PROMO_MODE_PREFIX = "im-promo-mode:";
 function message(text, error=false) {
   $('message').className = 'message ' + (error ? 'error' : 'success');
   $('message').textContent = text;
@@ -383,9 +394,10 @@ function renderNewPreviews() {
     const card = document.createElement('div'); card.className = 'slide';
     const img = document.createElement('img'); img.src = url; img.alt = file.name;
     const label = document.createElement('small'); label.textContent = (index + 1) + '. ' + file.name;
+    for (const [text,step] of [['↑',-1],['↓',1]]) { const btn=document.createElement('button');btn.type='button';btn.textContent=text;btn.disabled=index+step<0||index+step>=selectedFiles.length;btn.setAttribute('aria-label',text==='↑'?'Move photo earlier':'Move photo later');btn.onclick=()=>{const item=selectedFiles.splice(index,1)[0];selectedFiles.splice(index+step,0,item);renderNewPreviews();};card.append(img,label,btn); }
     const remove = document.createElement('button'); remove.type = 'button';
     remove.textContent = 'Remove'; remove.onclick = () => { selectedFiles.splice(index,1); renderNewPreviews(); };
-    card.append(img,label,remove); area.append(card);
+    card.append(remove); area.append(card);
   });
   const hasImages = selectedFiles.length > 0;
   $('newPlaceholder').classList.toggle('hidden', hasImages);
@@ -406,8 +418,43 @@ function showCurrent(){
   else $('currentImage').removeAttribute('src');
   $('remove').disabled=!url;
   $('currentImage').title = (imageLists.get(s.id)||[]).length + ' published slides';
-  loadHeroEditor();
+  loadPromoEditor();
 }
+function loadPromoEditor(){
+  const promo=selected()==='promo';
+  $('promoControls').classList.toggle('hidden',!promo);
+  if(!promo)return;
+  const raw=rawImageLists.get('promo')||[];
+  $('promoMode').value=raw.includes(PROMO_MODE_PREFIX+'swipe-only')?'swipe-only':'auto';
+  const list=$('promoPublished');list.replaceChildren();
+  const urls=imageLists.get('promo')||[];
+  urls.forEach((url,i)=>{
+    const el=document.createElement('div');el.className='hero-slide';
+    const im=document.createElement('img');im.src=url;im.alt='Published promotional photo '+(i+1);
+    const controls=document.createElement('div');
+    const title=document.createElement('small');title.textContent='Slide '+(i+1);controls.append(title);
+    const move=(label,step)=>{const btn=document.createElement('button');btn.type='button';btn.textContent=label;btn.disabled=i+step<0||i+step>=urls.length;btn.onclick=()=>{const arr=imageLists.get('promo');const item=arr.splice(i,1)[0];arr.splice(i+step,0,item);loadPromoEditorKeepingMode();};controls.append(btn);};
+    move('Move up',-1);move('Move down',1);
+    const remove=document.createElement('button');remove.type='button';remove.textContent='Remove';remove.onclick=()=>{imageLists.get('promo').splice(i,1);loadPromoEditorKeepingMode();};controls.append(remove);
+    el.append(im,controls);list.append(el);
+  });
+}
+function loadPromoEditorKeepingMode(){
+  const mode=$('promoMode').value;
+  loadPromoEditor();
+  $('promoMode').value=mode;
+}
+$('savePromoOrder').onclick=async()=>{
+  if(busy||selected()!=='promo')return;
+  const urls=imageLists.get('promo')||[];
+  if(!urls.length){message('Use Remove All Published Images to clear the promotional banner.',true);return;}
+  setBusy(true);
+  try{
+    const {error}=await db.from('site_design_images').upsert({slot:'promo',image_url:urls[0],image_urls:[...urls,PROMO_MODE_PREFIX+$('promoMode').value],storage_path:null,updated_at:new Date().toISOString()},{onConflict:'slot'});
+    if(error)throw error;
+    await reload();message('Promotional order and slideshow mode saved.');
+  }catch(e){message('Could not save promotional slides: '+(e.message||e),true);}finally{setBusy(false);}
+};
 function renderOverview(){
   const root=$('overview');
   root.replaceChildren();
@@ -456,7 +503,7 @@ async function reload(){
 }
 function setBusy(b){
   busy=b;
-  for(const id of ['save','clearSelection','slot','saveHeroChanges','heroMode'])$(id).disabled=b;
+  for(const id of ['save','clearSelection','slot','savePromoOrder','promoMode'])$(id).disabled=b;
   $('remove').disabled=b||!images.get(selected())
 }
 $('slot').onchange=()=>{
@@ -503,8 +550,9 @@ $('save').onclick = async () => {
       if (uploadError) throw uploadError;
       urls.push(db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl);
     }
+    const savedUrls = slot === 'promo' ? [...urls, PROMO_MODE_PREFIX + $('promoMode').value] : urls;
     const {error} = await db.from('site_design_images').upsert({
-      slot, image_url:urls[0], image_urls:urls,
+      slot, image_url:urls[0], image_urls:savedUrls,
       storage_path:null, updated_at:new Date().toISOString()
     }, {onConflict:'slot'});
     if (error) throw error;

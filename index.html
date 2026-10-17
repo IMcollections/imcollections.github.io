@@ -2280,6 +2280,25 @@ footer { background:#101010; }
       .footer-side .footer-column h4 { font-size: 10px; letter-spacing: .9px; }
       .footer-side .footer-column a { overflow-wrap: break-word; }
     }
+
+    /* Footer column structure: consistent even in desktop-mode mobile browsers. */
+    footer .footer-main {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: clamp(14px, 3vw, 48px);
+      row-gap: 32px;
+    }
+    footer .footer-brand { grid-column: 1 / -1; }
+    footer .footer-side { display: flex; flex-direction: column; min-width: 0; gap: 34px; }
+    footer .footer-side-left { grid-column: 1; }
+    footer .footer-side-right { grid-column: 2; }
+    footer .footer-side .footer-column { min-width: 0; }
+    footer .footer-side .footer-column a { overflow-wrap: break-word; }
+    footer .footer-bottom { justify-content: center; text-align: center; }
+    @media (max-width: 650px) {
+      footer .footer-main { column-gap: 16px; }
+      footer .footer-side { gap: 28px; }
+    }
 </style>
 </head>
 

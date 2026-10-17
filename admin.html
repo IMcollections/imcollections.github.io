@@ -181,6 +181,15 @@
         grid-template-columns: repeat(2, 1fr);
       }
     }
+    /* Available-size editor */
+    .size-help { color:#666; font-size:13px; margin:0 0 10px; }
+    .admin-size-options { display:flex; flex-wrap:wrap; gap:9px; }
+    .admin-size-options label { display:inline-flex; align-items:center; justify-content:center;
+      min-width:54px; padding:10px 12px; margin:0; border:1px solid #d7d7d7;
+      border-radius:8px; font-weight:700; cursor:pointer; }
+    .admin-size-options input { position:absolute; opacity:0; width:1px; height:1px; }
+    .admin-size-options label:has(input:checked) { background:#c9962e; border-color:#c9962e; color:#111; }
+    .admin-size-options label:focus-within { outline:2px solid #111; outline-offset:2px; }
   </style>
 </head>
 
@@ -281,6 +290,12 @@
           id="size"
           placeholder="Example: M, XL, 9.5"
         />
+      </div>
+
+      <div class="full" id="availableSizeEditor">
+        <label>Available Sizes (select all sizes you have)</label>
+        <p class="size-help">Only checked sizes will appear on the website. You can also type custom sizes in the Size field above.</p>
+        <div class="admin-size-options" id="adminSizeOptions" role="group" aria-label="Available sizes"></div>
       </div>
 
       <div>
@@ -400,6 +415,47 @@ const message =
 
 let selectedImages = [];
 
+
+/* Available sizes stored in the existing products.size field as a comma-separated list.
+   No new Supabase table or column is needed. */
+const adminClothesSizes = ["XS", "S", "M", "L", "XL", "2XL", "3XL"];
+const adminShoeSizes = ["5M", "5.5M", "6M", "6.5M", "7M", "7.5M", "8M", "8.5M", "9M", "9.5M", "10M", "10.5M", "11M", "11.5M", "12M", "13M"];
+function splitAdminSizes(value) {
+  return [...new Set(String(value || "").split(/[,;\n]+/).map(s => s.trim()).filter(Boolean))];
+}
+function renderAdminSizes() {
+  const category = document.getElementById("category").value.toLowerCase();
+  const preset = category.includes("shoe") ? adminShoeSizes
+    : ["clothing", "apparel"].includes(category) ? adminClothesSizes : [];
+  const field = document.getElementById("size");
+  const selected = splitAdminSizes(field.value);
+  const container = document.getElementById("adminSizeOptions");
+  const all = [...new Set([...preset, ...selected])];
+  container.replaceChildren();
+  if (!all.length) {
+    const note = document.createElement("span");
+    note.className = "size-help";
+    note.textContent = "For this category, enter sizes in the Size field (separated by commas).";
+    container.append(note);
+    return;
+  }
+  all.forEach(size => {
+    const label = document.createElement("label");
+    const box = document.createElement("input");
+    box.type = "checkbox"; box.value = size; box.checked = selected.includes(size);
+    box.addEventListener("change", () => {
+      const current = splitAdminSizes(field.value);
+      field.value = box.checked
+        ? [...new Set([...current, size])].join(", ")
+        : current.filter(s => s !== size).join(", ");
+    });
+    label.append(box, document.createTextNode(size));
+    container.append(label);
+  });
+}
+document.getElementById("category").addEventListener("change", renderAdminSizes);
+document.getElementById("size").addEventListener("change", renderAdminSizes);
+renderAdminSizes();
 
 /* =========================
    IMAGE SELECT
@@ -799,6 +855,7 @@ function resetForm() {
   selectedImages = [];
 
   previewGrid.innerHTML = "";
+  renderAdminSizes();
 
 }
 
@@ -895,6 +952,7 @@ document.getElementById("oldPrice").value = data.old_price || "";
 document.getElementById("category").value = data.category || "";
 document.getElementById("department").value = ["Men", "Women", "Unisex"].includes(data.department) ? data.department : "Unisex";
 document.getElementById("size").value = data.size || "";
+renderAdminSizes();
 document.getElementById("condition").value = data.condition || "";
 document.getElementById("quantity").value = data.quantity || 1;
 document.getElementById("badge").value = data.badge || "";

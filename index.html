@@ -2653,9 +2653,10 @@ Shop Women
       <div class="im-filter-panel" id="imFilterPanel" hidden>
         <div class="im-filter-fields">
           <div class="im-filter-field"><label for="imFilterDepartment">Department</label><select id="imFilterDepartment"><option value="All">All departments</option><option value="Men">Men</option><option value="Women">Women</option><option value="Unisex">Unisex</option></select></div>
-          <div class="im-filter-field"><label for="imFilterSort">Sort by</label><select id="imFilterSort"><option value="default">Default</option><option value="newest">Newest</option><option value="bestsellers">Best Sellers</option><option value="low">Low to High</option><option value="high">High to Low</option><option value="discount">Discount Price</option><option value="finalsale">Final Sale</option><option value="vintage">Vintage Items</option></select></div>
+          <div class="im-filter-field"><label for="imFilterSort">Sort by</label><select id="imFilterSort"><option value="default">Default</option><option value="newest">Newest</option><option value="bestsellers">Best Sellers</option><option value="low">Low to High</option><option value="high">High to Low</option><option value="discount">Discount Price</option><option value="finalsale">Final Sale</option></select></div>
           <div class="im-filter-field"><label for="imFilterSize">Size</label><select id="imFilterSize"><option value="">All available sizes</option></select></div>
           <div class="im-filter-field"><label for="imFilterColor">Color (clothing)</label><select id="imFilterColor"><option value="">All colors</option><option value="Black">Black</option><option value="White">White</option><option value="Gray">Gray</option></select></div>
+          <div class="im-filter-field"><label for="imFilterCollection">Item type</label><select id="imFilterCollection"><option value="">All item types</option><option value="vintage">Vintage</option><option value="bundle">Bundle Items</option><option value="preowned">Pre-Owned</option></select></div>
           <div class="im-filter-field"><label for="imFilterBadge">Badge</label><select id="imFilterBadge"><option value="">All badges</option><option value="New">New</option><option value="Discount Sale">Discount Sale</option><option value="Limited">Limited</option><option value="Best Seller">Best Seller</option><option value="Open Box">Open Box</option></select></div>
         </div>
         <div class="im-filter-actions"><button type="button" id="imFilterClear" class="im-filter-clear">Clear All</button><button type="button" id="imFilterSeeProducts" class="im-filter-see-products">See Products (<span id="imFilterMatchCount" aria-live="polite">0</span>)</button></div>
@@ -2980,6 +2981,10 @@ Shop Women
           >
             Vintage
           </button>
+
+     <button type="button" class="filter-btn" data-filter="PreOwned">Pre-Owned</button>
+
+     <button type="button" class="filter-btn" data-filter="BundleItems">Bundle Items</button>
 
         </div>
 
@@ -3887,6 +3892,8 @@ loadCategoryImages();
           (filter === "Sale" && (badge.includes("sale") || Number(product.oldPrice) > Number(product.price))) ||
           (filter === "OpenBox" && (cat.includes("openbox") || badge.includes("open box"))) ||
           (filter === "Vintage" && (cat.includes("vintage") || name.includes("vintage"))) ||
+          (filter === "PreOwned" && itemTypeMatches(product, "preowned")) ||
+          (filter === "BundleItems" && itemTypeMatches(product, "bundle")) ||
           (filter === "Clothing" && ["clothing", "apparel", "clothes"].includes(cat)) ||
           (filter === "Accessories" && ["accessories", "watches", "jewelry"].includes(cat)) ||
           (filter === "Watches" && (cat === "watches" || cat === "watch" || /\bwatch(es)?\b/i.test(name))) ||
@@ -3904,6 +3911,17 @@ loadCategoryImages();
       const chosenColor = document.getElementById("imFilterColor")?.value || "";
       const chosenBadge = document.getElementById("imFilterBadge")?.value || "";
       const chosenSort = document.getElementById("imFilterSort")?.value || "default";
+      const chosenCollection = document.getElementById("imFilterCollection")?.value || "";
+      function itemTypeMatches(product, chosenType) {
+        if (!chosenType) return true;
+        const labels = [product.category, product.badge, product.condition]
+          .map(v => String(v || "").toLowerCase().replace(/[–—_]/g, "-").trim());
+        const containsLabel = re => labels.some(v => re.test(v));
+        if (chosenType === "vintage") return containsLabel(/\bvintage\b/);
+        if (chosenType === "bundle") return containsLabel(/\bbundles?\b|\bbundle items?\b/);
+        if (chosenType === "preowned") return containsLabel(/\bpre[ -]?owned\b|\bsecond[ -]?hand\b|\bused\b/);
+        return true;
+      }
       const clothingCategories = ["clothing", "apparel", "clothes"];
       const available = filtered.filter(product => {
         const dept = String(product.department || "Unisex").toLowerCase();
@@ -3916,9 +3934,9 @@ loadCategoryImages();
           const colors = Array.isArray(product.colors) ? product.colors : [];
           if (!colors.some(v => String(v).trim().toLowerCase() === chosenColor.toLowerCase())) return false;
         }
+        if (!itemTypeMatches(product, chosenCollection)) return false;
         if (chosenBadge && String(product.badge || "").toLowerCase() !== chosenBadge.toLowerCase()) return false;
         if (chosenSort === "finalsale" && !(String(product.condition || "").toLowerCase() === "final sale" || String(product.badge || "").toLowerCase() === "final sale")) return false;
-        if (chosenSort === "vintage" && !(String(product.category || "").toLowerCase().includes("vintage") || String(product.name || "").toLowerCase().includes("vintage"))) return false;
         return true;
       });
       const discountAmount = p => Math.max(0, Number(p.oldPrice || 0) - Number(p.price || 0));
@@ -4036,7 +4054,7 @@ loadCategoryImages();
       const panel = document.getElementById('imFilterPanel');
       const dept = document.getElementById('imFilterDepartment');
       const sizes = document.getElementById('imFilterSize');
-      const fields = ['imFilterDepartment','imFilterSort','imFilterSize','imFilterColor','imFilterBadge'];
+      const fields = ['imFilterDepartment','imFilterSort','imFilterSize','imFilterColor','imFilterCollection','imFilterBadge'];
       function refreshSizeOptions() {
         const previous = sizes.value;
         const unique = new Set();
@@ -4153,7 +4171,7 @@ loadCategoryImages();
         Accessories: "Accessories", Shoes: "Shoes", Clothing: "Clothing",
         Toys: "Toys & Hobbies", Watches: "Watches", Vintage: "Vintage Items",
         Essentials: "Essentials", OpenBox: "Open Box", NewArrivals: "New Arrivals",
-        BestSellers: "Best Sellers", Sale: "Sale"
+        BestSellers: "Best Sellers", Sale: "Sale", PreOwned: "Pre-Owned", BundleItems: "Bundle Items"
       };
       const heading = section.querySelector(".section-heading h2");
       if (heading) heading.textContent = "Shop " + (names[category] || category);

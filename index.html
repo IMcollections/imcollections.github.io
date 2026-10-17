@@ -2314,7 +2314,31 @@ footer { background:#101010; }
 @media(max-width:360px){.im-filter-fields{grid-template-columns:1fr}}
 
 /* Hero Filter location: visually grouped with Shop Men / Shop Women. */
-.hero-buttons .im-filter-toggle { margin: 0; min-height: 48px; padding: 0 18px; justify-content:center; }
+/* Match the neutral Shop Men / Shop Women hero controls. */
+.hero-buttons .im-filter-toggle {
+  margin: 0;
+  min-height: 48px;
+  padding: 0 18px;
+  justify-content: center;
+  background: transparent;
+  color: #111;
+  border: 1px solid #111;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
+}
+.hero-buttons .im-filter-toggle:hover,
+.hero-buttons .im-filter-toggle:focus-visible {
+  background: rgba(201,150,46,.09);
+  border-color: #ad802b;
+  color: #111;
+}
+.hero-buttons .im-filter-toggle[aria-expanded="true"] {
+  background: rgba(201,150,46,.12);
+  border-color: #c9962e;
+  color: #111;
+}
 .hero-copy .im-filter-panel { margin: 12px 0 24px; color: #111; text-align: left; max-width: 650px; }
 @media(max-width:650px) {
   .hero-buttons { flex-wrap: wrap; align-items: stretch; gap: 10px; }

@@ -2655,7 +2655,7 @@ Shop Women
           <div class="im-filter-field"><label for="imFilterDepartment">Department</label><select id="imFilterDepartment"><option value="All">All departments</option><option value="Men">Men</option><option value="Women">Women</option><option value="Unisex">Unisex</option></select></div>
           <div class="im-filter-field"><label for="imFilterSort">Sort by</label><select id="imFilterSort"><option value="default">Default</option><option value="newest">Newest</option><option value="bestsellers">Best Sellers</option><option value="low">Low to High</option><option value="high">High to Low</option><option value="discount">Discount Price</option><option value="finalsale">Final Sale</option></select></div>
           <div class="im-filter-field"><label for="imFilterSize">Size</label><select id="imFilterSize"><option value="">All available sizes</option></select></div>
-          <div class="im-filter-field"><label for="imFilterColor">Color (clothing)</label><select id="imFilterColor"><option value="">All colors</option><option value="Black">Black</option><option value="White">White</option><option value="Gray">Gray</option></select></div>
+          <div class="im-filter-field"><label for="imFilterColor">Color (clothing)</label><select id="imFilterColor"><option value="">All colors</option><option value="Black">Black</option><option value="White">White</option><option value="Gray">Gray</option><option value="Multicolor">Multicolor</option></select></div>
           <div class="im-filter-field"><label for="imFilterCollection">Item type</label><select id="imFilterCollection"><option value="">All item types</option><option value="vintage">Vintage</option><option value="bundle">Bundle Items</option><option value="preowned">Pre-Owned</option></select></div>
           <div class="im-filter-field"><label for="imFilterBadge">Badge</label><select id="imFilterBadge"><option value="">All badges</option><option value="New">New</option><option value="Discount Sale">Discount Sale</option><option value="Limited">Limited</option><option value="Best Seller">Best Seller</option><option value="Open Box">Open Box</option></select></div>
         </div>
@@ -3603,7 +3603,11 @@ async function loadSupabaseProducts() {
         colors:
           Array.isArray(product.colors) && product.colors.length
             ? product.colors.map(String)
-            : [],
+            : String(product.color || "").split(/[,;]+/).map(v => v.trim()).filter(Boolean),
+
+        color: product.color || "",
+        classifications: Array.isArray(product.classifications) ? product.classifications : [],
+        item_type: product.item_type || "",
 
         condition:
           product.condition || "",
@@ -3891,7 +3895,7 @@ loadCategoryImages();
           (filter === "BestSellers" && badge === "best seller") ||
           (filter === "Sale" && (badge.includes("sale") || Number(product.oldPrice) > Number(product.price))) ||
           (filter === "OpenBox" && (cat.includes("openbox") || badge.includes("open box"))) ||
-          (filter === "Vintage" && (cat.includes("vintage") || name.includes("vintage"))) ||
+          (filter === "Vintage" && itemTypeMatches(product, "vintage")) ||
           (filter === "PreOwned" && itemTypeMatches(product, "preowned")) ||
           (filter === "BundleItems" && itemTypeMatches(product, "bundle")) ||
           (filter === "Clothing" && ["clothing", "apparel", "clothes"].includes(cat)) ||
@@ -3914,7 +3918,8 @@ loadCategoryImages();
       const chosenCollection = document.getElementById("imFilterCollection")?.value || "";
       function itemTypeMatches(product, chosenType) {
         if (!chosenType) return true;
-        const labels = [product.category, product.badge, product.condition]
+        const labels = [product.category, product.badge, product.condition, product.item_type,
+          ...(Array.isArray(product.classifications) ? product.classifications : [])]
           .map(v => String(v || "").toLowerCase().replace(/[–—_]/g, "-").trim());
         const containsLabel = re => labels.some(v => re.test(v));
         if (chosenType === "vintage") return containsLabel(/\bvintage\b/);

@@ -2228,6 +2228,33 @@ footer { background:#101010; }
   .im-hero-carousel-arrow.im-prev {left:8px;}.im-hero-carousel-arrow.im-next {right:8px;}
 }
 
+  
+/* IM Collections — mobile near-edge-to-edge storefront photos.
+   Listing-only presentation: does not change Full View, cart or gallery scripts. */
+@media (max-width: 650px) {
+  #featured .product-grid {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100vw - 12px);
+    max-width: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+  #featured .product-grid .product-image,
+  .hero-department-grid .product-image {
+    height: auto;
+    aspect-ratio: 3 / 4;
+  }
+  #featured .product-grid .product-card-photo,
+  .hero-department-grid .product-card-photo {
+    object-fit: cover;
+    object-position: center;
+  }
+  #featured .product-grid .product-info { padding: 10px 6px 0; }
+  .hero-department-grid { gap: 7px; }
+}
+
   </style>
 </head>
 

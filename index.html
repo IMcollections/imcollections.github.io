@@ -2299,6 +2299,20 @@ footer { background:#101010; }
       footer .footer-main { column-gap: 16px; }
       footer .footer-side { gap: 28px; }
     }
+
+/* IM Collections: customer product filter (scoped to the storefront). */
+.im-filter-toggle{display:inline-flex;align-items:center;gap:9px;background:#111;color:#fff;border:1px solid #111;padding:12px 18px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;cursor:pointer;margin:12px 0}
+.im-filter-panel{background:#fff;border:1px solid #ddd;padding:18px;margin:0 0 22px;box-shadow:0 7px 20px rgba(0,0,0,.05)}
+.im-filter-panel[hidden]{display:none!important}
+.im-filter-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.im-filter-field{display:grid;gap:7px;min-width:0}
+.im-filter-field label{font-weight:750;font-size:12px;letter-spacing:.45px;text-transform:uppercase}
+.im-filter-field select{width:100%;min-height:43px;border:1px solid #cfcfcf;background:#fff;color:#111;padding:9px;font:inherit}
+.im-filter-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:16px}
+.im-filter-clear{padding:10px 16px;border:1px solid #111;background:#fff;color:#111;font-weight:750;cursor:pointer}
+@media(max-width:650px){.im-filter-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.im-filter-panel{padding:12px}.im-filter-toggle{margin:10px 0}}
+@media(max-width:360px){.im-filter-fields{grid-template-columns:1fr}}
+
 </style>
 </head>
 
@@ -2744,6 +2758,19 @@ Shop Women
         <button type="button" class="department-btn active" data-department="All">Shop All</button>
         <button type="button" class="department-btn" data-department="Men">Men</button>
         <button type="button" class="department-btn" data-department="Women">Women</button>
+      </div>
+
+
+      <button type="button" class="im-filter-toggle" id="imFilterToggle" aria-expanded="false" aria-controls="imFilterPanel">☷ Filter <span aria-hidden="true">▾</span></button>
+      <div class="im-filter-panel" id="imFilterPanel" hidden>
+        <div class="im-filter-fields">
+          <div class="im-filter-field"><label for="imFilterDepartment">Department</label><select id="imFilterDepartment"><option value="All">All departments</option><option value="Men">Men</option><option value="Women">Women</option><option value="Unisex">Unisex</option></select></div>
+          <div class="im-filter-field"><label for="imFilterSort">Sort by</label><select id="imFilterSort"><option value="default">Default</option><option value="newest">Newest</option><option value="bestsellers">Best Sellers</option><option value="low">Low to High</option><option value="high">High to Low</option><option value="discount">Discount Price</option><option value="finalsale">Final Sale</option><option value="vintage">Vintage Items</option></select></div>
+          <div class="im-filter-field"><label for="imFilterSize">Size</label><select id="imFilterSize"><option value="">All available sizes</option></select></div>
+          <div class="im-filter-field"><label for="imFilterColor">Color (clothing)</label><select id="imFilterColor"><option value="">All colors</option><option value="Black">Black</option><option value="White">White</option><option value="Gray">Gray</option></select></div>
+          <div class="im-filter-field"><label for="imFilterBadge">Badge</label><select id="imFilterBadge"><option value="">All badges</option><option value="New">New</option><option value="Discount Sale">Discount Sale</option><option value="Limited">Limited</option><option value="Best Seller">Best Seller</option><option value="Open Box">Open Box</option></select></div>
+        </div>
+        <div class="im-filter-actions"><button type="button" id="imFilterClear" class="im-filter-clear">Clear All</button></div>
       </div>
 
       <div class="product-toolbar">
@@ -3447,9 +3474,7 @@ async function loadSupabaseProducts() {
         colors:
           Array.isArray(product.colors) && product.colors.length
             ? product.colors.map(String)
-            : /\b(tee|t-shirt|tshirt)\b/i.test(String(product.name || ""))
-              ? ["White", "Gray", "Black"]
-              : [],
+            : [],
 
         condition:
           product.condition || "",
@@ -3737,10 +3762,41 @@ loadCategoryImages();
         return departmentMatch && categoryMatch;
       });
 
+      // Advanced controls combine with the existing category buttons.
+      // Do not manufacture stock availability or product colors.
+      const chosenDepartment = document.getElementById("imFilterDepartment")?.value || "All";
+      const chosenSize = document.getElementById("imFilterSize")?.value || "";
+      const chosenColor = document.getElementById("imFilterColor")?.value || "";
+      const chosenBadge = document.getElementById("imFilterBadge")?.value || "";
+      const chosenSort = document.getElementById("imFilterSort")?.value || "default";
+      const clothingCategories = ["clothing", "apparel", "clothes"];
+      const available = filtered.filter(product => {
+        const dept = String(product.department || "Unisex").toLowerCase();
+        if (chosenDepartment !== "All" && dept !== chosenDepartment.toLowerCase()) return false;
+        const sizes = Array.isArray(product.sizes) && product.sizes.length ? product.sizes : String(product.size || "").split(/[,;\n]+/);
+        if (chosenSize && !sizes.some(v => String(v).trim().toLowerCase() === chosenSize.toLowerCase())) return false;
+        if (chosenColor) {
+          const category = String(product.category || "").toLowerCase();
+          if (!clothingCategories.includes(category)) return false;
+          const colors = Array.isArray(product.colors) ? product.colors : [];
+          if (!colors.some(v => String(v).trim().toLowerCase() === chosenColor.toLowerCase())) return false;
+        }
+        if (chosenBadge && String(product.badge || "").toLowerCase() !== chosenBadge.toLowerCase()) return false;
+        if (chosenSort === "finalsale" && !(String(product.condition || "").toLowerCase() === "final sale" || String(product.badge || "").toLowerCase() === "final sale")) return false;
+        if (chosenSort === "vintage" && !(String(product.category || "").toLowerCase().includes("vintage") || String(product.name || "").toLowerCase().includes("vintage"))) return false;
+        return true;
+      });
+      const discountAmount = p => Math.max(0, Number(p.oldPrice || 0) - Number(p.price || 0));
+      if (chosenSort === "low") available.sort((a,b) => a.price-b.price);
+      if (chosenSort === "high") available.sort((a,b) => b.price-a.price);
+      if (chosenSort === "discount") available.sort((a,b) => discountAmount(b)-discountAmount(a));
+      if (chosenSort === "bestsellers") available.sort((a,b) => Number(String(b.badge || "").toLowerCase() === "best seller") - Number(String(a.badge || "").toLowerCase() === "best seller"));
+      // Supabase products arrive newest first; preserve their order for Newest.
+      if (chosenSort === "newest") available.sort((a,b) => Number(b.id >= 1000000)-Number(a.id >= 1000000));
       productCount.textContent =
-        `${filtered.length} product${filtered.length === 1 ? "" : "s"}`;
+        `${available.length} product${available.length === 1 ? "" : "s"}`;
 
-      productGrid.innerHTML = filtered
+      productGrid.innerHTML = available
         .map(product => `
 
           <article
@@ -3836,6 +3892,43 @@ loadCategoryImages();
         .join("");
       refreshWishlistHearts();
     }
+
+    // Advanced product filter controls. Existing category and department actions remain in place.
+    (() => {
+      const toggle = document.getElementById('imFilterToggle');
+      const panel = document.getElementById('imFilterPanel');
+      const dept = document.getElementById('imFilterDepartment');
+      const sizes = document.getElementById('imFilterSize');
+      const fields = ['imFilterDepartment','imFilterSort','imFilterSize','imFilterColor','imFilterBadge'];
+      function refreshSizeOptions() {
+        const previous = sizes.value;
+        const unique = new Set();
+        products.forEach(product => {
+          const productSizes = Array.isArray(product.sizes) && product.sizes.length ? product.sizes : String(product.size || '').split(/[,;\n]+/);
+          productSizes.forEach(size => { if (String(size).trim()) unique.add(String(size).trim()); });
+        });
+        sizes.replaceChildren(new Option('All available sizes', ''));
+        [...unique].sort((a,b) => a.localeCompare(b, undefined, {numeric:true})).forEach(size => sizes.add(new Option(size,size)));
+        sizes.value = unique.has(previous) ? previous : '';
+      }
+      toggle.addEventListener('click', () => {
+        panel.hidden = !panel.hidden;
+        toggle.setAttribute('aria-expanded', String(!panel.hidden));
+        if (!panel.hidden) refreshSizeOptions();
+      });
+      fields.forEach(id => document.getElementById(id).addEventListener('change', () => {
+        // Department selector in this panel is independent of the hero previews.
+        renderProducts(currentFilter);
+      }));
+      document.getElementById('imFilterClear').addEventListener('click', () => {
+        fields.forEach(id => document.getElementById(id).selectedIndex = 0);
+        currentDepartment = 'All';
+        document.querySelectorAll('.department-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.department === 'All'));
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        renderProducts('All');
+      });
+      // Trigger later product loads to expose their uploaded sizes when the filter opens.
+    })();
 
     /* =======================================================
        FILTER

@@ -2201,6 +2201,33 @@ footer { background:#101010; }
   #quickModal .modal-info { padding: 22px; }
 }
 
+  
+/* IM Collections hero v1: editorial text above separately displayed Design Manager images. */
+.hero { background:#f0e9de !important; color:#161616 !important; overflow:visible !important; }
+.hero-inner { display:block !important; min-height:0 !important; padding:40px 0 32px !important; }
+.hero-copy { max-width:850px !important; padding:0 !important; margin:0 auto !important; }
+.hero .eyebrow { color:#987328 !important; }
+.hero h1, .hero .hero-description { color:#181818 !important; }
+.hero .btn-outline-light {color:#161616 !important; border-color:#161616 !important;}
+.hero .hero-department-results {max-height:none;}
+.hero-display {display:none !important;}
+.im-hero-carousel {position:relative; width:100%; background:#e7e0d5; overflow:hidden; isolation:isolate;}
+.im-hero-carousel-stage {height:clamp(310px,48vw,700px); position:relative; display:flex; align-items:center; justify-content:center; touch-action:pan-y; user-select:none; -webkit-user-select:none; outline-offset:-4px;}
+.im-hero-carousel-photo {display:block; width:100%; height:100%; object-fit:contain; pointer-events:none; -webkit-user-drag:none;}
+.im-hero-carousel-placeholder {font:500 clamp(22px,4vw,44px) Georgia,serif; color:#927c59; letter-spacing:1px;}
+.im-hero-carousel-arrow {position:absolute; top:50%; transform:translateY(-50%); z-index:3; width:42px; height:42px; border:1px solid #e0dcd6; border-radius:50%; background:rgba(255,255,255,.9); color:#111; font-size:31px; line-height:1; display:grid; place-items:center;}
+.im-hero-carousel-arrow[hidden] {display:none!important;}
+.im-hero-carousel-arrow.im-prev {left:12px;}.im-hero-carousel-arrow.im-next {right:12px;}
+.im-hero-carousel-dots {position:absolute; bottom:13px; left:50%; transform:translateX(-50%); display:flex; gap:8px; justify-content:center; z-index:3;}
+.im-hero-carousel-dot {width:9px; height:9px; padding:0; border:1px solid #fff; border-radius:50%; background:rgba(0,0,0,.38); cursor:pointer;}
+.im-hero-carousel-dot.active {background:#c9962e; border-color:#fff; width:23px; border-radius:10px;}
+@media(max-width:650px) {
+  .hero-inner {padding:32px 0 26px!important;}
+  .im-hero-carousel-stage {height:390px;}
+  .im-hero-carousel-arrow {width:34px; height:34px; font-size:25px;}
+  .im-hero-carousel-arrow.im-prev {left:8px;}.im-hero-carousel-arrow.im-next {right:8px;}
+}
+
   </style>
 </head>
 
@@ -2422,22 +2449,17 @@ Shop Women
 
       </div>
 
-      <div class="hero-display">
-
-        <div class="display-circle">
-
-          <div class="display-card display-bag"></div>
-
-          <div class="display-card display-accessories"></div>
-
-          <div class="display-card display-shoe"></div>
-
-        </div>
-
-      </div>
-
     </div>
 
+    <!-- Photos are separate from the headline and Shop Men / Shop Women controls. -->
+    <div class="im-hero-carousel" id="imHeroCarousel" aria-label="IM Collections featured photos" aria-roledescription="carousel">
+      <div class="im-hero-carousel-stage" id="imHeroCarouselStage" tabindex="0" aria-label="Swipe left or right to browse featured images">
+        <div class="im-hero-carousel-placeholder" id="imHeroPlaceholder">Explore IM Collections</div>
+      </div>
+      <button type="button" class="im-hero-carousel-arrow im-prev" id="imHeroPrev" aria-label="Previous banner photo" hidden>‹</button>
+      <button type="button" class="im-hero-carousel-arrow im-next" id="imHeroNext" aria-label="Next banner photo" hidden>›</button>
+      <div class="im-hero-carousel-dots" id="imHeroDots" aria-label="Banner photo navigation"></div>
+    </div>
   </section>
 
   <!-- =======================================================
@@ -5015,6 +5037,66 @@ updateAccountLinks();
       }
     }, true);
   }
+
+  // Reuses Design Manager's hero-mobile / hero-desktop image_urls.
+  // The photos render as real image elements, not as hero backgrounds.
+  function startHeroCarousel(rawUrls) {
+    const stage=document.getElementById('imHeroCarouselStage');
+    const prev=document.getElementById('imHeroPrev');
+    const next=document.getElementById('imHeroNext');
+    const dots=document.getElementById('imHeroDots');
+    if(!stage||!prev||!next||!dots) return;
+    const mode=(rawUrls||[]).includes('im-hero-mode:swipe-only')?'swipe-only':'auto';
+    const urls=[...new Set((rawUrls||[]).filter(url=>typeof url==='string'&&/^https?:\/\//i.test(url.trim())))];
+    if(!urls.length) return;
+    let current=0;
+    const photo=document.createElement('img');
+    photo.className='im-hero-carousel-photo';
+    photo.alt='IM Collections featured banner';
+    photo.draggable=false;
+    stage.replaceChildren(photo);
+    const draw=()=>{
+      photo.src=urls[current];
+      photo.alt=`IM Collections banner ${current+1} of ${urls.length}`;
+      [...dots.children].forEach((dot,i)=>{
+        dot.classList.toggle('active',i===current);
+        dot.setAttribute('aria-current',i===current?'true':'false');
+      });
+    };
+    const move=n=>{current=(current+n+urls.length)%urls.length;draw();};
+    dots.replaceChildren();
+    urls.forEach((_,i)=>{
+      const dot=document.createElement('button');
+      dot.type='button';dot.className='im-hero-carousel-dot';
+      dot.setAttribute('aria-label',`Show banner ${i+1}`);
+      dot.addEventListener('click',()=>{current=i;draw();});
+      dots.append(dot);
+    });
+    prev.hidden=next.hidden=urls.length<2;
+    prev.addEventListener('click',()=>move(-1));
+    next.addEventListener('click',()=>move(1));
+    let begin=null;
+    stage.addEventListener('touchstart',e=>{
+      if(e.touches.length===1) begin={x:e.touches[0].clientX,y:e.touches[0].clientY};
+    },{passive:true});
+    stage.addEventListener('touchend',e=>{
+      if(!begin||!e.changedTouches.length)return;
+      const dx=e.changedTouches[0].clientX-begin.x,dy=e.changedTouches[0].clientY-begin.y;
+      begin=null;
+      if(Math.abs(dx)>35&&Math.abs(dx)>Math.abs(dy)*1.2) move(dx<0?1:-1);
+    },{passive:true});
+    stage.addEventListener('touchcancel',()=>{begin=null;},{passive:true});
+    stage.addEventListener('keydown',e=>{
+      if(e.key==='ArrowLeft'||e.key==='ArrowRight'){
+        e.preventDefault();move(e.key==='ArrowRight'?1:-1);
+      }
+    });
+    draw();
+    if(urls.length>1 && mode!=='swipe-only') setInterval(()=>{
+      if(!document.hidden&&stage.isConnected)move(1);
+    },5000);
+  }
+
   async function loadImages(){
     const {data,error}=await client.from('site_design_images').select('slot,image_url,image_urls');
     if(error){console.warn('Design image loading failed:',error.message);return;}
@@ -5028,9 +5110,10 @@ updateAccountLinks();
       if(tile && urls.length){startSlideshow(tile,urls,'category');if(visual) visual.textContent='';}
     }
     const mobile=matchMedia('(max-width:650px)').matches;
-    const hero=lists.get(mobile?'hero-mobile':'hero-desktop')||[];
+    const selectedHero=mobile?'hero-mobile':'hero-desktop';
+    const hero=lists.get(selectedHero)||[];
     const fallback=lists.get('hero-desktop')||[];
-    if(hero.length||fallback.length)startSlideshow(document.querySelector('.hero'),hero.length?hero:fallback,'hero');
+    if(hero.some(url=>/^https?:\/\//i.test(url))||fallback.length)startHeroCarousel(hero.some(url=>/^https?:\/\//i.test(url))?hero:fallback);
     const promo=lists.get('promo')||[];
     if(promo.length)startSlideshow(document.querySelector('.promo-visual'),promo,'promo');
   }

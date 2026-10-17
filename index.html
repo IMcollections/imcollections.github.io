@@ -2255,7 +2255,15 @@ footer { background:#101010; }
   .hero-department-grid { gap: 7px; }
 }
 
-  </style>
+  
+    /* Footer alignment only: IM Collections index.html 11 */
+    .footer-social-heading { margin-top: 24px; }
+    .footer-social-links { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+    .footer-column .footer-social-links a { display: inline-flex; align-items: center; gap: 10px; margin: 0; }
+    .footer-social-links svg { flex: 0 0 22px; }
+    .footer-bottom { justify-content: center; text-align: center; width: min(92%, var(--container)); }
+    .footer-bottom > div { width: 100%; }
+</style>
 </head>
 
 <body>
@@ -2893,26 +2901,12 @@ onclick="filterProducts('Watches')"
        ======================================================== -->
 
   <footer>
-
     <div class="container footer-main">
-
       <div class="footer-brand">
-
-        <img
-          src="IM-logo.jpg"
-          alt="IM Collections"
-        />
-
-        <p>
-          IM Collections when fashion,
-          technology and lifestyle meets savings.
-          
-        </p>
-
+        <img src="IM-logo.jpg" alt="IM Collections" />
+        <p>IM Collections when fashion, technology and lifestyle meets savings.</p>
       </div>
-
       <div class="footer-column">
-
         <h4>Shop</h4>
 
         <a href="#featured">New Arrivals</a>
@@ -2948,10 +2942,8 @@ onclick="filterProducts('Watches')"
   <a href="#" id="logoutLink">Sign Out</a>
 </div>
 
-  </div>
-
+      </div>
       <div class="footer-column">
-
         <h4>Customer Care</h4>
 
         <a href="ContactUs">Contact Us</a>
@@ -2960,12 +2952,8 @@ onclick="filterProducts('Watches')"
         <a href="#">FAQ</a>
       <a href="track-orders.html">Track your Order</a>
 
-  <div class="footer-column">
-
       </div>
-
       <div class="footer-column">
-
         <h4>About IM Collections</h4>
 
         <a href="WhoWeAre.html">Who We Are</a>
@@ -2975,47 +2963,28 @@ onclick="filterProducts('Watches')"
         <a href="Terms.html">Terms & Conditions</a>
     
 
-     <div class="footer-column">
-
-        <h4>Follow Us</h4>
-        <span>Instagram</span>
-    </a>
-  <div class="socials">
-    <a href="https://www.instagram.com/im_coll3cti0ns/" target="_blank" rel="noopener" aria-label="Instagram">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-            <rect x="3" y="3" width="18" height="18" rx="5"
-                  fill="none" stroke="currentColor" stroke-width="2"/>
-            <circle cx="12" cy="12" r="4"
-                    fill="none" stroke="currentColor" stroke-width="2"/>
-            <circle cx="17.5" cy="6.5" r="1"
-                    fill="currentColor"/>
-        </svg>
-
-        <span>Facebook</span>
-    </a>
-  <div class="socials">
-    <a href="https://www.facebook.com/profile.php?id=61594631008728&mibextid=wwXIfr&mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="Facebook">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-            <rect x="3" y="3" width="18" height="18" rx="5"
-                  fill="none" stroke="currentColor" stroke-width="2"/>
-            <circle cx="12" cy="12" r="4"
-                    fill="none" stroke="currentColor" stroke-width="2"/>
-            <circle cx="17.5" cy="6.5" r="1"
-                    fill="currentColor"/>
-        </svg>
-
+        <h4 class="footer-social-heading">Follow Us</h4>
+        <div class="socials footer-social-links">
+          <a href="https://www.instagram.com/im_coll3cti0ns/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/>
+              <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
+              <circle cx="17.5" cy="6.5" r="1" fill="currentColor"/>
+            </svg>
+            <span>Instagram</span>
+          </a>
+          <a href="https://www.facebook.com/profile.php?id=61594631008728&amp;mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="Facebook">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+              <path d="M18 2H15a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3V2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
+            <span>Facebook</span>
+          </a>
+        </div>
       </div>
-
     </div>
-
     <div class="container footer-bottom">
-
-      <div>
-        © 2026 IM Collections. All Rights Reserved.
-      </div>
-
-
-
+      <div>© 2026 IM Collections. All Rights Reserved.</div>
+    </div>
   </footer>
 
   <!-- =======================================================

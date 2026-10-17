@@ -2437,6 +2437,19 @@ footer { background:#101010; }
   color: #fff !important;
 }
 
+
+/* Exclusive selected-state readability for Find Your Collections. */
+#featured .department-btn.active,
+#featured .filter-btn.active {
+  background: #111 !important;
+  border-color: #111 !important;
+  color: #fff !important;
+}
+#featured .department-btn:not(.active),
+#featured .filter-btn:not(.active) {
+  background: #fff;
+  color: #111;
+}
 </style>
 </head>
 
@@ -3713,6 +3726,14 @@ loadCategoryImages();
         button.classList.toggle("active", active);
         button.setAttribute("aria-pressed", String(active));
       });
+      // Department and category buttons are a single exclusive selection group.
+      // Selecting Shop All / Men / Women clears a previously selected category.
+      document.querySelectorAll('.filter-btn').forEach(button => {
+        button.classList.remove('active');
+        button.setAttribute('aria-pressed', 'false');
+      });
+      currentFilter = 'All';
+      renderProducts('All');
       setHeroButtonState(heroActiveDepartment);
       // Only one hero panel can be active: choosing Men/Women closes Filter.
       const filterPanel = document.getElementById('imFilterPanel');
@@ -4143,6 +4164,15 @@ loadCategoryImages();
               btn.classList.remove("active")
             );
 
+          // A category selection clears the department highlight.
+          currentDepartment = 'All';
+          document.querySelectorAll('.department-btn').forEach(btn => {
+            btn.classList.remove('active');
+            btn.setAttribute('aria-pressed', 'false');
+          });
+          document.querySelectorAll('.filter-btn').forEach(btn =>
+            btn.setAttribute('aria-pressed', String(btn === button))
+          );
           button.classList.add("active");
 
           renderProducts(button.dataset.filter);
@@ -4159,9 +4189,8 @@ loadCategoryImages();
       if (heroPanel) heroPanel.hidden = true;
       setHeroButtonState(null);
       document.querySelectorAll(".department-btn").forEach(btn => {
-        const active = btn.dataset.department === "All";
-        btn.classList.toggle("active", active);
-        btn.setAttribute("aria-pressed", String(active));
+        btn.classList.remove('active');
+        btn.setAttribute('aria-pressed', 'false');
       });
       positionProductSection(false);
       const button = document.querySelector(`.filter-btn[data-filter="${category}"]`);

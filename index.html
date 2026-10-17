@@ -2150,6 +2150,39 @@ footer { background:#101010; }
   fill: #c9962e !important;
 }
 
+
+    /* 2026-10-16: Larger, readable wishlist confirmation on mobile. */
+    #cartWishlistNotice.cart-wishlist-notice {
+      box-sizing: border-box;
+      width: calc(100% - 24px);
+      max-width: 620px;
+      min-height: 112px;
+      padding: 20px 18px !important;
+      gap: 16px !important;
+      bottom: max(22px, env(safe-area-inset-bottom)) !important;
+      border-radius: 7px;
+      font-size: 17px !important;
+      line-height: 1.4;
+      box-shadow: 0 10px 35px rgba(0,0,0,.35);
+    }
+    #cartWishlistNotice img {
+      width: 68px !important;
+      height: 76px !important;
+      object-fit: contain;
+    }
+    #cartWishlistNoticeText { font-size: 17px; font-weight: 650; }
+    #cartWishlistNoticeLink,
+    #cartWishlistUndoBtn { font-size: 16px !important; }
+    #cartWishlistNotice .cart-wishlist-notice-close {
+      font-size: 27px;
+      min-width: 32px;
+      min-height: 40px;
+    }
+    @media (max-width: 420px) {
+      #cartWishlistNotice.cart-wishlist-notice { padding: 16px 12px !important; gap: 10px !important; }
+      #cartWishlistNotice img { width: 56px !important; height: 66px !important; }
+      #cartWishlistNoticeText { font-size: 15px; }
+    }
   </style>
 </head>
 
@@ -3033,8 +3066,8 @@ onclick="filterProducts('BestSellers')"
   <!-- Cart wishlist confirmation; separate from standard storefront toast. -->
   <div id="cartWishlistNotice" class="cart-wishlist-notice" role="status" aria-live="polite" hidden>
     <img id="cartWishlistNoticeImage" alt="" width="42" height="48">
-    <span id="cartWishlistNoticeText">Item added to your wishlist</span>
-    <a href="my-account.html#wishlist" id="cartWishlistNoticeLink">View</a>
+    <span id="cartWishlistNoticeText">Item added to your wishlist
+    <a href="my-account.html#wishlist" id="cartWishlistNoticeLink">View</a> </span>
     <button type="button" id="cartWishlistUndoBtn" class="wishlist-notice-action" hidden>Undo</button>
     <button type="button" class="cart-wishlist-notice-close" onclick="dismissCartWishlistNotice()" aria-label="Close notification">×</button>
   </div>
@@ -3869,7 +3902,9 @@ function showCartWishlistNotice(id, added = true) {
 
   message.textContent = added
     ? "Item added to your wishlist"
+<a href="my-account.html#wishlist" id="cartWishlistNoticeLink">View</a>
     : "Item removed from your wishlist";
+    <button type="button" id="cartWishlistUndoBtn" class="wishlist-notice-action" hidden>Undo</button>
 
   viewLink.hidden = !added;
   undoButton.hidden = added;

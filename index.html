@@ -2263,6 +2263,23 @@ footer { background:#101010; }
     .footer-social-links svg { flex: 0 0 22px; }
     .footer-bottom { justify-content: center; text-align: center; width: min(92%, var(--container)); }
     .footer-bottom > div { width: 100%; }
+
+    /* Balance mobile footer columns without changing footer links or scripts. */
+    .footer-side { display: contents; }
+    @media (max-width: 850px) {
+      .footer-main {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 32px 20px;
+      }
+      .footer-side { display: flex; flex-direction: column; gap: 34px; min-width: 0; }
+      .footer-side .footer-column { min-width: 0; }
+      .footer-side .footer-column h4 { overflow-wrap: break-word; }
+    }
+    @media (max-width: 650px) {
+      .footer-main { padding-top: 40px; padding-bottom: 36px; }
+      .footer-side .footer-column h4 { font-size: 10px; letter-spacing: .9px; }
+      .footer-side .footer-column a { overflow-wrap: break-word; }
+    }
 </style>
 </head>
 
@@ -2906,6 +2923,7 @@ onclick="filterProducts('Watches')"
         <img src="IM-logo.jpg" alt="IM Collections" />
         <p>IM Collections when fashion, technology and lifestyle meets savings.</p>
       </div>
+      <div class="footer-side footer-side-left">
       <div class="footer-column">
         <h4>Shop</h4>
 
@@ -2943,6 +2961,8 @@ onclick="filterProducts('Watches')"
 </div>
 
       </div>
+      </div><!-- end left footer side -->
+      <div class="footer-side footer-side-right">
       <div class="footer-column">
         <h4>Customer Care</h4>
 
@@ -2981,6 +3001,7 @@ onclick="filterProducts('Watches')"
           </a>
         </div>
       </div>
+      </div><!-- end right footer side -->
     </div>
     <div class="container footer-bottom">
       <div>© 2026 IM Collections. All Rights Reserved.</div>

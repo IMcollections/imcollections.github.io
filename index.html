@@ -2302,7 +2302,7 @@ footer { background:#101010; }
 
 /* IM Collections: customer product filter (scoped to the storefront). */
 .im-filter-toggle{display:inline-flex;align-items:center;gap:9px;background:#111;color:#fff;border:1px solid #111;padding:12px 18px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;cursor:pointer;margin:12px 0}
-.im-filter-panel{background:#fff;border:1px solid #ddd;padding:18px;margin:0 0 22px;box-shadow:0 7px 20px rgba(0,0,0,.05)}
+.im-filter-panel{background:#eee9dd;border:1px solid #d7cbb9;padding:18px;margin:0 0 22px;box-shadow:0 7px 20px rgba(0,0,0,.045)}
 .im-filter-panel[hidden]{display:none!important}
 .im-filter-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .im-filter-field{display:grid;gap:7px;min-width:0}
@@ -2450,6 +2450,12 @@ footer { background:#101010; }
   background: #fff;
   color: #111;
 }
+
+/* IM promotional slides: arrows visible when multiple published photos exist. */
+.promo-visual { position:relative; }
+.im-promo-nav {position:absolute;top:50%;transform:translateY(-50%);z-index:7;width:39px;height:39px;border:0;border-radius:50%;background:rgba(255,255,255,.94);color:#111;font-size:26px;display:grid;place-items:center;cursor:pointer}
+.im-promo-nav.prev {left:12px}.im-promo-nav.next {right:12px}
+.im-promo-nav:focus-visible {outline:3px solid #c9962e;outline-offset:2px}
 </style>
 </head>
 
@@ -2600,11 +2606,6 @@ footer { background:#101010; }
           <a href="#featured" onclick="filterProducts('Clothing')">Shop Clothing</a>
           <a href="#featured" onclick="filterProducts('Shoes')">Shop Shoes</a>
           <a href="#featured" onclick="filterProducts('BestSellers')">Best Sellers</a>
-<a href="#featured" onclick="filterProducts('BundleItems')">Bundle Items</a>
-<a href="#featured" onclick="filterProducts('Vintage')">Vintage Items</a>
-<a href="#featured" onclick="filterProducts('PreOwned')">Pre Owned</a>
-
-
         </div>
 
         <div id="mobileMemberLinks" hidden>
@@ -5344,9 +5345,9 @@ updateAccountLinks();
     bags:'Bags', electronics:'Electronics', accessories:'Accessories',
     shoes:'Shoes', clothing:'Clothing', toys:'Toys', vintage:'Vintage', watches:'Watches'
   };
-  function startSlideshow(element, urls, mode) {
+  function startSlideshow(element, urls, mode, autoAdvance = true) {
     if (!element || !urls.length) return;
-    const slides = [...new Set(urls.filter(url => typeof url === 'string' && url.trim()))];
+    const slides = [...new Set(urls.filter(url => typeof url === 'string' && /^https?:\/\//i.test(url.trim())))];
     if (!slides.length) return;
 
     // The category's full-size .category-visual covers the tile background.
@@ -5389,7 +5390,18 @@ updateAccountLinks();
       index = (index + amount + slides.length) % slides.length;
       show();
     };
-    setInterval(() => {
+    if (mode === 'promo') {
+      element.querySelectorAll('.im-promo-nav').forEach(button=>button.remove());
+      const makeNav=(label,kind,amount)=>{
+        const button=document.createElement('button');
+        button.type='button';button.className='im-promo-nav '+kind;
+        button.textContent=amount<0?'‹':'›';button.setAttribute('aria-label',label);
+        button.addEventListener('click',()=>advance(amount));element.append(button);
+      };
+      makeNav('Previous promotional photo','prev',-1);
+      makeNav('Next promotional photo','next',1);
+    }
+    if (autoAdvance) setInterval(() => {
       if (!document.hidden && element.isConnected) advance(1);
     }, 5000);
 
@@ -5497,7 +5509,7 @@ updateAccountLinks();
     const fallback=lists.get('hero-desktop')||[];
     if(hero.some(url=>/^https?:\/\//i.test(url))||fallback.length)startHeroCarousel(hero.some(url=>/^https?:\/\//i.test(url))?hero:fallback);
     const promo=lists.get('promo')||[];
-    if(promo.length)startSlideshow(document.querySelector('.promo-visual'),promo,'promo');
+    if(promo.length)startSlideshow(document.querySelector('.promo-visual'),promo,'promo', !promo.includes('im-promo-mode:swipe-only'));
   }
   loadImages();
 })();

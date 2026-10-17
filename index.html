@@ -2759,7 +2759,7 @@ Shop Women
           to bring a little more luxury into every day.
         </p>
   <a href="#featured" class="btn btn-gold"
-onclick="filterProducts('BestSellers')"
+onclick="filterProducts('Accessories')"
 >
             Shop Best Sellers
           </a>
@@ -3066,8 +3066,8 @@ onclick="filterProducts('BestSellers')"
   <!-- Cart wishlist confirmation; separate from standard storefront toast. -->
   <div id="cartWishlistNotice" class="cart-wishlist-notice" role="status" aria-live="polite" hidden>
     <img id="cartWishlistNoticeImage" alt="" width="42" height="48">
-    <span id="cartWishlistNoticeText">Item added to your wishlist
-    <a href="my-account.html#wishlist" id="cartWishlistNoticeLink">View</a> </span>
+    <span id="cartWishlistNoticeText">Item added to your wishlist</span>
+    <a href="my-account.html#wishlist" id="cartWishlistNoticeLink">View</a>
     <button type="button" id="cartWishlistUndoBtn" class="wishlist-notice-action" hidden>Undo</button>
     <button type="button" class="cart-wishlist-notice-close" onclick="dismissCartWishlistNotice()" aria-label="Close notification">×</button>
   </div>
@@ -3902,9 +3902,7 @@ function showCartWishlistNotice(id, added = true) {
 
   message.textContent = added
     ? "Item added to your wishlist"
-<a href="my-account.html#wishlist" id="cartWishlistNoticeLink">View</a>
     : "Item removed from your wishlist";
-    <button type="button" id="cartWishlistUndoBtn" class="wishlist-notice-action" hidden>Undo</button>
 
   viewLink.hidden = !added;
   undoButton.hidden = added;

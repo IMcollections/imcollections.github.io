@@ -2376,6 +2376,16 @@ footer { background:#101010; }
   border-color: #111;
 }
 
+
+/* Filter matches open in the same hero preview as Men/Women, not at the bottom. */
+.hero-buttons .im-filter-toggle.filter-results-active,
+.hero-buttons .im-filter-toggle.filter-results-active:hover {
+  background:#111;
+  color:#fff;
+  border-color:#111;
+}
+.hero-filter-empty {grid-column:1/-1; padding:20px 8px; color:#555; font-size:14px;}
+
 </style>
 </head>
 
@@ -3648,11 +3658,17 @@ loadCategoryImages();
       const filterPanel = document.getElementById('imFilterPanel');
       const filterToggle = document.getElementById('imFilterToggle');
       if (filterPanel) filterPanel.hidden = true;
-      if (filterToggle) filterToggle.setAttribute('aria-expanded', 'false');
+      if (filterToggle) {
+        filterToggle.setAttribute('aria-expanded', 'false');
+        filterToggle.classList.remove('filter-results-active');
+      }
       // Do not rebuild the storefront product cards when changing the hero tabs.
       // Regular category filters continue to use the existing renderProducts logic.
-      if (heroActiveDepartment) showHeroDepartment(heroActiveDepartment);
-      else document.getElementById("heroDepartmentResults").hidden = true;
+      if (heroActiveDepartment) {
+        // Restore the original Men/Women groups after a filtered preview replaced them.
+        if (!document.querySelector('#heroDepartmentGrid [data-preview-department]')) buildHeroDepartmentCards();
+        showHeroDepartment(heroActiveDepartment);
+      } else document.getElementById("heroDepartmentResults").hidden = true;
     }
 
     function showHeroDepartment(department) {
@@ -3982,6 +3998,7 @@ loadCategoryImages();
         sizes.value = unique.has(previous) ? previous : '';
       }
       toggle.addEventListener('click', () => {
+        toggle.classList.remove('filter-results-active');
         panel.hidden = !panel.hidden;
         toggle.setAttribute('aria-expanded', String(!panel.hidden));
         if (!panel.hidden) {
@@ -3998,13 +4015,35 @@ loadCategoryImages();
         renderProducts(currentFilter);
       }));
       document.getElementById('imFilterSeeProducts').addEventListener('click', () => {
-        // Keep chosen filters, close only this panel, and show the actual matching grid.
+        // Reuse the same product cards and swipe/click delegation as the Men/Women hero preview.
+        // The result stays directly under the hero controls, not down in #featured.
+        currentDepartment = 'All'; // The filter panel's own Department select is authoritative.
         renderProducts(currentFilter);
+        heroActiveDepartment = null;
+        setHeroButtonState(null);
+        const preview = document.getElementById('heroDepartmentResults');
+        const previewGrid = document.getElementById('heroDepartmentGrid');
+        const title = document.getElementById('heroDepartmentTitle');
+        const matchingCards = [...productGrid.querySelectorAll('.product-card')];
+        previewGrid.replaceChildren(...matchingCards.map(card => card.cloneNode(true)));
+        if (!matchingCards.length) {
+          const empty = document.createElement('p');
+          empty.className = 'hero-filter-empty';
+          empty.textContent = 'No products match your filters. Try Clear All or another selection.';
+          previewGrid.append(empty);
+        }
+        title.textContent = `Filtered Products (${matchingCards.length})`;
+        preview.hidden = false;
         panel.hidden = true;
         toggle.setAttribute('aria-expanded', 'false');
-        document.getElementById('featured')?.scrollIntoView({behavior:'smooth',block:'start'});
+        toggle.classList.add('filter-results-active');
+        refreshWishlistHearts();
+        preview.scrollIntoView({behavior:'smooth',block:'nearest'});
       });
       document.getElementById('imFilterClear').addEventListener('click', () => {
+        toggle.classList.remove('filter-results-active');
+        const preview = document.getElementById('heroDepartmentResults');
+        if (preview) preview.hidden = true;
         fields.forEach(id => document.getElementById(id).selectedIndex = 0);
         currentDepartment = 'All';
         document.querySelectorAll('.department-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.department === 'All'));

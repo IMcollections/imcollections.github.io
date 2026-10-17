@@ -167,6 +167,15 @@ select {
 .actions {
   flex-direction:column}
 }
+  /* Hero slide editor */
+  .hero-controls {margin:16px 0; padding:16px; background:#fbf8f1; border:1px solid #e5d8b9; border-radius:12px}
+  .hero-controls select {margin-bottom:8px}
+  .hero-slide-list {display:grid;gap:12px;margin:14px 0}
+  .hero-slide {display:grid;grid-template-columns:100px minmax(0,1fr);gap:12px;padding:10px;border:1px solid #ddd;border-radius:10px;align-items:center}
+  .hero-slide img {width:100px;height:88px;object-fit:cover;border-radius:7px}
+  .hero-slide small {overflow-wrap:anywhere;display:block;margin:0 0 7px;color:#666}
+  .hero-slide button {border:1px solid #aaa;border-radius:6px;background:white;padding:6px 9px;margin:2px;cursor:pointer}
+  .hero-slide button:disabled {opacity:.4;cursor:default}
   </style>
  </head>
  <body>
@@ -381,7 +390,7 @@ function renderNewPreviews() {
   const hasImages = selectedFiles.length > 0;
   $('newPlaceholder').classList.toggle('hidden', hasImages);
   $('newImage').classList.add('hidden');
-  $('newLabel').textContent = hasImages ? selectedFiles.length + ' images queued (publishing replaces the current slideshow)' : 'No new images selected';
+  $('newLabel').textContent = hasImages ? selectedFiles.length + ' new images queued' : 'No new images selected';
   if (hasImages) message(selectedFiles.length + ' images ready. Tap Publish / Replace Slideshow.');
 }
 function selected(){
@@ -397,6 +406,7 @@ function showCurrent(){
   else $('currentImage').removeAttribute('src');
   $('remove').disabled=!url;
   $('currentImage').title = (imageLists.get(s.id)||[]).length + ' published slides';
+  loadHeroEditor();
 }
 function renderOverview(){
   const root=$('overview');
@@ -439,13 +449,14 @@ async function reload(){
   }=await db.from('site_design_images').select('slot,image_url,image_urls');
   if(error)throw error;
   images=new Map((data||[]).map(r=>[r.slot,r.image_url]));
-  imageLists=new Map((data||[]).map(r=>[r.slot,Array.isArray(r.image_urls)&&r.image_urls.length ? r.image_urls : (r.image_url?[r.image_url]:[])]));
+  rawImageLists=new Map((data||[]).map(r=>[r.slot,Array.isArray(r.image_urls)&&r.image_urls.length ? r.image_urls : (r.image_url?[r.image_url]:[])]));
+  imageLists=new Map([...rawImageLists].map(([key,list])=>[key,list.filter(validImageUrl)]));
   showCurrent();
   renderOverview()
 }
 function setBusy(b){
   busy=b;
-  for(const id of ['save','clearSelection','slot'])$(id).disabled=b;
+  for(const id of ['save','clearSelection','slot','saveHeroChanges','heroMode'])$(id).disabled=b;
   $('remove').disabled=b||!images.get(selected())
 }
 $('slot').onchange=()=>{

@@ -190,6 +190,26 @@
     .admin-size-options input { position:absolute; opacity:0; width:1px; height:1px; }
     .admin-size-options label:has(input:checked) { background:#c9962e; border-color:#c9962e; color:#111; }
     .admin-size-options label:focus-within { outline:2px solid #111; outline-offset:2px; }
+    /* IM Collections product classifications and clothing colors */
+    .admin-color-options { display:flex; flex-wrap:wrap; gap:10px; }
+    .admin-color-options label { display:inline-flex; align-items:center; gap:8px; margin:0;
+      border:1px solid #d7d7d7; border-radius:10px; padding:10px 14px; cursor:pointer; }
+    .admin-color-options input { width:auto; accent-color:#c9962e; }
+    .admin-color-options label:has(input:checked) { border-color:#c9962e; background:#fff8e9; }
+    .admin-color-swatch { display:inline-block; width:18px; height:18px; border:1px solid #bbb; border-radius:50%; }
+    [hidden] { display:none !important; }
+
+    /* Bundle builder: selected products are not modified. */
+    .bundle-list { display:grid; gap:9px; max-height:340px; overflow-y:auto; margin:12px 0; }
+    .bundle-item { display:grid; grid-template-columns:24px 50px minmax(0,1fr) 72px; gap:10px; align-items:center; border:1px solid #ddd; border-radius:10px; padding:10px; }
+    .bundle-item > input[type=checkbox] { width:18px; }
+    .bundle-item img { width:50px; height:58px; object-fit:cover; background:#eee; border-radius:6px; }
+    .bundle-item strong { font-size:13px; overflow-wrap:anywhere; }
+    .bundle-item small { color:#666; display:block; }
+    .bundle-item input[type=number] { padding:8px 4px; text-align:center; font-size:14px; }
+    .bundle-note { font-size:13px; color:#555; margin-top:8px; line-height:1.5; }
+    .bundle-total { padding:12px; background:#f8f6f0; border-radius:8px; font-weight:bold; margin-top:14px; }
+    @media(max-width:500px) {.bundle-item{ grid-template-columns:20px 40px minmax(0,1fr) 60px; gap:7px;padding:7px;}.bundle-item img{width:40px;height:48px;} }
   </style>
 </head>
 
@@ -283,6 +303,27 @@
         </select>
       </div>
 
+      <div class="full">
+        <label>Additional Classifications (choose any that apply)</label>
+        <p class="size-help">Keep your main Category above. A product can also appear under any selected collections.</p>
+        <div class="admin-color-options" role="group" aria-label="Additional product classifications">
+          <label><input type="checkbox" name="productClassification" value="Vintage">Vintage</label>
+          <label><input type="checkbox" name="productClassification" value="Bundle Items">Bundle Items</label>
+          <label><input type="checkbox" name="productClassification" value="Pre-Owned">Pre-Owned</label>
+        </div>
+      </div>
+
+      <div class="full" id="adminColorSection" hidden>
+        <label>Clothing Color (select available colors)</label>
+        <p class="size-help">Shown for Clothing and Apparel only. Select the colors included in this listing.</p>
+        <div class="admin-color-options" id="adminColorOptions" role="group" aria-label="Clothing colors">
+          <label><input type="checkbox" name="clothingColor" value="Black"><span class="admin-color-swatch" style="background:#111"></span>Black</label>
+          <label><input type="checkbox" name="clothingColor" value="White"><span class="admin-color-swatch" style="background:#fff"></span>White</label>
+          <label><input type="checkbox" name="clothingColor" value="Gray"><span class="admin-color-swatch" style="background:#888"></span>Gray</label>
+          <label><input type="checkbox" name="clothingColor" value="Multicolor"><span class="admin-color-swatch" style="background:conic-gradient(#c9962e 0 25%, #316bb6 25% 50%, #c83e4c 50% 75%, #4b995b 75% 100%)"></span>Multicolor</label>
+        </div>
+      </div>
+
       <div>
         <label>Size</label>
         <input
@@ -366,6 +407,26 @@
 
   </div>
 
+</div>
+
+<!-- Create a separate sellable bundle using existing product listings. -->
+<div class="admin-wrap" id="bundleBuilder">
+  <div class="card">
+    <h2 style="margin-bottom:10px">Create Bundle Items</h2>
+    <p class="bundle-note">Choose at least two existing products. Your original product listings are not changed.</p>
+    <div class="form-grid" style="margin-top:16px">
+      <div class="full"><label for="bundleName">Bundle Name</label><input id="bundleName" placeholder="Example: Weekend Essentials Bundle" type="text"></div>
+      <div class="full"><label for="bundleSearch">Choose Products</label><input id="bundleSearch" type="search" placeholder="Search available products"></div>
+      <div class="full"><div id="bundleProductList" class="bundle-list">Loading products...</div></div>
+      <div><label for="bundlePrice">Bundle Selling Price ($)</label><input id="bundlePrice" type="number" min="0.01" step="0.01" placeholder="Example: 79.99"></div>
+      <div><label for="bundleQuantity">Bundles Available</label><input id="bundleQuantity" type="number" min="1" step="1" value="1"></div>
+      <div class="full"><label for="bundleDescription">Bundle Description (optional)</label><textarea id="bundleDescription" placeholder="Describe what's included and any important details"></textarea></div>
+    </div>
+    <div class="bundle-total" id="bundleTotal" aria-live="polite">Select products to see the combined price.</div>
+    <p class="bundle-note">The bundle has its own price and listing. Selected component products retain their own inventory; bundle purchases do not automatically deduct their stock yet.</p>
+    <button type="button" class="save-btn" id="createBundle">Create Bundle Listing</button>
+    <div class="message" id="bundleMessage" aria-live="polite"></div>
+  </div>
 </div>
 <!-- =========================================
      MANAGE PRODUCTS
@@ -453,9 +514,40 @@ function renderAdminSizes() {
     container.append(label);
   });
 }
-document.getElementById("category").addEventListener("change", renderAdminSizes);
+/* Independent categories + multiple additional classifications in products.classifications. */
+function getAdminClassifications() {
+  return [...document.querySelectorAll('input[name="productClassification"]:checked')]
+    .map(input => input.value);
+}
+function setAdminClassifications(values) {
+  const selected = new Set((Array.isArray(values) ? values : []).map(value => String(value).toLowerCase()));
+  document.querySelectorAll('input[name="productClassification"]').forEach(input => {
+    input.checked = selected.has(input.value.toLowerCase());
+  });
+}
+/* Clothing color choices are stored as comma-separated names in products.color. */
+function getAdminColors() {
+  return [...document.querySelectorAll('input[name="clothingColor"]:checked')]
+    .map(input => input.value).join(", ");
+}
+function setAdminColors(value) {
+  const selected = new Set(String(value || "").split(/[,;]+/).map(v => v.trim().toLowerCase()));
+  document.querySelectorAll('input[name="clothingColor"]').forEach(input => {
+    input.checked = selected.has(input.value.toLowerCase()) ||
+      (input.value === "Gray" && selected.has("grey"));
+  });
+}
+function updateAdminColorVisibility() {
+  const category = document.getElementById("category").value.toLowerCase();
+  document.getElementById("adminColorSection").hidden = !["clothing", "apparel"].includes(category);
+}
+document.getElementById("category").addEventListener("change", () => {
+  renderAdminSizes();
+  updateAdminColorVisibility();
+});
 document.getElementById("size").addEventListener("change", renderAdminSizes);
 renderAdminSizes();
+updateAdminColorVisibility();
 
 /* =========================
    IMAGE SELECT
@@ -713,6 +805,9 @@ if (editingProductId) {
         category: category,
 
         department: document.getElementById("department").value,
+        classifications: getAdminClassifications(),
+        item_type: getAdminClassifications()[0] || null,
+        color: ["Clothing", "Apparel"].includes(category) ? (getAdminColors() || null) : null,
 
         size:
           size || null,
@@ -825,6 +920,9 @@ function resetForm() {
     .value = "";
 
   document.getElementById("department").value = "Unisex";
+  setAdminClassifications([]);
+  setAdminColors("");
+  updateAdminColorVisibility();
 
   document
     .getElementById("size")
@@ -951,6 +1049,9 @@ editingProductId = id;
 document.getElementById("oldPrice").value = data.old_price || "";
 document.getElementById("category").value = data.category || "";
 document.getElementById("department").value = ["Men", "Women", "Unisex"].includes(data.department) ? data.department : "Unisex";
+setAdminClassifications(Array.isArray(data.classifications) && data.classifications.length ? data.classifications : (data.item_type ? [data.item_type] : []));
+setAdminColors(data.color || "");
+updateAdminColorVisibility();
 document.getElementById("size").value = data.size || "";
 renderAdminSizes();
 document.getElementById("condition").value = data.condition || "";
@@ -1017,6 +1118,122 @@ existingImages.forEach(url => {
 }
   
   loadProducts();
+
+/* =====================================================
+   BUNDLE BUILDER — creates a separate Supabase product.
+   Does not reserve/deduct component inventory.
+   ===================================================== */
+let bundleCatalog = [];
+const bundleSelection = new Map();
+const bundleListElement = document.getElementById('bundleProductList');
+const bundleSearchElement = document.getElementById('bundleSearch');
+const bundleTotalElement = document.getElementById('bundleTotal');
+const bundleMoney = value => '$' + Number(value || 0).toFixed(2);
+function bundleStatus(value, isError = false) {
+  const element = document.getElementById('bundleMessage');
+  element.textContent = value;
+  element.className = 'message ' + (isError ? 'error' : 'success');
+}
+function renderBundleCatalog() {
+  const search = bundleSearchElement.value.toLowerCase().trim();
+  const options = bundleCatalog.filter(p => !search || String(p.name || '').toLowerCase().includes(search));
+  bundleListElement.replaceChildren();
+  if (!options.length) bundleListElement.textContent = 'No products found.';
+  options.forEach(product => {
+    const row = document.createElement('label'); row.className = 'bundle-item';
+    const check = document.createElement('input'); check.type = 'checkbox';
+    check.checked = bundleSelection.has(Number(product.id));
+    const photo = document.createElement('img');
+    photo.alt = ''; photo.loading = 'lazy';
+    photo.src = Array.isArray(product.image_urls) && product.image_urls[0] ? product.image_urls[0] : '';
+    const details = document.createElement('span');
+    const title = document.createElement('strong'); title.textContent = product.name || 'Unnamed Product';
+    const meta = document.createElement('small'); meta.textContent = bundleMoney(product.price) + ' · In stock: ' + Number(product.quantity || 0);
+    details.append(title, meta);
+    const quantity = document.createElement('input'); quantity.type = 'number'; quantity.min = '1'; quantity.step = '1';
+    quantity.max = String(Math.max(1, Number(product.quantity || 0)));
+    quantity.value = String(bundleSelection.get(Number(product.id)) || 1);
+    quantity.disabled = !check.checked;
+    quantity.setAttribute('aria-label', 'Quantity of ' + (product.name || 'product'));
+    check.addEventListener('change', () => {
+      if (check.checked) bundleSelection.set(Number(product.id), 1);
+      else bundleSelection.delete(Number(product.id));
+      quantity.disabled = !check.checked; quantity.value = '1'; updateBundleTotal();
+    });
+    quantity.addEventListener('input', () => {
+      if (check.checked) bundleSelection.set(Number(product.id), Number(quantity.value));
+      updateBundleTotal();
+    });
+    quantity.addEventListener('click', event => event.stopPropagation());
+    row.append(check, photo, details, quantity); bundleListElement.append(row);
+  });
+  updateBundleTotal();
+}
+function updateBundleTotal() {
+  let combined = 0;
+  bundleSelection.forEach((qty, id) => {
+    const product = bundleCatalog.find(p => Number(p.id) === id);
+    if (product) combined += Number(product.price || 0) * Number(qty || 0);
+  });
+  bundleTotalElement.textContent = bundleSelection.size + ' products selected · Separate total: ' + bundleMoney(combined);
+}
+async function refreshBundleCatalog() {
+  const { data, error } = await supabaseClient.from('products')
+    .select('id,name,price,quantity,image_urls,bundle_items').order('id',{ascending:false});
+  if (error) { bundleListElement.textContent = 'Could not load products: ' + error.message; return; }
+  bundleCatalog = (data || []).filter(product =>
+    !Array.isArray(product.bundle_items) || product.bundle_items.length === 0);
+  for (const id of bundleSelection.keys()) {
+    if (!bundleCatalog.some(p => Number(p.id) === id)) bundleSelection.delete(id);
+  }
+  renderBundleCatalog();
+}
+bundleSearchElement.addEventListener('input', renderBundleCatalog);
+document.getElementById('createBundle').addEventListener('click', async () => {
+  const name = document.getElementById('bundleName').value.trim();
+  const price = Number(document.getElementById('bundlePrice').value);
+  const inventory = Number(document.getElementById('bundleQuantity').value);
+  const selected = [...bundleSelection].map(([id, quantity]) => {
+    const product = bundleCatalog.find(p => Number(p.id) === id);
+    return product && { product_id:id, name:product.name, quantity, unit_price:Number(product.price || 0) };
+  });
+  if (selected.length < 2 || selected.some(row => !row)) return bundleStatus('Choose at least two products.',true);
+  if (selected.some(row => !Number.isInteger(row.quantity) || row.quantity < 1 || row.quantity > Number(bundleCatalog.find(p => Number(p.id) === row.product_id).quantity || 0)))
+    return bundleStatus('Each item quantity must be a whole number within available stock.',true);
+  if (!name) return bundleStatus('Enter a bundle name.',true);
+  if (!Number.isFinite(price) || price <= 0) return bundleStatus('Enter a valid bundle price.',true);
+  if (!Number.isInteger(inventory) || inventory < 1) return bundleStatus('Enter a valid bundle quantity.',true);
+  if (selected.some(row => inventory * row.quantity > Number(bundleCatalog.find(p => Number(p.id) === row.product_id).quantity || 0)))
+    return bundleStatus('Reduce bundles available or item quantities to match existing stock.',true);
+  const button = document.getElementById('createBundle');
+  button.disabled = true; button.textContent = 'Creating bundle...';
+  try {
+    const images = selected.flatMap(row => {
+      const product = bundleCatalog.find(p => Number(p.id) === row.product_id);
+      return Array.isArray(product.image_urls) ? product.image_urls.slice(0,1) : [];
+    }).slice(0,5);
+    const description = document.getElementById('bundleDescription').value.trim();
+    const componentText = selected.map(row => row.quantity + ' × ' + row.name).join('; ');
+    const total = selected.reduce((sum,row) => sum + row.quantity * row.unit_price, 0);
+    const productData = {
+      name, price, old_price: total > price ? Number(total.toFixed(2)) : null,
+      category:'Bundle Items', department:'Unisex', condition:'New', quantity:inventory,
+      badge:'', featured:false, size:null, color:null,
+      item_type:'Bundle Items', classifications:['Bundle Items'],
+      image_urls:images, bundle_items:selected,
+      description:(description ? description + '\n\n' : '') + 'Bundle includes: ' + componentText
+    };
+    const {error} = await supabaseClient.from('products').insert([productData]).select('id');
+    if (error) throw error;
+    bundleStatus('Bundle listing created. The original products were not changed.');
+    bundleSelection.clear();
+    ['bundleName','bundlePrice','bundleDescription'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('bundleQuantity').value='1';
+    await loadProducts();
+  } catch (error) { bundleStatus('Could not create bundle: '+error.message,true); }
+  finally { button.disabled=false; button.textContent='Create Bundle Listing'; }
+});
+refreshBundleCatalog();
 </script>
 
 </body>

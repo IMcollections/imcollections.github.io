@@ -571,6 +571,30 @@
         -webkit-user-select: none;
         -webkit-user-drag: none;
       }
+
+      /* Larger wishlist previews: swipe the photo without opening the product. */
+      #memberWishlist .im-wish-item > img,
+      #memberWishlist .im-wish-item img {
+        width: 165px !important;
+        height: 195px !important;
+        max-width: 100%;
+        flex: 0 0 auto;
+        object-fit: contain !important;
+        background: #f8f6f0;
+        border-radius: 6px;
+        touch-action: pan-y;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-user-drag: none;
+      }
+      @media (max-width: 520px) {
+        #memberWishlist .im-wish-item img {
+          width: 150px !important;
+          height: 180px !important;
+        }
+      }
+      /* Prevent an externally injected header link from crowding Back to Shopping. */
+      header .account-header-links a:not(.back-home) { display: none !important; }
     </style>
   </head>
 
@@ -1422,6 +1446,25 @@
 
     <script src="https://sandbox.web.squarecdn.com/v1/square.js"></script>
     <script src="member-tools.js?v=20261013-wishlist-cart-v2"></script>
+
+    <script>
+      /* Keep only Back to Shopping in the account-page header. */
+      (() => {
+        const header = document.querySelector('body > header');
+        if (!header) return;
+        const removeDuplicate = () => {
+          header.querySelectorAll('a').forEach(link => {
+            if (link.classList.contains('back-home')) return;
+            if (link.querySelector('img.logo, img[alt="IM Collections"]')) return;
+            const label = (link.textContent || '').trim().replace(/\s+/g, ' ').toLowerCase();
+            if (label === 'my account') link.remove();
+          });
+        };
+        removeDuplicate();
+        new MutationObserver(removeDuplicate).observe(header, { childList: true, subtree: true });
+      })();
+    </script>
+
 
     <script>
     /* My Wishlist photo swipe — keeps member-tools.js wishlist actions intact. */

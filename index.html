@@ -2111,6 +2111,8 @@ footer { background:#101010; }
   
     /* Cart photo and name open the existing product Full View. */
     .cart-thumb-button { display:block; padding:0; border:0; cursor:pointer; text-align:left; }
+    .cart-thumb-button { touch-action:pan-y; user-select:none; -webkit-user-select:none; }
+    .cart-thumb-button .cart-product-image { pointer-events:none; -webkit-user-drag:none; }
     .cart-thumb-button:focus-visible, .cart-product-name-button:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
     .cart-product-name-button { display:block; padding:0; border:0; background:transparent; text-align:left; color:inherit; cursor:pointer; }
     .cart-wishlist-notice[hidden] { display:none !important; }
@@ -2150,39 +2152,6 @@ footer { background:#101010; }
   fill: #c9962e !important;
 }
 
-
-    /* 2026-10-16: Larger, readable wishlist confirmation on mobile. */
-    #cartWishlistNotice.cart-wishlist-notice {
-      box-sizing: border-box;
-      width: calc(100% - 24px);
-      max-width: 620px;
-      min-height: 112px;
-      padding: 20px 18px !important;
-      gap: 16px !important;
-      bottom: max(22px, env(safe-area-inset-bottom)) !important;
-      border-radius: 7px;
-      font-size: 17px !important;
-      line-height: 1.4;
-      box-shadow: 0 10px 35px rgba(0,0,0,.35);
-    }
-    #cartWishlistNotice img {
-      width: 68px !important;
-      height: 76px !important;
-      object-fit: contain;
-    }
-    #cartWishlistNoticeText { font-size: 17px; font-weight: 650; }
-    #cartWishlistNoticeLink,
-    #cartWishlistUndoBtn { font-size: 16px !important; }
-    #cartWishlistNotice .cart-wishlist-notice-close {
-      font-size: 27px;
-      min-width: 32px;
-      min-height: 40px;
-    }
-    @media (max-width: 420px) {
-      #cartWishlistNotice.cart-wishlist-notice { padding: 16px 12px !important; gap: 10px !important; }
-      #cartWishlistNotice img { width: 56px !important; height: 66px !important; }
-      #cartWishlistNoticeText { font-size: 15px; }
-    }
   </style>
 </head>
 
@@ -2759,7 +2728,7 @@ Shop Women
           to bring a little more luxury into every day.
         </p>
   <a href="#featured" class="btn btn-gold"
-onclick="filterProducts('Accessories')"
+onclick="filterProducts('BestSellers')"
 >
             Shop Best Sellers
           </a>
@@ -3983,6 +3952,52 @@ openCart();
       );
     }
 
+    // Swipe cart thumbnails without opening Full View. Normal taps still open it.
+    // This is scoped to the cart so storefront and wishlist galleries are untouched.
+    const imCartItems = document.getElementById("cartItems");
+    let imCartTouch = null;
+    function imCartPhotos(button) {
+      const id = Number(button.dataset.productId);
+      const product = products.find(p => Number(p.id) === id)
+        || cart.find(p => Number(p.id) === id);
+      return product ? cardPhotos(product) : [];
+    }
+    imCartItems.addEventListener("touchstart", event => {
+      const button = event.target.closest(".cart-thumb-button");
+      if (!button || event.touches.length !== 1) return;
+      imCartTouch = {
+        button,
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY
+      };
+    }, { passive: true });
+    imCartItems.addEventListener("touchend", event => {
+      if (!imCartTouch || !event.changedTouches.length) return;
+      const { button, x, y } = imCartTouch;
+      imCartTouch = null;
+      if (!button.isConnected) return;
+      const dx = event.changedTouches[0].clientX - x;
+      const dy = event.changedTouches[0].clientY - y;
+      if (Math.abs(dx) <= 35 || Math.abs(dx) <= Math.abs(dy) * 1.2) return;
+      // Suppress the synthetic click only after an actual horizontal swipe.
+      button.dataset.lastCartSwipe = String(Date.now());
+      const photos = imCartPhotos(button);
+      if (photos.length < 2) return;
+      const next = (Number(button.dataset.photoIndex || 0)
+        + (dx < 0 ? 1 : -1) + photos.length) % photos.length;
+      button.dataset.photoIndex = String(next);
+      const img = button.querySelector(".cart-product-image");
+      if (img) img.src = photos[next];
+    }, { passive: true });
+    imCartItems.addEventListener("touchcancel", () => { imCartTouch = null; }, { passive: true });
+    imCartItems.addEventListener("click", event => {
+      const button = event.target.closest(".cart-thumb-button");
+      if (button && Date.now() - Number(button.dataset.lastCartSwipe || 0) < 750) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    }, true);
+
     function updateCart() {
 
       const count =
@@ -4020,8 +4035,8 @@ openCart();
               <button type="button" class="cart-thumb cart-thumb-button"
                 onclick="openQuickView(Number(this.dataset.productId))"
                 data-product-id="${item.id}" aria-label="View product details and photos">
-                <img src="${item.image || (Array.isArray(item.images) ? item.images[0] : '') || ''}"
-                  alt="${item.name}" class="cart-product-image">
+                <img src="${(Array.isArray(item.images) && item.images.filter(Boolean)[0]) || item.image || ''}"
+                  alt="${item.name}" class="cart-product-image" draggable="false">
               </button>
 
               <div>

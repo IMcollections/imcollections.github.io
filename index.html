@@ -3717,7 +3717,7 @@ loadCategoryImages();
       if (heroActiveDepartment) showHeroDepartment(heroActiveDepartment);
     }
 
-    function selectDepartment(department) {
+    function selectDepartment(department, fromCollection = false) {
       const chosen = department === "Women" ? "Women" : department === "Men" ? "Men" : "All";
       currentDepartment = chosen;
       heroActiveDepartment = chosen === "All" ? null : chosen;
@@ -3734,7 +3734,7 @@ loadCategoryImages();
       });
       currentFilter = 'All';
       renderProducts('All');
-      setHeroButtonState(heroActiveDepartment);
+      if (!fromCollection) setHeroButtonState(heroActiveDepartment);
       // Only one hero panel can be active: choosing Men/Women closes Filter.
       const filterPanel = document.getElementById('imFilterPanel');
       const filterToggle = document.getElementById('imFilterToggle');
@@ -3745,7 +3745,13 @@ loadCategoryImages();
       }
       // Do not rebuild the storefront product cards when changing the hero tabs.
       // Regular category filters continue to use the existing renderProducts logic.
-      if (heroActiveDepartment) {
+      if (fromCollection) {
+        // Find Your Collections updates only its own grid; never open hero previews.
+        heroActiveDepartment = null;
+        setHeroButtonState(null);
+        const heroPreview = document.getElementById("heroDepartmentResults");
+        if (heroPreview) heroPreview.hidden = true;
+      } else if (heroActiveDepartment) {
         // Restore the original Men/Women groups after a filtered preview replaced them.
         if (!document.querySelector('#heroDepartmentGrid [data-preview-department]')) buildHeroDepartmentCards();
         showHeroDepartment(heroActiveDepartment);
@@ -3765,7 +3771,7 @@ loadCategoryImages();
     }
 
     document.querySelectorAll(".department-btn").forEach(button =>
-      button.addEventListener("click", () => selectDepartment(button.dataset.department))
+      button.addEventListener("click", () => selectDepartment(button.dataset.department, true))
     );
 
     function productHasVariants(product) {

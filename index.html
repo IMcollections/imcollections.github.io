@@ -2313,6 +2313,15 @@ footer { background:#101010; }
 @media(max-width:650px){.im-filter-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.im-filter-panel{padding:12px}.im-filter-toggle{margin:10px 0}}
 @media(max-width:360px){.im-filter-fields{grid-template-columns:1fr}}
 
+/* Hero Filter location: visually grouped with Shop Men / Shop Women. */
+.hero-buttons .im-filter-toggle { margin: 0; min-height: 48px; padding: 0 18px; justify-content:center; }
+.hero-copy .im-filter-panel { margin: 12px 0 24px; color: #111; text-align: left; max-width: 650px; }
+@media(max-width:650px) {
+  .hero-buttons { flex-wrap: wrap; align-items: stretch; gap: 10px; }
+  .hero-buttons .im-filter-toggle { min-height: 48px; }
+  .hero-copy .im-filter-panel { width: 100%; }
+}
+
 </style>
 </head>
 
@@ -2524,7 +2533,18 @@ footer { background:#101010; }
 onclick="selectDepartment('Women')">
 Shop Women
   </button>
+          <button type="button" class="im-filter-toggle" id="imFilterToggle" aria-expanded="false" aria-controls="imFilterPanel">☷ Filter <span aria-hidden="true">▾</span></button>
         </div>
+      <div class="im-filter-panel" id="imFilterPanel" hidden>
+        <div class="im-filter-fields">
+          <div class="im-filter-field"><label for="imFilterDepartment">Department</label><select id="imFilterDepartment"><option value="All">All departments</option><option value="Men">Men</option><option value="Women">Women</option><option value="Unisex">Unisex</option></select></div>
+          <div class="im-filter-field"><label for="imFilterSort">Sort by</label><select id="imFilterSort"><option value="default">Default</option><option value="newest">Newest</option><option value="bestsellers">Best Sellers</option><option value="low">Low to High</option><option value="high">High to Low</option><option value="discount">Discount Price</option><option value="finalsale">Final Sale</option><option value="vintage">Vintage Items</option></select></div>
+          <div class="im-filter-field"><label for="imFilterSize">Size</label><select id="imFilterSize"><option value="">All available sizes</option></select></div>
+          <div class="im-filter-field"><label for="imFilterColor">Color (clothing)</label><select id="imFilterColor"><option value="">All colors</option><option value="Black">Black</option><option value="White">White</option><option value="Gray">Gray</option></select></div>
+          <div class="im-filter-field"><label for="imFilterBadge">Badge</label><select id="imFilterBadge"><option value="">All badges</option><option value="New">New</option><option value="Discount Sale">Discount Sale</option><option value="Limited">Limited</option><option value="Best Seller">Best Seller</option><option value="Open Box">Open Box</option></select></div>
+        </div>
+        <div class="im-filter-actions"><button type="button" id="imFilterClear" class="im-filter-clear">Clear All</button></div>
+      </div>
         <div id="heroDepartmentResults" class="hero-department-results" hidden>
           <div class="hero-department-heading"><h2 id="heroDepartmentTitle">Shop Men</h2>
             <button type="button" onclick="document.getElementById('heroDepartmentResults').hidden=true; document.querySelectorAll('[data-hero-department]').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); }); heroActiveDepartment=null" aria-label="Close product preview">×</button></div>
@@ -2761,17 +2781,6 @@ Shop Women
       </div>
 
 
-      <button type="button" class="im-filter-toggle" id="imFilterToggle" aria-expanded="false" aria-controls="imFilterPanel">☷ Filter <span aria-hidden="true">▾</span></button>
-      <div class="im-filter-panel" id="imFilterPanel" hidden>
-        <div class="im-filter-fields">
-          <div class="im-filter-field"><label for="imFilterDepartment">Department</label><select id="imFilterDepartment"><option value="All">All departments</option><option value="Men">Men</option><option value="Women">Women</option><option value="Unisex">Unisex</option></select></div>
-          <div class="im-filter-field"><label for="imFilterSort">Sort by</label><select id="imFilterSort"><option value="default">Default</option><option value="newest">Newest</option><option value="bestsellers">Best Sellers</option><option value="low">Low to High</option><option value="high">High to Low</option><option value="discount">Discount Price</option><option value="finalsale">Final Sale</option><option value="vintage">Vintage Items</option></select></div>
-          <div class="im-filter-field"><label for="imFilterSize">Size</label><select id="imFilterSize"><option value="">All available sizes</option></select></div>
-          <div class="im-filter-field"><label for="imFilterColor">Color (clothing)</label><select id="imFilterColor"><option value="">All colors</option><option value="Black">Black</option><option value="White">White</option><option value="Gray">Gray</option></select></div>
-          <div class="im-filter-field"><label for="imFilterBadge">Badge</label><select id="imFilterBadge"><option value="">All badges</option><option value="New">New</option><option value="Discount Sale">Discount Sale</option><option value="Limited">Limited</option><option value="Best Seller">Best Seller</option><option value="Open Box">Open Box</option></select></div>
-        </div>
-        <div class="im-filter-actions"><button type="button" id="imFilterClear" class="im-filter-clear">Clear All</button></div>
-      </div>
 
       <div class="product-toolbar">
 

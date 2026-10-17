@@ -2152,6 +2152,15 @@ footer { background:#101010; }
   fill: #c9962e !important;
 }
 
+    /* IM Collections Full View: visible size options instead of dropdown */
+    .im-size-field { display:grid; gap:8px; margin:0; }
+    .im-size-label { font-size:13px; color:#666; font-weight:700; }
+    .im-size-grid { display:flex; flex-wrap:wrap; gap:8px; }
+    .im-size-option { min-width:54px; min-height:43px; padding:8px 12px; border:1px solid #bbb;
+      border-radius:4px; background:#fff; color:#111; font-weight:700; font-size:13px; }
+    .im-size-option[aria-pressed="true"] { background:#c9962e; border-color:#c9962e; color:#111; }
+    .im-size-option:focus-visible { outline:2px solid #111; outline-offset:2px; }
+    .im-size-error { color:#a52a2a; font-size:12px; min-height:1em; }
   </style>
 </head>
 
@@ -3317,11 +3326,9 @@ async function loadSupabaseProducts() {
         sizes:
           Array.isArray(product.sizes) && product.sizes.length
             ? product.sizes.map(String)
-            : String(product.category || "").toLowerCase().includes("shoe")
-              ? ["6M", "6.5M", "7M", "7.5M", "8M", "8.5M", "9M", "9.5M", "10M", "10.5M", "11M", "11.5M", "12M", "13M"]
-              : String(product.category || "").toLowerCase().includes("clothing")
-                ? ["XS", "S", "M", "L", "XL", "2XL"]
-                : [],
+            : String(product.size || "").trim()
+              ? [...new Set(String(product.size).split(/[,;\n]+/).map(s => s.trim()).filter(Boolean))]
+              : [],
 
         colors:
           Array.isArray(product.colors) && product.colors.length
@@ -4344,7 +4351,41 @@ localStorage.setItem(
         wrap.append(select);
         variants.append(wrap);
       }
-      addVariantSelect("Size", "modalSizeSelect", product.sizes, product.size);
+      // Sizes are visible immediately. The shopper must select an available size.
+      if (Array.isArray(product.sizes) && product.sizes.length) {
+        const sizeField = document.createElement("div");
+        sizeField.className = "im-size-field";
+        const label = document.createElement("div");
+        label.className = "im-size-label";
+        label.textContent = "Select Size";
+        const choices = document.createElement("div");
+        choices.className = "im-size-grid";
+        choices.setAttribute("role", "group");
+        choices.setAttribute("aria-label", "Available sizes");
+        const selected = document.createElement("input");
+        selected.type = "hidden";
+        selected.id = "modalSizeSelect";
+        selected.value = "";
+        const error = document.createElement("div");
+        error.className = "im-size-error";
+        error.setAttribute("aria-live", "polite");
+        for (const size of [...new Set(product.sizes.map(String))]) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "im-size-option";
+          button.textContent = size;
+          button.setAttribute("aria-pressed", "false");
+          button.addEventListener("click", () => {
+            selected.value = size;
+            choices.querySelectorAll(".im-size-option").forEach(option =>
+              option.setAttribute("aria-pressed", String(option === button)));
+            error.textContent = "";
+          });
+          choices.append(button);
+        }
+        sizeField.append(label, choices, selected, error);
+        variants.append(sizeField);
+      }
       addVariantSelect("Color", "modalColorSelect", product.colors, product.color);
 
       document.getElementById("modalCategory")
@@ -4387,7 +4428,12 @@ localStorage.setItem(
 
       document.getElementById("modalAdd")
         .onclick = () => {
-          const size = document.getElementById("modalSizeSelect")?.value || product.size || "";
+          const size = document.getElementById("modalSizeSelect")?.value || "";
+          if (product.sizes?.length && !size) {
+            const error = variants.querySelector(".im-size-error");
+            if (error) error.textContent = "Please choose an available size.";
+            return;
+          }
           const color = document.getElementById("modalColorSelect")?.value || product.color || "";
           addToCart(product.id, size, color);
           closeModal();

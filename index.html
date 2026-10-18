@@ -5342,6 +5342,22 @@ updateHeaderAccountMenu();
 updateAccountLinks();
 </script>
       <script src="member-tools.js?v=20261012-feature-updates"></script>
+<style id="im-storefront-gold-wishlist-selected-fix">
+/* The shared member-tools.js adds a blue selected-heart style.
+   Keep storefront wishlist states in IM Collections gold, including SVG paths. */
+.wishlist.active svg,
+.wishlist[aria-pressed="true"] svg,
+.wishlist.active .im-heart-icon path,
+.wishlist[aria-pressed="true"] .im-heart-icon path {
+  stroke: #c9962e !important;
+  fill: #c9962e !important;
+}
+.wishlist:not(.active):not([aria-pressed="true"]) .im-heart-icon path,
+.wishlist[aria-pressed="false"] .im-heart-icon path {
+  stroke: #c9962e !important;
+  fill: none !important;
+}
+</style>
 <script>
 // Keep the homepage header and footer menus identical after member-tools builds them.
 (() => {

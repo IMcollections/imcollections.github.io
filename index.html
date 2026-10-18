@@ -4306,8 +4306,44 @@ function refreshWishlistHearts() {
       if (button.classList.contains("cart-wishlist")) {
         showCartWishlistNotice(id, added);
       } else {
-        showToast(added ? "Added to wishlist" : "Removed from wishlist");
+        showStorefrontWishlistNotice(id, added);
       }
+    }
+
+    /* Actionable storefront notice for locally handled wishlist buttons.
+       Signed-in members use the database-backed notice in member-tools.js. */
+    let storefrontWishlistNoticeTimer;
+    function showStorefrontWishlistNotice(id, added) {
+      let notice = document.getElementById("storefrontWishlistActionNotice");
+      if (!notice) {
+        notice = document.createElement("div");
+        notice.id = "storefrontWishlistActionNotice";
+        notice.setAttribute("role", "status");
+        notice.setAttribute("aria-live", "polite");
+        notice.style.cssText = "position:fixed;bottom:calc(22px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:2147483000;background:#161616;color:white;padding:14px 18px;border-radius:9px;box-shadow:0 5px 24px #0005;display:flex;align-items:center;gap:20px;max-width:calc(100vw - 24px);width:max-content;font:600 14px/1.4 Arial,sans-serif";
+        document.body.append(notice);
+      }
+      clearTimeout(storefrontWishlistNoticeTimer);
+      notice.replaceChildren();
+      const message = document.createElement("span");
+      message.textContent = added ? "Added to wishlist" : "Removed from wishlist";
+      const action = document.createElement(added ? "a" : "button");
+      action.textContent = added ? "View" : "Undo";
+      action.style.cssText = "color:#e3bf65;background:none;border:0;padding:4px;font:700 14px Arial,sans-serif;text-decoration:underline;cursor:pointer;white-space:nowrap";
+      if (added) action.href = "my-account.html#wishlist";
+      else {
+        action.type = "button";
+        action.onclick = () => {
+          const saved = new Set(wishlistIds());
+          saved.add(String(id));
+          localStorage.setItem(imWishlistStorageKey, JSON.stringify([...saved]));
+          refreshWishlistHearts();
+          showStorefrontWishlistNotice(id, true);
+        };
+      }
+      notice.append(message, action);
+      notice.hidden = false;
+      storefrontWishlistNoticeTimer = setTimeout(() => { notice.hidden = true; }, 5500);
     }
 
     /* Cart wishlist notice: View on save; Undo on removal. */
@@ -5341,7 +5377,7 @@ document.addEventListener(
 updateHeaderAccountMenu();
 updateAccountLinks();
 </script>
-      <script src="member-tools.js?v=20261012-feature-updates"></script>
+      <script src="member-tools.js?v=20261018-wishlist-view-undo"></script>
 <style id="im-storefront-gold-wishlist-selected-fix">
 /* The shared member-tools.js adds a blue selected-heart style.
    Keep storefront wishlist states in IM Collections gold, including SVG paths. */

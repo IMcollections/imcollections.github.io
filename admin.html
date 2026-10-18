@@ -313,15 +313,32 @@
         </div>
       </div>
 
-      <div class="full" id="adminColorSection" hidden>
-        <label>Clothing Color (select available colors)</label>
-        <p class="size-help">Shown for Clothing and Apparel only. Select the colors included in this listing.</p>
-        <div class="admin-color-options" id="adminColorOptions" role="group" aria-label="Clothing colors">
+      <div class="full" id="adminColorSection">
+        <label>Available Colors (select all available colors)</label>
+        <p class="size-help">Available for all product categories. Select each color offered for this product. Multicolor means the item itself contains several colors.</p>
+        <div class="admin-color-options" id="adminColorOptions" role="group" aria-label="Available product colors">
           <label><input type="checkbox" name="clothingColor" value="Black"><span class="admin-color-swatch" style="background:#111"></span>Black</label>
           <label><input type="checkbox" name="clothingColor" value="White"><span class="admin-color-swatch" style="background:#fff"></span>White</label>
           <label><input type="checkbox" name="clothingColor" value="Gray"><span class="admin-color-swatch" style="background:#888"></span>Gray</label>
+          <label><input type="checkbox" name="clothingColor" value="Brown"><span class="admin-color-swatch" style="background:#795039"></span>Brown</label>
+          <label><input type="checkbox" name="clothingColor" value="Beige"><span class="admin-color-swatch" style="background:#d9c4a1"></span>Beige</label>
+          <label><input type="checkbox" name="clothingColor" value="Cream"><span class="admin-color-swatch" style="background:#f3ebd7"></span>Cream</label>
+          <label><input type="checkbox" name="clothingColor" value="Tan"><span class="admin-color-swatch" style="background:#c49a6c"></span>Tan</label>
+          <label><input type="checkbox" name="clothingColor" value="Blue"><span class="admin-color-swatch" style="background:#2866b5"></span>Blue</label>
+          <label><input type="checkbox" name="clothingColor" value="Navy"><span class="admin-color-swatch" style="background:#172b50"></span>Navy</label>
+          <label><input type="checkbox" name="clothingColor" value="Red"><span class="admin-color-swatch" style="background:#c83e4c"></span>Red</label>
+          <label><input type="checkbox" name="clothingColor" value="Pink"><span class="admin-color-swatch" style="background:#e8a2ba"></span>Pink</label>
+          <label><input type="checkbox" name="clothingColor" value="Green"><span class="admin-color-swatch" style="background:#4b995b"></span>Green</label>
+          <label><input type="checkbox" name="clothingColor" value="Purple"><span class="admin-color-swatch" style="background:#804da7"></span>Purple</label>
+          <label><input type="checkbox" name="clothingColor" value="Yellow"><span class="admin-color-swatch" style="background:#f4d13f"></span>Yellow</label>
+          <label><input type="checkbox" name="clothingColor" value="Orange"><span class="admin-color-swatch" style="background:#ec8a36"></span>Orange</label>
+          <label><input type="checkbox" name="clothingColor" value="Gold"><span class="admin-color-swatch" style="background:#c9962e"></span>Gold</label>
+          <label><input type="checkbox" name="clothingColor" value="Silver"><span class="admin-color-swatch" style="background:#c0c0c0"></span>Silver</label>
           <label><input type="checkbox" name="clothingColor" value="Multicolor"><span class="admin-color-swatch" style="background:conic-gradient(#c9962e 0 25%, #316bb6 25% 50%, #c83e4c 50% 75%, #4b995b 75% 100%)"></span>Multicolor</label>
         </div>
+        <label for="customProductColors" style="margin-top:14px">Additional / Custom Colors (optional)</label>
+        <input type="text" id="customProductColors" placeholder="e.g. Burgundy, Rose Gold, Olive" aria-describedby="customColorHelp">
+        <p class="size-help" id="customColorHelp" style="margin-top:7px">Separate multiple custom colors with commas. These colors are saved together with the checked colors.</p>
       </div>
 
       <div>
@@ -525,29 +542,33 @@ function setAdminClassifications(values) {
     input.checked = selected.has(input.value.toLowerCase());
   });
 }
-/* Clothing color choices are stored as comma-separated names in products.color. */
+/* Product color choices are saved in products.color (comma-separated), for any category.
+   Preserve unfamiliar color names when editing existing listings. */
 function getAdminColors() {
-  return [...document.querySelectorAll('input[name="clothingColor"]:checked')]
-    .map(input => input.value).join(", ");
+  const checked = [...document.querySelectorAll('input[name="clothingColor"]:checked')].map(input => input.value);
+  const custom = document.getElementById("customProductColors").value
+    .split(/[,;\n]+/).map(color => color.trim()).filter(Boolean);
+  return [...new Map([...checked, ...custom].map(color => [color.toLowerCase(), color])).values()].join(", ");
 }
 function setAdminColors(value) {
-  const selected = new Set(String(value || "").split(/[,;]+/).map(v => v.trim().toLowerCase()));
+  const all = String(value || "").split(/[,;\n]+/).map(color => color.trim()).filter(Boolean);
+  const known = new Set();
   document.querySelectorAll('input[name="clothingColor"]').forEach(input => {
-    input.checked = selected.has(input.value.toLowerCase()) ||
-      (input.value === "Gray" && selected.has("grey"));
+    known.add(input.value.toLowerCase());
+    input.checked = all.some(color => color.toLowerCase() === input.value.toLowerCase() ||
+      (input.value === "Gray" && color.toLowerCase() === "grey"));
   });
-}
-function updateAdminColorVisibility() {
-  const category = document.getElementById("category").value.toLowerCase();
-  document.getElementById("adminColorSection").hidden = !["clothing", "apparel"].includes(category);
+  document.getElementById("customProductColors").value = all.filter(color =>
+    !known.has(color.toLowerCase()) && !(color.toLowerCase() === "grey" && known.has("gray"))
+  ).join(", ");
 }
 document.getElementById("category").addEventListener("change", () => {
   renderAdminSizes();
-  updateAdminColorVisibility();
+  
 });
 document.getElementById("size").addEventListener("change", renderAdminSizes);
 renderAdminSizes();
-updateAdminColorVisibility();
+
 
 /* =========================
    IMAGE SELECT
@@ -807,7 +828,7 @@ if (editingProductId) {
         department: document.getElementById("department").value,
         classifications: getAdminClassifications(),
         item_type: getAdminClassifications()[0] || null,
-        color: ["Clothing", "Apparel"].includes(category) ? (getAdminColors() || null) : null,
+        color: getAdminColors() || null,
 
         size:
           size || null,
@@ -922,7 +943,7 @@ function resetForm() {
   document.getElementById("department").value = "Unisex";
   setAdminClassifications([]);
   setAdminColors("");
-  updateAdminColorVisibility();
+  
 
   document
     .getElementById("size")
@@ -1051,7 +1072,7 @@ document.getElementById("category").value = data.category || "";
 document.getElementById("department").value = ["Men", "Women", "Unisex"].includes(data.department) ? data.department : "Unisex";
 setAdminClassifications(Array.isArray(data.classifications) && data.classifications.length ? data.classifications : (data.item_type ? [data.item_type] : []));
 setAdminColors(data.color || "");
-updateAdminColorVisibility();
+
 document.getElementById("size").value = data.size || "";
 renderAdminSizes();
 document.getElementById("condition").value = data.condition || "";

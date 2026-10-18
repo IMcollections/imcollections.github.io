@@ -2106,7 +2106,7 @@ footer { background:#101010; }
     #categories #featured { padding: 35px 0 10px; scroll-margin-top: 96px; }
     #categories #featured .container { width:100%; }
     #categories #featured.category-collection-active .section-heading { margin-bottom: 22px; }
-    #categories #featured.category-collection-active .department-selector { display:none; }
+    /* Keep Shop All / Men / Women visible even after a category or footer Shop selection. */
     #categories #featured.category-collection-active .product-toolbar { margin-bottom:16px; }
   
     /* Cart photo and name open the existing product Full View. */
@@ -3732,6 +3732,11 @@ loadCategoryImages();
     function selectDepartment(department, fromCollection = false) {
       const chosen = department === "Women" ? "Women" : department === "Men" ? "Men" : "All";
       currentDepartment = chosen;
+      // Return to the normal collections heading when switching departments.
+      const collectionSection = document.getElementById("featured");
+      collectionSection?.classList.remove("category-collection-active");
+      const collectionTitle = collectionSection?.querySelector(".section-heading h2");
+      if (collectionTitle) collectionTitle.textContent = "Find Your Collections";
       heroActiveDepartment = chosen === "All" ? null : chosen;
       document.querySelectorAll(".department-btn").forEach(button => {
         const active = button.dataset.department === chosen;
@@ -4228,7 +4233,7 @@ loadCategoryImages();
         BestSellers: "Best Sellers", Sale: "Sale", PreOwned: "Pre-Owned", BundleItems: "Bundle Items"
       };
       const heading = section.querySelector(".section-heading h2");
-      if (heading) heading.textContent = "Shop " + (names[category] || category);
+      if (heading) heading.textContent = "Find Your Collections";
       section.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 

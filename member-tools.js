@@ -58,7 +58,17 @@
     .im-member-nav summary{padding:14px;background:#eee9dc;border-radius:8px;cursor:pointer;font-weight:bold}
     .im-member-nav nav{display:grid;background:white;border:1px solid #ddd;border-radius:8px}
     .im-member-nav a{display:block;padding:12px 16px;border-bottom:1px solid #eee;color:#8f681e}
-    .wishlist.active svg{stroke:#167cd3!important;fill:#167cd3!important}
+    /* Gold selected hearts are owned by the shared wishlist state. */
+    .wishlist svg, .cart-wishlist svg { stroke:#c9962e!important; }
+    .wishlist.active svg, .wishlist[aria-pressed="true"] svg,
+    .cart-wishlist.active svg, .cart-wishlist[aria-pressed="true"] svg,
+    .wishlist.active svg path, .wishlist[aria-pressed="true"] svg path,
+    .cart-wishlist.active svg path, .cart-wishlist[aria-pressed="true"] svg path {
+      stroke:#c9962e!important;fill:#c9962e!important;
+    }
+    .wishlist:not(.active) svg path, .cart-wishlist:not(.active) svg path {
+      fill:none!important;
+    }
   `;
   document.head.append(styles);
   function productId(button) {
@@ -332,20 +342,82 @@
       if (!r.error && r.data && run === photoVersion) draw(r.data);
     }
   }
+  // The storefront also reads imCollectionsWishlistIds when repainting cards.
+  // Mirror the signed-in Supabase wishlist there so both scripts display the
+  // same selected state instead of overwriting one another on every render.
+  const storefrontWishlistKey = "imCollectionsWishlistIds";
+  function mirrorWishlistToStorefront() {
+    if (!user || !wishlistReady) return;
+    try {
+      localStorage.setItem(storefrontWishlistKey,
+        JSON.stringify([...wishlist].map(id => String(1000000 + id))));
+    } catch (error) {
+      console.warn("Wishlist display cache could not be updated", error);
+    }
+  }
   function syncHearts() {
-    for (const b of document.querySelectorAll(".wishlist")) {
-      const active = wishlist.has(productId(b) - 1000000);
+    for (const b of document.querySelectorAll(".wishlist, .cart-wishlist")) {
+      const id = productId(b);
+      if (!Number.isSafeInteger(id) || id <= 1000000) continue;
+      // When signed out, leave the store's own local wishlist rendering intact.
+      if (!user || !wishlistReady) continue;
+      const active = wishlist.has(id - 1000000);
       b.classList.toggle("active", active);
       b.setAttribute("aria-pressed", String(active));
-      b.setAttribute(
-        "aria-label",
-        active ? "Remove from wishlist" : "Add to wishlist",
-      );
-      if (!b.querySelector("svg")) {
-        const text = active ? "💙" : "♡";
-        if (b.textContent !== text) b.textContent = text;
+      b.setAttribute("aria-label", active ? "Remove from wishlist" : "Add to wishlist");
+      const svg = b.querySelector("svg");
+      if (svg) {
+        svg.style.setProperty("stroke", "#c9962e", "important");
+        svg.style.setProperty("fill", active ? "#c9962e" : "none", "important");
+        svg.querySelectorAll("path").forEach(path => {
+          path.style.setProperty("stroke", "#c9962e", "important");
+          path.style.setProperty("fill", active ? "#c9962e" : "none", "important");
+        });
+      } else if (b.querySelector("[data-wishlist-heart]")) {
+        const heart = b.querySelector("[data-wishlist-heart]");
+        heart.textContent = active ? "♥" : "♡";
+        heart.style.color = "#c9962e";
+      } else if (!b.querySelector("[data-wishlist-count]")) {
+        b.textContent = active ? "♥" : "♡";
+        b.style.color = "#c9962e";
       }
     }
+  }
+  // Shared actionable notice: displayed only after wishlist changes succeed.
+  // Undo restores the database row, not merely the visual heart.
+  let wishlistNoticeTimer;
+  function wishlistNotice(added, undoAction) {
+    let notice = document.getElementById("imWishlistActionNotice");
+    if (!notice) {
+      notice = el("div");
+      notice.id = "imWishlistActionNotice";
+      notice.setAttribute("role", "status");
+      notice.setAttribute("aria-live", "polite");
+      notice.style.cssText = "position:fixed;bottom:calc(22px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:2147483000;background:#161616;color:white;padding:14px 18px;border-radius:9px;box-shadow:0 5px 24px #0005;display:flex;align-items:center;justify-content:space-between;gap:20px;max-width:calc(100vw - 24px);width:max-content;font:600 14px/1.4 Arial,sans-serif";
+      document.body.append(notice);
+    }
+    clearTimeout(wishlistNoticeTimer);
+    notice.replaceChildren(el("span", added ? "Added to wishlist" : "Removed from wishlist"));
+    const action = added ? el("a", "View") : el("button", "Undo");
+    action.style.cssText = "color:#e3bf65;background:none;border:0;padding:4px;font:700 14px Arial,sans-serif;text-decoration:underline;cursor:pointer;white-space:nowrap";
+    if (added) {
+      action.href = "my-account.html#wishlist";
+    } else {
+      action.type = "button";
+      action.onclick = async () => {
+        action.disabled = true;
+        try {
+          await undoAction();
+          wishlistNotice(true);
+        } catch (error) {
+          notice.firstChild.textContent = error.message || "Couldn't restore wishlist item.";
+          action.disabled = false;
+        }
+      };
+    }
+    notice.append(action);
+    notice.hidden = false;
+    wishlistNoticeTimer = setTimeout(() => { notice.hidden = true; }, 5500);
   }
   async function toggle(button) {
     if (!user) {
@@ -377,9 +449,24 @@
         throw Error("Your Wishlist could not be saved. Please try again.");
       if (stamp !== version) return;
       removing ? wishlist.delete(id) : wishlist.add(id);
+      mirrorWishlistToStorefront();
       syncHearts();
-      if (typeof showToast === "function")
-        showToast(removing ? "Removed from wishlist" : "Added to wishlist");
+      if (removing) {
+        const removedId = id;
+        const removedOwner = owner;
+        const removedStamp = stamp;
+        wishlistNotice(false, async () => {
+          if (version !== removedStamp || user?.id !== removedOwner) throw Error("Please refresh your account and try again.");
+          const restore = await db.from("im_wishlist").upsert({ user_id: removedOwner, product_id: removedId }, { onConflict: "user_id,product_id" });
+          if (restore.error) throw Error("Could not restore this wishlist item.");
+          wishlist.add(removedId);
+          mirrorWishlistToStorefront();
+          syncHearts();
+          if (document.getElementById("memberWishlist")) renderWishlist();
+        });
+      } else {
+        wishlistNotice(true);
+      }
     } catch (e) {
       alert(e.message);
     } finally {
@@ -519,8 +606,18 @@
           return;
         }
         wishlist.delete(Number(p.id));
+        mirrorWishlistToStorefront();
         syncHearts();
         renderWishlist();
+        wishlistNotice(false, async () => {
+          if (version !== stamp || user?.id !== owner) throw Error("Please refresh your account and try again.");
+          const restored = await db.from("im_wishlist").upsert({ user_id: owner, product_id: p.id }, { onConflict: "user_id,product_id" });
+          if (restored.error) throw Error("Could not restore this wishlist item.");
+          wishlist.add(Number(p.id));
+          mirrorWishlistToStorefront();
+          syncHearts();
+          renderWishlist();
+        });
       };
       const actions = el("div");
       actions.className = "im-wishlist-actions";
@@ -796,6 +893,7 @@
     }
     wishlistReady = !saved.error;
     wishlist = new Set((saved.data || []).map((x) => Number(x.product_id)));
+    mirrorWishlistToStorefront();
     syncHearts();
     accountSection();
     if (["#orders", "#returnSection"].includes(location.hash))

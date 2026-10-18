@@ -18,6 +18,30 @@
     .im-photo-gallery::-webkit-scrollbar{display:none}
     .im-photo-gallery img{width:100%;min-width:100%;flex:0 0 100%;max-height:64dvh;object-fit:contain;scroll-snap-align:start}
     .im-photo-dialog p{margin:16px 0 0;line-height:1.6;white-space:pre-line}
+    /* Full product-view presentation for Wishlist (keeps the existing swipe gallery). */
+    .im-photo-dialog.im-wishlist-product-view{width:min(96vw,900px);padding:0;border-radius:4px;max-height:91dvh}
+    .im-wishlist-product-view .im-photo-heading{position:relative;margin:0;padding:0;display:block}
+    .im-wishlist-product-view .im-photo-heading h2{display:none}
+    .im-wishlist-product-view .im-photo-close{position:absolute;right:12px;top:12px;z-index:4;background:#fff!important;color:#111!important;border-radius:50%;box-shadow:0 1px 8px #0002}
+    .im-wishlist-product-view .im-photo-gallery{background:#eee9dc;min-height:250px;max-height:56dvh;align-items:center}
+    .im-wishlist-product-view .im-photo-gallery img{height:min(56dvh,540px);max-height:none;object-fit:contain}
+    .im-wishlist-product-view .im-view-gallery-note{background:#f8f6f0;text-align:center;color:#666;padding:10px;font-size:13px}
+    .im-wishlist-product-view .im-view-details{padding:28px 24px 32px}
+    .im-wishlist-product-view .im-view-category{letter-spacing:1.4px;text-transform:uppercase;color:#777;font-size:12px;font-weight:700}
+    .im-wishlist-product-view .im-view-details h2{font:normal clamp(30px,5vw,43px)/1.13 Georgia,serif;margin:14px 0 12px;color:#111}
+    .im-wishlist-product-view .im-view-rating{color:#c9962e;margin:0 0 14px}
+    .im-wishlist-product-view .im-view-description{color:#777;line-height:1.55;margin:16px 0!important}
+    .im-wishlist-product-view .im-view-price{font-size:27px;font-weight:800;margin:18px 0}
+    .im-wishlist-product-view .im-view-price del{font-size:14px;color:#999;margin-left:12px;font-weight:400}
+    .im-wishlist-product-view .im-view-label{font-weight:700;margin:16px 0 9px}
+    .im-wishlist-product-view .im-view-sizes{display:flex;flex-wrap:wrap;gap:9px}
+    .im-wishlist-product-view .im-view-size{min-width:52px;min-height:48px;border:1px solid #bbb;background:#fff;border-radius:4px;color:#111;font-weight:700;padding:8px 12px}
+    .im-wishlist-product-view .im-view-size.selected{background:#111;color:#fff;border-color:#111}
+    .im-wishlist-product-view .im-view-add{width:100%;min-height:52px;border:0;background:#c9962e;color:#111;font-weight:800;text-transform:uppercase;margin:23px 0 6px}
+    .im-wishlist-product-view .im-view-add:disabled{opacity:.55}
+    .im-wishlist-product-view .im-view-status{color:#555;min-height:1.4em;font-size:13px}
+    @media(min-width:760px){.im-wishlist-product-view .im-view-layout{display:grid;grid-template-columns:1fr 1fr;align-items:start}.im-wishlist-product-view .im-view-details{padding:40px 30px}}
+
     #paymentSection{margin-top:16px;padding:20px}
     #memberCards:empty{display:none}
     #memberCards p{margin:12px 0}
@@ -160,7 +184,7 @@
   }
   let photoDialog = null,
     photoVersion = 0;
-  async function openProductPhoto(item, purchased = false) {
+  async function openProductPhoto(item, purchased = false, wishlistRow = null) {
     const run = ++photoVersion;
     if (!photoDialog) {
       photoDialog = el("dialog");
@@ -213,6 +237,67 @@
         img.src = url;
         img.alt = title.textContent;
         gallery.append(img);
+      }
+      // Wishlist opens the same type of detailed product preview as the storefront.
+      // Purchased order photos continue to use the existing lightweight receipt viewer.
+      photoDialog.classList.toggle('im-wishlist-product-view', !purchased);
+      if (!purchased) {
+        const details = el('div');
+        details.className = 'im-view-details';
+        const category = el('div', String(product.category || 'Product'));
+        category.className = 'im-view-category';
+        const productTitle = el('h2', title.textContent);
+        const rating = el('div', '★★★★★'); rating.className = 'im-view-rating';
+        details.append(category, productTitle, rating);
+        const description = product.description || item.description;
+        if (description) { const p = el('p', description); p.className = 'im-view-description'; details.append(p); }
+        const currentPrice = Number(product.price ?? item.price);
+        if (Number.isFinite(currentPrice)) {
+          const price = el('div', '$' + currentPrice.toFixed(2)); price.className = 'im-view-price';
+          const old = Number(product.old_price);
+          if (old > currentPrice) price.append(el('del', '$' + old.toFixed(2)));
+          details.append(price);
+        }
+        const rawSizes = Array.isArray(product.sizes) && product.sizes.length ? product.sizes : String(product.size || '').split(/[,;\n]+/).map(s => s.trim()).filter(Boolean);
+        const sizes = [...new Set(rawSizes.map(String))];
+        let chosenSize = sizes.length === 1 ? sizes[0] : '';
+        if (sizes.length) {
+          const label = el('div', 'Select Size'); label.className = 'im-view-label'; details.append(label);
+          const options = el('div'); options.className = 'im-view-sizes';
+          sizes.forEach(s => {
+            const button = el('button', s); button.type = 'button'; button.className = 'im-view-size';
+            button.classList.toggle('selected', s === chosenSize);
+            button.onclick = () => { chosenSize = s; options.querySelectorAll('button').forEach(b=>b.classList.toggle('selected', b === button)); };
+            options.append(button);
+          });
+          details.append(options);
+        }
+        const status = el('p'); status.className = 'im-view-status'; status.setAttribute('role','status');
+        if (wishlistRow) {
+          const add = el('button', 'Add to Cart'); add.type = 'button'; add.className = 'im-view-add';
+          add.disabled = product.quantity != null && Number(product.quantity) <= 0;
+          add.onclick = async () => {
+            if (sizes.length && !chosenSize) { status.textContent = 'Please select a size first.'; return; }
+            const existingChoice = wishlistRow.querySelector('label select');
+            if (chosenSize) wishlistRow.dataset.wishlistSelectedSize = chosenSize;
+            if (existingChoice && chosenSize) existingChoice.value = chosenSize;
+            const wishlistAdd = wishlistRow.querySelector('.im-wishlist-actions button');
+            if (!wishlistAdd || typeof wishlistAdd.onclick !== 'function') { status.textContent = 'Please add this product from your Wishlist card.'; return; }
+            add.disabled = true;
+            try { await wishlistAdd.onclick(); status.textContent = wishlistRow.querySelector('[role="status"]')?.textContent || 'Please check your cart.'; }
+            finally { add.disabled = product.quantity != null && Number(product.quantity) <= 0; }
+          };
+          details.append(add);
+        }
+        details.append(status);
+        const gallerySide = el('div');
+        const note = el('div', 'Swipe left or right to view photos'); note.className = 'im-view-gallery-note';
+        gallerySide.append(gallery, note);
+        const layout = el('div'); layout.className = 'im-view-layout'; layout.append(gallerySide, details);
+        photoDialog.replaceChildren(head, layout);
+        if (!photoDialog.open) photoDialog.showModal();
+        gallery.scrollLeft = 0;
+        return;
       }
       photoDialog.replaceChildren(head, gallery);
       const description = item.description || product.description;
@@ -336,7 +421,7 @@
         a.type = "button";
         a.className = "im-photo-thumbnail";
         a.setAttribute("aria-label", "Enlarge " + p.name);
-        a.onclick = () => openProductPhoto(p);
+        a.onclick = () => openProductPhoto(p, false, row);
         const img = el("img");
         img.src = image;
         img.alt = p.name;
@@ -375,7 +460,7 @@
       cartMessage.setAttribute("role", "status");
       cartMessage.setAttribute("aria-live", "polite");
       add.onclick = async () => {
-        const size = choices.size ? choices.size.value : p.size || "";
+        const size = choices.size ? choices.size.value : row.dataset.wishlistSelectedSize || p.size || "";
         const color = choices.color ? choices.color.value : p.color || "";
         if ((choices.size && !size) || (choices.color && !color)) {
           cartMessage.textContent = "Choose the available size and color first.";

@@ -417,7 +417,7 @@
     }
     notice.append(action);
     notice.hidden = false;
-    wishlistNoticeTimer = setTimeout(() => { notice.hidden = true; }, 5500);
+    wishlistNoticeTimer = setTimeout(() => { notice.hidden = true; }, 3000);
   }
   async function toggle(button) {
     if (!user) {

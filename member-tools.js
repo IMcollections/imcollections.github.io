@@ -881,8 +881,8 @@
     const identity = document.getElementById("memberIdentity");
     if (identity)
       identity.textContent = id.error
-        ? "Member ID could not be loaded."
-        : "Member ID: " + (id.data || "Pending");
+        ? "Collector ID could not be loaded."
+        : "Collector ID: " + (id.data || "Pending");
     const input = document.getElementById("returnMemberId");
     if (input && !id.error) input.value = id.data || "";
     if (saved.error) {

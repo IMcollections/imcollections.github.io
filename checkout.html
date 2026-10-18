@@ -2139,23 +2139,47 @@ document.getElementById("paymentButton").addEventListener(
       const savedCardId = method === "card" ? document.getElementById("savedCardSelect").value : "";
       const selectedCard = checkoutSavedCards.find(c => c.id === savedCardId);
       if(savedCardId && !selectedCard) throw new Error("Select an available saved card.");
+      // Always build Square verification details from the selected billing address.
+      // When "same as shipping" is selected, use validated delivery values directly.
+      const sameBilling = document.getElementById("sameAsShipping").checked;
+      const fieldValue = id => document.getElementById(id).value.trim();
+      const billingContact = {
+        givenName: sameBilling ? delivery.shippingAddress.first_name : fieldValue("billingFirstName"),
+        familyName: sameBilling ? delivery.shippingAddress.last_name : fieldValue("billingLastName"),
+        email: delivery.email,
+        phone: delivery.shippingAddress.phone || undefined,
+        addressLines: (sameBilling
+          ? [delivery.shippingAddress.address, delivery.shippingAddress.address2]
+          : [fieldValue("billingAddress"), fieldValue("billingApartment")]).filter(Boolean),
+        city: sameBilling ? delivery.shippingAddress.city : fieldValue("billingCity"),
+        state: sameBilling ? delivery.shippingAddress.state : fieldValue("billingState"),
+        postalCode: sameBilling ? delivery.shippingAddress.postal_code : fieldValue("billingPostal"),
+        countryCode: "US"
+      };
       const verificationDetails = {
-        amount: (checkoutAmountCents()/100).toFixed(2), currencyCode: "USD", intent: "CHARGE",
-        customerInitiated: true, sellerKeyedIn: false,
-        billingContact: {
-          givenName: document.getElementById("billingFirstName").value,
-          familyName: document.getElementById("billingLastName").value,
-          email: document.getElementById("guestEmail").value,
-          addressLines: [document.getElementById("billingAddress").value,document.getElementById("billingApartment").value],
-          city: document.getElementById("billingCity").value,
-          state: document.getElementById("billingState").value,
-          postalCode: document.getElementById("billingPostal").value, countryCode: "US"
-        }
+        amount: (checkoutAmountCents() / 100).toFixed(2),
+        currencyCode: "USD", intent: "CHARGE",
+        customerInitiated: true, sellerKeyedIn: false, billingContact
       };
       paymentStage = "Square card tokenization and buyer verification";
-      const result = method === "card"
-        ? await paymentForm.tokenize(verificationDetails, savedCardId || undefined)
-        : await paymentForm.tokenize();
+      let result;
+      try {
+        result = method === "card"
+          ? await paymentForm.tokenize(verificationDetails, savedCardId || undefined)
+          : await paymentForm.tokenize();
+      } catch (squareError) {
+        // Do not log payment tokens or the customer's card details.
+        console.error("Square tokenization failed", {
+          name: squareError?.name,
+          message: squareError?.message,
+          code: squareError?.code,
+          errors: squareError?.errors?.map(e => ({ code: e.code, type: e.type, detail: e.detail }))
+        });
+        const codes = squareError?.errors?.map(e => e.code || e.type).filter(Boolean).join(", ");
+        throw new Error("Square could not verify this payment" +
+          (codes ? " [" + codes + "]" : "") + ". " +
+          (squareError?.message || "Please check your card details and try again."));
+      }
 
       if (result.status !== "OK") {
         throw new Error(

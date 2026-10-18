@@ -3127,17 +3127,17 @@ onclick="filterProducts('Watches')"
       <div class="footer-column">
         <h4>Shop</h4>
 
-        <a href="#featured">New Arrivals</a>
-        <a href="#featured">Best Sellers</a>
-<a href="#featured">Sale</a>
-<a href="#featured">Vintage</a>
-        <a href="#featured">Clothing</a>
-        <a href="#featured">Shoes</a>
-        <a href="#featured">Bags</a>
-        <a href="#featured">Accessories</a>
-<a href="#featured">Electronics</a>
-<a href="#featured">Toys & Hobbies</a>
-<a href="#featured">Open Box</a>
+        <a href="#featured" data-footer-shop-filter="NewArrivals">New Arrivals</a>
+        <a href="#featured" data-footer-shop-filter="BestSellers">Best Sellers</a>
+<a href="#featured" data-footer-shop-filter="Sale">Sale</a>
+<a href="#featured" data-footer-shop-filter="Vintage">Vintage</a>
+        <a href="#featured" data-footer-shop-filter="Clothing">Clothing</a>
+        <a href="#featured" data-footer-shop-filter="Shoes">Shoes</a>
+        <a href="#featured" data-footer-shop-filter="Bags">Bags</a>
+        <a href="#featured" data-footer-shop-filter="Accessories">Accessories</a>
+<a href="#featured" data-footer-shop-filter="Electronics">Electronics</a>
+<a href="#featured" data-footer-shop-filter="Toys">Toys & Hobbies</a>
+<a href="#featured" data-footer-shop-filter="OpenBox">Open Box</a>
 
 
          <h4>My Account</h4>
@@ -4213,7 +4213,9 @@ loadCategoryImages();
       positionProductSection(false);
       const button = document.querySelector(`.filter-btn[data-filter="${category}"]`);
       document.querySelectorAll(".filter-btn").forEach(btn => {
-        btn.classList.toggle("active", btn === button);
+        const selected = btn === button;
+        btn.classList.toggle("active", selected);
+        btn.setAttribute('aria-pressed', String(selected));
       });
       renderProducts(category);
       const section = document.getElementById("featured");
@@ -4229,6 +4231,15 @@ loadCategoryImages();
       if (heading) heading.textContent = "Shop " + (names[category] || category);
       section.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+
+    // Footer Shop navigation selects a real Find Your Collections category,
+    // instead of scrolling to #featured while leaving an unrelated selection active.
+    document.querySelectorAll('footer [data-footer-shop-filter]').forEach(link => {
+      link.addEventListener('click', event => {
+        event.preventDefault();
+        filterProducts(link.dataset.footerShopFilter);
+      });
+    });
 
     function filterSpecialProducts(type) {
       const target = type === "new" ? "NewArrivals" : type === "bestsellers" ? "BestSellers" : "Sale";

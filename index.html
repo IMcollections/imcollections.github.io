@@ -4343,7 +4343,7 @@ function refreshWishlistHearts() {
       }
       notice.append(message, action);
       notice.hidden = false;
-      storefrontWishlistNoticeTimer = setTimeout(() => { notice.hidden = true; }, 5500);
+      storefrontWishlistNoticeTimer = setTimeout(() => { notice.hidden = true; }, 3000);
     }
 
     /* Cart wishlist notice: View on save; Undo on removal. */
@@ -4401,7 +4401,7 @@ function showCartWishlistNotice(id, added = true) {
   clearTimeout(cartWishlistNoticeTimer);
   cartWishlistNoticeTimer = setTimeout(
     dismissCartWishlistNotice,
-    5500
+    3000
   );
 }
 

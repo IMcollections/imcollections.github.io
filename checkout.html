@@ -964,47 +964,23 @@ font-size: 0 !important;
       <div class="checkout-box payment-box">
 
 <section class="shipping-method-box">
-  <h2>Shipping Method</h2>
-
+  <h2>USPS Shipping Method</h2>
   <label class="shipping-option">
-    <input
-      type="radio"
-      name="shippingMethod"
-      value="standard"
-      id="shippingStandard"
-      checked
-    >
-
-    <span class="shipping-option-text">
-      <strong>Standard Delivery</strong>
-      <small>3–5 Working Days</small>
-    </span>
-
-    <span
-      class="shipping-option-price"
-      id="standardShippingPrice"
-    >
-      $8.99
-    </span>
+    <input type="radio" name="shippingMethod" value="standard" id="shippingStandard" checked>
+    <span class="shipping-option-text"><strong>USPS Ground Advantage</strong><small>Typically 2–5 business days</small></span>
+    <span class="shipping-option-price" id="standardShippingPrice">$8.99</span>
   </label>
-
-  <label class="shipping-option">
-    <input
-      type="radio"
-      name="shippingMethod"
-      value="express"
-      id="shippingExpress"
-    >
-
-    <span class="shipping-option-text">
-      <strong>Express Delivery</strong>
-      <small>3 Working Days</small>
-    </span>
-
-    <span class="shipping-option-price">
-      $15.00
-    </span>
+  <label class="shipping-option" style="opacity:.65;cursor:not-allowed">
+    <input type="radio" name="shippingMethod" value="priority" id="shippingPriority" disabled>
+    <span class="shipping-option-text"><strong>USPS Priority Mail</strong><small>Typically 2–3 business days · $15 for eligible packed shipments up to 1 lb · Available after package verification</small></span>
+    <span class="shipping-option-price">$15.00*</span>
   </label>
+  <label class="shipping-option" style="opacity:.65;cursor:not-allowed">
+    <input type="radio" name="shippingMethod" value="priority_express" id="shippingPriorityExpress" disabled>
+    <span class="shipping-option-text"><strong>USPS Priority Mail Express</strong><small>Typically 1–3 calendar days · Address-based rate service coming soon</small></span>
+    <span class="shipping-option-price">Calculated</span>
+  </label>
+  <p class="secure-note" style="margin:12px 0">* Priority Mail and Priority Mail Express are temporarily unavailable until USPS pricing and shipping validation are connected. Standard checkout is unchanged.</p>
 </section>
         
   <h2>Payment</h2>
@@ -1672,8 +1648,8 @@ function updateCheckoutTotal() {
 
 let shippingCost;
 
-if (selectedShippingMethod === "express") {
-  shippingCost = 15;
+if (selectedShippingMethod !== "standard") {
+  shippingCost = 0; // Display-only placeholder; selection cannot be paid.
 } else {
   shippingCost =
     standardShippingFree(Math.round(subtotal * 100), Math.round(discountAmount * 100)) ? 0 : 8.99;
@@ -1727,11 +1703,10 @@ document.getElementById("orderSummaryTotal").textContent =
     `$${total.toFixed(2)}`;
 
   document.querySelectorAll(".shipping-summary-label").forEach(label => {
-    label.textContent = selectedShippingMethod === "express"
-      ? "Shipping (Express):" : "Shipping:";
+    label.textContent = selectedShippingMethod === "standard" ? "Shipping:" : "Shipping (Unavailable):";
   });
-  if (selectedShippingMethod === "express") {
-    shippingMessage.textContent = "Express delivery selected.";
+  if (selectedShippingMethod !== "standard") {
+    shippingMessage.textContent = "This USPS shipping upgrade is not yet available for payment.";
   } else {
     const free = standardShippingFree(Math.round(subtotal * 100), Math.round(discountAmount * 100));
     const remaining = 75 - subtotal;
@@ -1939,9 +1914,8 @@ function checkoutAmountCents() {
 
   const discountCents = Math.round(discountAmount * 100);
 
-  const shipCents = shipping === "express"
-    ? 1500
-    : standardShippingFree(subtotalCents, discountCents) ? 0 : 899;
+  if (shipping !== "standard") throw new Error("Selected USPS shipping service is not available for payment yet. Choose Ground Advantage.");
+  const shipCents = standardShippingFree(subtotalCents, discountCents) ? 0 : 899;
 
   const taxableCents = subtotalCents - discountCents + shipCents;
 
@@ -2036,6 +2010,8 @@ document.getElementById("paymentButton").addEventListener(
         if (Math.round(discountAmount * 100) > available)
           throw new Error("Your available referral rewards changed. Remove and apply your rewards again before paying.");
       }
+      if ((document.querySelector('input[name="shippingMethod"]:checked')?.value || "standard") !== "standard")
+        throw new Error("Priority Mail and Priority Mail Express are not active yet. Please choose USPS Ground Advantage.");
       checkoutAccount.copyBilling();
       const delivery = deliveryPayload();
       checkoutAccount.validateBilling();
@@ -2280,6 +2256,14 @@ function openCheckoutCartPreview(item) {
       const paragraph = document.createElement("p"); paragraph.textContent = `Size: ${size}`;
       productDetails.appendChild(paragraph);
     }
+    const oz = Number(details.shipping_weight_oz);
+    if (details.shipping_weight_oz != null && Number.isFinite(oz) && oz > 0) {
+      const p = document.createElement("p"); p.textContent = `Shipping weight: ${oz} oz`; productDetails.appendChild(p);
+    }
+    const dims = [details.package_length_in, details.package_width_in, details.package_height_in];
+    if (dims.every(v => v != null && v !== "" && Number.isFinite(Number(v)) && Number(v) > 0)) {
+      const p = document.createElement("p"); p.textContent = `Package size: ${dims.map(Number).join(" × ")} in (L × W × H)`; productDetails.appendChild(p);
+    }
   }
   showProductDetails(checkoutItemDetails(item));
   content.append(productDetails, gallery, quantity);
@@ -2290,9 +2274,9 @@ function openCheckoutCartPreview(item) {
   if (!dialog.open) dialog.showModal();
   const catalogId = checkoutCatalogId(item);
   if (!cached && Number.isSafeInteger(catalogId) && catalogId > 0) {
-    supabaseClient.from("products").select("image_urls,quantity,description,size,old_price").eq("id", catalogId).maybeSingle().then(({data, error}) => {
+    supabaseClient.from("products").select("image_urls,quantity,description,size,old_price,shipping_weight_oz,package_length_in,package_width_in,package_height_in").eq("id", catalogId).maybeSingle().then(({data, error}) => {
       if (error || !data) return;
-      const details = {images: [item.image, ...(Array.isArray(data.image_urls) ? data.image_urls : [])], stock: Math.max(0, Number(data.quantity ?? 1)), description: data.description || item.description || "", size: item.size || data.size || ""};
+      const details = {images: [item.image, ...(Array.isArray(data.image_urls) ? data.image_urls : [])], stock: Math.max(0, Number(data.quantity ?? 1)), description: data.description || item.description || "", size: item.size || data.size || "", shipping_weight_oz:data.shipping_weight_oz, package_length_in:data.package_length_in, package_width_in:data.package_width_in, package_height_in:data.package_height_in};
       checkoutPhotoCache.set(item.id, details);
       if (version !== checkoutPreviewVersion || !dialog.open) return;
       drawPhotos(details.images); showProductDetails(details);
@@ -2310,7 +2294,13 @@ function checkoutItemDetails(item) {
   const cached = checkoutPhotoCache.get(item.id);
   return {
     description: cached?.description || item.description || "",
-    size: item.size || cached?.size || ""
+    size: item.size || cached?.size || "",
+    shipping_weight_oz: cached?.shipping_weight_oz,
+    package_length_in: cached?.package_length_in,
+    package_width_in: cached?.package_width_in,
+    package_height_in: cached?.package_height_in,
+    weightOz: cached?.shipping_weight_oz,
+    packageDimensions: [cached?.package_length_in,cached?.package_width_in,cached?.package_height_in]
   };
 }
 function appendCheckoutItemDetails(container, item) {
@@ -2329,6 +2319,14 @@ function appendCheckoutItemDetails(container, item) {
     paragraph.textContent = `Size: ${size}`;
     block.appendChild(paragraph);
   }
+  const weight = Number(data.weightOz);
+  if (data.weightOz != null && Number.isFinite(weight) && weight > 0) {
+    const p = document.createElement("p"); p.textContent = `Shipping weight: ${weight} oz`; block.appendChild(p);
+  }
+  const dimensions = data.packageDimensions;
+  if (Array.isArray(dimensions) && dimensions.every(v => v != null && v !== "" && Number.isFinite(Number(v)) && Number(v) > 0)) {
+    const p = document.createElement("p"); p.textContent = `Package size: ${dimensions.map(Number).join(" × ")} in (L × W × H)`; block.appendChild(p);
+  }
   container.appendChild(block);
 }
 async function loadCheckoutItemDetails() {
@@ -2336,14 +2334,18 @@ async function loadCheckoutItemDetails() {
     const id = checkoutCatalogId(item);
     if (!Number.isSafeInteger(id) || id <= 0) return;
     const {data, error} = await supabaseClient.from("products")
-      .select("image_urls,quantity,description,size,old_price").eq("id", id).maybeSingle();
+      .select("image_urls,quantity,description,size,old_price,shipping_weight_oz,package_length_in,package_width_in,package_height_in").eq("id", id).maybeSingle();
     if (error || !data) return;
     checkoutOriginalPrices.set(item.id, data.old_price);
     checkoutPhotoCache.set(item.id, {
       images: [item.image, ...(Array.isArray(data.image_urls) ? data.image_urls : [])],
       stock: Math.max(0, Number(data.quantity ?? 1)),
       description: data.description || item.description || "",
-      size: item.size || data.size || ""
+      size: item.size || data.size || "",
+      shipping_weight_oz:data.shipping_weight_oz,
+      package_length_in:data.package_length_in,
+      package_width_in:data.package_width_in,
+      package_height_in:data.package_height_in
     });
   }));
   renderExpandedSummaryItems();

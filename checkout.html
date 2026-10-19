@@ -752,7 +752,7 @@ font-size: 0 !important;
 <body>
 
   <div class="checkout-header">
-    IM COLLECTIONS • STRIPE SANDBOX DRAFT • NOT LIVE
+    IM COLLECTIONS • STRIPE SANDBOX DRAFT • DO NOT PUBLISH
   </div>
 
   <div class="logo-area">
@@ -1647,6 +1647,7 @@ document
 // The Supabase payment function is gated until server-side order/reward tests pass.
 let stripeSessionId = null;
 let stripePendingPayment = false;
+let stripeConfirmationPending = false;
 function checkoutNotice(message, failed=false) {
  const el=document.getElementById("checkoutMessage");
  el.textContent=message; el.style.color=failed?"#b42318":"#176a37";
@@ -1655,7 +1656,7 @@ function setPaymentBusy(busy) {
  paymentBusy=busy; referralUiBusy=busy;
  for (const id of ["applyDiscount","bottomApplyDiscount","discountCode","bottomDiscountCode"])
   document.getElementById(id).disabled=busy;
- document.getElementById("paymentButton").disabled=busy;
+ document.getElementById("paymentButton").disabled=busy || stripeConfirmationPending;
  renderReferralRewardChoice();
 }
 function deliveryPayload() {
@@ -1678,7 +1679,7 @@ const attemptStorageKey="imStripeSandboxDraftAttempt";
 let paymentBusy=false;
 let latestOrderNumber=null;
 document.getElementById("paymentButton").addEventListener("click",async()=>{
- if(paymentBusy)return;
+ if(paymentBusy || stripeConfirmationPending)return;
  setPaymentBusy(true);
  try {
    await checkoutAccount.ready; checkoutAccount.checkReady();checkoutAccount.copyBilling();
@@ -1712,8 +1713,9 @@ document.getElementById("paymentButton").addEventListener("click",async()=>{
       confirmParams:{return_url:url.toString(),payment_method_data:{billing_details:{name:billingName}}},
       redirect:"if_required"});
    if(result.error)throw Error(result.error.message||"Payment could not be completed.");
-   checkoutNotice("Payment submitted. Await Stripe confirmation; do not submit another payment.");
-   document.getElementById("paymentButton").disabled=true;
+   stripeConfirmationPending = true;
+   document.getElementById("paymentButton").textContent="AWAITING PAYMENT CONFIRMATION";
+   checkoutNotice("Payment submitted. Await verified Stripe confirmation; do not submit another payment or refresh this page.");
  }catch(error){checkoutNotice(error.message||"Sandbox setup incomplete.",true);}
  finally{setPaymentBusy(false);}
 });

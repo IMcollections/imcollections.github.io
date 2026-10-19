@@ -746,6 +746,16 @@ font-size: 0 !important;
 .checkout-discount-row, .checkout-discount-row strong { color: #b42318; }
 .checkout-rewards-note { margin: -2px 0 18px; font-size: 14px; line-height: 1.5; color: #626262; }
 .checkout-rewards-row strong { color: #25633c; }
+
+/* Card saving is displayed to members, but cannot be selected before secure
+   tokenization, customer vaulting, and saved-card charging are verified. */
+.im-save-card-area { margin: 12px 0 20px; }
+.im-save-card-area .save-card-option { margin: 0; align-items: flex-start; }
+.im-save-card-area .save-card-option input { margin-top: 3px; }
+.im-save-card-area .save-card-option:has(input:disabled) { opacity: .68; }
+.im-save-card-note { margin: 6px 0 18px 30px; color: #626262; font-size: 13px; line-height: 1.5; }
+#saveCardGuestNote { margin-left: 0; }
+#saveCardGuestNote a { color: #8a651f; text-decoration: underline; font-weight: 700; }
 </style>
 </head>
 
@@ -1025,6 +1035,21 @@ font-size: 0 !important;
   >
   <span>Use shipping address as billing address</span>
 </label>
+
+<!-- IM Collections: card-on-file opt-in (not yet enabled while Square verification fails).
+     Never store PAN, CVV, or Square source tokens in website storage. -->
+<div id="saveCardCheckoutArea" class="im-save-card-area" hidden>
+  <label class="save-card-option" for="saveCardForFuture">
+    <input type="checkbox" id="saveCardForFuture" disabled>
+    <span>Save this card securely for future purchases</span>
+  </label>
+  <p id="saveCardAvailabilityNote" class="im-save-card-note" role="status">
+    Card saving is temporarily unavailable while we complete secure payment verification. You can still enter a card for this purchase when payments are available.
+  </p>
+</div>
+<p id="saveCardGuestNote" class="im-save-card-note" hidden>
+  <a href="my-account.html">Sign in</a> or <a href="Register.html">register</a> to manage saved payment methods when this feature becomes available.
+</p>
 
   
   <label class="payment-method-option">
@@ -2957,6 +2982,32 @@ const checkoutAccount = (() => {
 <script>
 let selectedCheckoutCard = "";
 let deletingCheckoutCard = false;
+// Display the saved-card option only to authenticated members. The checkbox
+// stays disabled until Square card-on-file integration is securely operational.
+async function updateSaveCardEligibility() {
+  const area = document.getElementById("saveCardCheckoutArea");
+  const guestNote = document.getElementById("saveCardGuestNote");
+  const checkbox = document.getElementById("saveCardForFuture");
+  if (!area || !guestNote || !checkbox) return;
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const signedIn = Boolean(session?.user?.id);
+    area.hidden = !signedIn;
+    guestNote.hidden = signedIn;
+    checkbox.checked = false;
+    checkbox.disabled = true;
+  } catch (_) {
+    area.hidden = true;
+    guestNote.hidden = false;
+    checkbox.checked = false;
+    checkbox.disabled = true;
+  }
+}
+supabaseClient.auth.onAuthStateChange(() => {
+  setTimeout(updateSaveCardEligibility, 0);
+});
+void updateSaveCardEligibility();
+
 const paymentMenu = document.getElementById("savedCardSelect");
 const deletePaymentDialog = document.getElementById("deletePaymentDialog");
 

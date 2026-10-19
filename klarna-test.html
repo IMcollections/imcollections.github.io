@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Klarna Playground Connection Test | IM Collections</title>
+<style>
+body{font:16px/1.5 Arial,sans-serif;background:#f7f7f7;color:#171717;margin:0;padding:24px}
+main{max-width:580px;margin:auto;padding:28px;background:#fff;border:1px solid #ddd;border-radius:12px}
+h1{font-size:25px;margin-top:0}button{padding:13px 18px;border:0;border-radius:5px;background:#111;color:#fff;font-weight:bold;font-size:16px}
+button:disabled{opacity:.5}#result{margin-top:20px;padding:16px;border-radius:7px;background:#f3f3f3;white-space:pre-wrap;overflow-wrap:anywhere}
+small{color:#555}
+</style>
+</head>
+<body>
+<main>
+<h1>IM Collections — Klarna Playground test</h1>
+<p>This tests only whether your existing Supabase Edge Function can create a $10.00 <strong>Playground payment session</strong>. It does not authorize or charge a payment, save an order, or alter your checkout.</p>
+<p><small>Use this page on imcollections.github.io after signing into your IM Collections account. Don't share API secrets or full session data.</small></p>
+<button type="button" id="test">Test Klarna Connection</button>
+<div id="result" role="status" aria-live="polite">No test run yet.</div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(() => {
+  const projectUrl = 'https://vqzjegneplzeoqxcqfeu.supabase.co';
+  const publishableKey = 'sb_publishable_QDvKrAHvvopp_fuunxTxEA_4v6TD4Jk';
+  const supabaseClient = supabase.createClient(projectUrl, publishableKey);
+  const btn = document.getElementById('test');
+  const out = document.getElementById('result');
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    out.textContent = 'Requesting a Klarna Playground session…';
+    try {
+      // Dummy price only: no live cart or order data is sent.
+      const orderLines = [{
+        type: 'physical',
+        reference: 'IM-CONNECTION-TEST',
+        name: 'Klarna API connection test',
+        quantity: 1,
+        quantity_unit: 'pcs',
+        unit_price: 1000,
+        tax_rate: 0,
+        total_amount: 1000,
+        total_discount_amount: 0,
+        total_tax_amount: 0
+      }];
+      const { data, error } = await supabaseClient.functions.invoke('create-klarna-session', {
+        body: { orderAmount: 1000, orderTaxAmount: 0, orderLines }
+      });
+      if (error) {
+        let serverMessage = '';
+        try { const d = await error.context?.json?.(); serverMessage = typeof d?.error === 'string' ? d.error : JSON.stringify(d?.error || ''); } catch {}
+        throw new Error(serverMessage || error.message || 'Edge Function call failed');
+      }
+      if (data?.success && data?.sessionId && data?.clientToken) {
+        // Do NOT reveal session ID or client token in the page or console.
+        out.textContent = 'PASS — Klarna created a Playground session successfully. No payment was charged or authorized.\n\nNext: implement secure authorization and order creation.';
+      } else {
+        const message = data?.error;
+        out.textContent = 'FAIL — ' + (typeof message === 'string' ? message : JSON.stringify(message || 'The function did not return a valid session.'));
+      }
+    } catch (e) {
+      out.textContent = 'FAIL — ' + (e?.message || 'Unexpected connection error');
+    } finally { btn.disabled = false; }
+  });
+})();
+</script>
+</body>
+</html>

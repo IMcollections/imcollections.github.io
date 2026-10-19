@@ -10,6 +10,7 @@
 <div class="top">IM COLLECTIONS</div>
 <div class="shell"><main>
 <h1>Shop Pay Connection Test</h1>
+<p class="small">Diagnostic version 2 — displays Shopify error category and HTTP status</p>
 <p>This page checks whether the IM Collections Supabase backend can access the dedicated Shopify Wallet store. It <strong>cannot charge a card or create a payment session</strong>.</p>
 <div class="note"><strong>Private test:</strong> Sign in to your IM Collections account first, then return here. No Shopify credentials or payment details are displayed.</div>
 <div id="authState" class="status" role="status">Checking your sign-in status…</div>
@@ -61,7 +62,9 @@
         const missing = data?.missing || {};
         let next = '';
         if (data?.stage === 'configuration_missing') next = '\nMissing configuration: ' + [missing.shopDomain ? 'store domain' : '',missing.storefrontToken ? 'Storefront API token' : ''].filter(Boolean).join(', ');
-        result.textContent = 'Shopify Storefront API connection: NOT VERIFIED\nReason: ' + String(data?.stage || 'unknown') + next + '\nPayments: DISABLED';
+        const category = typeof data?.failureCategory === 'string' ? '\nFailure category: ' + data.failureCategory : '';
+        const http = Number.isInteger(data?.upstreamHttpStatus) ? '\nShopify HTTP status: ' + data.upstreamHttpStatus : '';
+        result.textContent = 'Shopify Storefront API connection: NOT VERIFIED\nReason: ' + String(data?.stage || 'unknown') + next + category + http + '\nPayments: DISABLED';
       }
     } catch (error) {
       result.className = 'status bad';

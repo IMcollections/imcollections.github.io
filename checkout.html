@@ -1465,7 +1465,10 @@ try {
 
 document.addEventListener(
   "DOMContentLoaded",
-  initializeSquareCard
+  () => initializeSquareCard().catch(error => {
+    console.error("Square initialization failed:", error);
+    checkoutNotice("Square card form could not load: " + (error.message || String(error)), true);
+  })
 );
     
     const checkoutCart =
@@ -2139,23 +2142,50 @@ document.getElementById("paymentButton").addEventListener(
       const savedCardId = method === "card" ? document.getElementById("savedCardSelect").value : "";
       const selectedCard = checkoutSavedCards.find(c => c.id === savedCardId);
       if(savedCardId && !selectedCard) throw new Error("Select an available saved card.");
+      // Square expects accurate billing details for integrated buyer verification.
+      // A previously saved card is charged by the secure server, not by
+      // tokenizing the currently hidden new-card entry field.
+      const field = id => document.getElementById(id)?.value?.trim() || "";
+      const cardholderName = field("cardholderName");
+      if (method === "card" && !savedCardId && !cardholderName) {
+        document.getElementById("cardholderName").focus();
+        throw new Error("Enter the name on your card.");
+      }
+      const billingSame = document.getElementById("sameAsShipping").checked;
+      const first = billingSame ? field("guestFirstName") : field("billingFirstName");
+      const last = billingSame ? field("guestLastName") : field("billingLastName");
+      const street = billingSame ? field("guestAddress") : field("billingAddress");
+      const unit = billingSame ? field("guestAddress2") : field("billingApartment");
       const verificationDetails = {
-        amount: (checkoutAmountCents()/100).toFixed(2), currencyCode: "USD", intent: "CHARGE",
+        amount: (checkoutAmountCents() / 100).toFixed(2),
+        currencyCode: "USD", intent: "CHARGE",
         customerInitiated: true, sellerKeyedIn: false,
         billingContact: {
-          givenName: document.getElementById("billingFirstName").value,
-          familyName: document.getElementById("billingLastName").value,
-          email: document.getElementById("guestEmail").value,
-          addressLines: [document.getElementById("billingAddress").value,document.getElementById("billingApartment").value],
-          city: document.getElementById("billingCity").value,
-          state: document.getElementById("billingState").value,
-          postalCode: document.getElementById("billingPostal").value, countryCode: "US"
+          givenName: first, familyName: last,
+          email: field("guestEmail"), phone: field("guestPhone"),
+          addressLines: [street, unit].filter(Boolean),
+          city: billingSame ? field("guestCity") : field("billingCity"),
+          state: billingSame ? field("guestState") : field("billingState"),
+          postalCode: billingSame ? field("guestZip") : field("billingPostal"),
+          countryCode: "US"
         }
       };
       paymentStage = "Square card tokenization and buyer verification";
-      const result = method === "card"
-        ? await paymentForm.tokenize(verificationDetails, savedCardId || undefined)
-        : await paymentForm.tokenize();
+      // Saved-card identifiers must be handled by the payment Edge Function.
+      // Do not silently submit a hidden/empty new-card field for saved cards.
+      if (method === "card" && savedCardId) {
+        throw new Error("Saved-card charging is not yet supported by the current payment server. Select Add Payment to use a card.");
+      }
+      let result;
+      try {
+        result = method === "card"
+          ? await paymentForm.tokenize(verificationDetails)
+          : await paymentForm.tokenize();
+      } catch (squareError) {
+        const squareCode = squareError?.code || squareError?.name || "UNKNOWN";
+        console.error("Square payment verification failure", squareCode, squareError);
+        throw new Error("Square card verification failed (" + squareCode + "): " + (squareError?.message || "Unknown SDK error") + ". No charge was requested. Use Square Sandbox test card details and confirm your Sandbox app and location match.");
+      }
 
       if (result.status !== "OK") {
         throw new Error(
@@ -2973,7 +3003,8 @@ async function loadCheckoutSavedCards() {
   deleteOption.disabled = checkoutSavedCards.length === 0;
   paymentMenu.add(deleteOption);
   const preferred = checkoutSavedCards.find((card) => card.is_default);
-  if (preferred) paymentMenu.value = preferred.id;
+  // Default to adding a new card until saved-card server processing is supported.
+  paymentMenu.value = "";
   selectedCheckoutCard = paymentMenu.value;
   updateSavedCardFields();
 }

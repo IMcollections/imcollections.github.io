@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IM Collections — Shop Pay Connection Test</title>
+<style>
+:root{color-scheme:light;font:16px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:#161616}*{box-sizing:border-box}body{margin:0;background:#f7f6f2}.top{background:#111;color:#eac576;padding:24px 16px;text-align:center;letter-spacing:2px;font-weight:800}.shell{max-width:650px;margin:34px auto;padding:0 18px}main{background:#fff;padding:26px;border:1px solid #e3ded3;border-radius:12px;box-shadow:0 6px 24px #0000000a}h1{font:normal 31px/1.2 Georgia,serif;margin:0 0 16px}p{margin:12px 0}.note{padding:15px;border-radius:8px;background:#f8f4e9;font-size:14px}.status{margin:20px 0;padding:14px;background:#f5f5f5;border-left:4px solid #bb9239;white-space:pre-wrap;overflow-wrap:anywhere}.status.good{border-color:#22804c}.status.bad{border-color:#a93b31}button{width:100%;border:0;border-radius:7px;background:#c9a44c;padding:14px 20px;font-size:16px;font-weight:bold;cursor:pointer}button:disabled{opacity:.6;cursor:wait}a{color:#725117}.small{font-size:13px;color:#666}code{font-size:.9em}</style>
+</head>
+<body>
+<div class="top">IM COLLECTIONS</div>
+<div class="shell"><main>
+<h1>Shop Pay Connection Test</h1>
+<p>This page checks whether the IM Collections Supabase backend can access the dedicated Shopify Wallet store. It <strong>cannot charge a card or create a payment session</strong>.</p>
+<div class="note"><strong>Private test:</strong> Sign in to your IM Collections account first, then return here. No Shopify credentials or payment details are displayed.</div>
+<div id="authState" class="status" role="status">Checking your sign-in status…</div>
+<button type="button" id="runTest" disabled>Check Shopify Connection</button>
+<div id="result" class="status" role="status" aria-live="polite">Test not started.</div>
+<p class="small"><a href="my-account.html">Sign in / My Account</a> · <a href="index.html">Back to Shopping</a></p>
+<p class="small">This diagnostic is read-only. Remove this temporary page from your repository after testing.</p>
+</main></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(() => {
+  'use strict';
+  const db = window.supabase.createClient(
+    'https://vqzjegneplzeoqxcqfeu.supabase.co',
+    'sb_publishable_QDvKrAHvvopp_fuunxTxEA_4v6TD4Jk'
+  );
+  const authState = document.getElementById('authState');
+  const result = document.getElementById('result');
+  const button = document.getElementById('runTest');
+  async function updateAuth() {
+    try {
+      const { data, error } = await db.auth.getUser();
+      if (error || !data?.user) {
+        authState.textContent = 'Not signed in. Please sign in to IM Collections using the link below, then return here.';
+        button.disabled = true;
+        return;
+      }
+      authState.textContent = 'Signed in. Ready to check the Shopify connection.';
+      authState.className = 'status good';
+      button.disabled = false;
+    } catch {
+      authState.textContent = 'Unable to check your account. Refresh or try signing in again.';
+      button.disabled = true;
+    }
+  }
+  button.addEventListener('click', async () => {
+    button.disabled = true;
+    result.className = 'status';
+    result.textContent = 'Checking Shopify connectivity…';
+    try {
+      const { data, error } = await db.functions.invoke('im-shop-pay-session', {body: {action:'connection_test'}});
+      if (error) throw error;
+      if (data?.connected === true) {
+        result.className = 'status good';
+        const capability = data.shopPaySessionCreateCapability || 'unverified';
+        result.textContent = 'Shopify Storefront API connection: SUCCESS\nShop Pay session creation capability: ' + capability + '\nPayments: DISABLED (safe diagnostic only)';
+      } else {
+        result.className = 'status bad';
+        const missing = data?.missing || {};
+        let next = '';
+        if (data?.stage === 'configuration_missing') next = '\nMissing configuration: ' + [missing.shopDomain ? 'store domain' : '',missing.storefrontToken ? 'Storefront API token' : ''].filter(Boolean).join(', ');
+        result.textContent = 'Shopify Storefront API connection: NOT VERIFIED\nReason: ' + String(data?.stage || 'unknown') + next + '\nPayments: DISABLED';
+      }
+    } catch (error) {
+      result.className = 'status bad';
+      result.textContent = 'Connection test could not run. Confirm your IM Collections sign-in, then try again.\nNo payments were attempted.';
+      console.warn('Shop Pay diagnostic failed', error?.name || 'Error');
+    } finally { button.disabled = false; }
+  });
+  updateAuth();
+  db.auth.onAuthStateChange(() => { setTimeout(updateAuth, 0); });
+})();
+</script>
+</body></html>

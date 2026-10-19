@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IM Collections — Square Sandbox Diagnostic</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7f7f7;color:#161616;font:16px/1.5 Arial,sans-serif}.top{background:#111;color:white;text-align:center;padding:20px;font-weight:800;letter-spacing:2px}.wrap{max-width:560px;margin:25px auto;padding:0 16px}.panel{padding:24px;background:white;border:1px solid #ddd;border-radius:12px}h1{font-size:25px;margin:0 0 10px}p{margin:12px 0}.note{background:#fff7e6;border:1px solid #ddbd75;padding:12px;border-radius:6px}#card-container{min-height:100px;margin:20px 0}label{font-weight:700;display:block;margin-top:14px}input{width:100%;padding:12px;border:1px solid #aaa;border-radius:5px;font:inherit}button{display:block;width:100%;padding:14px;margin:13px 0;background:#111;color:#fff;border:0;border-radius:5px;font:700 16px Arial;cursor:pointer}button.secondary{background:#c4a451;color:#111}button:disabled{opacity:.5;cursor:wait}#result{white-space:pre-wrap;overflow-wrap:anywhere;padding:14px;margin-top:18px;background:#f2f2f2;border:1px solid #ddd;border-radius:5px;font:14px/1.6 monospace}small{color:#555}
+</style>
+<script src="https://sandbox.web.squarecdn.com/v1/square.js"></script>
+</head>
+<body><div class="top">IM COLLECTIONS · SANDBOX TEST</div><main class="wrap"><div class="panel">
+<h1>Square Card Diagnostic</h1>
+<div class="note"><strong>Test only. No charges, orders, or saved cards.</strong> This page never sends a payment token to a server. Use Square Sandbox test cards only, not real card numbers.</div>
+<p>Run the basic tokenization test first. Then re-enter the test card and run the verified test. Both should give a clear PASS or ERROR result.</p>
+<label for="givenName">Test first name</label><input id="givenName" value="Test" autocomplete="off">
+<label for="familyName">Test last name</label><input id="familyName" value="Member" autocomplete="off">
+<label for="email">Test email</label><input id="email" type="email" value="test@example.com" autocomplete="off">
+<div id="card-container"></div>
+<button type="button" id="basic" disabled>1. Test Basic Tokenization (No Charge)</button>
+<button type="button" id="verified" class="secondary" disabled>2. Test Buyer Verification (No Charge)</button>
+<div id="result" role="status" aria-live="polite">Loading Square Sandbox SDK…</div>
+<p><small>Do not send screenshots containing entered card details. Share only the message in the result panel. A generated payment token is deliberately discarded and never displayed or saved.</small></p>
+</div></main>
+<script>
+'use strict';
+const applicationId='sandbox-sq0idb-c7snyR_ZJ25r9nRUu7ZvqA';
+const locationId='LG5NFQWF';
+const $=id=>document.getElementById(id);
+const status=(s)=>{$('result').textContent=s;};
+let card=null, busy=false;
+function safeErrors(errors){
+  return Array.isArray(errors)?errors.map(e=>({code:String(e?.code||'unknown').slice(0,80),type:String(e?.type||'').slice(0,80),detail:String(e?.detail||'').slice(0,260)})):[];
+}
+function diagnostic(e){return JSON.stringify({name:String(e?.name||'Error'),message:String(e?.message||'Unknown failure'),code:e?.code?String(e.code):undefined,errors:safeErrors(e?.errors)},null,2);}
+async function initialize(){
+ try{
+  if(!window.Square)throw Error('Square Sandbox SDK did not load.');
+  const payments=window.Square.payments(applicationId,locationId);
+  card=await payments.card();
+  await card.attach('#card-container');
+  $('basic').disabled=false;$('verified').disabled=false;
+  status('READY: Secure Square card form initialized. Enter a Square Sandbox test card, then tap test 1.');
+ }catch(e){status('INITIALIZATION ERROR\n'+diagnostic(e));}
+}
+async function run(verify){
+ if(!card||busy)return;
+ busy=true;$('basic').disabled=true;$('verified').disabled=true;
+ status((verify?'VERIFIED':'BASIC')+' TOKENIZATION: Running…');
+ try{
+  let result;
+  if(verify){
+   const details={amount:'1.00',currencyCode:'USD',intent:'CHARGE',customerInitiated:true,sellerKeyedIn:false,billingContact:{givenName:$('givenName').value.trim()||'Test',familyName:$('familyName').value.trim()||'Member',email:$('email').value.trim()||'test@example.com',addressLines:['123 Main Street'],city:'Oakland',state:'CA',postalCode:'94612',countryCode:'US'}};
+   result=await card.tokenize(details);
+  } else result=await card.tokenize();
+  if(result?.status==='OK'){
+   status('PASS: '+(verify?'Buyer verification and tokenization':'Basic card tokenization')+' succeeded.\nNo payment was requested. No card was saved. The test payment token was discarded.');
+  } else {
+   status('FAILED: '+(verify?'Verified':'Basic')+' tokenization\nstatus: '+String(result?.status||'unknown')+'\nerrors: '+JSON.stringify(safeErrors(result?.errors),null,2)+'\nNo payment was requested.');
+  }
+  // Intentionally never log, display, persist, or transmit result.token.
+ }catch(e){status('ERROR: '+(verify?'Verified':'Basic')+' tokenization\n'+diagnostic(e)+'\nNo payment was requested.');}
+ finally{busy=false;$('basic').disabled=false;$('verified').disabled=false;}
+}
+$('basic').addEventListener('click',()=>run(false));
+$('verified').addEventListener('click',()=>run(true));
+initialize();
+</script></body></html>

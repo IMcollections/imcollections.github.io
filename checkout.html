@@ -756,6 +756,37 @@ font-size: 0 !important;
 .im-save-card-note { margin: 6px 0 18px 30px; color: #626262; font-size: 13px; line-height: 1.5; }
 #saveCardGuestNote { margin-left: 0; }
 #saveCardGuestNote a { color: #8a651f; text-decoration: underline; font-weight: 700; }
+
+/* Checkout payment choices: full-width vertical radio-button rows. */
+.payment-method-options {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin: 0 0 22px;
+}
+.payment-method-options > .payment-method-option {
+  min-width: 0; height: auto !important; min-height: 56px !important;
+  padding: 10px 12px !important; margin: 0 !important;
+  border: 1px solid #dedbd6 !important; border-radius: 6px;
+  display: flex !important; align-items: center !important; gap: 9px;
+}
+.payment-method-options > .payment-method-option:has(input:checked) { border-color:#b78e36 !important; background:#faf6ec; }
+.payment-method-options > .payment-method-option span { font-size: 16px; line-height: 1.3; }
+.im-save-card-area label.save-card-option {
+  display: flex !important; flex-direction: row !important;
+  align-items: center !important; justify-content: flex-start !important;
+  gap: 10px !important; width: 100%; margin: 12px 0 4px !important;
+  text-transform: none; letter-spacing: 0; text-align: left;
+}
+.im-save-card-area label.save-card-option > input {
+  order: 0; flex: 0 0 20px !important; width: 20px !important;
+  height: 20px !important; margin: 0 !important;
+}
+.im-save-card-area label.save-card-option > span {
+  order: 1; flex: 1 1 auto; min-width: 0; font-size: 15px; line-height: 1.45;
+}
+.im-save-card-area .im-save-card-note { margin: 4px 0 16px 30px !important; }
+
 </style>
 </head>
 
@@ -990,7 +1021,14 @@ font-size: 0 !important;
     >
     <span>Credit / Debit Card</span>
   </label>
-
+  <label class="payment-method-option">
+    <input type="radio" name="paymentMethod" value="cashapp" id="paymentMethodCashApp">
+    <span>Cash App Pay</span>
+  </label>
+  <label class="payment-method-option">
+    <input type="radio" name="paymentMethod" value="giftcard" id="paymentMethodGiftCard">
+    <span>Gift Card</span>
+  </label>
 </div>
 
 <div id="cardPaymentSection">
@@ -1052,45 +1090,13 @@ font-size: 0 !important;
 </p>
 
   
-  <label class="payment-method-option">
-    <input
-      type="radio"
-      name="paymentMethod"
-      value="applepay"
-      id="paymentMethodApplePay"
-    >
-    <span>Apple Pay</span>
-  </label>
+  
 
-  <label class="payment-method-option">
-    <input
-      type="radio"
-      name="paymentMethod"
-      value="googlepay"
-      id="paymentMethodGooglePay"
-    >
-    <span>Google Pay</span>
-  </label>
+  
 
-  <label class="payment-method-option">
-    <input
-      type="radio"
-      name="paymentMethod"
-      value="cashapp"
-      id="paymentMethodCashApp"
-    >
-    <span>Cash App Pay</span>
-  </label>
+  
 
-  <label class="payment-method-option">
-    <input
-      type="radio"
-      name="paymentMethod"
-      value="giftcard"
-      id="paymentMethodGiftCard"
-    >
-    <span>Gift Card</span>
-  </label>
+  
 
 <div id="billingAddressFields" style="display: none;">
 
@@ -1125,25 +1131,7 @@ font-size: 0 !important;
 </div>
   </div>
 
-<div id="applePayPaymentSection" style="display: none;">
-        
-  <button
-  type="button"
-  id="applePay"
-  class="apple-pay-button"
-  aria-label="Apple Pay"
-></button>
 
-<div id="applePayStatus"></div>
-
-<div class="payment-divider" id="applePayDivider">
-</div>
-  </div>
-
-<div id="googlePayPaymentSection" style="display: none;">
-  <div id="googlePay"></div>
-  <div id="googlePayStatus"></div>
-</div>
 
 <div id="cashAppPaymentSection">
   <div id="cashAppPay"></div>
@@ -1346,22 +1334,6 @@ paymentRequest =
   });
 
 try {
-  googlePay =
-    await payments.googlePay(paymentRequest);
-
-  await googlePay.attach("#googlePay", {
-    buttonColor: "default",
-    buttonType: "long"
-  });
-
-} catch (error) {
-  console.error(
-    "Google Pay initialization error:",
-    error
-  );
-}
-
-try {
   const cashAppOptions = {
     redirectURL: window.location.href,
     referenceId: "IM-" + Date.now()
@@ -1419,70 +1391,6 @@ try {
   );
 }
   
-try {
-  const applePay =
-    await payments.applePay(paymentRequest);
-
-  const applePayButton =
-    document.getElementById("applePay");
-
-  if (applePayButton) {
-  applePayButton.addEventListener("click", async function () {
-
-    const status =
-      document.getElementById("applePayStatus");
-
-    status.textContent =
-  "Opening Apple Pay for $" + applePayAmount + "…";
-
-    try {
-      const result =
-        await applePay.tokenize();
-
-      if (result.status === "OK") {
-
-        status.textContent =
-          "Apple Pay authorized. Processing…";
-
-        console.log(
-          "Apple Pay token created:",
-          result.token
-        );
-
-      } else {
-
-        status.textContent =
-          "Apple Pay was not completed. Please try again.";
-
-        console.error(
-          "Apple Pay tokenization failed:",
-          result.errors
-        );
-      }
-
-    } catch (error) {
-
-      status.textContent =
-        "Apple Pay closed: " +
-        (error.message || "Unable to start payment.");
-
-      console.error(
-        "Apple Pay error:",
-        error
-      );
-    }
-  });
-}
-} catch (error) {
-  console.warn(
-    "Apple Pay is not available yet:",
-    error
-  );
-
-  const applePayButton =
-    document.getElementById("applePay");
-}
-
   squareCard = await payments.card();
 
   await squareCard.attach("#card-container");
@@ -1852,12 +1760,6 @@ document
     const cardPaymentSection =
   document.getElementById("cardPaymentSection");
 
-const applePayPaymentSection =
-  document.getElementById("applePayPaymentSection");
-
-const googlePayPaymentSection =
-  document.getElementById("googlePayPaymentSection");
-
 const cashAppPaymentSection =
   document.getElementById("cashAppPaymentSection");
 
@@ -1877,12 +1779,6 @@ function showSelectedPaymentMethod() {
 
   cardPaymentSection.style.display =
     selected === "card" ? "block" : "none";
-
-  applePayPaymentSection.style.display =
-    selected === "applepay" ? "block" : "none";
-
-  googlePayPaymentSection.style.display =
-    selected === "googlepay" ? "block" : "none";
 
   cashAppPaymentSection.style.display =
     selected === "cashapp" ? "block" : "none";
@@ -2152,13 +2048,12 @@ document.getElementById("paymentButton").addEventListener(
 
       const paymentForm = {
         card: squareCard,
-        giftcard: giftCard,
-        googlepay: googlePay
+        giftcard: giftCard
       }[method];
 
       if (!paymentForm) {
         throw new Error(
-          "This payment method is not connected yet. Choose Card, Gift Card, or Google Pay."
+          "This payment method is not connected yet. Choose Credit / Debit Card or Gift Card."
         );
       }
 

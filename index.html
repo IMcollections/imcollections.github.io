@@ -958,6 +958,8 @@
     }
 
     .product-view-count { color: var(--gray); font-size: 11px; margin: 0 0 8px; }
+    .im-product-package-details { margin: 12px 0 18px; padding: 12px 14px; border: 1px solid #e6e3dc; background: #fbfaf6; font-size: 13px; line-height: 1.65; }
+    .im-product-package-details strong { display: block; margin-bottom: 4px; }
     .modal-variants { display: grid; gap: 12px; margin: 0 0 16px; }
     .modal-variant-field { display: grid; gap: 6px; color: var(--gray); font-size: 13px; }
     .modal-variant-field select { width: 100%; min-height: 42px; padding: 8px 12px; border: 1px solid var(--border); background: white; }
@@ -3362,6 +3364,7 @@ onclick="filterProducts('Watches')"
         <div id="modalViews" class="product-view-count" aria-live="polite">521 views</div>
 
         <p id="modalDescription"></p>
+        <div id="imProductPackageDetails" class="im-product-package-details" hidden aria-label="Shipping package information"></div>
 
         <div
           class="modal-price"
@@ -3665,6 +3668,10 @@ async function loadSupabaseProducts() {
 
         description:
           product.description || "",
+        shipping_weight_oz: product.shipping_weight_oz,
+        package_length_in: product.package_length_in,
+        package_width_in: product.package_width_in,
+        package_height_in: product.package_height_in,
 
         size:
           product.size || "",
@@ -4958,6 +4965,18 @@ localStorage.setItem(
         .textContent =
           product.description;
 
+      const packageBox = document.getElementById("imProductPackageDetails");
+      const weight = Number(product.shipping_weight_oz);
+      const dimensions = [product.package_length_in, product.package_width_in, product.package_height_in].map(Number);
+      const hasWeight = product.shipping_weight_oz != null && Number.isFinite(weight) && weight > 0;
+      const hasDimensions = [product.package_length_in, product.package_width_in, product.package_height_in].every(v => v != null && v !== "") && dimensions.every(n => Number.isFinite(n) && n > 0);
+      packageBox.replaceChildren();
+      packageBox.hidden = !hasWeight && !hasDimensions;
+      if (!packageBox.hidden) {
+        const heading = document.createElement("strong"); heading.textContent = "Shipping & Package Details"; packageBox.append(heading);
+        if (hasWeight) { const row = document.createElement("div"); row.textContent = `Shipping weight: ${weight} oz`; packageBox.append(row); }
+        if (hasDimensions) { const row = document.createElement("div"); row.textContent = `Package size: ${dimensions.join(" × ")} in (L × W × H)`; packageBox.append(row); }
+      }
       document.getElementById("modalPrice")
         .textContent =
           `$${product.price.toFixed(2)}`;

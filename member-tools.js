@@ -750,8 +750,14 @@
             countryCode: "US",
           },
         });
-        if (result.status !== "OK")
-          throw Error("Check your card details and try again.");
+        if (result.status !== "OK") {
+          // Only show non-sensitive SDK error codes and status. Never expose the token.
+          const codes = Array.isArray(result.errors)
+            ? result.errors.map(e => String(e.code || e.type || "UNKNOWN").slice(0, 80)).join(", ")
+            : "";
+          throw Error("Square card test: status " + String(result.status) +
+            (codes ? ", error code(s): " + codes : "") + ". No card was saved.");
+        }
         pendingSave = {
           action: "add",
           requestId: crypto.randomUUID(),
@@ -767,9 +773,15 @@
       closeCardForm();
       await renderCards();
     } catch (e) {
-      status.textContent =
-        e.message +
-        (pendingSave ? " Tap Save again to check the same request." : "");
+      // Square may throw before returning a TokenResult. Log metadata only.
+      // Do not log the Square Card object, cardholder data, tokens, or request body.
+      const name = String(e?.name || "UnknownError").slice(0, 80);
+      const code = String(e?.code || "").slice(0, 80);
+      const message = String(e?.message || "Unknown Square SDK failure").slice(0, 300);
+      console.warn("IM Square Save Card diagnostic", { step: pendingSave ? "server-save" : "card-tokenize", name, code, message });
+      status.textContent = (pendingSave ? "Card save: " : "Square card diagnostic: ") +
+        name + (code ? " (" + code + ")" : "") + ": " + message +
+        (pendingSave ? " Tap Save again to check the same request." : " No card was saved.");
     } finally {
       button.disabled = false;
     }

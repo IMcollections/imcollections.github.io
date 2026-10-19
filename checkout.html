@@ -80,7 +80,7 @@
 
     .order-item {
       display: grid;
-      grid-template-columns: 80px 1fr auto;
+      grid-template-columns: 112px minmax(0, 1fr) auto;
       gap: 14px;
       padding: 14px 0;
       border-bottom: 1px solid #eee;
@@ -88,8 +88,8 @@
     }
 
     .order-item img {
-      width: 80px;
-      height: 95px;
+      width: 112px;
+      height: 132px;
       object-fit: cover;
     }
 
@@ -260,8 +260,8 @@ flex-shrink: 0;
 .order-product-details p { margin: 6px 0; font-size: 14px; line-height: 1.5; white-space: pre-line; overflow-wrap: anywhere; }
 .preview-product-details p { white-space: pre-line; overflow-wrap: break-word; }
 .summary-thumbnails img {
-  width: 64px;
-  height: 76px;
+  width: 94px;
+  height: 112px;
   object-fit: contain;
   border: 1px solid #e5e5e5;
   border-radius: 4px;
@@ -786,6 +786,85 @@ font-size: 0 !important;
   order: 1; flex: 1 1 auto; min-width: 0; font-size: 15px; line-height: 1.45;
 }
 .im-save-card-area .im-save-card-note { margin: 4px 0 16px 30px !important; }
+
+
+/* IM Collections: roomier responsive checkout product rows and gallery. */
+.order-item { gap: 14px; align-items: start; }
+.order-item > .summary-thumbnail { width:112px; max-width:100%; }
+.order-item .summary-thumbnail-button { display:block; width:100%; }
+.order-item .summary-thumbnail-button img { width:100%; height:132px; object-fit:contain; }
+.order-item > div:nth-child(2) { min-width:0; overflow-wrap:anywhere; }
+.order-item .order-price { white-space:nowrap; }
+.summary-thumbnails { gap:16px; }
+.summary-thumbnails .summary-thumbnail-button img { width:94px; height:112px; object-fit:contain; }
+
+/* Checkout product detail popup: same information hierarchy as a product Quick View. */
+.checkout-cart-dialog {
+  width:min(620px,calc(100vw - 24px));
+  max-width:none;
+  max-height:calc(100dvh - 24px);
+  padding:22px;
+  border-radius:14px;
+  overscroll-behavior:contain;
+}
+.checkout-cart-dialog h2 {
+  font-family:Georgia,serif;
+  font-weight:500;
+  font-size:clamp(25px,5vw,34px);
+  line-height:1.2;
+  margin:0 38px 15px 0;
+  overflow-wrap:anywhere;
+}
+.checkout-cart-dialog .preview-close {
+  width:42px;height:42px;display:grid;place-items:center;
+  border-radius:50%;background:#fff;border:1px solid #dedbd2;color:#111;
+  font-size:26px;z-index:3;
+}
+.checkout-cart-dialog .preview-product-price {
+  font-size:24px;font-weight:800;margin:4px 0 16px;
+}
+.checkout-cart-dialog .preview-gallery {
+  width:100%;gap:0;scrollbar-width:none;
+  border-radius:8px;background:#f7f6f2;margin-bottom:14px;
+}
+.checkout-cart-dialog .preview-gallery::-webkit-scrollbar { display:none; }
+.checkout-cart-dialog .preview-gallery .preview-image {
+  width:100%;height:min(52dvh,430px);max-height:none;
+  object-fit:contain;padding:10px;
+}
+.checkout-cart-dialog .preview-swipe-hint {
+  font-size:12px;text-align:center;color:#666;margin:0 0 16px;
+}
+.checkout-cart-dialog .preview-product-details {
+  display:grid;gap:9px;padding:16px 0;margin:6px 0;
+  border-top:1px solid #e5e1d8;border-bottom:1px solid #e5e1d8;
+}
+.checkout-cart-dialog .preview-product-details p {
+  margin:0;font-size:15px;line-height:1.55;overflow-wrap:anywhere;
+}
+.checkout-cart-dialog .preview-product-details .preview-description {
+  font-size:16px;margin-bottom:4px;
+}
+.checkout-cart-dialog .preview-product-details .preview-label {
+  font-weight:700;color:#735419;
+}
+.checkout-cart-dialog .preview-quantity { margin:14px 0 20px; }
+.checkout-cart-dialog .preview-quantity button {
+  width:46px;height:46px;border-radius:6px;
+}
+.checkout-cart-dialog .preview-shopping-link {
+  margin-top:12px;background:#c9a44c;color:#111;
+}
+@media(max-width:600px) {
+  .order-item { grid-template-columns:92px minmax(0,1fr);gap:12px; }
+  .order-item > .summary-thumbnail { width:92px; }
+  .order-item .summary-thumbnail-button img { height:116px; }
+  .order-item .order-price { grid-column:2;justify-self:start;margin-top:-5px; }
+  .order-item .order-name { font-size:16px; }
+  .summary-thumbnails .summary-thumbnail-button img { width:82px;height:100px; }
+  .checkout-cart-dialog { padding:18px;width:calc(100vw - 20px); }
+  .checkout-cart-dialog .preview-gallery .preview-image { height:min(46dvh,390px); }
+}
 
 </style>
 </head>
@@ -2218,70 +2297,116 @@ function openCheckoutCartPreview(item) {
   const version = ++checkoutPreviewVersion;
   const dialog = document.getElementById("checkoutCartDialog");
   const content = document.getElementById("checkoutCartDialogContent");
-  document.getElementById("checkoutCartDialogTitle").textContent = item.name || "Product image";
+  document.getElementById("checkoutCartDialogTitle").textContent = item.name || "Product";
   content.replaceChildren();
-  const gallery = document.createElement("div"); gallery.className = "preview-gallery";
+
+  const gallery = document.createElement("div");
+  gallery.className = "preview-gallery";
   function drawPhotos(urls) {
     const photos = [...new Set(urls.filter(url => typeof url === "string" && url.trim()))];
     gallery.replaceChildren();
     photos.forEach((url, index) => {
-      const image = document.createElement("img"); image.className = "preview-image"; image.src = url;
-      image.alt = `${item.name || "Product"} — Photo ${index + 1}`; gallery.appendChild(image);
+      const image = document.createElement("img");
+      image.className = "preview-image";
+      image.src = url;
+      image.alt = `${item.name || "Product"} — photo ${index + 1}`;
+      image.loading = index === 0 ? "eager" : "lazy";
+      gallery.appendChild(image);
     });
     gallery.scrollLeft = 0;
+    swipeHint.hidden = photos.length < 2;
   }
-  const cached = checkoutPhotoCache.get(item.id);
-  drawPhotos(cached?.images || [item.image, ...(Array.isArray(item.images) ? item.images : []), ...(Array.isArray(item.image_urls) ? item.image_urls : [])]);
-  const label = document.createElement("p"); label.textContent = `$${Number(item.price).toFixed(2)} each`; content.appendChild(label);
-  const quantity = document.createElement("div"); quantity.className = "preview-quantity";
-  const minus = document.createElement("button"); minus.type = "button"; minus.textContent = "−"; minus.setAttribute("aria-label", "Decrease quantity");
-  const amount = document.createElement("span"); amount.textContent = item.quantity;
-  const plus = document.createElement("button"); plus.type = "button"; plus.textContent = "+"; plus.setAttribute("aria-label", "Increase quantity");
-  minus.disabled = checkoutCartChangesBlocked();
-  plus.disabled = checkoutCartChangesBlocked() || Number(item.quantity) >= Math.min(100, cached?.stock ?? 100);
-  minus.addEventListener("click", () => changeCheckoutItem(item, Number(item.quantity) - 1));
-  plus.addEventListener("click", () => changeCheckoutItem(item, Number(item.quantity) + 1));
-  quantity.append(minus, amount, plus); content.appendChild(quantity);
-  const productDetails = document.createElement("div"); productDetails.className = "preview-product-details";
+
+  const swipeHint = document.createElement("p");
+  swipeHint.className = "preview-swipe-hint";
+  swipeHint.textContent = "Swipe left or right to view photos";
+
+  const price = document.createElement("p");
+  price.className = "preview-product-price";
+  price.textContent = `$${Number(item.price).toFixed(2)} each`;
+
+  const productDetails = document.createElement("div");
+  productDetails.className = "preview-product-details";
+  function addDetail(label, value, className = "") {
+    const paragraph = document.createElement("p");
+    if (className) paragraph.className = className;
+    if (label) {
+      const name = document.createElement("span");
+      name.className = "preview-label";
+      name.textContent = label + ": ";
+      paragraph.appendChild(name);
+    }
+    paragraph.appendChild(document.createTextNode(value));
+    productDetails.appendChild(paragraph);
+  }
   function showProductDetails(details) {
     productDetails.replaceChildren();
     const description = typeof details.description === "string" ? details.description.trim() : "";
     const rawSize = details.size;
-    const size = Array.isArray(rawSize) ? rawSize.map(String).join(", ") : typeof rawSize === "string" || typeof rawSize === "number" ? String(rawSize).trim() : "";
-    if (description) {
-      const paragraph = document.createElement("p"); paragraph.textContent = description;
-      productDetails.appendChild(paragraph);
-    }
-    if (size) {
-      const paragraph = document.createElement("p"); paragraph.textContent = `Size: ${size}`;
-      productDetails.appendChild(paragraph);
-    }
-    const oz = Number(details.shipping_weight_oz);
-    if (details.shipping_weight_oz != null && Number.isFinite(oz) && oz > 0) {
-      const p = document.createElement("p"); p.textContent = `Shipping weight: ${oz} oz`; productDetails.appendChild(p);
-    }
-    const dims = [details.package_length_in, details.package_width_in, details.package_height_in];
-    if (dims.every(v => v != null && v !== "" && Number.isFinite(Number(v)) && Number(v) > 0)) {
-      const p = document.createElement("p"); p.textContent = `Package size: ${dims.map(Number).join(" × ")} in (L × W × H)`; productDetails.appendChild(p);
-    }
+    const size = Array.isArray(rawSize) ? rawSize.map(String).join(", ")
+      : rawSize == null ? "" : String(rawSize).trim();
+    if (description) addDetail("", description, "preview-description");
+    if (size) addDetail("Size", size);
+    const weight = Number(details.shipping_weight_oz);
+    if (details.shipping_weight_oz != null && Number.isFinite(weight) && weight > 0)
+      addDetail("Shipping weight", `${weight} oz`);
+    const dimensions = [details.package_length_in, details.package_width_in, details.package_height_in];
+    if (dimensions.every(v => v != null && v !== "" && Number.isFinite(Number(v)) && Number(v) > 0))
+      addDetail("Package dimensions", `${dimensions.map(Number).join(" × ")} in (L × W × H)`);
+    if (!productDetails.childElementCount) addDetail("", "Product details are not available yet.");
   }
+
+  const quantity = document.createElement("div");
+  quantity.className = "preview-quantity";
+  const minus = document.createElement("button");
+  minus.type = "button"; minus.textContent = "−"; minus.setAttribute("aria-label", "Decrease quantity");
+  const amount = document.createElement("span");
+  amount.textContent = item.quantity;
+  const plus = document.createElement("button");
+  plus.type = "button"; plus.textContent = "+";
+  plus.setAttribute("aria-label", "Increase quantity");
+  const cached = checkoutPhotoCache.get(item.id);
+  minus.disabled = checkoutCartChangesBlocked();
+  plus.disabled = checkoutCartChangesBlocked() || Number(item.quantity) >= Math.min(100, cached?.stock ?? 100);
+  minus.addEventListener("click", () => changeCheckoutItem(item, Number(item.quantity) - 1));
+  plus.addEventListener("click", () => changeCheckoutItem(item, Number(item.quantity) + 1));
+  quantity.append(minus, amount, plus);
+
+  // Present photos first, followed by details and cart controls, as in Quick View.
+  content.append(price, gallery, swipeHint, productDetails, quantity);
   showProductDetails(checkoutItemDetails(item));
-  content.append(productDetails, gallery, quantity);
+  drawPhotos(cached?.images || [item.image, ...(Array.isArray(item.images) ? item.images : []),
+    ...(Array.isArray(item.image_urls) ? item.image_urls : [])]);
+
   if (checkoutCartChangesBlocked()) {
-    const note = document.createElement("p"); note.textContent = "Cart changes are paused until your payment status is confirmed.";
+    const note = document.createElement("p");
+    note.textContent = "Cart changes are paused until your payment status is confirmed.";
     content.appendChild(note);
   }
   if (!dialog.open) dialog.showModal();
+
   const catalogId = checkoutCatalogId(item);
   if (!cached && Number.isSafeInteger(catalogId) && catalogId > 0) {
-    supabaseClient.from("products").select("image_urls,quantity,description,size,old_price,shipping_weight_oz,package_length_in,package_width_in,package_height_in").eq("id", catalogId).maybeSingle().then(({data, error}) => {
-      if (error || !data) return;
-      const details = {images: [item.image, ...(Array.isArray(data.image_urls) ? data.image_urls : [])], stock: Math.max(0, Number(data.quantity ?? 1)), description: data.description || item.description || "", size: item.size || data.size || "", shipping_weight_oz:data.shipping_weight_oz, package_length_in:data.package_length_in, package_width_in:data.package_width_in, package_height_in:data.package_height_in};
-      checkoutPhotoCache.set(item.id, details);
-      if (version !== checkoutPreviewVersion || !dialog.open) return;
-      drawPhotos(details.images); showProductDetails(details);
-      plus.disabled = checkoutCartChangesBlocked() || Number(item.quantity) >= Math.min(100, details.stock);
-    }).catch(() => {});
+    supabaseClient.from("products")
+      .select("image_urls,quantity,description,size,old_price,shipping_weight_oz,package_length_in,package_width_in,package_height_in")
+      .eq("id", catalogId).maybeSingle().then(({data, error}) => {
+        if (error || !data) return;
+        const details = {
+          images: [item.image, ...(Array.isArray(data.image_urls) ? data.image_urls : [])],
+          stock: Math.max(0, Number(data.quantity ?? 1)),
+          description: data.description || item.description || "",
+          size: item.size || data.size || "",
+          shipping_weight_oz: data.shipping_weight_oz,
+          package_length_in: data.package_length_in,
+          package_width_in: data.package_width_in,
+          package_height_in: data.package_height_in
+        };
+        checkoutPhotoCache.set(item.id, details);
+        if (version !== checkoutPreviewVersion || !dialog.open) return;
+        drawPhotos(details.images);
+        showProductDetails(details);
+        plus.disabled = checkoutCartChangesBlocked() || Number(item.quantity) >= Math.min(100, details.stock);
+      }).catch(() => {});
   }
 }
 document.getElementById("checkoutPreviewClose").addEventListener("click", () => document.getElementById("checkoutCartDialog").close());

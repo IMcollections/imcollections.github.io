@@ -1037,6 +1037,27 @@
       gap: 8px;
     }
 
+
+    /* Make an Offer appears beside the price, including on narrow phones. */
+    .product-price { flex-wrap: wrap; column-gap: 8px; row-gap: 5px; }
+    .product-price .im-offer-label {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      max-width: 100%;
+      padding: 3px 6px;
+      background: #f8f2e4;
+      border: 1px solid #d4b46a;
+      border-radius: 3px;
+      color: #76551a;
+      font-size: 9px;
+      font-weight: 800;
+      line-height: 1.3;
+      letter-spacing: .2px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
     .price {
       font-weight: 800;
     }
@@ -4193,7 +4214,6 @@ loadCategoryImages();
               <div class="product-name">
                 ${product.name}
               </div>
-              ${product.allow_make_offer === true ? '<span class="im-offer-label">Make an Offer</span>' : ''}
 
               <div class="product-rating">
                 ${product.rating}
@@ -4206,6 +4226,7 @@ loadCategoryImages();
                 <span class="price">
                   $${product.price.toFixed(2)}
                 </span>
+                ${product.allow_make_offer === true ? '<span class="im-offer-label">Make an Offer</span>' : ''}
 
                 ${
                   product.oldPrice
@@ -5333,8 +5354,7 @@ localStorage.setItem(
                 <div class="product-name">
                   ${product.name}
                 </div>
-                ${product.allow_make_offer === true ? '<span class="im-offer-label">Make an Offer</span>' : ''}
-
+  
                 <div class="product-rating">
                   ${product.rating}
                 </div>
@@ -5345,6 +5365,7 @@ localStorage.setItem(
                   <span class="price">
                     $${product.price.toFixed(2)}
                   </span>
+                  ${product.allow_make_offer === true ? '<span class="im-offer-label">Make an Offer</span>' : ''}
                 </div>
 
                 <button

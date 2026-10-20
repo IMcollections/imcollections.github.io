@@ -1038,12 +1038,12 @@
     }
 
 
-    /* Make an Offer appears beside the price, including on narrow phones. */
+    /* Make an Offer appears beneath the price, above Choose Options. */
     .product-price { flex-wrap: wrap; column-gap: 8px; row-gap: 5px; }
-    .product-price .im-offer-label {
-      display: inline-flex;
-      align-items: center;
+    .product-info > .im-offer-label {
+      display: block;
       width: fit-content;
+      margin-top: 8px;
       max-width: 100%;
       padding: 3px 6px;
       background: #f8f2e4;
@@ -4226,7 +4226,6 @@ loadCategoryImages();
                 <span class="price">
                   $${product.price.toFixed(2)}
                 </span>
-                ${product.allow_make_offer === true ? '<span class="im-offer-label">Make an Offer</span>' : ''}
 
                 ${
                   product.oldPrice
@@ -4239,6 +4238,7 @@ loadCategoryImages();
                 }
 
               </div>
+              ${product.allow_make_offer === true ? '<span class="im-offer-label">Make an Offer</span>' : ''}
 
               <button
                 class="add-button"
@@ -5365,8 +5365,8 @@ localStorage.setItem(
                   <span class="price">
                     $${product.price.toFixed(2)}
                   </span>
-                  ${product.allow_make_offer === true ? '<span class="im-offer-label">Make an Offer</span>' : ''}
                 </div>
+                ${product.allow_make_offer === true ? '<span class="im-offer-label">Make an Offer</span>' : ''}
 
                 <button
                   class="add-button"

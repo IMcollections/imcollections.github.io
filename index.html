@@ -966,6 +966,71 @@
     .modal-variant-field select { width: 100%; min-height: 42px; padding: 8px 12px; border: 1px solid var(--border); background: white; }
     .cart-item-variant { color: var(--gray); font-size: 12px; margin-top: 3px; }
 
+    /* IM Collections - seller offer controls, matched to storefront styling. */
+    #modalOfferButton {
+      display: block;
+      width: 100%;
+      margin-top: 16px;
+      min-height: 48px;
+      padding: 12px 16px;
+      border: 1px solid #b88c33;
+      border-radius: 4px;
+      background: #fff;
+      color: #171717;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    #modalOfferButton[hidden], #modalOfferPanel[hidden] { display: none !important; }
+    #modalOfferButton:hover, #modalOfferButton:focus-visible { background: #faf5e9; }
+    #modalOfferPanel {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+      padding: 18px 16px;
+      border: 1px solid #e6e3dc;
+      border-radius: 6px;
+      background: #fbfaf7;
+    }
+    #modalOfferPanel label {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .2px;
+      color: #111;
+    }
+    #modalOfferAmount {
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 13px;
+      border: 1px solid #cfcac0;
+      border-radius: 4px;
+      background: #fff;
+      color: #111;
+      font-size: 16px;
+    }
+    #modalOfferSubmit {
+      display: block;
+      width: 100%;
+      min-height: 48px;
+      margin-top: 8px;
+      padding: 12px 16px;
+      border: 0;
+      border-radius: 4px;
+      background: #c9962e;
+      color: #111;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
+    #modalOfferSubmit:disabled { opacity: .65; cursor: wait; }
+    #modalOfferStatus { margin: 0; min-height: 0; font-size: 13px; line-height: 1.5; color: #666; }
+    #modalOfferStatus:empty { display: none; }
+    #modalOfferPanel small { display: block; margin-top: 4px; color: #666; font-size: 12px; line-height: 1.55; }
+
+
     .product-price {
       display: flex;
       align-items: center;

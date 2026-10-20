@@ -649,6 +649,19 @@
         #wishlistSection { padding: 12px 6px 20px; }
         #memberWishlist { gap: 20px 8px; }
       }
+
+      /* IM Collections: authenticated offer history and notifications. */
+      #myOffersSection .im-offer-row, #myOffersSection .im-offer-notice {
+        border:1px solid #e6e3dc;border-radius:10px;background:#fff;
+        padding:14px;margin:12px 0;line-height:1.5;
+      }
+      #myOffersSection .im-offer-row strong, #myOffersSection .im-offer-notice strong {display:block;}
+      #myOffersSection .im-offer-meta {color:#666;font-size:13px;margin-top:4px;}
+      #myOffersSection .im-offer-status {font-weight:700;color:#76571d;}
+      #myOffersSection .im-offer-actions {display:flex;gap:10px;flex-wrap:wrap;margin:12px 0;}
+      #myOffersSection .im-offer-actions button {min-height:42px;background:#111;color:#fff;border:0;
+        border-radius:7px;padding:10px 15px;font-weight:700;cursor:pointer;}
+      #myOffersSection .im-offer-empty {color:#666;font-size:14px;}
     </style>
   </head>
 
@@ -810,6 +823,17 @@
             <p class="reward-history-note">Points redemption is not available yet. Referral reward redemptions are shown as dollar amounts and do not deduct points.</p>
           </section>
 
+
+          <section class="account-section" id="myOffersSection">
+            <h3>My Offers</h3>
+            <p>Check your Make an Offer requests and seller decisions. Submitting an offer is not a purchase or payment.</p>
+            <div class="im-offer-actions"><button type="button" id="refreshMyOffers">Refresh My Offers</button></div>
+            <p id="myOffersMessage" role="status" aria-live="polite"></p>
+            <div id="myOffersList"><p class="im-offer-empty">Loading offers…</p></div>
+            <h3 style="margin-top:22px">Offer Notifications</h3>
+            <div id="myOfferNotices"><p class="im-offer-empty">Loading notifications…</p></div>
+            <p class="im-offer-empty">Accepted offers do not appear as completed orders until a secure payment has succeeded. Approved-offer checkout is not available yet.</p>
+          </section>
           <section class="account-section" id="referralSection">
             <h3>Refer A Friend</h3>
 
@@ -1097,6 +1121,7 @@
         memberReferralCode.textContent = profile.referral_code || "—";
         referralCredit.textContent = profile.referral_credit || 0;
         await loadRewardHistory();
+        await loadMyOffers();
       }
 
       loadAccountDashboard();
@@ -1400,6 +1425,85 @@
         }
         return "Unable to sign in right now. Please check your connection and try again.";
       }
+
+
+      /* Make an Offer: account-scoped, read-only status history. */
+      async function loadMyOffers() {
+        const offersHost = document.getElementById('myOffersList');
+        const noticesHost = document.getElementById('myOfferNotices');
+        const message = document.getElementById('myOffersMessage');
+        if (!offersHost || !noticesHost) return;
+        message.textContent = '';
+        offersHost.textContent = 'Loading offers…';
+        noticesHost.textContent = 'Loading notifications…';
+        const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+        if (authError || !user) {
+          offersHost.textContent = 'Sign in to view your offers.';
+          noticesHost.textContent = '';
+          return;
+        }
+        const [offerResult, noticesResult] = await Promise.all([
+          supabaseClient.from('im_product_offers')
+            .select('id,product_id,offer_amount,status,counter_amount,created_at,expires_at')
+            .eq('buyer_id',user.id).order('created_at',{ascending:false}).limit(50),
+          supabaseClient.from('im_offer_notifications')
+            .select('id,title,message,event_status,created_at')
+            .eq('buyer_id',user.id).order('created_at',{ascending:false}).limit(50)
+        ]);
+        const money = amount => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(amount)||0);
+        const date = value => {
+          const d = new Date(value);
+          return Number.isNaN(d.getTime()) ? 'Date unavailable' : d.toLocaleString();
+        };
+        const make = (tag,content,className) => {
+          const el=document.createElement(tag);
+          if(content!==undefined)el.textContent=content;
+          if(className)el.className=className;
+          return el;
+        };
+        offersHost.replaceChildren();
+        noticesHost.replaceChildren();
+        if (offerResult.error) {
+          offersHost.append(make('p','Offers are temporarily unavailable. Please try again.','im-offer-empty'));
+          message.textContent = 'Unable to load offers.';
+        } else if (!offerResult.data?.length) {
+          offersHost.append(make('p','No offers submitted yet.','im-offer-empty'));
+        } else {
+          const ids = [...new Set(offerResult.data.map(x=>x.product_id).filter(Boolean))];
+          const nameMap = new Map();
+          if(ids.length) {
+            const {data:products} = await supabaseClient.from('products').select('id,name').in('id',ids);
+            (products||[]).forEach(p=>nameMap.set(String(p.id),String(p.name||'Product')));
+          }
+          for(const offer of offerResult.data) {
+            const item=make('article',undefined,'im-offer-row');
+            item.append(make('strong',nameMap.get(String(offer.product_id))||'Product #'+offer.product_id));
+            const nowExpired=offer.status==='pending' && offer.expires_at && new Date(offer.expires_at)<=new Date();
+            const status=nowExpired?'expired':String(offer.status||'pending');
+            item.append(make('p','Status: '+status.charAt(0).toUpperCase()+status.slice(1),'im-offer-status'));
+            item.append(make('p','Your offer: '+money(offer.offer_amount),'im-offer-meta'));
+            if(offer.counter_amount!=null)item.append(make('p','Seller counteroffer: '+money(offer.counter_amount),'im-offer-meta'));
+            item.append(make('p','Submitted: '+date(offer.created_at),'im-offer-meta'));
+            if(offer.expires_at && (offer.status==='pending'||nowExpired))
+              item.append(make('p','Seller decision deadline: '+date(offer.expires_at),'im-offer-meta'));
+            offersHost.append(item);
+          }
+        }
+        if(noticesResult.error) {
+          noticesHost.append(make('p','Offer notifications are temporarily unavailable.','im-offer-empty'));
+        } else if(!noticesResult.data?.length) {
+          noticesHost.append(make('p','No offer notifications yet.','im-offer-empty'));
+        } else {
+          for (const notice of noticesResult.data) {
+            const item=make('article',undefined,'im-offer-notice');
+            item.append(make('strong',String(notice.title||'Offer update')));
+            item.append(make('p',String(notice.message||'')));
+            item.append(make('p',date(notice.created_at),'im-offer-meta'));
+            noticesHost.append(item);
+          }
+        }
+      }
+      document.getElementById('refreshMyOffers')?.addEventListener('click',loadMyOffers);
 
       async function loadRewardHistory() {
         const rows = document.getElementById("rewardHistoryRows");

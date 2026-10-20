@@ -10,11 +10,12 @@
 <div class="top">IM COLLECTIONS</div>
 <div class="shell"><main>
 <h1>Shop Pay Connection Test</h1>
-<p class="small">Diagnostic version 2 — displays Shopify error category and HTTP status</p>
+<p class="small">Diagnostic version 3 — connection and Shopify payment-request schema checks</p>
 <p>This page checks whether the IM Collections Supabase backend can access the dedicated Shopify Wallet store. It <strong>cannot charge a card or create a payment session</strong>.</p>
 <div class="note"><strong>Private test:</strong> Sign in to your IM Collections account first, then return here. No Shopify credentials or payment details are displayed.</div>
 <div id="authState" class="status" role="status">Checking your sign-in status…</div>
 <button type="button" id="runTest" disabled>Check Shopify Connection</button>
+<button type="button" id="schemaTest" disabled style="margin-top:12px;background:#111;color:#fff">Check Shop Pay Request Schema</button>
 <div id="result" class="status" role="status" aria-live="polite">Test not started.</div>
 <p class="small"><a href="my-account.html">Sign in / My Account</a> · <a href="index.html">Back to Shopping</a></p>
 <p class="small">This diagnostic is read-only. Remove this temporary page from your repository after testing.</p>
@@ -30,20 +31,24 @@
   const authState = document.getElementById('authState');
   const result = document.getElementById('result');
   const button = document.getElementById('runTest');
+  const schemaButton = document.getElementById('schemaTest');
   async function updateAuth() {
     try {
       const { data, error } = await db.auth.getUser();
       if (error || !data?.user) {
         authState.textContent = 'Not signed in. Please sign in to IM Collections using the link below, then return here.';
         button.disabled = true;
+        schemaButton.disabled = true;
         return;
       }
       authState.textContent = 'Signed in. Ready to check the Shopify connection.';
       authState.className = 'status good';
       button.disabled = false;
+      schemaButton.disabled = false;
     } catch {
       authState.textContent = 'Unable to check your account. Refresh or try signing in again.';
       button.disabled = true;
+      schemaButton.disabled = true;
     }
   }
   button.addEventListener('click', async () => {
@@ -71,6 +76,25 @@
       result.textContent = 'Connection test could not run. Confirm your IM Collections sign-in, then try again.\nNo payments were attempted.';
       console.warn('Shop Pay diagnostic failed', error?.name || 'Error');
     } finally { button.disabled = false; }
+  });
+  schemaButton.addEventListener('click', async () => {
+    schemaButton.disabled = true;
+    result.className = 'status';
+    result.textContent = 'Checking Shopify payment-request schema (read-only)…';
+    try {
+      const { data, error } = await db.functions.invoke('im-shop-pay-session', {body:{action:'schema_check'}});
+      if (error) throw error;
+      const fields = Array.isArray(data?.fieldNames) ? data.fieldNames : [];
+      const success = data?.stage === 'schema_verified';
+      result.className = 'status ' + (success ? 'good' : 'bad');
+      result.textContent = success
+        ? 'Shop Pay request schema: VERIFIED\nSupported fields: ' + fields.join(', ') + '\nPayments: DISABLED'
+        : 'Shop Pay request schema: NOT VERIFIED\nReason: ' + String(data?.stage || 'unknown') + (Number.isInteger(data?.httpStatus) ? '\nShopify HTTP status: ' + data.httpStatus : '') + '\nPayments: DISABLED';
+    } catch (err) {
+      result.className = 'status bad';
+      result.textContent = 'Schema check failed. No payment was attempted.';
+      console.warn('Shop Pay schema diagnostic failed', err?.name || 'Error');
+    } finally { schemaButton.disabled = false; }
   });
   updateAuth();
   db.auth.onAuthStateChange(() => { setTimeout(updateAuth, 0); });

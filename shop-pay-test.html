@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>IM Collections — Shop Pay Connection Test</title>
+<title>IM Collections — Shop Pay & CDTFA Tax Test</title>
 <style>
 :root{color-scheme:light;font:16px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:#161616}*{box-sizing:border-box}body{margin:0;background:#f7f6f2}.top{background:#111;color:#eac576;padding:24px 16px;text-align:center;letter-spacing:2px;font-weight:800}.shell{max-width:650px;margin:34px auto;padding:0 18px}main{background:#fff;padding:26px;border:1px solid #e3ded3;border-radius:12px;box-shadow:0 6px 24px #0000000a}h1{font:normal 31px/1.2 Georgia,serif;margin:0 0 16px}p{margin:12px 0}.note{padding:15px;border-radius:8px;background:#f8f4e9;font-size:14px}.status{margin:20px 0;padding:14px;background:#f5f5f5;border-left:4px solid #bb9239;white-space:pre-wrap;overflow-wrap:anywhere}.status.good{border-color:#22804c}.status.bad{border-color:#a93b31}button{width:100%;border:0;border-radius:7px;background:#c9a44c;padding:14px 20px;font-size:16px;font-weight:bold;cursor:pointer}button:disabled{opacity:.6;cursor:wait}a{color:#725117}.small{font-size:13px;color:#666}code{font-size:.9em}</style>
 </head>
@@ -10,12 +10,23 @@
 <div class="top">IM COLLECTIONS</div>
 <div class="shell"><main>
 <h1>Shop Pay Connection Test</h1>
-<p class="small">Diagnostic version 3 — connection and Shopify payment-request schema checks</p>
+<p class="small">Diagnostic version 4 — Shopify diagnostics and CDTFA California tax-rate preview</p>
 <p>This page checks whether the IM Collections Supabase backend can access the dedicated Shopify Wallet store. It <strong>cannot charge a card or create a payment session</strong>.</p>
 <div class="note"><strong>Private test:</strong> Sign in to your IM Collections account first, then return here. No Shopify credentials or payment details are displayed.</div>
 <div id="authState" class="status" role="status">Checking your sign-in status…</div>
 <button type="button" id="runTest" disabled>Check Shopify Connection</button>
 <button type="button" id="schemaTest" disabled style="margin-top:12px;background:#111;color:#fff">Check Shop Pay Request Schema</button>
+<hr style="border:0;border-top:1px solid #e3ded3;margin:28px 0">
+<h2 style="font:normal 25px/1.2 Georgia,serif">CDTFA California Tax-Rate Preview</h2>
+<p>Enter a California delivery address to test the official address-rate lookup. This is a rate preview only; it does not calculate final tax, confirm tax obligations, charge a payment, or create an order.</p>
+<label for="taxStreet" style="display:block;font-weight:700;margin-top:12px">Street address</label>
+<input id="taxStreet" autocomplete="street-address" maxlength="160" placeholder="Street address" style="width:100%;padding:12px;border:1px solid #cfc8ba;border-radius:6px;font:inherit">
+<label for="taxCity" style="display:block;font-weight:700;margin-top:12px">City</label>
+<input id="taxCity" autocomplete="address-level2" maxlength="100" placeholder="City" style="width:100%;padding:12px;border:1px solid #cfc8ba;border-radius:6px;font:inherit">
+<label for="taxZip" style="display:block;font-weight:700;margin-top:12px">ZIP code</label>
+<input id="taxZip" autocomplete="postal-code" inputmode="numeric" maxlength="10" placeholder="5-digit ZIP code" style="width:100%;padding:12px;border:1px solid #cfc8ba;border-radius:6px;font:inherit">
+<button type="button" id="taxTest" disabled style="margin-top:14px;background:#111;color:#fff">Check CDTFA California Tax Rate</button>
+<div id="taxResult" class="status" role="status" aria-live="polite">Enter a California address, then run the tax-rate preview.</div>
 <div id="result" class="status" role="status" aria-live="polite">Test not started.</div>
 <p class="small"><a href="my-account.html">Sign in / My Account</a> · <a href="index.html">Back to Shopping</a></p>
 <p class="small">This diagnostic is read-only. Remove this temporary page from your repository after testing.</p>
@@ -32,6 +43,8 @@
   const result = document.getElementById('result');
   const button = document.getElementById('runTest');
   const schemaButton = document.getElementById('schemaTest');
+  const taxButton = document.getElementById('taxTest');
+  const taxResult = document.getElementById('taxResult');
   async function updateAuth() {
     try {
       const { data, error } = await db.auth.getUser();
@@ -39,16 +52,19 @@
         authState.textContent = 'Not signed in. Please sign in to IM Collections using the link below, then return here.';
         button.disabled = true;
         schemaButton.disabled = true;
+        taxButton.disabled = true;
         return;
       }
       authState.textContent = 'Signed in. Ready to check the Shopify connection.';
       authState.className = 'status good';
       button.disabled = false;
       schemaButton.disabled = false;
+      taxButton.disabled = false;
     } catch {
       authState.textContent = 'Unable to check your account. Refresh or try signing in again.';
       button.disabled = true;
       schemaButton.disabled = true;
+      taxButton.disabled = true;
     }
   }
   button.addEventListener('click', async () => {
@@ -95,6 +111,43 @@
       result.textContent = 'Schema check failed. No payment was attempted.';
       console.warn('Shop Pay schema diagnostic failed', err?.name || 'Error');
     } finally { schemaButton.disabled = false; }
+  });
+  taxButton.addEventListener('click', async () => {
+    const street = document.getElementById('taxStreet').value.trim();
+    const city = document.getElementById('taxCity').value.trim();
+    const zip = document.getElementById('taxZip').value.trim();
+    if (street.length < 5 || city.length < 2 || !/^\d{5}(?:-\d{4})?$/.test(zip)) {
+      taxResult.className = 'status bad';
+      taxResult.textContent = 'Enter a complete street address, city, and valid ZIP code.';
+      return;
+    }
+    taxButton.disabled = true;
+    taxResult.className = 'status';
+    taxResult.textContent = 'Looking up the California rate with CDTFA…';
+    try {
+      const { data, error } = await db.functions.invoke('im-shop-pay-preflight', {
+        body: { action: 'california_tax_rate_preview', shippingAddress: {
+          country: 'US', state: 'California', city, postalCode: zip,
+          addressLine1: street
+        }}
+      });
+      if (error) throw error;
+      if (data?.stage === 'california_rate_found' && data?.uniqueRate === true && Number.isFinite(data.ratePercent)) {
+        taxResult.className = 'status good';
+        taxResult.textContent = 'CDTFA address-rate lookup: RATE RETURNED\nRate: ' + data.ratePercent.toFixed(3).replace(/0+$/, '').replace(/\.$/, '') + '%\nSource: ' + String(data.source || 'CDTFA') + '\nJurisdiction: ' + String(data.jurisdictionMatches?.[0]?.jurisdiction || 'Not supplied') + '\nCity: ' + String(data.jurisdictionMatches?.[0]?.city || city) + '\nCounty: ' + String(data.jurisdictionMatches?.[0]?.county || 'Not supplied') + '\n\nFinal tax: NOT CALCULATED\nPayments: DISABLED · Orders: DISABLED';
+      } else {
+        taxResult.className = 'status ' + (data?.stage === 'manual_address_review_required' ? '' : 'bad');
+        const matches = Array.isArray(data?.jurisdictionMatches) ? data.jurisdictionMatches : [];
+        taxResult.textContent = 'CDTFA lookup result: ' + String(data?.stage || 'no result') +
+          (data?.error ? '\nMessage: ' + String(data.error) : '') +
+          (matches.length ? '\nReturned candidates:\n' + matches.map((m, i) => (i + 1) + '. ' + String(m.ratePercent) + '% — ' + [m.jurisdiction,m.city,m.county].filter(Boolean).join(', ')).join('\n') : '') +
+          '\n\nNo final tax calculated. Payments and order creation remain disabled.';
+      }
+    } catch (err) {
+      taxResult.className = 'status bad';
+      taxResult.textContent = 'The CDTFA rate preview could not complete.\nCheck the Supabase function response/logs before changing checkout.\nNo payment was attempted and no order was created.';
+      console.warn('CDTFA tax-rate preview failed', err?.name || 'Error');
+    } finally { taxButton.disabled = false; }
   });
   updateAuth();
   db.auth.onAuthStateChange(() => { setTimeout(updateAuth, 0); });

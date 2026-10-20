@@ -3381,7 +3381,14 @@ onclick="filterProducts('Watches')"
         >
           Add To Cart
         </button>
-
+        <button type="button" class="im-offer-button" id="modalOfferButton" hidden>MAKE AN OFFER</button>
+        <form id="modalOfferPanel" class="im-offer-panel" hidden>
+          <label for="modalOfferAmount">Your offer price (USD)</label>
+          <input type="number" id="modalOfferAmount" min="0.01" step="0.01" placeholder="Enter your proposed price" required>
+          <button type="submit" id="modalOfferSubmit">Submit Offer for Review</button>
+          <p id="modalOfferStatus" class="im-offer-status" role="status" aria-live="polite"></p>
+          <small>Seller approval required. Submitting an offer does not reserve an item or charge your card.</small>
+        </form>
       </div>
 
     </div>
@@ -4121,6 +4128,7 @@ loadCategoryImages();
               <div class="product-name">
                 ${product.name}
               </div>
+              ${product.allow_make_offer === true ? '<span class="im-offer-label">Make an Offer</span>' : ''}
 
               <div class="product-rating">
                 ${product.rating}
@@ -5019,6 +5027,53 @@ localStorage.setItem(
           closeModal();
         };
 
+      const offerButton = document.getElementById("modalOfferButton");
+      const offerPanel = document.getElementById("modalOfferPanel");
+      const offerAmount = document.getElementById("modalOfferAmount");
+      const offerStatus = document.getElementById("modalOfferStatus");
+      const offerSubmit = document.getElementById("modalOfferSubmit");
+      const canOffer = product.allow_make_offer === true && Number(product.quantity) > 0;
+      offerButton.hidden = !canOffer;
+      offerPanel.hidden = true;
+      offerStatus.textContent = "";
+      offerAmount.value = "";
+      offerButton.onclick = () => {
+        offerPanel.hidden = !offerPanel.hidden;
+        if (!offerPanel.hidden) offerAmount.focus();
+      };
+      offerPanel.onsubmit = async (event) => {
+        event.preventDefault();
+        const amount = Number(offerAmount.value);
+        if (!Number.isFinite(amount) || amount <= 0 || amount >= product.price) {
+          offerStatus.textContent = "Enter an offer lower than the listed price.";
+          return;
+        }
+        offerSubmit.disabled = true;
+        offerStatus.textContent = "Submitting your offer...";
+        try {
+          const { data: { session } } = await supabaseClient.auth.getSession();
+          if (!session) {
+            offerStatus.textContent = "Please sign in to your IM Collections account, then return to make your offer.";
+            return;
+          }
+          const { data, error } = await supabaseClient.functions.invoke("im-make-offer", {
+            body: { productId: Number(product.id) > 1000000 ? Number(product.id) - 1000000 : Number(product.id), amount }
+          });
+          if (error) {
+            const response = error.context;
+            let detail = null;
+            try { detail = response && typeof response.json === "function" ? await response.json() : null; } catch (_) {}
+            throw new Error(detail?.error || "Offer submission unavailable. Please try again.");
+          }
+          if (data?.submitted === true) {
+            offerStatus.textContent = "Offer submitted! Your offer is pending seller approval. No payment was taken.";
+            offerAmount.value = "";
+          } else offerStatus.textContent = data?.error || "Unable to submit your offer.";
+        } catch (err) {
+          offerStatus.textContent = err?.message || "Unable to submit your offer.";
+        } finally { offerSubmit.disabled = false; }
+      };
+
       document
         .getElementById("quickModal")
         .classList.add("active");
@@ -5213,6 +5268,7 @@ localStorage.setItem(
                 <div class="product-name">
                   ${product.name}
                 </div>
+                ${product.allow_make_offer === true ? '<span class="im-offer-label">Make an Offer</span>' : ''}
 
                 <div class="product-rating">
                   ${product.rating}

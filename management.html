@@ -70,7 +70,42 @@ async function requireAdmin(){
  if(error||data!==true){await sb.auth.signOut();showLogin();setMsg('loginMessage','This account is not authorized for the management area. Ask the site administrator to grant the proper admin role.','error');return false}
  showApp();$('setupNotice').classList.add('hidden');return true;
 }
-$('loginBtn').addEventListener('click',async()=>{if(SUPABASE_ANON_KEY.includes('PASTE_YOUR')){setMsg('loginMessage','Setup needed: add the existing Supabase publishable/anon key to this file first.','error');return}const email=$('email').value.trim(),password=$('password').value;if(!email||!password){setMsg('loginMessage','Enter your email and password.','error');return} $('loginBtn').disabled=true;setMsg('loginMessage','Signing in…');const {error}=await sb.auth.signInWithPassword({email,password});$('loginBtn').disabled=false;if(error){setMsg('loginMessage',error.message,'error');return}if(await requireAdmin())await renderSection(currentSection)});
+$('loginBtn').addEventListener('click', async () => {
+  const button = $('loginBtn');
+  const email = $('email').value.trim();
+  const password = $('password').value;
+  if (SUPABASE_ANON_KEY.includes('PASTE_YOUR')) {
+    setMsg('loginMessage', 'Setup needed: add the existing Supabase publishable/anon key to this file first.', 'error');
+    return;
+  }
+  if (!email || !password) {
+    setMsg('loginMessage', 'Enter your email and password.', 'error');
+    return;
+  }
+  button.disabled = true;
+  setMsg('loginMessage', 'Signing in…', 'status');
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) {
+      setMsg('loginMessage', 'Sign-in failed: ' + error.message, 'error');
+      return;
+    }
+    if (!data || !data.session) {
+      setMsg('loginMessage', 'Supabase did not return a sign-in session. Please try again.', 'error');
+      return;
+    }
+    const allowed = await requireAdmin();
+    if (allowed) {
+      setMsg('loginMessage', 'Sign-in successful. Loading Management Center…', 'success');
+      await renderSection(currentSection);
+    }
+  } catch (err) {
+    console.error('Management Center sign-in error:', err);
+    setMsg('loginMessage', 'Sign-in could not complete: ' + (err && err.message ? err.message : 'Unexpected error. Please refresh and try again.'), 'error');
+  } finally {
+    button.disabled = false;
+  }
+});
 $('password').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').click()});
 $('signOutBtn').addEventListener('click',async()=>{await sb.auth.signOut();showLogin()});
 document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.navbtn').forEach(x=>x.classList.toggle('active',x===b));renderSection(b.dataset.section)}));

@@ -53,6 +53,7 @@ main{max-width:1450px;margin:auto;padding:24px clamp(12px,3vw,36px) 60px}.notice
    Never put a service_role key in browser code. */
 const SUPABASE_URL = 'https://vqzjegneplzeoqxcqfeu.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_QDvKrAHvvopp_fuunxTxEA_4v6TD4Jk';
+if (SUPABASE_URL.startsWith('https://') && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes('PASTE_YOUR')) $('setupNotice').classList.add('hidden');
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = id => document.getElementById(id);
 let currentSection='overview', cachedOrders=[], cachedOffers=[], cachedReturns=[];

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IM Collections | Management Center</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--ink:#171717;--gold:#c9a34a;--gold2:#e8cf88;--paper:#f7f5f0;--muted:#777;--line:#e7e1d5;--white:#fff;--red:#a83d36;--green:#28734b}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 Arial,Helvetica,sans-serif}
+header{background:#171717;color:#fff;padding:22px clamp(16px,4vw,48px);display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:3px solid var(--gold)}
+.brand{display:flex;align-items:center;gap:13px}.brand img{width:52px;height:52px;object-fit:contain;background:#fff;border-radius:5px}.brand h1{font-size:20px;margin:0;letter-spacing:1.5px}.brand p{margin:2px 0 0;color:var(--gold2);font-size:12px;letter-spacing:1px}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid var(--gold);background:var(--gold);color:#171717;padding:10px 14px;border-radius:7px;font-weight:700}button.secondary{background:#fff;border-color:var(--line)}button.danger{background:#fff;color:var(--red);border-color:#e6c8c5}button:disabled{opacity:.5;cursor:not-allowed}
+main{max-width:1450px;margin:auto;padding:24px clamp(12px,3vw,36px) 60px}.notice{padding:13px 15px;border:1px solid #e6d5a5;background:#fff9e8;border-radius:8px;margin-bottom:18px}.status{font-size:13px;color:var(--muted)}.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:22px}.sidebar,.panel,.metric{background:#fff;border:1px solid var(--line);border-radius:12px}.sidebar{padding:10px;height:max-content;position:sticky;top:12px}.navbtn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;border:0;border-radius:7px;padding:12px 11px;color:#333;margin:2px 0}.navbtn.active,.navbtn:hover{background:#f5edda;color:#171717}.navbtn .ico{width:22px;text-align:center}.content h2{margin:0 0 4px;font-size:25px}.sub{margin:0 0 20px;color:var(--muted)}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 18px}.metric{padding:16px}.metric span{display:block;color:var(--muted);font-size:12px}.metric strong{display:block;font-size:24px;margin-top:5px}.panel{padding:18px;margin-bottom:16px}.panel h3{margin:0 0 12px;font-size:17px}.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}.toolbar input,.toolbar select,.field input,.field select,.field textarea{border:1px solid #d9d3c7;border-radius:7px;padding:10px;background:#fff;min-width:0}.toolbar input{flex:1;min-width:190px}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:650px}th,td{text-align:left;padding:11px 10px;border-bottom:1px solid #eee8dd;vertical-align:top}th{font-size:12px;color:#6d6558;text-transform:uppercase;letter-spacing:.4px;background:#fcfaf6}td{font-size:13px}.pill{display:inline-block;border-radius:99px;background:#f1eee7;padding:4px 8px;font-size:11px;font-weight:700}.pill.good{background:#e5f4eb;color:var(--green)}.pill.warn{background:#fff0d4;color:#855b00}.pill.bad{background:#fbe9e7;color:var(--red)}.empty{padding:26px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:8px}.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.field label{font-size:12px;color:#665f53;font-weight:700}.field input,.field select,.field textarea{width:100%}.actions{display:flex;flex-wrap:wrap;gap:6px}.error{color:var(--red)}.success{color:var(--green)}.login{max-width:520px;margin:28px auto}.hidden{display:none!important}.small{font-size:12px;color:var(--muted)}footer{text-align:center;padding:22px;color:var(--muted);font-size:12px}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.sidebar{position:static;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px}.navbtn{font-size:13px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2{grid-template-columns:1fr}header{align-items:flex-start}.brand h1{font-size:17px}}
+@media(max-width:440px){.sidebar{grid-template-columns:1fr 1fr}.navbtn{padding:10px 7px}.metrics{gap:8px}.metric{padding:12px}.metric strong{font-size:20px}}
+</style>
+</head>
+<body>
+<header><div class="brand"><img src="IM-logo.jpg" alt="IM Collections logo" onerror="this.style.display='none'"><div><h1>IM COLLECTIONS</h1><p>MANAGEMENT CENTER</p></div></div><button id="signOutBtn" class="secondary hidden">Sign Out</button></header>
+<main>
+<div id="setupNotice" class="notice"><strong>Setup required:</strong> Add your existing Supabase publishable/anon key in the configuration near the top of this file before publishing. This page does not contain a service-role key.</div>
+<section id="loginPanel" class="panel login">
+<h2>Administrator Sign In</h2><p class="sub">Sign in with your IM Collections administrator account.</p>
+<div class="field"><label for="email">Email address</label><input id="email" type="email" autocomplete="username" required></div>
+<div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required></div>
+<button id="loginBtn">Sign In Securely</button><p id="loginMessage" class="status" role="status"></p>
+</section>
+<section id="appPanel" class="hidden">
+<div class="notice"><strong>Protected management area.</strong> Payment and refund actions must be confirmed in the payment provider. This dashboard never issues a refund or marks an unverified payment as paid.</div>
+<div class="layout">
+<nav class="sidebar" aria-label="Management sections">
+<button class="navbtn active" data-section="overview"><span class="ico">▦</span>Overview</button>
+<button class="navbtn" data-section="orders"><span class="ico">▣</span>Orders & Shipping</button>
+<button class="navbtn" data-section="offers"><span class="ico">◇</span>Make an Offer</button>
+<button class="navbtn" data-section="returns"><span class="ico">↩</span>Returns & Refunds</button>
+<button class="navbtn" data-section="rewards"><span class="ico">★</span>Collectors Reward</button>
+<button class="navbtn" data-section="referrals"><span class="ico">♧</span>Referrals</button>
+<button class="navbtn" data-section="customers"><span class="ico">♙</span>Customers</button>
+<button class="navbtn" data-section="promotions"><span class="ico">％</span>Promotions</button>
+<button class="navbtn" data-section="payments"><span class="ico">＄</span>Payment Checks</button>
+<button class="navbtn" data-section="reports"><span class="ico">▤</span>Reports</button>
+<button class="navbtn" data-section="activity"><span class="ico">◷</span>Activity Log</button>
+<button class="navbtn" data-section="support"><span class="ico">✉</span>Support & Disputes</button>
+</nav>
+<div class="content">
+<div id="sectionTitle"><h2>Management Overview</h2><p class="sub">Your store operations at a glance.</p></div>
+<div id="sectionBody"></div>
+</div></div></section>
+</main><footer>IM Collections · Secure Management Center · Keep administrator credentials private.</footer>
+<script>
+/* CONFIGURATION: paste the project's existing Supabase URL and publishable/anon key.
+   Never put a service_role key in browser code. */
+const SUPABASE_URL = 'https://vqzjegneplzeoqxcqfeu.supabase.co';
+const SUPABASE_ANON_KEY = 'PASTE_YOUR_EXISTING_SUPABASE_ANON_OR_PUBLISHABLE_KEY_HERE';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const $ = id => document.getElementById(id);
+let currentSection='overview', cachedOrders=[], cachedOffers=[], cachedReturns=[];
+const titles={overview:['Management Overview','A quick view of orders, offers, returns, and operational checks.'],orders:['Orders & Shipping','Review order records and update shipment details only when authorized.'],offers:['Make an Offer','Review pending offers and send accept, decline, or counter decisions.'],returns:['Returns & Refunds','Review return requests. Record refund details only after the provider confirms the refund.'],rewards:['Collectors Reward','Review member points and tiers. Adjustments require secure server-side controls and a recorded reason.'],referrals:['Referrals','Review referral records and earned credits.'],customers:['Customers','Look up customer profiles and purchase history using restricted admin functions.'],promotions:['Discounts & Promotions','Monitor promotion usage and eligibility. Promotion creation remains in Website Admin.'],payments:['Payment Checks','Compare order records with Square/payment provider records. Provider verification is not performed by this page.'],reports:['Reports & Analytics','Summary based on records your administrator role is allowed to read.'],activity:['Activity Log','Administrative decisions should be recorded server-side for accountability.'],support:['Support & Disputes','A central workspace for customer issues, missing packages, damaged items, and payment disputes.']};
+function safe(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function money(v){return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(v)||0)}
+function pill(s){let t=String(s||'unknown');let cls=['completed','approved','received','refunded','accepted','delivered','shipped'].includes(t.toLowerCase())?'good':['pending','requested','processing','countered'].includes(t.toLowerCase())?'warn':['cancelled','declined','failed','expired'].includes(t.toLowerCase())?'bad':'';return `<span class="pill ${cls}">${safe(t)}</span>`}
+function setMsg(id,msg,cls='status'){const e=$(id);if(e){e.className=cls;e.textContent=msg}}
+function showLogin(){ $('loginPanel').classList.remove('hidden');$('appPanel').classList.add('hidden');$('signOutBtn').classList.add('hidden');}
+function showApp(){ $('loginPanel').classList.add('hidden');$('appPanel').classList.remove('hidden');$('signOutBtn').classList.remove('hidden');}
+async function requireAdmin(){
+ const {data:{session}}=await sb.auth.getSession();if(!session){showLogin();return false}
+ const {data,error}=await sb.rpc('im_return_admin_access');
+ if(error||data!==true){await sb.auth.signOut();showLogin();setMsg('loginMessage','This account is not authorized for the management area. Ask the site administrator to grant the proper admin role.','error');return false}
+ showApp();$('setupNotice').classList.add('hidden');return true;
+}
+$('loginBtn').addEventListener('click',async()=>{if(SUPABASE_ANON_KEY.includes('PASTE_YOUR')){setMsg('loginMessage','Setup needed: add the existing Supabase publishable/anon key to this file first.','error');return}const email=$('email').value.trim(),password=$('password').value;if(!email||!password){setMsg('loginMessage','Enter your email and password.','error');return} $('loginBtn').disabled=true;setMsg('loginMessage','Signing in…');const {error}=await sb.auth.signInWithPassword({email,password});$('loginBtn').disabled=false;if(error){setMsg('loginMessage',error.message,'error');return}if(await requireAdmin())await renderSection(currentSection)});
+$('password').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').click()});
+$('signOutBtn').addEventListener('click',async()=>{await sb.auth.signOut();showLogin()});
+document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.navbtn').forEach(x=>x.classList.toggle('active',x===b));renderSection(b.dataset.section)}));
+function panel(title,body){return `<div class="panel"><h3>${title}</h3>${body}</div>`}
+function table(headers,rows){return `<div class="tablewrap"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows||''}</tbody></table></div>`}
+function empty(msg){return `<div class="empty">${safe(msg)}</div>`}
+async function loadReturns(){const {data,error}=await sb.rpc('im_return_admin_list');if(error)throw error;return Array.isArray(data)?data:[]}
+async function renderSection(name){
+ currentSection=name;const t=titles[name]||titles.overview;$('sectionTitle').innerHTML=`<h2>${safe(t[0])}</h2><p class="sub">${safe(t[1])}</p>`;const body=$('sectionBody');body.innerHTML=panel('Loading','Please wait…');
+ try{
+ if(name==='overview'){
+  let [o,of,r]=await Promise.all([sb.from('orders').select('id,order_number,status,total,created_at,payment_provider').order('created_at',{ascending:false}).limit(200),sb.from('im_product_offers').select('id,status,offer_amount,created_at').order('created_at',{ascending:false}).limit(200),loadReturns()]);
+  if(o.error)throw o.error;if(of.error)throw of.error;cachedOrders=o.data||[];cachedOffers=of.data||[];cachedReturns=r;
+  body.innerHTML=`<div class="metrics"><div class="metric"><span>Orders loaded</span><strong>${cachedOrders.length}</strong></div><div class="metric"><span>Pending offers</span><strong>${cachedOffers.filter(x=>x.status==='pending').length}</strong></div><div class="metric"><span>Open return requests</span><strong>${cachedReturns.filter(x=>['requested','received','approved'].includes(x.status)).length}</strong></div><div class="metric"><span>Order totals shown*</span><strong>${money(cachedOrders.filter(x=>x.status==='completed').reduce((s,x)=>s+Number(x.total||0),0))}</strong></div></div>${panel('Recent Orders',table(['Order','Date','Status','Total'],cachedOrders.slice(0,8).map(x=>`<tr><td>${safe(x.order_number)}</td><td>${safe(new Date(x.created_at).toLocaleDateString())}</td><td>${pill(x.status)}</td><td>${money(x.total)}</td></tr>`).join('')||'')||empty('No orders found')}<p class="small">*This is the sum of completed order records, not verified accounting revenue. Confirm payments in the provider dashboard.</p>`;
+ }else if(name==='orders'){
+  const {data,error}=await sb.from('orders').select('id,order_number,customer_email,status,total,created_at,carrier,tracking_number,payment_provider,payment_method').order('created_at',{ascending:false}).limit(300);if(error)throw error;cachedOrders=data||[];
+  body.innerHTML=panel('Orders',`<div class="toolbar"><input id="orderSearch" placeholder="Search order number or customer email"><select id="orderFilter"><option value="">All statuses</option><option>pending</option><option>completed</option><option>cancelled</option></select></div><div id="orderTable"></div>`);
+  const draw=()=>{let q=$('orderSearch').value.toLowerCase(),f=$('orderFilter').value;let rows=cachedOrders.filter(x=>(!f||x.status===f)&&(`${x.order_number} ${x.customer_email}`.toLowerCase().includes(q))).map(x=>`<tr><td>${safe(x.order_number)}</td><td>${safe(x.customer_email)}</td><td>${safe(new Date(x.created_at).toLocaleDateString())}</td><td>${pill(x.status)}</td><td>${money(x.total)}</td><td>${safe(x.carrier||'—')}<br>${safe(x.tracking_number||'—')}</td></tr>`).join('');$('orderTable').innerHTML=table(['Order','Customer','Date','Status','Total','Shipment'],rows||'')||empty('No matching orders')};$('orderSearch').oninput=draw;$('orderFilter').onchange=draw;draw();
+ }else if(name==='offers'){
+  const {data,error}=await sb.from('im_product_offers').select('id,product_id,buyer_id,offer_amount,counter_amount,status,created_at,expires_at').order('created_at',{ascending:false}).limit(300);if(error)throw error;cachedOffers=data||[];
+  body.innerHTML=panel('Offer inbox',`<div class="toolbar"><select id="offerFilter"><option value="">All statuses</option><option>pending</option><option>accepted</option><option>countered</option><option>declined</option><option>expired</option></select></div><div id="offerTable"></div><p class="small">Offer decisions are not enabled here until a verified server-side admin action is installed. This avoids allowing browser-side changes to bypass the offer rules.</p>`);
+  const draw=()=>{$('offerTable').innerHTML=table(['Product ID','Offer','Counter','Status','Created','Expires'],cachedOffers.filter(x=>!$('offerFilter').value||x.status===$('offerFilter').value).map(x=>`<tr><td>${safe(x.product_id)}</td><td>${money(x.offer_amount)}</td><td>${x.counter_amount==null?'—':money(x.counter_amount)}</td><td>${pill(x.status)}</td><td>${safe(new Date(x.created_at).toLocaleString())}</td><td>${safe(new Date(x.expires_at).toLocaleString())}</td></tr>`).join('')||'')};$('offerFilter').onchange=draw;draw();
+ }else if(name==='returns'){
+  cachedReturns=await loadReturns();body.innerHTML=panel('Return requests',table(['Order','Customer','Status','Requested','Items','Decision / refund'],cachedReturns.map(x=>`<tr><td>${safe(x.order_number||'—')}</td><td>${safe(x.customer_email||'—')}</td><td>${pill(x.status)}</td><td>${safe(new Date(x.created_at).toLocaleDateString())}</td><td>${safe(JSON.stringify(x.selected_items||x.items||[]).slice(0,180))}</td><td>${x.refund_amount==null?'—':money(x.refund_amount)}<br><span class="small">${safe(x.refund_reference||'')}</span></td></tr>`).join('')||'')+`<p class="small">Existing secure return-review functions are available, but action controls should be connected after confirming the admin allowlist and the exact inspection workflow. Record a refund here only after Square or the original payment provider confirms it.</p>`);
+ }else if(name==='rewards'||name==='referrals'||name==='customers'){
+  const query=name==='customers'?'id,email,first_name,last_name,phone,created_at,reward_points,reward_tier,referral_credit':name==='rewards'?'id,email,first_name,last_name,reward_points,reward_tier,reward_value,referral_credit':'id,email,first_name,last_name,referral_code,reward_points,reward_tier,referral_credit';
+  const {data,error}=await sb.from('profiles').select(query).order('updated_at',{ascending:false}).limit(300);if(error)throw error;
+  body.innerHTML=panel(name==='customers'?'Customer directory':name==='rewards'?'Collectors Reward members':'Referral member overview',`<div class="toolbar"><input id="profileSearch" placeholder="Search name or email"></div><div id="profileTable"></div><p class="small">${name==='rewards'?'Current stored points and tiers are shown read-only. Manual adjustments must use a secure, reason-recording server function.':'Sensitive account details are limited by the existing Supabase policies.'}</p>`);
+  const draw=()=>{const q=$('profileSearch').value.toLowerCase();const rows=(data||[]).filter(x=>`${x.first_name||''} ${x.last_name||''} ${x.email||''}`.toLowerCase().includes(q)).map(x=>`<tr><td>${safe([x.first_name,x.last_name].filter(Boolean).join(' ')||'—')}</td><td>${safe(x.email||'—')}</td>${name==='customers'?`<td>${safe(x.phone||'—')}</td>`:''}<td>${safe(x.reward_points??0)}</td><td>${pill(x.reward_tier||'Member')}</td><td>${money(x.referral_credit||0)}</td>${name==='referrals'?`<td>${safe(x.referral_code||'—')}</td>`:''}</tr>`).join('');$('profileTable').innerHTML=table(name==='customers'?['Customer','Email','Phone','Points','Tier','Referral credit']:name==='rewards'?['Member','Email','Points','Tier','Referral credit']:['Member','Email','Points','Tier','Referral credit','Referral code'],rows||'')};$('profileSearch').oninput=draw;draw();
+ }else if(name==='promotions'){
+  const {data,error}=await sb.from('profiles').select('welcome_discount_used').limit(500);if(error)throw error;const used=(data||[]).filter(x=>x.welcome_discount_used).length;
+  body.innerHTML=`<div class="metrics"><div class="metric"><span>Welcome discount</span><strong>COLLECT15</strong></div><div class="metric"><span>Profiles marked used</span><strong>${used}</strong></div><div class="metric"><span>Referral discount cap</span><strong>$50</strong></div><div class="metric"><span>Promotion editor</span><strong>Website Admin</strong></div></div>`+panel('Promotion controls',`<p>Use Website Admin to create or style promotions. This view only summarizes the welcome-discount flag currently available on member profiles; it does not prove every checkout redemption was valid.</p><p class="small">Add a dedicated promotion-redemption ledger before using this panel for fraud review or financial reporting.</p>`);
+ }else if(name==='payments'){
+  const {data,error}=await sb.from('orders').select('order_number,customer_email,status,total,payment_provider,payment_method,payment_id,paid_at,created_at').order('created_at',{ascending:false}).limit(300);if(error)throw error;
+  body.innerHTML=panel('Payment record review',table(['Order','Provider','Payment reference','Order status','Total','Paid at'],(data||[]).map(x=>`<tr><td>${safe(x.order_number)}</td><td>${safe(x.payment_provider||x.payment_method||'—')}</td><td>${safe(x.payment_id||'Not recorded')}</td><td>${pill(x.status)}</td><td>${money(x.total)}</td><td>${safe(x.paid_at?new Date(x.paid_at).toLocaleString():'Not recorded')}</td></tr>`).join('')||'')+`<p class="small">These are database records only. Verify transaction IDs, settlement, duplicate charges, and refund outcomes directly in Square/payment provider records before taking action.</p>`);
+ }else if(name==='reports'){
+  const {data,error}=await sb.from('orders').select('status,total,discount,shipping,tax,created_at').order('created_at',{ascending:false}).limit(1000);if(error)throw error;const rows=data||[],completed=rows.filter(x=>x.status==='completed');const sum=k=>completed.reduce((a,x)=>a+Number(x[k]||0),0);
+  body.innerHTML=`<div class="metrics"><div class="metric"><span>Order records</span><strong>${rows.length}</strong></div><div class="metric"><span>Completed order totals</span><strong>${money(sum('total'))}</strong></div><div class="metric"><span>Discounts recorded</span><strong>${money(sum('discount'))}</strong></div><div class="metric"><span>Shipping recorded</span><strong>${money(sum('shipping'))}</strong></div></div>`+panel('Reporting notes',`<p>These totals reflect order records available to this administrator session. They are not audited net sales and may include timing differences, cancellations, refunds, or payment discrepancies.</p><button id="exportOrders">Export visible summary (CSV)</button>`);
+  $('exportOrders').onclick=()=>{const csv=['status,total,discount,shipping,tax,created_at',...rows.map(x=>[x.status,x.total,x.discount,x.shipping,x.tax,x.created_at].map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(','))].join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='im-collections-order-summary.csv';a.click();URL.revokeObjectURL(a.href)};
+ }else if(name==='activity'){
+  body.innerHTML=panel('Administrative audit history',empty('No unified admin activity log is connected yet. Before enabling sensitive actions, create a server-written audit log that records actor, action, record ID, timestamp, and reason.'))+panel('Required safeguards','<ul><li>Record offer decisions and counter amounts.</li><li>Record return inspection and refund references.</li><li>Record reward point changes with a required reason.</li><li>Never store passwords, full payment credentials, or secret API keys.</li></ul>');
+ }else if(name==='support'){
+  body.innerHTML=panel('Support & disputes',`<div class="grid2"><div><h3>Missing package</h3><p>Verify carrier tracking and delivery scans before issuing a resolution.</p></div><div><h3>Damaged item</h3><p>Record customer evidence, inspection outcome, and the agreed resolution.</p></div><div><h3>Payment dispute</h3><p>Collect order details and provider dispute deadlines; respond in the payment provider portal.</p></div><div><h3>Customer inquiry</h3><p>Record the customer, issue, owner, next step, and resolution.</p></div></div><p class="small">A persistent support-case table and email notification workflow are not connected yet.</p>`);
+ }
+ }catch(e){body.innerHTML=panel('Could not load this section',`<p class="error">${safe(e.message||'The request failed.')}</p><p class="small">This usually means the current admin role has no read permission for this table/function, or the required secure admin RPC is not configured. Do not disable row-level security to work around it.</p><button class="secondary" id="retryBtn">Retry</button>`);$('retryBtn').onclick=()=>renderSection(name)}
+}
+(async()=>{if(SUPABASE_ANON_KEY.includes('PASTE_YOUR'))return;const {data:{session}}=await sb.auth.getSession();if(session&&await requireAdmin())renderSection('overview')})();
+sb.auth.onAuthStateChange((_event,session)=>{if(!session)showLogin()});
+</script>
+</body></html>

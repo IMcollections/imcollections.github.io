@@ -1658,7 +1658,6 @@ async function toggleReferralRewards() {
     document.getElementById("discountCode").value = "";
     message.textContent = `Referral rewards applied! You saved $${discountAmount.toFixed(2)}.`;
     message.style.color = "green";
-    updateCheckoutTotal();
   } catch (error) {
     if (version === discountSelectionVersion) {
       if (!referralBalanceKnown) referralQuoteError = error.message;
@@ -1715,6 +1714,85 @@ function renderCheckoutSavings() {
   }
 }
 
+let cdtfaTaxPreviewCents = null;
+let cdtfaPreviewSignature = "";
+let cdtfaPreviewRequestVersion = 0;
+let cdtfaPreviewTimer = null;
+
+function cdtfaAddressPayload() {
+  const value = id => document.getElementById(id)?.value?.trim() || "";
+  return {
+    addressLine1: value("guestAddress"),
+    city: value("guestCity"),
+    state: value("guestState"),
+    postalCode: value("guestZip"),
+    country: value("guestCountry")
+  };
+}
+
+function scheduleCdtfaTaxPreview() {
+  clearTimeout(cdtfaPreviewTimer);
+  cdtfaPreviewTimer = setTimeout(() => { void refreshCdtfaTaxPreview(); }, 450);
+}
+
+async function refreshCdtfaTaxPreview() {
+  const version = ++cdtfaPreviewRequestVersion;
+  const address = cdtfaAddressPayload();
+  const state = address.state.toUpperCase();
+  const cartIsValid = checkoutCart.length > 0 && checkoutCart.every(item =>
+    Number.isInteger(Number(item.id)) && Number(item.id) > 0 &&
+    Number.isInteger(Number(item.quantity)) && Number(item.quantity) > 0);
+  cdtfaTaxPreviewCents = null;
+  cdtfaPreviewSignature = "";
+  const taxLabel = document.getElementById("checkoutTax");
+  if (taxLabel) taxLabel.textContent = "Pending CDTFA address lookup";
+  if (!cartIsValid || state !== "CA" || address.addressLine1.length < 5 ||
+      address.city.length < 2 || !/^\d{5}(?:-\d{4})?$/.test(address.postalCode)) {
+    return;
+  }
+  const signature = JSON.stringify({address,items:checkoutCart.map(item=>({id:Number(item.id),quantity:Number(item.quantity)})),discount:appliedPromoCode,useReferralRewards,discountAmount});
+  try {
+    const {data:{session}} = await supabaseClient.auth.getSession();
+    if (!session?.access_token) throw new Error("Sign in to run the current CDTFA tax preview. Guest tax preview is not available yet.");
+    const {data,error} = await supabaseClient.functions.invoke("im-shop-pay-preflight", {
+      body: {
+        action: "california_tax_quote_preview",
+        shippingAddress: address,
+        shippingMethod: "standard",
+        items: checkoutCart.map(item=>({id:Number(item.id),quantity:Number(item.quantity)})),
+        discountCode: useReferralRewards ? "" : appliedPromoCode
+      }
+    });
+    if (error) throw error;
+    if (version !== cdtfaPreviewRequestVersion) return;
+    if (!data || data.stage !== "california_tax_quote_preview" ||
+        !Number.isInteger(data.merchandiseTaxPreviewCents) ||
+        data.quoteFinalized !== false || data.canCharge !== false || data.canCreateOrder !== false) {
+      throw new Error(data?.note || data?.error || "CDTFA tax preview did not return a safe, unique estimate.");
+    }
+    // The preflight currently estimates tax on merchandise after its own eligible
+    // preview discount. Do not show this as a checkout total if local rewards or
+    // other discounts make the merchandise basis differ.
+    if (useReferralRewards || (appliedPromoCode && appliedPromoCode !== "COLLECT15") ||
+        Math.round((subtotal-discountAmount)*100) !== data.merchandiseAfterPreviewDiscountCents) {
+      throw new Error("CDTFA rate was found, but the preview discount basis does not match this checkout. Final tax estimate is withheld until discount rules are aligned.");
+    }
+    cdtfaTaxPreviewCents = data.merchandiseTaxPreviewCents;
+    cdtfaPreviewSignature = signature;
+    const jurisdiction = data.jurisdictionMatches?.[0];
+    if (taxLabel) taxLabel.textContent = `$${(cdtfaTaxPreviewCents/100).toFixed(2)} (CDTFA merchandise-tax estimate, ${data.ratePercent}%)`;
+    const note = document.getElementById("shippingMessage");
+    if (note) note.textContent = `CDTFA rate preview: ${data.ratePercent}%${jurisdiction?.jurisdiction ? ` — ${jurisdiction.jurisdiction}` : ""}. Estimate only; shipping taxability and final tax treatment are not verified.`;
+    updateCheckoutTotal();
+  } catch (error) {
+    if (version !== cdtfaPreviewRequestVersion) return;
+    cdtfaTaxPreviewCents = null;
+    if (taxLabel) taxLabel.textContent = "CDTFA tax estimate unavailable";
+    const note = document.getElementById("shippingMessage");
+    if (note) note.textContent = error?.message || "CDTFA tax estimate unavailable. No fixed tax rate will be substituted.";
+  }
+}
+
 function updateCheckoutTotal() {
 
   const discountedSubtotal =
@@ -1743,16 +1821,15 @@ if (standardShippingPrice) {
       ? "FREE"
       : "$8.99";
 }
-  const taxRate = 0.0925;
-
-  const taxableAmount =
-    discountedSubtotal + shippingCost;
-
-  const estimatedTax =
-    Math.round(Math.round(taxableAmount * 100) * taxRate) / 100;
-
-  const total =
-    taxableAmount + estimatedTax;
+  // CDTFA tax is address-specific. Never fall back to a hardcoded 9.25% rate.
+  // This checkout only displays a tax preview; the current Supabase preview
+  // explicitly does not finalize tax or authorize charging/creating orders.
+  const estimatedTax = Number.isFinite(cdtfaTaxPreviewCents)
+    ? cdtfaTaxPreviewCents / 100
+    : null;
+  const total = estimatedTax === null
+    ? null
+    : discountedSubtotal + shippingCost + estimatedTax;
 
  if (paymentRequest) {
   paymentRequest.update({
@@ -1771,15 +1848,14 @@ if (standardShippingPrice) {
       ? "FREE"
       : `$${shippingCost.toFixed(2)}`;
 
-  document.getElementById("checkoutTax")
-    .textContent =
-    `$${estimatedTax.toFixed(2)}`;
+  document.getElementById("checkoutTax").textContent =
+    estimatedTax === null ? "Pending CDTFA address lookup" : `$${estimatedTax.toFixed(2)} (estimate)`;
 
 document.getElementById("orderSummaryTotal").textContent =
-  `$${total.toFixed(2)}`;
+  total === null ? "Tax estimate pending" : `$${total.toFixed(2)} (estimate)`;
 
   checkoutTotal.textContent =
-    `$${total.toFixed(2)}`;
+    total === null ? "Tax estimate pending" : `$${total.toFixed(2)} (estimate)`;
 
   document.querySelectorAll(".shipping-summary-label").forEach(label => {
     label.textContent = selectedShippingMethod === "standard" ? "Shipping:" : "Shipping (Unavailable):";
@@ -1799,6 +1875,24 @@ document.getElementById("orderSummaryTotal").textContent =
 }
 
 updateCheckoutTotal();
+
+// Address-based CDTFA preview is read-only and never authorizes a payment.
+["guestAddress", "guestCity", "guestState", "guestZip", "guestCountry"].forEach(id => {
+  document.getElementById(id)?.addEventListener("change", scheduleCdtfaTaxPreview);
+  document.getElementById(id)?.addEventListener("blur", scheduleCdtfaTaxPreview);
+});
+scheduleCdtfaTaxPreview();
+
+const cdtfaPaymentButton = document.getElementById("paymentButton");
+if (cdtfaPaymentButton) {
+  cdtfaPaymentButton.disabled = true;
+  cdtfaPaymentButton.title = "Payments remain disabled until CDTFA tax treatment is finalized and verified.";
+}
+const cdtfaPaymentNotice = document.createElement("p");
+cdtfaPaymentNotice.id = "cdtfaPaymentNotice";
+cdtfaPaymentNotice.setAttribute("role", "status");
+cdtfaPaymentNotice.textContent = "Checkout payments are temporarily paused while the CDTFA address-rate preview is being validated. This estimate is not final tax.";
+cdtfaPaymentButton?.insertAdjacentElement("afterend", cdtfaPaymentNotice);
 
 document
   .querySelectorAll(
@@ -1885,6 +1979,7 @@ document.getElementById("applyDiscount").addEventListener("click", async functio
     message.style.color = "green";
     message.textContent = `${code} applied! You saved $${amount.toFixed(2)}.`;
     updateCheckoutTotal();
+    scheduleCdtfaTaxPreview();
   } catch (error) {
     if (version !== discountSelectionVersion) return;
     message.style.color = "#b00020"; message.textContent = error.message;
@@ -1996,9 +2091,7 @@ function checkoutAmountCents() {
   if (shipping !== "standard") throw new Error("Selected USPS shipping service is not available for payment yet. Choose Ground Advantage.");
   const shipCents = standardShippingFree(subtotalCents, discountCents) ? 0 : 899;
 
-  const taxableCents = subtotalCents - discountCents + shipCents;
-
-  return taxableCents + Math.round(taxableCents * 0.0925);
+  throw new Error("Checkout payments are paused while CDTFA tax treatment is still preview-only. No fixed tax rate will be charged.");
 }
 
 async function invokeOrderPayment(body) {
@@ -2288,7 +2381,7 @@ function changeCheckoutItem(item, nextQuantity) {
   subtotal = checkoutCart.reduce((sum, product) => sum + Math.round(Number(product.price) * 100) * Number(product.quantity), 0) / 100;
   checkoutSubtotal.textContent = `$${subtotal.toFixed(2)}`;
   renderExpandedSummaryItems();
-  renderSummaryThumbnails(); updateCheckoutTotal();
+  renderSummaryThumbnails(); updateCheckoutTotal(); scheduleCdtfaTaxPreview();
   if (nextQuantity === 0) document.getElementById("checkoutCartDialog").close();
   else openCheckoutCartPreview(item);
 }

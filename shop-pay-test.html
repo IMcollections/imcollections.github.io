@@ -17,15 +17,19 @@
 <button type="button" id="runTest" disabled>Check Shopify Connection</button>
 <button type="button" id="schemaTest" disabled style="margin-top:12px;background:#111;color:#fff">Check Shop Pay Request Schema</button>
 <hr style="border:0;border-top:1px solid #e3ded3;margin:28px 0">
-<h2 style="font:normal 25px/1.2 Georgia,serif">CDTFA California Tax-Rate Preview</h2>
-<p>Enter a California delivery address to test the official address-rate lookup. This is a rate preview only; it does not calculate final tax, confirm tax obligations, charge a payment, or create an order.</p>
+<h2 style="font:normal 25px/1.2 Georgia,serif">California Merchandise Tax Estimate</h2>
+<p>Enter a California delivery address and an existing Supabase product ID. This estimates merchandise tax using the CDTFA address-rate result and verified catalog price. It is not final tax advice and cannot charge a payment or create an order.</p>
+<label for="taxProductId" style="display:block;font-weight:700;margin-top:12px">Supabase Product ID</label>
+<input id="taxProductId" inputmode="numeric" maxlength="12" placeholder="Example: 3" style="width:100%;padding:12px;border:1px solid #cfc8ba;border-radius:6px;font:inherit">
+<label for="taxQuantity" style="display:block;font-weight:700;margin-top:12px">Quantity</label>
+<input id="taxQuantity" type="number" min="1" max="99" step="1" value="1" style="width:100%;padding:12px;border:1px solid #cfc8ba;border-radius:6px;font:inherit">
 <label for="taxStreet" style="display:block;font-weight:700;margin-top:12px">Street address</label>
 <input id="taxStreet" autocomplete="street-address" maxlength="160" placeholder="Street address" style="width:100%;padding:12px;border:1px solid #cfc8ba;border-radius:6px;font:inherit">
 <label for="taxCity" style="display:block;font-weight:700;margin-top:12px">City</label>
 <input id="taxCity" autocomplete="address-level2" maxlength="100" placeholder="City" style="width:100%;padding:12px;border:1px solid #cfc8ba;border-radius:6px;font:inherit">
 <label for="taxZip" style="display:block;font-weight:700;margin-top:12px">ZIP code</label>
 <input id="taxZip" autocomplete="postal-code" inputmode="numeric" maxlength="10" placeholder="5-digit ZIP code" style="width:100%;padding:12px;border:1px solid #cfc8ba;border-radius:6px;font:inherit">
-<button type="button" id="taxTest" disabled style="margin-top:14px;background:#111;color:#fff">Check CDTFA California Tax Rate</button>
+<button type="button" id="taxTest" disabled style="margin-top:14px;background:#111;color:#fff">Estimate California Merchandise Tax</button>
 <div id="taxResult" class="status" role="status" aria-live="polite">Enter a California address, then run the tax-rate preview.</div>
 <div id="result" class="status" role="status" aria-live="polite">Test not started.</div>
 <p class="small"><a href="my-account.html">Sign in / My Account</a> · <a href="index.html">Back to Shopping</a></p>
@@ -116,32 +120,34 @@
     const street = document.getElementById('taxStreet').value.trim();
     const city = document.getElementById('taxCity').value.trim();
     const zip = document.getElementById('taxZip').value.trim();
-    if (street.length < 5 || city.length < 2 || !/^\d{5}(?:-\d{4})?$/.test(zip)) {
+    const productId = Number(document.getElementById('taxProductId').value.trim());
+    const quantity = Number(document.getElementById('taxQuantity').value);
+    if (street.length < 5 || city.length < 2 || !/^\d{5}(?:-\d{4})?$/.test(zip) || !Number.isSafeInteger(productId) || productId <= 0 || !Number.isSafeInteger(quantity) || quantity < 1 || quantity > 99) {
       taxResult.className = 'status bad';
-      taxResult.textContent = 'Enter a complete street address, city, and valid ZIP code.';
+      taxResult.textContent = 'Enter a complete California address, valid ZIP code, positive product ID, and quantity from 1 to 99.';
       return;
     }
     taxButton.disabled = true;
     taxResult.className = 'status';
-    taxResult.textContent = 'Looking up the California rate with CDTFA…';
+    taxResult.textContent = 'Estimating merchandise tax using the verified catalog price and CDTFA address-rate lookup…';
     try {
       const { data, error } = await db.functions.invoke('im-shop-pay-preflight', {
-        body: { action: 'california_tax_rate_preview', shippingAddress: {
-          country: 'US', state: 'California', city, postalCode: zip,
-          addressLine1: street
+        body: { action: 'california_tax_quote_preview', items: [{ id: productId, quantity }], shippingMethod: 'standard', shippingAddress: {
+          country: 'US', state: 'California', city, postalCode: zip, addressLine1: street
         }}
       });
       if (error) throw error;
-      if (data?.stage === 'california_rate_found' && data?.uniqueRate === true && Number.isFinite(data.ratePercent)) {
+      const money = cents => Number.isFinite(cents) ? (cents / 100).toLocaleString('en-US', {style:'currency',currency:'USD'}) : 'Unavailable';
+      if (data?.stage === 'california_tax_quote_preview' && Number.isFinite(data.merchandiseTaxPreviewCents)) {
         taxResult.className = 'status good';
-        taxResult.textContent = 'CDTFA address-rate lookup: RATE RETURNED\nRate: ' + data.ratePercent.toFixed(3).replace(/0+$/, '').replace(/\.$/, '') + '%\nSource: ' + String(data.source || 'CDTFA') + '\nJurisdiction: ' + String(data.jurisdictionMatches?.[0]?.jurisdiction || 'Not supplied') + '\nCity: ' + String(data.jurisdictionMatches?.[0]?.city || city) + '\nCounty: ' + String(data.jurisdictionMatches?.[0]?.county || 'Not supplied') + '\n\nFinal tax: NOT CALCULATED\nPayments: DISABLED · Orders: DISABLED';
+        taxResult.textContent = 'CDTFA merchandise-tax estimate: CALCULATED\nRate: ' + data.ratePercent + '%\nSource: ' + String(data.source || 'CDTFA') + '\nJurisdiction: ' + String(data.jurisdictionMatches?.[0]?.jurisdiction || 'Not supplied') + '\nCity: ' + String(data.jurisdictionMatches?.[0]?.city || city) + '\nCounty: ' + String(data.jurisdictionMatches?.[0]?.county || 'Not supplied') + '\n\nMerchandise after eligible preview discount: ' + money(data.merchandiseAfterPreviewDiscountCents) + '\nEstimated merchandise tax: ' + money(data.merchandiseTaxPreviewCents) + '\nEstimated standard shipping: ' + money(data.shippingEstimateCents) + '\nEstimated total including merchandise tax: ' + money(data.estimatedTotalIncludingMerchandiseTaxCents) + '\n\nNOT FINAL TAX. Shipping taxability not included.\nPayments: DISABLED · Orders: DISABLED';
       } else {
-        taxResult.className = 'status ' + (data?.stage === 'manual_address_review_required' ? '' : 'bad');
+        taxResult.className = 'status bad';
         const matches = Array.isArray(data?.jurisdictionMatches) ? data.jurisdictionMatches : [];
-        taxResult.textContent = 'CDTFA lookup result: ' + String(data?.stage || 'no result') +
+        taxResult.textContent = 'Tax estimate not available: ' + String(data?.stage || data?.error || 'unknown response') +
           (data?.error ? '\nMessage: ' + String(data.error) : '') +
           (matches.length ? '\nReturned candidates:\n' + matches.map((m, i) => (i + 1) + '. ' + String(m.ratePercent) + '% — ' + [m.jurisdiction,m.city,m.county].filter(Boolean).join(', ')).join('\n') : '') +
-          '\n\nNo final tax calculated. Payments and order creation remain disabled.';
+          '\n\nNo payment was attempted and no order was created.';
       }
     } catch (err) {
       taxResult.className = 'status bad';

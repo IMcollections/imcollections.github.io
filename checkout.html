@@ -901,7 +901,7 @@ font-size: 0 !important;
   <span>Order Summary</span>
 
 <span class="order-summary-right">
-  <span id="orderSummaryTotal">$0.00</span>
+  <span id="orderSummaryTotal">Estimate pending</span>
   <span id="orderSummaryArrow">⌃</span>
 </span>
   
@@ -960,8 +960,8 @@ font-size: 0 !important;
 <div class="free-shipping" id="shippingMessage"></div>
 
         <div class="summary-total">
-  <span>Total</span>
-  <span id="checkoutTotal">$0.00</span>
+  <span>Estimated Total (Not Payable)</span>
+  <span id="checkoutTotal">Estimate pending</span>
 </div>
 
 </div>   <!-- closes orderSummaryContent -->
@@ -1266,8 +1266,8 @@ font-size: 0 !important;
       <div class="free-shipping" id="bottomShippingMessage"></div>
 
         <div class="summary-total">
-  <span>Total</span>
-  <span id="bottomTotal">$0.00</span>
+  <span>Estimated Total (Not Payable)</span>
+  <span id="bottomTotal">Estimate pending</span>
 </div>
 
 </div>   <!-- closes orderSummaryContent -->
@@ -1370,21 +1370,16 @@ async function initializeSquareCard() {
       squareLocationId
     );
 
-const checkoutTotalElement =
-  document.getElementById("checkoutTotal");
-
-const applePayAmount =
-  checkoutTotalElement
-    ? checkoutTotalElement.textContent.replace("$", "").trim()
-    : "0.00";
-
+// Payment Request is initialized with a zero amount because the current
+// checkout has tax/shipping previews only. Never pass an estimate to a wallet
+// as though it were the amount to charge. Payment initiation remains blocked.
 paymentRequest =
   payments.paymentRequest({
     countryCode: "US",
     currencyCode: "USD",
     total: {
-      amount: applePayAmount,
-      label: "IM Collections"
+      amount: "0.00",
+      label: "IM Collections — payments paused"
     }
   });
 
@@ -1837,14 +1832,7 @@ if (standardShippingPrice) {
     ? null
     : discountedSubtotal + shippingCost + estimatedTax;
 
- if (paymentRequest && total !== null) {
-  paymentRequest.update({
-    total: {
-      amount: total.toFixed(2),
-      label: "IM Collections (estimate only)"
-    }
-  });
-} 
+// Do not update a wallet request with preview-only tax/total amounts.
 
   renderCheckoutSavings();
 
@@ -1859,10 +1847,10 @@ if (standardShippingPrice) {
       `$${estimatedTax.toFixed(2)} (CDTFA merchandise-tax estimate${cdtfaTaxPreviewRatePercent === null ? "" : `, ${cdtfaTaxPreviewRatePercent}%`})`;
 
 document.getElementById("orderSummaryTotal").textContent =
-  total === null ? "Tax estimate pending" : `$${total.toFixed(2)} (estimate)`;
+  total === null ? "Estimate pending" : `$${total.toFixed(2)} — estimate only, not payable`;
 
   checkoutTotal.textContent =
-    total === null ? "Tax estimate pending" : `$${total.toFixed(2)} (estimate)`;
+    total === null ? "Estimate pending" : `$${total.toFixed(2)} — estimate only, not payable`;
 
   document.querySelectorAll(".shipping-summary-label").forEach(label => {
     label.textContent = selectedShippingMethod === "standard" ? "Shipping:" : "Shipping (Unavailable):";
@@ -1893,12 +1881,12 @@ scheduleCdtfaTaxPreview();
 const cdtfaPaymentButton = document.getElementById("paymentButton");
 if (cdtfaPaymentButton) {
   cdtfaPaymentButton.disabled = true;
-  cdtfaPaymentButton.title = "Payments remain disabled until CDTFA tax treatment is finalized and verified.";
+  cdtfaPaymentButton.title = "Payments are disabled until final tax and shipping calculations are verified.";
 }
 const cdtfaPaymentNotice = document.createElement("p");
 cdtfaPaymentNotice.id = "cdtfaPaymentNotice";
 cdtfaPaymentNotice.setAttribute("role", "status");
-cdtfaPaymentNotice.textContent = "Checkout payments are temporarily paused while the CDTFA address-rate preview is being validated. This estimate is not final tax.";
+cdtfaPaymentNotice.textContent = "Payments are paused. Tax and shipping figures are previews only; no displayed estimate is a final payable amount.";
 cdtfaPaymentButton?.insertAdjacentElement("afterend", cdtfaPaymentNotice);
 
 document

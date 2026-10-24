@@ -80,7 +80,7 @@
 
     .order-item {
       display: grid;
-      grid-template-columns: 132px minmax(0, 1fr) auto;
+      grid-template-columns: 112px minmax(0, 1fr) auto;
       gap: 14px;
       padding: 14px 0;
       border-bottom: 1px solid #eee;
@@ -88,13 +88,10 @@
     }
 
     .order-item img {
-      width: 132px;
-      height: 156px;
-      object-fit: contain;
-      background: #fff;
+      width: 112px;
+      height: 132px;
+      object-fit: cover;
     }
-    .order-product-details { min-width: 0; }
-    .order-name, .order-quantity, .order-price { overflow-wrap: anywhere; }
 
     .order-name {
       font-weight: 700;
@@ -236,31 +233,13 @@ flex-shrink: 0;
 
 .summary-thumbnails {
   display: flex;
-  flex-wrap: nowrap;
-  gap: 14px;
+  flex-wrap: wrap;
+  gap: 12px;
   margin: 0 0 24px;
-  padding: 4px 4px 14px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  overscroll-behavior-x: contain;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x proximity;
 }
 .summary-thumbnails[hidden] { display: none; }
-.summary-thumbnail-card {
-  flex: 0 0 176px; min-width: 0; position: relative; scroll-snap-align: start;
-  border: 1px solid #e5e5e5; background: #fff; padding: 8px; border-radius: 5px;
-}
-.summary-thumbnail-button { display:block; width:100%; padding:0; border:0; background:transparent; cursor:pointer; border-radius:4px; }
+.summary-thumbnail-button { padding: 0; border: 0; background: transparent; cursor: pointer; border-radius: 4px; }
 .summary-thumbnail-button:focus-visible { outline: 3px solid #c6a34a; outline-offset: 3px; }
-.summary-thumbnail-card .summary-thumbnail-button img {
-  display:block; width:100%; height:164px; object-fit:contain; background:#fff;
-  border:1px solid #eee; border-radius:4px;
-}
-.summary-thumbnail-info { margin-top:8px; font-size:13px; line-height:1.4; overflow-wrap:anywhere; }
-.summary-thumbnail-name { font-weight:700; margin-bottom:4px; }
-.summary-thumbnail-meta { color:#555; }
-.summary-thumbnail-description { margin-top:5px; white-space:pre-line; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
 .checkout-cart-dialog { width: min(440px, calc(100% - 32px)); max-height: 85vh; overflow: auto; box-sizing: border-box; border: 1px solid #ddd; border-radius: 12px; padding: 20px; }
 .checkout-cart-dialog::backdrop { background: rgba(0,0,0,.55); }
 .checkout-cart-dialog .preview-image { display: block; width: 100%; max-height: 50vh; object-fit: contain; }
@@ -877,13 +856,12 @@ font-size: 0 !important;
   margin-top:12px;background:#c9a44c;color:#111;
 }
 @media(max-width:600px) {
-  .order-item { grid-template-columns:100px minmax(0,1fr);gap:10px; }
-  .order-item > .summary-thumbnail { width:100px; }
-  .order-item .summary-thumbnail-button img { width:100%;height:122px; }
+  .order-item { grid-template-columns:92px minmax(0,1fr);gap:12px; }
+  .order-item > .summary-thumbnail { width:92px; }
+  .order-item .summary-thumbnail-button img { height:116px; }
   .order-item .order-price { grid-column:2;justify-self:start;margin-top:-5px; }
   .order-item .order-name { font-size:16px; }
-  .summary-thumbnail-card { flex-basis:158px; }
-  .summary-thumbnail-card .summary-thumbnail-button img { height:142px; }
+  .summary-thumbnails .summary-thumbnail-button img { width:82px;height:100px; }
   .checkout-cart-dialog { padding:18px;width:calc(100vw - 20px); }
   .checkout-cart-dialog .preview-gallery .preview-image { height:min(46dvh,390px); }
 }
@@ -2496,7 +2474,6 @@ async function loadCheckoutItemDetails() {
     });
   }));
   renderExpandedSummaryItems();
-  renderSummaryThumbnails();
   renderCheckoutSavings();
   syncBottomOrderSummary();
 }
@@ -2542,37 +2519,19 @@ function renderSummaryThumbnails() {
     if (!container) return;
     container.replaceChildren();
     checkoutCart.forEach(item => {
-      const card = document.createElement("div");
-      card.className = "summary-thumbnail-card";
-      const image = document.createElement("img");
-      image.src = item.image || "";
-      image.alt = item.name || "Product";
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "summary-thumbnail-button";
-      button.setAttribute("aria-label", `View ${item.name || "product"} photos and details`);
-      button.appendChild(image);
-      button.addEventListener("click", () => openCheckoutCartPreview(item));
-      const remove = document.createElement("button");
-      remove.type = "button"; remove.className = "summary-remove"; remove.textContent = "×";
+      const wrapper = document.createElement("div"); wrapper.className = "summary-thumbnail";
+      const image = document.createElement("img"); image.src = item.image || ""; image.alt = item.name || "Product";
+      const button = document.createElement("button"); button.type = "button"; button.className = "summary-thumbnail-button";
+      button.setAttribute("aria-label", `View ${item.name || "product"} photos and quantity`);
+      button.appendChild(image); button.addEventListener("click", () => openCheckoutCartPreview(item));
+      const remove = document.createElement("button"); remove.type = "button"; remove.className = "summary-remove"; remove.textContent = "×";
       remove.setAttribute("aria-label", `Remove ${item.name || "product"} from cart`);
-      remove.disabled = checkoutCartChangesBlocked();
-      remove.addEventListener("click", () => changeCheckoutItem(item, 0));
-      const info = document.createElement("div"); info.className = "summary-thumbnail-info";
-      const name = document.createElement("div"); name.className = "summary-thumbnail-name"; name.textContent = item.name || "Product";
-      const meta = document.createElement("div"); meta.className = "summary-thumbnail-meta";
-      meta.textContent = `Qty: ${item.quantity} · $${(Number(item.price) * Number(item.quantity)).toFixed(2)}`;
-      info.append(name, meta);
-      const details = checkoutItemDetails(item);
-      const description = typeof details.description === "string" ? details.description.trim() : "";
-      const size = Array.isArray(details.size) ? details.size.map(String).join(", ") : String(details.size ?? "").trim();
-      if (size) { const sizeLine = document.createElement("div"); sizeLine.className = "summary-thumbnail-meta"; sizeLine.textContent = `Size: ${size}`; info.appendChild(sizeLine); }
-      if (description) { const desc = document.createElement("div"); desc.className = "summary-thumbnail-description"; desc.textContent = description; info.appendChild(desc); }
-      card.append(button, remove, info);
-      container.appendChild(card);
+      remove.disabled = checkoutCartChangesBlocked(); remove.addEventListener("click", () => changeCheckoutItem(item, 0));
+      wrapper.append(button, remove); container.appendChild(wrapper);
     });
   });
 }
+renderSummaryThumbnails();
 
 function setupSummaryToggle(buttonId, contentId, arrowId, thumbnailsId) {
   const button = document.getElementById(buttonId);

@@ -2027,7 +2027,9 @@ function setPaymentBusy(busy) {
     document.getElementById(id).disabled = busy;
   }
   renderReferralRewardChoice();
-  document.getElementById("paymentButton").disabled = busy;
+  // Tax is still preview-only, so the payment button must remain disabled even
+  // after retry/status actions finish. Do not let setPaymentBusy(false) reopen checkout.
+  document.getElementById("paymentButton").disabled = true;
   document.getElementById("retryPaymentStatus").disabled = busy;
 }
 

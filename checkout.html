@@ -1847,7 +1847,7 @@ if (standardShippingPrice) {
 
   document.getElementById("checkoutTax").textContent =
     estimatedTax === null ? "Pending CDTFA address lookup" :
-      `$${estimatedTax.toFixed(2)} (CDTFA merchandise-tax estimate${cdtfaTaxPreviewRatePercent === null ? "" : `, ${cdtfaTaxPreviewRatePercent}%`})`;
+      `$${estimatedTax.toFixed(2)} (estimated tax on merchandise + charged shipping${cdtfaTaxPreviewRatePercent === null ? "" : `, ${cdtfaTaxPreviewRatePercent}%`})`;
 
 document.getElementById("orderSummaryTotal").textContent =
   total === null ? "Estimate pending" : `$${total.toFixed(2)} — estimate only, not payable`;

@@ -1715,6 +1715,7 @@ function renderCheckoutSavings() {
 }
 
 let cdtfaTaxPreviewCents = null;
+let cdtfaTaxPreviewRatePercent = null;
 let cdtfaPreviewSignature = "";
 let cdtfaPreviewRequestVersion = 0;
 let cdtfaPreviewTimer = null;
@@ -1743,11 +1744,13 @@ async function refreshCdtfaTaxPreview() {
     Number.isInteger(Number(item.id)) && Number(item.id) > 0 &&
     Number.isInteger(Number(item.quantity)) && Number(item.quantity) > 0);
   cdtfaTaxPreviewCents = null;
+  cdtfaTaxPreviewRatePercent = null;
   cdtfaPreviewSignature = "";
   const taxLabel = document.getElementById("checkoutTax");
   if (taxLabel) taxLabel.textContent = "Pending CDTFA address lookup";
   if (!cartIsValid || state !== "CA" || address.addressLine1.length < 5 ||
       address.city.length < 2 || !/^\d{5}(?:-\d{4})?$/.test(address.postalCode)) {
+    updateCheckoutTotal();
     return;
   }
   const signature = JSON.stringify({address,items:checkoutCart.map(item=>({id:Number(item.id),quantity:Number(item.quantity)})),discount:appliedPromoCode,useReferralRewards,discountAmount});
@@ -1778,6 +1781,7 @@ async function refreshCdtfaTaxPreview() {
       throw new Error("CDTFA rate was found, but the preview discount basis does not match this checkout. Final tax estimate is withheld until discount rules are aligned.");
     }
     cdtfaTaxPreviewCents = data.merchandiseTaxPreviewCents;
+    cdtfaTaxPreviewRatePercent = data.ratePercent;
     cdtfaPreviewSignature = signature;
     const jurisdiction = data.jurisdictionMatches?.[0];
     if (taxLabel) taxLabel.textContent = `$${(cdtfaTaxPreviewCents/100).toFixed(2)} (CDTFA merchandise-tax estimate, ${data.ratePercent}%)`;
@@ -1787,6 +1791,8 @@ async function refreshCdtfaTaxPreview() {
   } catch (error) {
     if (version !== cdtfaPreviewRequestVersion) return;
     cdtfaTaxPreviewCents = null;
+    cdtfaTaxPreviewRatePercent = null;
+    updateCheckoutTotal();
     if (taxLabel) taxLabel.textContent = "CDTFA tax estimate unavailable";
     const note = document.getElementById("shippingMessage");
     if (note) note.textContent = error?.message || "CDTFA tax estimate unavailable. No fixed tax rate will be substituted.";
@@ -1831,11 +1837,11 @@ if (standardShippingPrice) {
     ? null
     : discountedSubtotal + shippingCost + estimatedTax;
 
- if (paymentRequest) {
+ if (paymentRequest && total !== null) {
   paymentRequest.update({
     total: {
       amount: total.toFixed(2),
-      label: "IM Collections"
+      label: "IM Collections (estimate only)"
     }
   });
 } 
@@ -1849,7 +1855,8 @@ if (standardShippingPrice) {
       : `$${shippingCost.toFixed(2)}`;
 
   document.getElementById("checkoutTax").textContent =
-    estimatedTax === null ? "Pending CDTFA address lookup" : `$${estimatedTax.toFixed(2)} (estimate)`;
+    estimatedTax === null ? "Pending CDTFA address lookup" :
+      `$${estimatedTax.toFixed(2)} (CDTFA merchandise-tax estimate${cdtfaTaxPreviewRatePercent === null ? "" : `, ${cdtfaTaxPreviewRatePercent}%`})`;
 
 document.getElementById("orderSummaryTotal").textContent =
   total === null ? "Tax estimate pending" : `$${total.toFixed(2)} (estimate)`;

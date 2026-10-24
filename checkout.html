@@ -80,68 +80,27 @@
 
     .order-item {
       display: grid;
-      grid-template-columns: 112px minmax(0, 1fr) auto;
+      grid-template-columns: 132px minmax(0, 1fr) auto;
       gap: 14px;
       padding: 14px 0;
       border-bottom: 1px solid #eee;
       align-items: start;
     }
-    /* Keep all product information visible when the order summary is expanded. */
-    #orderSummaryContent .order-item,
-    #bottomSummaryContent .order-item {
-      display: grid !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-    }
-    #orderSummaryContent .order-item > .summary-thumbnail,
-    #bottomSummaryContent .order-item > .summary-thumbnail {
-      display: block;
-      grid-column: 1;
-      grid-row: 1 / span 3;
-      min-width: 0;
-    }
-    #orderSummaryContent .order-item > div:nth-child(2),
-    #bottomSummaryContent .order-item > div:nth-child(2) {
-      display: block !important;
-      grid-column: 2;
-      grid-row: 1;
-      min-width: 0;
-      color: #222;
-      overflow-wrap: anywhere;
-    }
-    #orderSummaryContent .order-item .order-name,
-    #bottomSummaryContent .order-item .order-name {
-      display: block !important;
-      color: #222;
-      font-size: 15px;
-      font-weight: 700;
-      line-height: 1.4;
-      margin-bottom: 6px;
-    }
-    #orderSummaryContent .order-item .order-quantity,
-    #bottomSummaryContent .order-item .order-quantity,
-    #orderSummaryContent .order-item .order-product-details,
-    #bottomSummaryContent .order-item .order-product-details {
-      display: block !important;
-      visibility: visible !important;
-      color: #555;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-    #orderSummaryContent .order-item .order-price,
-    #bottomSummaryContent .order-item .order-price {
-      display: block !important;
-      grid-column: 3;
-      grid-row: 1;
-      visibility: visible !important;
-      color: #222;
-      white-space: nowrap;
-    }
 
     .order-item img {
-      width: 112px;
-      height: 132px;
+      width: 132px;
+      height: 156px;
       object-fit: cover;
+    }
+    .order-product-details { min-width: 0; }
+    .order-name, .order-quantity, .order-price { overflow-wrap: anywhere; }
+    @media (max-width: 480px) {
+      .order-item { grid-template-columns: 96px minmax(0, 1fr); gap: 10px; }
+      .order-item .summary-thumbnail { grid-column: 1; grid-row: 1 / span 2; }
+      .order-item .summary-thumbnail-button img { width: 96px; height: 116px; }
+      .order-item > .order-price { grid-column: 2; }
+      .summary-thumbnail-card { flex-basis: 148px; }
+      .summary-thumbnail-card .summary-thumbnail-button img { height: 138px; }
     }
 
     .order-name {
@@ -284,14 +243,26 @@ flex-shrink: 0;
 
 .summary-thumbnails {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+  flex-wrap: nowrap;
+  gap: 14px;
   margin: 0 0 24px;
+  padding: 4px 4px 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
 }
 .summary-thumbnails[hidden] { display: none; }
-.summary-thumbnail-button { padding: 0; border: 0; background: transparent; cursor: pointer; border-radius: 4px; }
+.summary-thumbnail-button { display: block; width: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; border-radius: 4px; }
 .summary-thumbnail-button:focus-visible { outline: 3px solid #c6a34a; outline-offset: 3px; }
-.checkout-cart-dialog { width: min(440px, calc(100% - 32px)); max-height: 85vh; overflow: auto; box-sizing: border-box; border: 1px solid #ddd; border-radius: 12px; padding: 20px; }
+.summary-thumbnail-card { flex: 0 0 160px; min-width: 0; position: relative; scroll-snap-align: start; border: 1px solid #e5e5e5; background: #fff; padding: 8px; border-radius: 5px; }
+.summary-thumbnail-card .summary-thumbnail-button img { display: block; width: 100%; height: 150px; object-fit: contain; background: #fff; border: 1px solid #eee; border-radius: 4px; }
+.summary-thumbnail-info { margin-top: 8px; font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; }
+.summary-thumbnail-name { font-weight: 700; margin-bottom: 4px; }
+.summary-thumbnail-meta { color: #555; }
+.summary-thumbnail-description { margin-top: 5px; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.checkout-cart-dialog { width: min(520px, calc(100% - 32px)); max-height: 88vh; overflow: auto; box-sizing: border-box; border: 1px solid #ddd; border-radius: 12px; padding: 20px; }
 .checkout-cart-dialog::backdrop { background: rgba(0,0,0,.55); }
 .checkout-cart-dialog .preview-image { display: block; width: 100%; max-height: 50vh; object-fit: contain; }
 .checkout-cart-dialog button { cursor: pointer; padding: 12px; margin-top: 12px; }
@@ -2546,6 +2517,7 @@ function openCheckoutCartPreview(item) {
           package_height_in: data.package_height_in
         };
         checkoutPhotoCache.set(item.id, details);
+        renderSummaryThumbnails();
         if (version !== checkoutPreviewVersion || !dialog.open) return;
         drawPhotos(details.images);
         showProductDetails(details);
@@ -2618,6 +2590,7 @@ async function loadCheckoutItemDetails() {
     });
   }));
   renderExpandedSummaryItems();
+  renderSummaryThumbnails();
   renderCheckoutSavings();
   syncBottomOrderSummary();
 }
@@ -2663,18 +2636,59 @@ function renderSummaryThumbnails() {
     if (!container) return;
     container.replaceChildren();
     checkoutCart.forEach(item => {
-      const wrapper = document.createElement("div"); wrapper.className = "summary-thumbnail";
-      const image = document.createElement("img"); image.src = item.image || ""; image.alt = item.name || "Product";
-      const button = document.createElement("button"); button.type = "button"; button.className = "summary-thumbnail-button";
-      button.setAttribute("aria-label", `View ${item.name || "product"} photos and quantity`);
-      button.appendChild(image); button.addEventListener("click", () => openCheckoutCartPreview(item));
-      const remove = document.createElement("button"); remove.type = "button"; remove.className = "summary-remove"; remove.textContent = "×";
+      const card = document.createElement("div");
+      card.className = "summary-thumbnail-card summary-thumbnail";
+
+      const image = document.createElement("img");
+      image.src = item.image || "";
+      image.alt = item.name || "Product";
+      image.loading = "lazy";
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "summary-thumbnail-button";
+      button.setAttribute("aria-label", `View ${item.name || "product"} photos and details`);
+      button.appendChild(image);
+      button.addEventListener("click", () => openCheckoutCartPreview(item));
+
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "summary-remove";
+      remove.textContent = "×";
       remove.setAttribute("aria-label", `Remove ${item.name || "product"} from cart`);
-      remove.disabled = checkoutCartChangesBlocked(); remove.addEventListener("click", () => changeCheckoutItem(item, 0));
-      wrapper.append(button, remove); container.appendChild(wrapper);
+      remove.disabled = checkoutCartChangesBlocked();
+      remove.addEventListener("click", () => changeCheckoutItem(item, 0));
+
+      const info = document.createElement("div");
+      info.className = "summary-thumbnail-info";
+      const name = document.createElement("div");
+      name.className = "summary-thumbnail-name";
+      name.textContent = item.name || "Product";
+      const meta = document.createElement("div");
+      meta.className = "summary-thumbnail-meta";
+      meta.textContent = `Qty: ${item.quantity} · $${(Number(item.price) * Number(item.quantity)).toFixed(2)}`;
+      info.append(name, meta);
+
+      const data = checkoutItemDetails(item);
+      const sizeValue = Array.isArray(data.size) ? data.size.map(String).join(", ") : String(data.size ?? "").trim();
+      if (sizeValue) {
+        const size = document.createElement("div");
+        size.className = "summary-thumbnail-meta";
+        size.textContent = `Size: ${sizeValue}`;
+        info.appendChild(size);
+      }
+      const description = typeof data.description === "string" ? data.description.trim() : "";
+      if (description) {
+        const desc = document.createElement("div");
+        desc.className = "summary-thumbnail-description";
+        desc.textContent = description;
+        info.appendChild(desc);
+      }
+      card.append(button, remove, info);
+      container.appendChild(card);
     });
   });
 }
+
 renderSummaryThumbnails();
 
 function setupSummaryToggle(buttonId, contentId, arrowId, thumbnailsId) {

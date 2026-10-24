@@ -90,18 +90,11 @@
     .order-item img {
       width: 132px;
       height: 156px;
-      object-fit: cover;
+      object-fit: contain;
+      background: #fff;
     }
     .order-product-details { min-width: 0; }
     .order-name, .order-quantity, .order-price { overflow-wrap: anywhere; }
-    @media (max-width: 480px) {
-      .order-item { grid-template-columns: 96px minmax(0, 1fr); gap: 10px; }
-      .order-item .summary-thumbnail { grid-column: 1; grid-row: 1 / span 2; }
-      .order-item .summary-thumbnail-button img { width: 96px; height: 116px; }
-      .order-item > .order-price { grid-column: 2; }
-      .summary-thumbnail-card { flex-basis: 148px; }
-      .summary-thumbnail-card .summary-thumbnail-button img { height: 138px; }
-    }
 
     .order-name {
       font-weight: 700;
@@ -254,15 +247,21 @@ flex-shrink: 0;
   scroll-snap-type: x proximity;
 }
 .summary-thumbnails[hidden] { display: none; }
-.summary-thumbnail-button { display: block; width: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; border-radius: 4px; }
+.summary-thumbnail-card {
+  flex: 0 0 176px; min-width: 0; position: relative; scroll-snap-align: start;
+  border: 1px solid #e5e5e5; background: #fff; padding: 8px; border-radius: 5px;
+}
+.summary-thumbnail-button { display:block; width:100%; padding:0; border:0; background:transparent; cursor:pointer; border-radius:4px; }
 .summary-thumbnail-button:focus-visible { outline: 3px solid #c6a34a; outline-offset: 3px; }
-.summary-thumbnail-card { flex: 0 0 160px; min-width: 0; position: relative; scroll-snap-align: start; border: 1px solid #e5e5e5; background: #fff; padding: 8px; border-radius: 5px; }
-.summary-thumbnail-card .summary-thumbnail-button img { display: block; width: 100%; height: 150px; object-fit: contain; background: #fff; border: 1px solid #eee; border-radius: 4px; }
-.summary-thumbnail-info { margin-top: 8px; font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; }
-.summary-thumbnail-name { font-weight: 700; margin-bottom: 4px; }
-.summary-thumbnail-meta { color: #555; }
-.summary-thumbnail-description { margin-top: 5px; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.checkout-cart-dialog { width: min(520px, calc(100% - 32px)); max-height: 88vh; overflow: auto; box-sizing: border-box; border: 1px solid #ddd; border-radius: 12px; padding: 20px; }
+.summary-thumbnail-card .summary-thumbnail-button img {
+  display:block; width:100%; height:164px; object-fit:contain; background:#fff;
+  border:1px solid #eee; border-radius:4px;
+}
+.summary-thumbnail-info { margin-top:8px; font-size:13px; line-height:1.4; overflow-wrap:anywhere; }
+.summary-thumbnail-name { font-weight:700; margin-bottom:4px; }
+.summary-thumbnail-meta { color:#555; }
+.summary-thumbnail-description { margin-top:5px; white-space:pre-line; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.checkout-cart-dialog { width: min(440px, calc(100% - 32px)); max-height: 85vh; overflow: auto; box-sizing: border-box; border: 1px solid #ddd; border-radius: 12px; padding: 20px; }
 .checkout-cart-dialog::backdrop { background: rgba(0,0,0,.55); }
 .checkout-cart-dialog .preview-image { display: block; width: 100%; max-height: 50vh; object-fit: contain; }
 .checkout-cart-dialog button { cursor: pointer; padding: 12px; margin-top: 12px; }
@@ -878,12 +877,13 @@ font-size: 0 !important;
   margin-top:12px;background:#c9a44c;color:#111;
 }
 @media(max-width:600px) {
-  .order-item { grid-template-columns:92px minmax(0,1fr);gap:12px; }
-  .order-item > .summary-thumbnail { width:92px; }
-  .order-item .summary-thumbnail-button img { height:116px; }
+  .order-item { grid-template-columns:100px minmax(0,1fr);gap:10px; }
+  .order-item > .summary-thumbnail { width:100px; }
+  .order-item .summary-thumbnail-button img { width:100%;height:122px; }
   .order-item .order-price { grid-column:2;justify-self:start;margin-top:-5px; }
   .order-item .order-name { font-size:16px; }
-  .summary-thumbnails .summary-thumbnail-button img { width:82px;height:100px; }
+  .summary-thumbnail-card { flex-basis:158px; }
+  .summary-thumbnail-card .summary-thumbnail-button img { height:142px; }
   .checkout-cart-dialog { padding:18px;width:calc(100vw - 20px); }
   .checkout-cart-dialog .preview-gallery .preview-image { height:min(46dvh,390px); }
 }
@@ -923,7 +923,7 @@ font-size: 0 !important;
   <span>Order Summary</span>
 
 <span class="order-summary-right">
-  <span id="orderSummaryTotal">Estimate pending</span>
+  <span id="orderSummaryTotal">$0.00</span>
   <span id="orderSummaryArrow">⌃</span>
 </span>
   
@@ -982,8 +982,8 @@ font-size: 0 !important;
 <div class="free-shipping" id="shippingMessage"></div>
 
         <div class="summary-total">
-  <span>Estimated Total (Not Payable)</span>
-  <span id="checkoutTotal">Estimate pending</span>
+  <span>Total</span>
+  <span id="checkoutTotal">$0.00</span>
 </div>
 
 </div>   <!-- closes orderSummaryContent -->
@@ -1288,8 +1288,8 @@ font-size: 0 !important;
       <div class="free-shipping" id="bottomShippingMessage"></div>
 
         <div class="summary-total">
-  <span>Estimated Total (Not Payable)</span>
-  <span id="bottomTotal">Estimate pending</span>
+  <span>Total</span>
+  <span id="bottomTotal">$0.00</span>
 </div>
 
 </div>   <!-- closes orderSummaryContent -->
@@ -1392,16 +1392,21 @@ async function initializeSquareCard() {
       squareLocationId
     );
 
-// Payment Request is initialized with a zero amount because the current
-// checkout has tax/shipping previews only. Never pass an estimate to a wallet
-// as though it were the amount to charge. Payment initiation remains blocked.
+const checkoutTotalElement =
+  document.getElementById("checkoutTotal");
+
+const applePayAmount =
+  checkoutTotalElement
+    ? checkoutTotalElement.textContent.replace("$", "").trim()
+    : "0.00";
+
 paymentRequest =
   payments.paymentRequest({
     countryCode: "US",
     currencyCode: "USD",
     total: {
-      amount: "0.00",
-      label: "IM Collections — payments paused"
+      amount: applePayAmount,
+      label: "IM Collections"
     }
   });
 
@@ -1675,6 +1680,7 @@ async function toggleReferralRewards() {
     document.getElementById("discountCode").value = "";
     message.textContent = `Referral rewards applied! You saved $${discountAmount.toFixed(2)}.`;
     message.style.color = "green";
+    updateCheckoutTotal();
   } catch (error) {
     if (version === discountSelectionVersion) {
       if (!referralBalanceKnown) referralQuoteError = error.message;
@@ -1731,94 +1737,6 @@ function renderCheckoutSavings() {
   }
 }
 
-let cdtfaTaxPreviewCents = null;
-let cdtfaTaxPreviewRatePercent = null;
-let cdtfaPreviewSignature = "";
-let cdtfaPreviewRequestVersion = 0;
-let cdtfaPreviewTimer = null;
-
-function cdtfaAddressPayload() {
-  const value = id => document.getElementById(id)?.value?.trim() || "";
-  return {
-    addressLine1: value("guestAddress"),
-    city: value("guestCity"),
-    state: value("guestState"),
-    postalCode: value("guestZip"),
-    country: value("guestCountry")
-  };
-}
-
-function scheduleCdtfaTaxPreview() {
-  clearTimeout(cdtfaPreviewTimer);
-  cdtfaPreviewTimer = setTimeout(() => { void refreshCdtfaTaxPreview(); }, 450);
-}
-
-async function refreshCdtfaTaxPreview() {
-  const version = ++cdtfaPreviewRequestVersion;
-  const address = cdtfaAddressPayload();
-  const state = address.state.toUpperCase();
-  const cartIsValid = checkoutCart.length > 0 && checkoutCart.every(item =>
-    Number.isInteger(Number(item.id)) && Number(item.id) > 0 &&
-    Number.isInteger(Number(item.quantity)) && Number(item.quantity) > 0);
-  cdtfaTaxPreviewCents = null;
-  cdtfaTaxPreviewRatePercent = null;
-  cdtfaPreviewSignature = "";
-  const taxLabel = document.getElementById("checkoutTax");
-  if (taxLabel) taxLabel.textContent = "Pending CDTFA address lookup";
-  if (!cartIsValid || state !== "CA" || address.addressLine1.length < 5 ||
-      address.city.length < 2 || !/^\d{5}(?:-\d{4})?$/.test(address.postalCode)) {
-    updateCheckoutTotal();
-    return;
-  }
-  const signature = JSON.stringify({address,items:checkoutCart.map(item=>({id:Number(item.id),quantity:Number(item.quantity)})),discount:appliedPromoCode,useReferralRewards,discountAmount});
-  try {
-    const {data:{session}} = await supabaseClient.auth.getSession();
-    if (!session?.access_token) throw new Error("Sign in to run the current CDTFA tax preview. Guest tax preview is not available yet.");
-    const {data,error} = await supabaseClient.functions.invoke("im-shop-pay-preflight", {
-      body: {
-        action: "california_tax_quote_preview",
-        shippingAddress: address,
-        shippingMethod: document.querySelector('input[name="shippingMethod"]:checked')?.value || "standard",
-        items: checkoutCart.map(item=>({id:Number(item.id),quantity:Number(item.quantity)})),
-        discountCode: useReferralRewards ? "" : appliedPromoCode
-      }
-    });
-    if (error) throw error;
-    if (version !== cdtfaPreviewRequestVersion) return;
-    if (!data || data.stage !== "california_tax_quote_preview" ||
-        !Number.isInteger(data.merchandiseTaxPreviewCents) ||
-        !Number.isInteger(data.estimatedTaxCents) ||
-        data.quoteFinalized !== false || data.canCharge !== false || data.canCreateOrder !== false) {
-      throw new Error(data?.note || data?.error || "CDTFA tax preview did not return a safe, unique estimate.");
-    }
-    // The preflight currently estimates tax on merchandise after its own eligible
-    // preview discount. Do not show this as a checkout total if local rewards or
-    // other discounts make the merchandise basis differ.
-    if (useReferralRewards || (appliedPromoCode && appliedPromoCode !== "COLLECT15") ||
-        Math.round((subtotal-discountAmount)*100) !== data.merchandiseAfterPreviewDiscountCents) {
-      throw new Error("CDTFA rate was found, but the preview discount basis does not match this checkout. Final tax estimate is withheld until discount rules are aligned.");
-    }
-    // The displayed estimate includes merchandise tax plus tax estimated on any
-    // charged shipping. When shipping is free, its tax base is $0.
-    cdtfaTaxPreviewCents = data.estimatedTaxCents;
-    cdtfaTaxPreviewRatePercent = data.ratePercent;
-    cdtfaPreviewSignature = signature;
-    const jurisdiction = data.jurisdictionMatches?.[0];
-    if (taxLabel) taxLabel.textContent = `$${(cdtfaTaxPreviewCents/100).toFixed(2)} (estimated tax on merchandise + charged shipping, ${data.ratePercent}%)`;
-    const note = document.getElementById("shippingMessage");
-    if (note) note.textContent = `CDTFA rate preview: ${data.ratePercent}%${jurisdiction?.jurisdiction ? ` — ${jurisdiction.jurisdiction}` : ""}. Shipping tax estimate follows IM Collections policy; this is not a final tax quote or payable total.`;
-    updateCheckoutTotal();
-  } catch (error) {
-    if (version !== cdtfaPreviewRequestVersion) return;
-    cdtfaTaxPreviewCents = null;
-    cdtfaTaxPreviewRatePercent = null;
-    updateCheckoutTotal();
-    if (taxLabel) taxLabel.textContent = "CDTFA tax estimate unavailable";
-    const note = document.getElementById("shippingMessage");
-    if (note) note.textContent = error?.message || "CDTFA tax estimate unavailable. No fixed tax rate will be substituted.";
-  }
-}
-
 function updateCheckoutTotal() {
 
   const discountedSubtotal =
@@ -1847,17 +1765,25 @@ if (standardShippingPrice) {
       ? "FREE"
       : "$8.99";
 }
-  // CDTFA tax is address-specific. Never fall back to a hardcoded 9.25% rate.
-  // This checkout only displays a tax preview; the current Supabase preview
-  // explicitly does not finalize tax or authorize charging/creating orders.
-  const estimatedTax = Number.isFinite(cdtfaTaxPreviewCents)
-    ? cdtfaTaxPreviewCents / 100
-    : null;
-  const total = estimatedTax === null
-    ? null
-    : discountedSubtotal + shippingCost + estimatedTax;
+  const taxRate = 0.0925;
 
-// Do not update a wallet request with preview-only tax/total amounts.
+  const taxableAmount =
+    discountedSubtotal + shippingCost;
+
+  const estimatedTax =
+    Math.round(Math.round(taxableAmount * 100) * taxRate) / 100;
+
+  const total =
+    taxableAmount + estimatedTax;
+
+ if (paymentRequest) {
+  paymentRequest.update({
+    total: {
+      amount: total.toFixed(2),
+      label: "IM Collections"
+    }
+  });
+} 
 
   renderCheckoutSavings();
 
@@ -1867,15 +1793,15 @@ if (standardShippingPrice) {
       ? "FREE"
       : `$${shippingCost.toFixed(2)}`;
 
-  document.getElementById("checkoutTax").textContent =
-    estimatedTax === null ? "Pending CDTFA address lookup" :
-      `$${estimatedTax.toFixed(2)} (CDTFA merchandise-tax estimate${cdtfaTaxPreviewRatePercent === null ? "" : `, ${cdtfaTaxPreviewRatePercent}%`})`;
+  document.getElementById("checkoutTax")
+    .textContent =
+    `$${estimatedTax.toFixed(2)}`;
 
 document.getElementById("orderSummaryTotal").textContent =
-  total === null ? "Estimate pending" : `$${total.toFixed(2)} — estimate only, not payable`;
+  `$${total.toFixed(2)}`;
 
   checkoutTotal.textContent =
-    total === null ? "Estimate pending" : `$${total.toFixed(2)} — estimate only, not payable`;
+    `$${total.toFixed(2)}`;
 
   document.querySelectorAll(".shipping-summary-label").forEach(label => {
     label.textContent = selectedShippingMethod === "standard" ? "Shipping:" : "Shipping (Unavailable):";
@@ -1895,24 +1821,6 @@ document.getElementById("orderSummaryTotal").textContent =
 }
 
 updateCheckoutTotal();
-
-// Address-based CDTFA preview is read-only and never authorizes a payment.
-["guestAddress", "guestCity", "guestState", "guestZip", "guestCountry"].forEach(id => {
-  document.getElementById(id)?.addEventListener("change", scheduleCdtfaTaxPreview);
-  document.getElementById(id)?.addEventListener("blur", scheduleCdtfaTaxPreview);
-});
-scheduleCdtfaTaxPreview();
-
-const cdtfaPaymentButton = document.getElementById("paymentButton");
-if (cdtfaPaymentButton) {
-  cdtfaPaymentButton.disabled = true;
-  cdtfaPaymentButton.title = "Payments are disabled until final tax and shipping calculations are verified.";
-}
-const cdtfaPaymentNotice = document.createElement("p");
-cdtfaPaymentNotice.id = "cdtfaPaymentNotice";
-cdtfaPaymentNotice.setAttribute("role", "status");
-cdtfaPaymentNotice.textContent = "Payments are paused. Tax and shipping figures are previews only; no displayed estimate is a final payable amount.";
-cdtfaPaymentButton?.insertAdjacentElement("afterend", cdtfaPaymentNotice);
 
 document
   .querySelectorAll(
@@ -1999,7 +1907,6 @@ document.getElementById("applyDiscount").addEventListener("click", async functio
     message.style.color = "green";
     message.textContent = `${code} applied! You saved $${amount.toFixed(2)}.`;
     updateCheckoutTotal();
-    scheduleCdtfaTaxPreview();
   } catch (error) {
     if (version !== discountSelectionVersion) return;
     message.style.color = "#b00020"; message.textContent = error.message;
@@ -2040,9 +1947,7 @@ function setPaymentBusy(busy) {
     document.getElementById(id).disabled = busy;
   }
   renderReferralRewardChoice();
-  // Tax is still preview-only, so the payment button must remain disabled even
-  // after retry/status actions finish. Do not let setPaymentBusy(false) reopen checkout.
-  document.getElementById("paymentButton").disabled = true;
+  document.getElementById("paymentButton").disabled = busy;
   document.getElementById("retryPaymentStatus").disabled = busy;
 }
 
@@ -2113,7 +2018,9 @@ function checkoutAmountCents() {
   if (shipping !== "standard") throw new Error("Selected USPS shipping service is not available for payment yet. Choose Ground Advantage.");
   const shipCents = standardShippingFree(subtotalCents, discountCents) ? 0 : 899;
 
-  throw new Error("Checkout payments are paused while CDTFA tax treatment is still preview-only. No fixed tax rate will be charged.");
+  const taxableCents = subtotalCents - discountCents + shipCents;
+
+  return taxableCents + Math.round(taxableCents * 0.0925);
 }
 
 async function invokeOrderPayment(body) {
@@ -2403,7 +2310,7 @@ function changeCheckoutItem(item, nextQuantity) {
   subtotal = checkoutCart.reduce((sum, product) => sum + Math.round(Number(product.price) * 100) * Number(product.quantity), 0) / 100;
   checkoutSubtotal.textContent = `$${subtotal.toFixed(2)}`;
   renderExpandedSummaryItems();
-  renderSummaryThumbnails(); updateCheckoutTotal(); scheduleCdtfaTaxPreview();
+  renderSummaryThumbnails(); updateCheckoutTotal();
   if (nextQuantity === 0) document.getElementById("checkoutCartDialog").close();
   else openCheckoutCartPreview(item);
 }
@@ -2517,7 +2424,6 @@ function openCheckoutCartPreview(item) {
           package_height_in: data.package_height_in
         };
         checkoutPhotoCache.set(item.id, details);
-        renderSummaryThumbnails();
         if (version !== checkoutPreviewVersion || !dialog.open) return;
         drawPhotos(details.images);
         showProductDetails(details);
@@ -2637,59 +2543,36 @@ function renderSummaryThumbnails() {
     container.replaceChildren();
     checkoutCart.forEach(item => {
       const card = document.createElement("div");
-      card.className = "summary-thumbnail-card summary-thumbnail";
-
+      card.className = "summary-thumbnail-card";
       const image = document.createElement("img");
       image.src = item.image || "";
       image.alt = item.name || "Product";
-      image.loading = "lazy";
       const button = document.createElement("button");
       button.type = "button";
       button.className = "summary-thumbnail-button";
       button.setAttribute("aria-label", `View ${item.name || "product"} photos and details`);
       button.appendChild(image);
       button.addEventListener("click", () => openCheckoutCartPreview(item));
-
       const remove = document.createElement("button");
-      remove.type = "button";
-      remove.className = "summary-remove";
-      remove.textContent = "×";
+      remove.type = "button"; remove.className = "summary-remove"; remove.textContent = "×";
       remove.setAttribute("aria-label", `Remove ${item.name || "product"} from cart`);
       remove.disabled = checkoutCartChangesBlocked();
       remove.addEventListener("click", () => changeCheckoutItem(item, 0));
-
-      const info = document.createElement("div");
-      info.className = "summary-thumbnail-info";
-      const name = document.createElement("div");
-      name.className = "summary-thumbnail-name";
-      name.textContent = item.name || "Product";
-      const meta = document.createElement("div");
-      meta.className = "summary-thumbnail-meta";
+      const info = document.createElement("div"); info.className = "summary-thumbnail-info";
+      const name = document.createElement("div"); name.className = "summary-thumbnail-name"; name.textContent = item.name || "Product";
+      const meta = document.createElement("div"); meta.className = "summary-thumbnail-meta";
       meta.textContent = `Qty: ${item.quantity} · $${(Number(item.price) * Number(item.quantity)).toFixed(2)}`;
       info.append(name, meta);
-
-      const data = checkoutItemDetails(item);
-      const sizeValue = Array.isArray(data.size) ? data.size.map(String).join(", ") : String(data.size ?? "").trim();
-      if (sizeValue) {
-        const size = document.createElement("div");
-        size.className = "summary-thumbnail-meta";
-        size.textContent = `Size: ${sizeValue}`;
-        info.appendChild(size);
-      }
-      const description = typeof data.description === "string" ? data.description.trim() : "";
-      if (description) {
-        const desc = document.createElement("div");
-        desc.className = "summary-thumbnail-description";
-        desc.textContent = description;
-        info.appendChild(desc);
-      }
+      const details = checkoutItemDetails(item);
+      const description = typeof details.description === "string" ? details.description.trim() : "";
+      const size = Array.isArray(details.size) ? details.size.map(String).join(", ") : String(details.size ?? "").trim();
+      if (size) { const sizeLine = document.createElement("div"); sizeLine.className = "summary-thumbnail-meta"; sizeLine.textContent = `Size: ${size}`; info.appendChild(sizeLine); }
+      if (description) { const desc = document.createElement("div"); desc.className = "summary-thumbnail-description"; desc.textContent = description; info.appendChild(desc); }
       card.append(button, remove, info);
       container.appendChild(card);
     });
   });
 }
-
-renderSummaryThumbnails();
 
 function setupSummaryToggle(buttonId, contentId, arrowId, thumbnailsId) {
   const button = document.getElementById(buttonId);

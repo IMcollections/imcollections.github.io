@@ -1756,7 +1756,7 @@ async function refreshCdtfaTaxPreview() {
       body: {
         action: "california_tax_quote_preview",
         shippingAddress: address,
-        shippingMethod: "standard",
+        shippingMethod: document.querySelector('input[name="shippingMethod"]:checked')?.value || "standard",
         items: checkoutCart.map(item=>({id:Number(item.id),quantity:Number(item.quantity)})),
         discountCode: useReferralRewards ? "" : appliedPromoCode
       }
@@ -1765,6 +1765,7 @@ async function refreshCdtfaTaxPreview() {
     if (version !== cdtfaPreviewRequestVersion) return;
     if (!data || data.stage !== "california_tax_quote_preview" ||
         !Number.isInteger(data.merchandiseTaxPreviewCents) ||
+        !Number.isInteger(data.estimatedTaxCents) ||
         data.quoteFinalized !== false || data.canCharge !== false || data.canCreateOrder !== false) {
       throw new Error(data?.note || data?.error || "CDTFA tax preview did not return a safe, unique estimate.");
     }
@@ -1775,13 +1776,15 @@ async function refreshCdtfaTaxPreview() {
         Math.round((subtotal-discountAmount)*100) !== data.merchandiseAfterPreviewDiscountCents) {
       throw new Error("CDTFA rate was found, but the preview discount basis does not match this checkout. Final tax estimate is withheld until discount rules are aligned.");
     }
-    cdtfaTaxPreviewCents = data.merchandiseTaxPreviewCents;
+    // The displayed estimate includes merchandise tax plus tax estimated on any
+    // charged shipping. When shipping is free, its tax base is $0.
+    cdtfaTaxPreviewCents = data.estimatedTaxCents;
     cdtfaTaxPreviewRatePercent = data.ratePercent;
     cdtfaPreviewSignature = signature;
     const jurisdiction = data.jurisdictionMatches?.[0];
-    if (taxLabel) taxLabel.textContent = `$${(cdtfaTaxPreviewCents/100).toFixed(2)} (CDTFA merchandise-tax estimate, ${data.ratePercent}%)`;
+    if (taxLabel) taxLabel.textContent = `$${(cdtfaTaxPreviewCents/100).toFixed(2)} (estimated tax on merchandise + charged shipping, ${data.ratePercent}%)`;
     const note = document.getElementById("shippingMessage");
-    if (note) note.textContent = `CDTFA rate preview: ${data.ratePercent}%${jurisdiction?.jurisdiction ? ` — ${jurisdiction.jurisdiction}` : ""}. Estimate only; shipping taxability and final tax treatment are not verified.`;
+    if (note) note.textContent = `CDTFA rate preview: ${data.ratePercent}%${jurisdiction?.jurisdiction ? ` — ${jurisdiction.jurisdiction}` : ""}. Shipping tax estimate follows IM Collections policy; this is not a final tax quote or payable total.`;
     updateCheckoutTotal();
   } catch (error) {
     if (version !== cdtfaPreviewRequestVersion) return;

@@ -752,7 +752,7 @@ font-size: 0 !important;
 <body>
 
   <div class="checkout-header">
-    IM COLLECTIONS • STRIPE SANDBOX DRAFT • NOT LIVE
+    IM COLLECTIONS • SECURE CHECKOUT
   </div>
 
   <div class="logo-area">
@@ -980,12 +980,11 @@ font-size: 0 !important;
     >
     <span>Credit / Debit Card</span>
   </label>
-  <label class="payment-method-option"><input type="radio" name="paymentMethod" value="klarna" id="paymentMethodKlarna"><span>Klarna</span></label>
 
 </div>
 
 <div id="cardPaymentSection">
-<div id="savedCardArea" hidden data-legacy-square="true">
+<div id="savedCardArea" hidden>
 <label for="savedCardSelect">Payment Method</label>
 <select id="savedCardSelect"><option value="">Add Payment</option></select>
 <p id="savedCardMessage" role="status"></p>
@@ -1014,8 +1013,7 @@ font-size: 0 !important;
   autocomplete="cc-name"
 />
 
-  <div id="stripePaymentElement" style="min-height:36px; margin:12px 0;"></div>
-<p id="stripePaymentHint" class="secure-note">Stripe Sandbox checkout draft. Payment details will appear after server preparation is enabled.</p>
+  <div id="card-container"></div>
 
 
 
@@ -1029,6 +1027,46 @@ font-size: 0 !important;
 </label>
 
   
+  <label class="payment-method-option">
+    <input
+      type="radio"
+      name="paymentMethod"
+      value="applepay"
+      id="paymentMethodApplePay"
+    >
+    <span>Apple Pay</span>
+  </label>
+
+  <label class="payment-method-option">
+    <input
+      type="radio"
+      name="paymentMethod"
+      value="googlepay"
+      id="paymentMethodGooglePay"
+    >
+    <span>Google Pay</span>
+  </label>
+
+  <label class="payment-method-option">
+    <input
+      type="radio"
+      name="paymentMethod"
+      value="cashapp"
+      id="paymentMethodCashApp"
+    >
+    <span>Cash App Pay</span>
+  </label>
+
+  <label class="payment-method-option">
+    <input
+      type="radio"
+      name="paymentMethod"
+      value="giftcard"
+      id="paymentMethodGiftCard"
+    >
+    <span>Gift Card</span>
+  </label>
+
 <div id="billingAddressFields" style="display: none;">
 
   <h3>Billing Address</h3>
@@ -1062,6 +1100,36 @@ font-size: 0 !important;
 </div>
   </div>
 
+<div id="applePayPaymentSection" style="display: none;">
+        
+  <button
+  type="button"
+  id="applePay"
+  class="apple-pay-button"
+  aria-label="Apple Pay"
+></button>
+
+<div id="applePayStatus"></div>
+
+<div class="payment-divider" id="applePayDivider">
+</div>
+  </div>
+
+<div id="googlePayPaymentSection" style="display: none;">
+  <div id="googlePay"></div>
+  <div id="googlePayStatus"></div>
+</div>
+
+<div id="cashAppPaymentSection">
+  <div id="cashAppPay"></div>
+  <div id="cashAppPayStatus"></div>
+</div>
+
+<div id="giftCardPaymentSection" style="display: none;">
+  <div id="giftCardContainer"></div>
+  <div id="giftCardStatus"></div>
+</div>
+        
        <button
   type="button"
   class="order-summary-toggle"
@@ -1146,7 +1214,7 @@ type="button"
     class="payment-button"
     id="paymentButton"
   >
-    Prepare Stripe Sandbox Payment
+    Pay Now
   </button>
 
   <label class="legal-confirm">
@@ -1165,7 +1233,7 @@ type="button"
   Retry Payment Status
 </button>
   
-  <div id="checkoutMessage" role="status">Stripe Sandbox preview — payments are not yet enabled in Supabase.</div>
+  <div id="checkoutMessage"></div>
 </div>
 
 <button
@@ -1191,7 +1259,10 @@ type="button"
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
-  <script src="https://js.stripe.com/v3/"></script>
+  <script
+  type="text/javascript"
+  src="https://sandbox.web.squarecdn.com/v1/square.js">
+</script>
   
   <script>
     const supabaseUrl =
@@ -1206,13 +1277,197 @@ const supabaseClient =
     supabaseKey
   );
 
-    // Stripe Sandbox draft. Checkout remains disabled until secure payment settlement is tested.
-    const stripe = Stripe("pk_test_51URrTfQyDeuXnUwQW3sXLObPGcW6hwfOHwT0baS9Za8g3PPeeaG7tB330wNhxTXeC5aFqghdXuL76pxW3q5IAEbS00Ymx0Ao5i");
-    let checkoutSavedCards = [];
-    let savedCardsVersion = 0;
-    let stripeElements = null;
-    let stripePaymentElement = null;
+    const squareAppId =
+  "sandbox-sq0idb-c7snyR_ZJ25r9nRUu7ZvqA";
 
+const squareLocationId =
+  "LG5NFQWF";
+
+let squareCard;
+let checkoutSavedCards = [];
+let savedCardsVersion = 0;
+let googlePay;
+let cashAppPay;
+let giftCard;
+    let paymentRequest;
+
+async function initializeSquareCard() {
+  if (!window.Square) {
+    throw new Error("Square.js failed to load.");
+  }
+
+  const payments =
+    Square.payments(
+      squareAppId,
+      squareLocationId
+    );
+
+const checkoutTotalElement =
+  document.getElementById("checkoutTotal");
+
+const applePayAmount =
+  checkoutTotalElement
+    ? checkoutTotalElement.textContent.replace("$", "").trim()
+    : "0.00";
+
+paymentRequest =
+  payments.paymentRequest({
+    countryCode: "US",
+    currencyCode: "USD",
+    total: {
+      amount: applePayAmount,
+      label: "IM Collections"
+    }
+  });
+
+try {
+  googlePay =
+    await payments.googlePay(paymentRequest);
+
+  await googlePay.attach("#googlePay", {
+    buttonColor: "default",
+    buttonType: "long"
+  });
+
+} catch (error) {
+  console.error(
+    "Google Pay initialization error:",
+    error
+  );
+}
+
+try {
+  const cashAppOptions = {
+    redirectURL: window.location.href,
+    referenceId: "IM-" + Date.now()
+  };
+
+cashAppPay =
+  await payments.cashAppPay(
+    paymentRequest,
+    cashAppOptions
+  );
+
+cashAppPay.addEventListener(
+  "ontokenization",
+  (event) => {
+    const { tokenResult } = event.detail;
+
+    console.log(
+      "Cash App tokenization:",
+      tokenResult
+    );
+  }
+);
+
+await cashAppPay.attach("#cashAppPay");
+
+} catch (error) {
+  console.error(
+    "Cash App Pay initialization error:",
+    error
+  );
+
+  const cashAppStatus =
+    document.getElementById("cashAppPayStatus");
+
+  if (cashAppStatus) {
+    cashAppStatus.style.color = "#b00020";
+    cashAppStatus.textContent =
+      "Cash App error: " +
+      (error?.message || String(error));
+  }
+}
+
+try {
+  giftCard =
+    await payments.giftCard();
+
+  await giftCard.attach(
+    "#giftCardContainer"
+  );
+
+} catch (error) {
+  console.error(
+    "Gift Card initialization error:",
+    error
+  );
+}
+  
+try {
+  const applePay =
+    await payments.applePay(paymentRequest);
+
+  const applePayButton =
+    document.getElementById("applePay");
+
+  if (applePayButton) {
+  applePayButton.addEventListener("click", async function () {
+
+    const status =
+      document.getElementById("applePayStatus");
+
+    status.textContent =
+  "Opening Apple Pay for $" + applePayAmount + "…";
+
+    try {
+      const result =
+        await applePay.tokenize();
+
+      if (result.status === "OK") {
+
+        status.textContent =
+          "Apple Pay authorized. Processing…";
+
+        console.log(
+          "Apple Pay token created:",
+          result.token
+        );
+
+      } else {
+
+        status.textContent =
+          "Apple Pay was not completed. Please try again.";
+
+        console.error(
+          "Apple Pay tokenization failed:",
+          result.errors
+        );
+      }
+
+    } catch (error) {
+
+      status.textContent =
+        "Apple Pay closed: " +
+        (error.message || "Unable to start payment.");
+
+      console.error(
+        "Apple Pay error:",
+        error
+      );
+    }
+  });
+}
+} catch (error) {
+  console.warn(
+    "Apple Pay is not available yet:",
+    error
+  );
+
+  const applePayButton =
+    document.getElementById("applePay");
+}
+
+  squareCard = await payments.card();
+
+  await squareCard.attach("#card-container");
+}
+
+document.addEventListener(
+  "DOMContentLoaded",
+  initializeSquareCard
+);
+    
     const checkoutCart =
       JSON.parse(
         localStorage.getItem("imCollectionsCart") || "[]"
@@ -1337,7 +1592,7 @@ function renderReferralRewardChoice() {
       : !referralBalanceKnown ? (referralQuoteError ? "Retry Referral Rewards" : "Loading Referral Rewards…")
       : `Use My Referral Rewards — $${(usable / 100).toFixed(2)}`;
     button.setAttribute("aria-pressed", String(useReferralRewards));
-    button.disabled = referralUiBusy || referralQuoteBusy || !!localStorage.getItem("imStripeSandboxDraftAttempt")
+    button.disabled = referralUiBusy || referralQuoteBusy || !!localStorage.getItem("imSquarePaymentAttempt")
       || (!referralBalanceKnown && !referralQuoteError)
       || (referralBalanceKnown && !useReferralRewards && usable <= 0);
     const status = document.getElementById(prefix + "ReferralRewardStatus");
@@ -1391,7 +1646,7 @@ async function refreshReferralBalance() {
   return referralBalanceCents;
 }
 async function toggleReferralRewards() {
-  if (referralUiBusy || referralQuoteBusy || localStorage.getItem("imStripeSandboxDraftAttempt")) return;
+  if (referralUiBusy || referralQuoteBusy || localStorage.getItem("imSquarePaymentAttempt")) return;
   const version = ++discountSelectionVersion;
   const message = document.getElementById("discountMessage");
   if (useReferralRewards) {
@@ -1569,12 +1824,44 @@ document
     const cardPaymentSection =
   document.getElementById("cardPaymentSection");
 
+const applePayPaymentSection =
+  document.getElementById("applePayPaymentSection");
+
+const googlePayPaymentSection =
+  document.getElementById("googlePayPaymentSection");
+
+const cashAppPaymentSection =
+  document.getElementById("cashAppPaymentSection");
+
+const giftCardPaymentSection =
+  document.getElementById("giftCardPaymentSection");
+
 const paymentMethodRadios =
   document.querySelectorAll(
     'input[name="paymentMethod"]'
   );
 
-function showSelectedPaymentMethod() { cardPaymentSection.style.display = "block"; }
+function showSelectedPaymentMethod() {
+  const selected =
+    document.querySelector(
+      'input[name="paymentMethod"]:checked'
+    )?.value;
+
+  cardPaymentSection.style.display =
+    selected === "card" ? "block" : "none";
+
+  applePayPaymentSection.style.display =
+    selected === "applepay" ? "block" : "none";
+
+  googlePayPaymentSection.style.display =
+    selected === "googlepay" ? "block" : "none";
+
+  cashAppPaymentSection.style.display =
+    selected === "cashapp" ? "block" : "none";
+
+  giftCardPaymentSection.style.display =
+    selected === "giftcard" ? "block" : "none";
+}
 
 paymentMethodRadios.forEach((radio) => {
   radio.addEventListener(
@@ -1586,7 +1873,7 @@ paymentMethodRadios.forEach((radio) => {
 showSelectedPaymentMethod();
 
 document.getElementById("applyDiscount").addEventListener("click", async function () {
-  if (referralUiBusy || referralQuoteBusy || localStorage.getItem("imStripeSandboxDraftAttempt")) return;
+  if (referralUiBusy || referralQuoteBusy || localStorage.getItem("imSquarePaymentAttempt")) return;
   const version = ++discountSelectionVersion;
   const code = document.getElementById("discountCode").value.trim().toUpperCase();
   const message = document.getElementById("discountMessage");
@@ -1643,81 +1930,329 @@ document
     document.getElementById("applyDiscount").click();
   });
     
-// Stripe Sandbox draft: intentional two-step payment setup and confirmation.
-// The Supabase payment function is gated until server-side order/reward tests pass.
-let stripeSessionId = null;
-let stripePendingPayment = false;
-function checkoutNotice(message, failed=false) {
- const el=document.getElementById("checkoutMessage");
- el.textContent=message; el.style.color=failed?"#b42318":"#176a37";
+    const attemptStorageKey = "imSquarePaymentAttempt";
+let paymentBusy = false;
+let latestOrderNumber = null;
+
+function checkoutNotice(text, failed = false) {
+  const el = document.getElementById("checkoutMessage");
+  el.textContent = text;
+  el.style.color = failed ? "#b00020" : "green";
 }
+
 function setPaymentBusy(busy) {
- paymentBusy=busy; referralUiBusy=busy;
- for (const id of ["applyDiscount","bottomApplyDiscount","discountCode","bottomDiscountCode"])
-  document.getElementById(id).disabled=busy;
- document.getElementById("paymentButton").disabled=busy;
- renderReferralRewardChoice();
+  paymentBusy = busy;
+  referralUiBusy = busy;
+  for (const id of ["applyDiscount", "bottomApplyDiscount", "discountCode", "bottomDiscountCode"]) {
+    document.getElementById(id).disabled = busy;
+  }
+  renderReferralRewardChoice();
+  document.getElementById("paymentButton").disabled = busy;
+  document.getElementById("retryPaymentStatus").disabled = busy;
 }
+
 function deliveryPayload() {
- const ids={first_name:"guestFirstName",last_name:"guestLastName",address:"guestAddress",address2:"guestAddress2",city:"guestCity",state:"guestState",postal_code:"guestZip",country:"guestCountry",phone:"guestPhone"};
- const values={};
- for(const [name,id] of Object.entries(ids)){const field=document.getElementById(id);if(!field.reportValidity())throw Error("Complete delivery information first.");values[name]=field.value.trim();}
- const email=document.getElementById("guestEmail");if(!email.reportValidity())throw Error("Enter your email.");
- if(values.country!=="United States")throw Error("Shipping is currently limited to the United States.");
- if(!document.getElementById("acceptPolicies").checked)throw Error("Accept the terms and privacy policy to continue.");
- if(!checkoutCart.length)throw Error("Your cart is empty.");
- return {email:email.value.trim(),shippingAddress:values};
+  const values = {};
+
+  const fields = {
+    first_name: "guestFirstName",
+    last_name: "guestLastName",
+    address: "guestAddress",
+    address2: "guestAddress2",
+    city: "guestCity",
+    state: "guestState",
+    postal_code: "guestZip",
+    country: "guestCountry",
+    phone: "guestPhone"
+  };
+
+  for (const [key, id] of Object.entries(fields)) {
+    const input = document.getElementById(id);
+
+    if (!input.reportValidity()) {
+      throw new Error("Complete your delivery information first.");
+    }
+
+    values[key] = input.value.trim();
+  }
+
+  if (values.country !== "United States") {
+    throw new Error("We currently ship within the United States only.");
+  }
+
+  const email = document.getElementById("guestEmail");
+
+  if (!email.reportValidity()) {
+    throw new Error("Enter your checkout email.");
+  }
+
+  if (!document.getElementById("acceptPolicies").checked) {
+    throw new Error(
+      "Please accept the Terms & Conditions and Privacy Policy before paying."
+    );
+  }
+
+  if (!checkoutCart.length) {
+    throw new Error("Your cart is empty.");
+  }
+
+  return {
+    email: email.value.trim(),
+    shippingAddress: values
+  };
 }
+
 function checkoutAmountCents() {
- const sub=checkoutCart.reduce((sum,item)=>sum+Math.round(Number(item.price)*100)*Number(item.quantity),0);
- const ship=document.querySelector('input[name="shippingMethod"]:checked')?.value==="express"?1500:standardShippingFree(sub,Math.round(discountAmount*100))?0:899;
- const taxable=sub-Math.round(discountAmount*100)+ship;
- return taxable+Math.round(taxable*.0925);
+  const shipping = document.querySelector(
+    'input[name="shippingMethod"]:checked'
+  )?.value || "standard";
+
+  const subtotalCents = checkoutCart.reduce(
+    (sum, item) =>
+      sum + Math.round(Number(item.price) * 100) * Number(item.quantity),
+    0
+  );
+
+  const discountCents = Math.round(discountAmount * 100);
+
+  const shipCents = shipping === "express"
+    ? 1500
+    : standardShippingFree(subtotalCents, discountCents) ? 0 : 899;
+
+  const taxableCents = subtotalCents - discountCents + shipCents;
+
+  return taxableCents + Math.round(taxableCents * 0.0925);
 }
-const attemptStorageKey="imStripeSandboxDraftAttempt";
-let paymentBusy=false;
-let latestOrderNumber=null;
-document.getElementById("paymentButton").addEventListener("click",async()=>{
- if(paymentBusy)return;
- setPaymentBusy(true);
- try {
-   await checkoutAccount.ready; checkoutAccount.checkReady();checkoutAccount.copyBilling();
-   const delivery=deliveryPayload();checkoutAccount.validateBilling();
-   if(appliedPromoCode||useReferralRewards)throw Error("Promotions and referral rewards are not connected to Stripe yet. No payment has been started.");
-   if(!stripeSessionId) {
-     checkoutNotice("Checking Stripe Sandbox readiness…");
-     const {data:{session}}=await supabaseClient.auth.getSession();
-     const attemptId=crypto.randomUUID();
-     const body={attemptId,...delivery,userAccessToken:session?.access_token||null,
-       items:checkoutCart.map(i=>({id:i.id,quantity:i.quantity,size:i.size,color:i.color})),
-       shippingMethod:document.querySelector('input[name="shippingMethod"]:checked')?.value||"standard",
-       promoCode:appliedPromoCode,useReferralRewards};
-     const {data,error}=await supabaseClient.functions.invoke("stripe-create-payment-intent",{body});
-     if(error||!data?.clientSecret)throw Error(data?.error||"Stripe Sandbox is not ready. No charge was made.");
-     stripeElements=stripe.elements({clientSecret:data.clientSecret});
-     stripePaymentElement=stripeElements.create("payment",{layout:"tabs",fields:{billingDetails:{name:"never",email:"never",address:"never"}}});
-     stripePaymentElement.mount("#stripePaymentElement");
-     stripeSessionId=attemptId;
-     stripePendingPayment=true;
-     document.getElementById("stripePaymentHint").textContent="Enter your payment details using the secure Stripe form, then tap Pay Now again.";
-     checkoutNotice("Payment form ready. Confirm your details and tap Pay Now again.");
-     return;
-   }
-   if(!stripePendingPayment)throw Error("Refresh checkout before continuing.");
-   const {error:submitError}=await stripeElements.submit();if(submitError)throw Error(submitError.message);
-   const billingName=document.getElementById("cardholderName").value.trim();
-   if(!billingName)throw Error("Enter the name on your card.");
-   const url=new URL(location.href);url.searchParams.set("stripe_return","1");
-   const result=await stripe.confirmPayment({elements:stripeElements,
-      confirmParams:{return_url:url.toString(),payment_method_data:{billing_details:{name:billingName}}},
-      redirect:"if_required"});
-   if(result.error)throw Error(result.error.message||"Payment could not be completed.");
-   checkoutNotice("Payment submitted. Await Stripe confirmation; do not submit another payment.");
-   document.getElementById("paymentButton").disabled=true;
- }catch(error){checkoutNotice(error.message||"Sandbox setup incomplete.",true);}
- finally{setPaymentBusy(false);}
-});
-document.getElementById("retryPaymentStatus").hidden=true;
+
+async function invokeOrderPayment(body) {
+  const { data: { session } } =
+    await supabaseClient.auth.getSession();
+
+  body.userAccessToken = session?.access_token || null;
+
+  const { data, error } = await supabaseClient.functions.invoke(
+    "create-square-payment",
+    { body }
+  );
+
+  let response = data;
+
+  if (error && error.context?.json) {
+    try {
+      response = await error.context.json();
+    } catch (_) {}
+  }
+
+  if (
+    response?.success &&
+    /^\d{10}$/.test(response.orderNumber || "")
+  ) {
+    latestOrderNumber = response.orderNumber;
+
+    localStorage.removeItem(attemptStorageKey);
+    document.getElementById("retryPaymentStatus").hidden = true;
+
+    const currentCart = localStorage.getItem("imCollectionsCart");
+
+    if (
+      currentCart &&
+      JSON.stringify(JSON.parse(currentCart)) ===
+        JSON.stringify(checkoutCart)
+    ) {
+      localStorage.removeItem("imCollectionsCart");
+    }
+
+    checkoutNotice("Payment successful! Order #" + latestOrderNumber);
+    showPaymentSuccessPopup();
+
+    document.getElementById("paymentButton").disabled = true;
+    return;
+  }
+
+  if (response?.terminal) {
+    localStorage.removeItem(attemptStorageKey);
+    document.getElementById("retryPaymentStatus").hidden = true;
+  } else {
+    document.getElementById("retryPaymentStatus").hidden = false;
+  }
+
+  throw new Error(
+    response?.error ||
+    "Payment status could not be checked. Tap Retry Payment Status before paying again."
+  );
+}
+
+document.getElementById("paymentButton").addEventListener(
+  "click",
+  async () => {
+    if (paymentBusy || latestOrderNumber) return;
+    if (!checkoutCart.length) { checkoutNotice("Your cart is empty. Add an item before paying.", true); return; }
+
+    if (localStorage.getItem(attemptStorageKey)) {
+      checkoutNotice(
+        "An earlier payment needs checking. Tap Retry Payment Status before paying again.",
+        true
+      );
+
+      document.getElementById("retryPaymentStatus").hidden = false;
+      return;
+    }
+
+    setPaymentBusy(true);
+
+    let paymentStage = "account and delivery validation";
+    try {
+      await checkoutAccount.ready;
+      checkoutAccount.checkReady();
+      if (referralQuoteBusy) throw new Error("Wait for your referral rewards to finish loading.");
+      // Applying a discount can involve asynchronous account checks.
+      ++discountSelectionVersion;
+      if (useReferralRewards) {
+        const available = await refreshReferralBalance();
+        if (Math.round(discountAmount * 100) > available)
+          throw new Error("Your available referral rewards changed. Remove and apply your rewards again before paying.");
+      }
+      checkoutAccount.copyBilling();
+      const delivery = deliveryPayload();
+      checkoutAccount.validateBilling();
+      paymentStage = "saving checkout preferences";
+      await checkoutAccount.savePreference();
+
+      const method = document.querySelector(
+        'input[name="paymentMethod"]:checked'
+      )?.value || "card";
+
+      const paymentForm = {
+        card: squareCard,
+        giftcard: giftCard,
+        googlepay: googlePay
+      }[method];
+
+      if (!paymentForm) {
+        throw new Error(
+          "This payment method is not connected yet. Choose Card, Gift Card, or Google Pay."
+        );
+      }
+
+      checkoutNotice("Preparing your payment…");
+
+      const savedCardId = method === "card" ? document.getElementById("savedCardSelect").value : "";
+      const selectedCard = checkoutSavedCards.find(c => c.id === savedCardId);
+      if(savedCardId && !selectedCard) throw new Error("Select an available saved card.");
+      const verificationDetails = {
+        amount: (checkoutAmountCents()/100).toFixed(2), currencyCode: "USD", intent: "CHARGE",
+        customerInitiated: true, sellerKeyedIn: false,
+        billingContact: {
+          givenName: document.getElementById("billingFirstName").value,
+          familyName: document.getElementById("billingLastName").value,
+          email: document.getElementById("guestEmail").value,
+          addressLines: [document.getElementById("billingAddress").value,document.getElementById("billingApartment").value],
+          city: document.getElementById("billingCity").value,
+          state: document.getElementById("billingState").value,
+          postalCode: document.getElementById("billingPostal").value, countryCode: "US"
+        }
+      };
+      paymentStage = "Square card tokenization and buyer verification";
+      const result = method === "card"
+        ? await paymentForm.tokenize(verificationDetails, savedCardId || undefined)
+        : await paymentForm.tokenize();
+
+      if (result.status !== "OK") {
+        throw new Error(
+          "Square tokenization returned " + String(result.status) +
+          (result.errors?.length ? ": " + result.errors.map(e => e.code || e.type || "UNKNOWN").join(", ") : ". Please check your payment information.")
+        );
+      }
+
+      paymentStage = "creating payment attempt";
+      const attemptId = crypto.randomUUID();
+
+      localStorage.setItem(attemptStorageKey, attemptId);
+
+      checkoutNotice("Processing payment and saving your order…");
+
+      paymentStage = "server payment and order processing";
+      await invokeOrderPayment({
+        attemptId,
+        sourceId: result.token,
+        savedCardId,
+        ...delivery,
+
+        items: checkoutCart.map(item => ({
+          id: item.id,
+          quantity: item.quantity
+        })),
+
+        shippingMethod: document.querySelector(
+          'input[name="shippingMethod"]:checked'
+        )?.value || "standard",
+
+        promoCode: useReferralRewards ? "" : appliedPromoCode,
+        useReferralRewards,
+        referralRewardCents: useReferralRewards ? Math.round(discountAmount * 100) : 0,
+
+        amountCents: checkoutAmountCents(),
+        paymentMethod: method
+      });
+    } catch (error) {
+      checkoutNotice(
+        "Payment stopped during " + paymentStage + ". " +
+        (error.message || "Unable to prepare payment.") +
+        (error.code ? " [" + String(error.code) + "]" : ""),
+        true
+      );
+
+      if (localStorage.getItem(attemptStorageKey)) {
+        document.getElementById("retryPaymentStatus").hidden = false;
+      }
+    } finally {
+      setPaymentBusy(false);
+
+      if (latestOrderNumber) {
+        document.getElementById("paymentButton").disabled = true;
+      }
+    }
+  }
+);
+
+document.getElementById("retryPaymentStatus").addEventListener(
+  "click",
+  async () => {
+    if (paymentBusy) return;
+
+    const attemptId = localStorage.getItem(attemptStorageKey);
+
+    if (!attemptId) return;
+
+    setPaymentBusy(true);
+
+    try {
+      checkoutNotice("Checking your existing payment…");
+
+      await invokeOrderPayment({
+        attemptId,
+        resume: true
+      });
+    } catch (error) {
+      checkoutNotice(error.message, true);
+    } finally {
+      setPaymentBusy(false);
+
+      if (latestOrderNumber) {
+        document.getElementById("paymentButton").disabled = true;
+      }
+    }
+  }
+);
+
+if (localStorage.getItem(attemptStorageKey)) {
+  document.getElementById("retryPaymentStatus").hidden = false;
+
+  checkoutNotice(
+    "An earlier payment needs checking. Tap Retry Payment Status before paying again.",
+    true
+  );
+}
 const checkoutPhotoCache = new Map();
 let checkoutPreviewVersion = 0;
 function checkoutCartChangesBlocked() {
@@ -2459,7 +2994,7 @@ paymentMenu.addEventListener("change", () => {
     return;
   }
   paymentMenu.value = selectedCheckoutCard;
-  if (paymentBusy || localStorage.getItem("imStripeSandboxDraftAttempt")) {
+  if (paymentBusy || localStorage.getItem("imSquarePaymentAttempt")) {
     document.getElementById("savedCardMessage").textContent =
       "Finish checking your payment status before deleting a saved payment.";
     return;
@@ -2470,7 +3005,7 @@ paymentMenu.addEventListener("change", () => {
   );
   if (selectedCheckoutCard) select.value = selectedCheckoutCard;
   document.getElementById("deleteCardMessage").textContent = "";
-  if (false && checkoutSavedCards.length && !deletePaymentDialog.open)
+  if (checkoutSavedCards.length && !deletePaymentDialog.open)
     deletePaymentDialog.showModal();
 });
 
@@ -2486,7 +3021,7 @@ document
     if (
       deletingCheckoutCard ||
       paymentBusy ||
-      localStorage.getItem("imStripeSandboxDraftAttempt")
+      localStorage.getItem("imSquarePaymentAttempt")
     )
       return;
     const cardId = document.getElementById("deleteCardSelect").value;

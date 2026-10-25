@@ -6,9 +6,6 @@
 
   <title>Checkout | IM Collections</title>
 
-  <!-- Secure Shopify Shop Pay SDK Script Core Integration -->
-  <script src="https://shopify.com" async></script>
-
   <style>
     * {
       box-sizing: border-box;
@@ -140,8 +137,8 @@
       display: flex;
       gap: 8px;
       margin-top: 15px;
-      width: 100%;
-      box-sizing: border-box;
+width: 100%;
+box-sizing: border-box;
     }
 
     .discount-row input {
@@ -149,7 +146,7 @@
       padding: 13px;
       border: 1px solid #ccc;
       font-size: 15px;
-      min-width: 0;
+min-width: 0;
     }
 
     .discount-row button {
@@ -158,9 +155,9 @@
       color: #fff;
       padding: 0 18px;
       font-weight: 700;
-      font-size: 15px;
-      min-width: 96px;
-      flex-shrink: 0;
+font-size: 15px;
+min-width: 96px;
+flex-shrink: 0;
     }
 
     .payment-box {
@@ -201,146 +198,697 @@
       }
     }
 
-    #guestCountry {
-      width: 100%;
-      padding: 14px 12px;
-      border: 1px solid #bbb;
-      background: #fff;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
+#guestCountry {
+  width: 100%;
+  padding: 14px 12px;
+  border: 1px solid #bbb;
+  background: #fff;
+  font-size: 16px;
+  box-sizing: border-box;
+}
 
-    .order-summary-toggle {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border: none;
-      border-radius: 0;
-      background: transparent;
-      padding: 0 0 20px;
-      margin: 0;
-      font-size: 22px;
-      font-weight: 700;
-      color: #111;
-      text-align: left;
-      cursor: pointer;
-    }
+.order-summary-toggle {
+  width: 100%;
+  display: flex;
+ justify-content: space-between;
+  align-items: center;
 
-    #orderSummaryArrow,
-    #bottomSummaryArrow {
-      font-size: 18px;
-      line-height: 1;
-      margin-left: 12px;
-    }
+  border: none;
+  border-radius: 0;
+  background: transparent;
 
-    .summary-thumbnails {
-      display: flex;
-      flex-wrap: nowrap;
-      gap: 14px;
-      margin: 0 0 24px;
-      padding: 4px 4px 14px;
-      overflow-x: auto;
-      overflow-y: hidden;
-      overscroll-behavior-x: contain;
-      -webkit-overflow-scrolling: touch;
-      scroll-snap-type: x proximity;
-    }
-    .summary-thumbnails[hidden] { display: none; }
-    
-    input[type="checkbox"] {
-      width: 18px !important;
-      height: 18px !important;
-      min-width: 18px;
-      padding: 0 !important;
-      margin: 0 8px 0 0;
-      vertical-align: middle;
-    }
+  padding: 0 0 20px;
+  margin: 0;
 
-    .guest-form {
-      display: grid;
-      gap: 8px;
-    }
+  font-size: 22px;
+  font-weight: 700;
+  color: #111;
+  text-align: left;
+  cursor: pointer;
+}
 
-    .guest-form label {
-      font-size: 13px;
-      font-weight: 700;
-      margin-top: 8px;
-    }
+#orderSummaryArrow,
+#bottomSummaryArrow {
+  font-size: 18px;
+  line-height: 1;
+  margin-left: 12px;
+}
 
-    .guest-form input {
-      width: 100%;
-      min-height: 48px;
-      border: 1px solid #ccc;
-      padding: 12px;
-      font-size: 15px;
-      background: #fff;
-    }
+.summary-thumbnails {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 14px;
+  margin: 0 0 24px;
+  padding: 4px 4px 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+}
+.summary-thumbnails[hidden] { display: none; }
+.summary-thumbnail-card {
+  flex: 0 0 208px; min-width: 0; position: relative; scroll-snap-align: start;
+  border: 1px solid #e5e5e5; background: #fff; padding: 8px; border-radius: 5px;
+}
+.summary-thumbnail-button { display:block; width:100%; padding:0; border:0; background:transparent; cursor:pointer; border-radius:4px; }
+.summary-thumbnail-button:focus-visible { outline: 3px solid #c6a34a; outline-offset: 3px; }
+.summary-thumbnail-card .summary-thumbnail-button img {
+  display:block; width:100%; height:190px; object-fit:contain; background:#fff;
+  border:1px solid #eee; border-radius:4px;
+}
+.summary-thumbnail-info { margin-top:8px; font-size:13px; line-height:1.4; overflow-wrap:anywhere; }
+.summary-thumbnail-name { font-weight:700; margin-bottom:4px; }
+.summary-thumbnail-meta { color:#555; }
+.summary-thumbnail-description { margin-top:5px; white-space:pre-line; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.checkout-cart-dialog { width: min(440px, calc(100% - 32px)); max-height: 85vh; overflow: auto; box-sizing: border-box; border: 1px solid #ddd; border-radius: 12px; padding: 20px; }
+.checkout-cart-dialog::backdrop { background: rgba(0,0,0,.55); }
+.checkout-cart-dialog .preview-image { display: block; width: 100%; max-height: 50vh; object-fit: contain; }
+.checkout-cart-dialog button { cursor: pointer; padding: 12px; margin-top: 12px; }
+.checkout-cart-dialog .cart-preview-row { border-bottom: 1px solid #ddd; padding: 16px 0; }
+.checkout-cart-dialog .cart-preview-row img { width: 72px; height: 84px; object-fit: contain; }
+.summary-thumbnail { position: relative; }
+.summary-remove { position: absolute; top: -8px; right: -8px; width: 26px; height: 26px; border-radius: 50%; border: 1px solid #bbb; background: #fff; color: #111; font-size: 20px; line-height: 1; cursor: pointer; }
+.checkout-cart-dialog { position: fixed; }
+.checkout-cart-dialog h2 { padding-right: 32px; }
+.checkout-cart-dialog .preview-close { position: absolute; top: 8px; right: 8px; margin: 0; background: transparent; border: 0; font-size: 28px; }
+.preview-gallery { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; touch-action: pan-x pan-y; }
+.preview-gallery .preview-image { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; }
+.preview-quantity { display: flex; align-items: center; gap: 18px; margin: 16px 0; }
+.checkout-cart-dialog .preview-quantity button { margin: 0; min-width: 44px; background: #fff; border: 1px solid #bbb; }
+.preview-shopping-link { display: inline-block; margin-top: 18px; padding: 12px 18px; border-radius: 4px; background: #c6a34a; color: #111; text-decoration: none; font-weight: 600; }
+.preview-shopping-link:focus-visible { outline: 3px solid #111; outline-offset: 3px; }
+.order-product-details p { margin: 6px 0; font-size: 14px; line-height: 1.5; white-space: pre-line; overflow-wrap: anywhere; }
+.preview-product-details p { white-space: pre-line; overflow-wrap: break-word; }
+.summary-thumbnails img {
+  width: 94px;
+  height: 112px;
+  object-fit: contain;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  background: #fff;
+}
 
-    .shipping-method-box {
-      margin-bottom: 28px;
-    }
+input[type="checkbox"] {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px;
+  padding: 0 !important;
+  margin: 0 8px 0 0;
+  vertical-align: middle;
+}
 
-    .shipping-option {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      width: 100%;
-      padding: 18px;
-      border: 1px solid #cccccc;
-      box-sizing: border-box;
-      cursor: pointer;
-    }
+ .guest-form {
+  display: grid;
+  gap: 8px;
+}
 
-    .shipping-option-text {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
+.guest-form label {
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 8px;
+}
 
-    .shipping-option-text strong { font-size: 17px; }
-    .shipping-option-text small { font-size: 14px; color: #666; margin-top: 3px; }
-    .shipping-option-price { font-size: 17px; font-weight: 600; white-space: nowrap; }
+.guest-form input {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #ccc;
+  padding: 12px;
+  font-size: 15px;
+  background: #fff;
+}
 
-    .payment-method-options {
-      display: flex;
-      flex-direction: column;
-    }
+.account-option {
+  margin-top: 18px;
+  font-size: 14px;
+  color: #666;
+}
 
-    .payment-method-option {
-      width: 100%;
-      height: 54px;
-      padding: 0 16px;
-      margin: 0;
-      box-sizing: border-box;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      border: 1px solid #ccc;
-      cursor: pointer;
-    }
+.account-option a {
+  color: #111;
+  font-weight: 700;
+}
 
-    .payment-method-option + .payment-method-option {
-      border-top: none;
-    }
+.contact-heading-row {
+  margin: 0 0 4px;
+}
 
-    .payment-method-option input[type="radio"] {
-      width: 20px;
-      height: 20px;
-      margin: 0;
-    }
+.contact-heading-row h2 {
+  margin: 0;
+}
 
-    .payment-method-option span {
-      font-size: 16px;
-      font-weight: 600;
-    }
+.guest-note {
+  margin: 0 0 4px;
+}
 
-    .payment-method-options > .payment-method-option:has(input:checked) { 
-      border-color: #b78e36 !important; 
-      background: #faf6ec; 
-    }
-  </style>
+.contact-account-links {
+  margin: 0 0 20px;
+}
+
+.order-summary-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+#orderSummaryTotal {
+  font-weight: 700;
+  font-size: 20px;
+}
+
+#cardholderName {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #ccc;
+  padding: 12px;
+  font-size: 15px;
+  box-sizing: border-box;
+  margin: 8px 0 16px;
+}
+
+.billing-same {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  font-weight: 600;
+}
+
+.billing-same input[type="checkbox"] {
+  width: 18px !important;
+  height: 18px !important;
+  margin: 0;
+}
+
+#billingAddressFields {
+  gap: 8px;
+}
+
+#billingAddressFields label {
+  display: block;
+  margin-top: 8px;
+}
+
+#billingAddressFields input,
+#billingAddressFields select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#billingCountry {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.back-to-top {
+  display: block;
+  width: auto;
+  margin: 28px auto;
+  padding: 8px 18px;
+  border: none;
+  background: transparent;
+  color: #111;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+}
+
+#applePay {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin: 12px 0;
+  border: none;
+  border-radius: 6px;
+  background: #000;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.payment-divider {
+  text-align: center;
+  margin: 12px 0;
+  font-weight: 700;
+}
+
+.apple-pay-button {
+  -webkit-appearance: -apple-pay-button;
+  -apple-pay-button-type: buy;
+  -apple-pay-button-style: black;
+
+  width: 100%;
+  height: 50px;
+border: none;
+margin: 18px 0 28px;
+}
+
+#bottomApplyDiscount {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  text-indent: 0 !important;
+  min-width: 96px;
+font-size: 0 !important;
+}
+
+#bottomApplyDiscount::after {
+  content: "Apply";
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+#card-container {
+  margin-bottom: 6px !important;
+}
+
+.secure-note {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+      
+      .save-card-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.save-card-option {
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.billing-same {
+  margin-top: 4px;
+  margin-bottom: 10px;
+}
+      
+.save-card-option input {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+      .shipping-method-box {
+  margin-bottom: 28px;
+}
+
+.shipping-method-box h2 {
+  margin-bottom: 16px;
+}
+
+.shipping-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 18px 18px;
+  border: 1px solid #cccccc;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.shipping-option + .shipping-option {
+  border-top: none;
+}
+
+.shipping-option input {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.shipping-option-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.shipping-option-text strong {
+  font-size: 17px;
+}
+
+.shipping-option-text small {
+  margin-top: 3px;
+  font-size: 14px;
+  color: #666666;
+}
+
+.shipping-option-price {
+  font-size: 17px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.shipping-option:has(input:checked) {
+  border: 2px solid #111111;
+}
+
+      .payment-method-options {
+  display: flex;
+  flex-direction: column;
+}
+
+.payment-method-option + .payment-method-option {
+  border-top: none;
+}
+
+.save-card-option,
+.billing-same {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.save-card-option input,
+.billing-same input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+      .payment-method-option {
+  min-height: 58px;
+  padding: 12px 16px;
+}
+
+.payment-method-option span {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.payment-method-options + #cardPaymentSection {
+  margin-top: 16px;
+}
+
+/* extra space below the last payment option */
+.payment-method-option:last-of-type {
+  margin-bottom: 24px;
+}
+
+#paymentMethodGiftCard
+  + span {
+  /* no change needed */
+}
+
+.payment-method-option {
+  width: 100%;
+  height: 54px !important;
+  min-height: 54px !important;
+  padding: 0 16px !important;
+  margin: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.payment-method-option input[type="radio"] {
+  width: 20px !important;
+  height: 20px !important;
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+
+.payment-method-option span {
+  font-size: 16px;
+  line-height: 1;
+}
+
+#paymentMethodGiftCard {
+  margin: 0;
+}
+
+.payment-method-option:last-of-type {
+  margin-bottom: 20px;
+}
+
+      #cashAppPaymentSection {
+  display: none;
+}
+      
+#googlePayPaymentSection {
+  width: 100%;
+  margin: 18px 0 28px;
+}
+
+#googlePay {
+  width: 100%;
+}
+
+#googlePay > div,
+#googlePay button {
+  width: 100% !important;
+  max-width: none !important;
+  height: 50px !important;
+  min-height: 50px !important;
+  border-radius: 0 !important;
+  font-size: 16px !important;
+}
+
+      .payment-success-popup {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 99999;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.payment-success-popup.show {
+  display: flex;
+}
+
+.payment-success-content {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  text-align: center;
+}
+
+.payment-success-content img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.payment-success-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 26px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.payment-success-done {
+  width: calc(100% - 30px);
+  margin: 15px;
+  min-height: 48px;
+  border: none;
+  background: #111;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+[hidden] {
+  display: none !important;
+}
+      
+
+/* Member delivery summary and mobile checkout cleanup. */
+.saved-delivery { background:#fff; border:1px solid #dedbd2; border-radius:10px; padding:18px; margin:16px 0; }
+.saved-delivery p { margin:6px 0; overflow-wrap:anywhere; }
+.checkout-secondary, #retryAccountLoad { background:#c9a44c; color:#111; border:0; border-radius:6px; padding:12px 18px; font:inherit; cursor:pointer; margin:0 0 18px; }
+#checkoutProfileMessage { font-size:14px; line-height:1.5; }
+#memberAccountLink a { color:#8a651f; }
+#deliveryFields input, #deliveryFields select { width:100%; }
+#guestCountry, #billingCountry { width:100%; padding:14px 12px; border:1px solid #bbb; background:#fff; font-size:16px; }
+.payment-success-content { max-height:calc(100dvh - 32px); overflow-y:auto; }
+.payment-success-popup { padding:16px; }
+.payment-success-content img { max-height:calc(100dvh - 126px); object-fit:contain; }
+
+#deliveryFields { display:grid; gap:8px; }
+.checkout-program-links { line-height:1.6; margin:12px 0; }
+.checkout-program-links a { color:#8a651f; }
+.contact-account-links { flex-wrap:wrap; line-height:1.6; }
+.checkout-program-links-stacked { display:flex; flex-direction:column; align-items:flex-start; gap:6px; }
+#memberAccountLink { line-height:1.6; margin-top:10px; }
+#memberAccountLink a { color:#8a651f; }
+.checkout-header-links { min-width:0; }
+.checkout-header-links h2 { margin:0; }
+.logo-area { gap:16px; }
+.logo-area > a { flex-shrink:0; }
+#memberAccountLink .member-account-nav { display:flex; flex-wrap:wrap; gap:8px 20px; }
+
+#imReferralDialog { width:min(520px,calc(100% - 32px)); max-height:85dvh; overflow:auto; padding:28px 22px; border:1px solid #dedbd2; border-radius:14px; background:white; color:#191919; font:16px/1.6 Arial,sans-serif; }
+#imReferralDialog::backdrop { background:rgba(0,0,0,.6); }
+#imReferralDialog h2 { color:#8a651f; margin:0 40px 16px 0; font-size:26px; }
+#imReferralDialog p { margin:12px 0; }
+#imReferralDialog .im-referral-close { position:absolute; top:10px; right:12px; border:0; background:transparent; color:#191919; font-size:28px; cursor:pointer; padding:4px 10px; }
+#imReferralDialog .im-referral-action { display:block; text-align:center; margin-top:20px; padding:12px 16px; border-radius:6px; background:#c9a44c; color:#111; text-decoration:none; }
+#imReferralDialog .im-referral-note { font-size:14px; color:#555; }
+  .referral-reward-choice{margin:16px 0;padding:14px;background:#fbf8ef;border:1px solid #ded3b7;border-radius:6px}
+  .referral-reward-choice p{margin:0 0 10px;font-size:14px;line-height:1.5}
+  .referral-reward-choice button{background:#c8a347;color:#111;border:0;border-radius:4px;padding:12px 16px;font:inherit;cursor:pointer;width:100%}
+  .referral-reward-choice button:disabled{opacity:.55;cursor:default}
+  /* Checkout savings breakdown, shared by both summaries. */
+.checkout-discount-row, .checkout-discount-row strong { color: #b42318; }
+.checkout-rewards-note { margin: -2px 0 18px; font-size: 14px; line-height: 1.5; color: #626262; }
+.checkout-rewards-row strong { color: #25633c; }
+
+/* Card saving is displayed to members, but cannot be selected before secure
+   tokenization, customer vaulting, and saved-card charging are verified. */
+.im-save-card-area { margin: 12px 0 20px; }
+.im-save-card-area .save-card-option { margin: 0; align-items: flex-start; }
+.im-save-card-area .save-card-option input { margin-top: 3px; }
+.im-save-card-area .save-card-option:has(input:disabled) { opacity: .68; }
+.im-save-card-note { margin: 6px 0 18px 30px; color: #626262; font-size: 13px; line-height: 1.5; }
+#saveCardGuestNote { margin-left: 0; }
+#saveCardGuestNote a { color: #8a651f; text-decoration: underline; font-weight: 700; }
+
+/* Checkout payment choices: full-width vertical radio-button rows. */
+.payment-method-options {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin: 0 0 22px;
+}
+.payment-method-options > .payment-method-option {
+  min-width: 0; height: auto !important; min-height: 56px !important;
+  padding: 10px 12px !important; margin: 0 !important;
+  border: 1px solid #dedbd6 !important; border-radius: 6px;
+  display: flex !important; align-items: center !important; gap: 9px;
+}
+.payment-method-options > .payment-method-option:has(input:checked) { border-color:#b78e36 !important; background:#faf6ec; }
+.payment-method-options > .payment-method-option span { font-size: 16px; line-height: 1.3; }
+.im-save-card-area label.save-card-option {
+  display: flex !important; flex-direction: row !important;
+  align-items: center !important; justify-content: flex-start !important;
+  gap: 10px !important; width: 100%; margin: 12px 0 4px !important;
+  text-transform: none; letter-spacing: 0; text-align: left;
+}
+.im-save-card-area label.save-card-option > input {
+  order: 0; flex: 0 0 20px !important; width: 20px !important;
+  height: 20px !important; margin: 0 !important;
+}
+.im-save-card-area label.save-card-option > span {
+  order: 1; flex: 1 1 auto; min-width: 0; font-size: 15px; line-height: 1.45;
+}
+.im-save-card-area .im-save-card-note { margin: 4px 0 16px 30px !important; }
+
+
+/* IM Collections: roomier responsive checkout product rows and gallery. */
+.order-item { gap: 14px; align-items: start; }
+.order-item > .summary-thumbnail { width:112px; max-width:100%; }
+.order-item .summary-thumbnail-button { display:block; width:100%; }
+.order-item .summary-thumbnail-button img { width:100%; height:132px; object-fit:contain; }
+.order-item > div:nth-child(2) { min-width:0; overflow-wrap:anywhere; }
+.order-item .order-price { white-space:nowrap; }
+.summary-thumbnails { gap:16px; }
+.summary-thumbnails .summary-thumbnail-button img { width:94px; height:112px; object-fit:contain; }
+
+/* Checkout product detail popup: same information hierarchy as a product Quick View. */
+.checkout-cart-dialog {
+  width:min(620px,calc(100vw - 24px));
+  max-width:none;
+  max-height:calc(100dvh - 24px);
+  padding:22px;
+  border-radius:14px;
+  overscroll-behavior:contain;
+}
+.checkout-cart-dialog h2 {
+  font-family:Georgia,serif;
+  font-weight:500;
+  font-size:clamp(25px,5vw,34px);
+  line-height:1.2;
+  margin:0 38px 15px 0;
+  overflow-wrap:anywhere;
+}
+.checkout-cart-dialog .preview-close {
+  width:42px;height:42px;display:grid;place-items:center;
+  border-radius:50%;background:#fff;border:1px solid #dedbd2;color:#111;
+  font-size:26px;z-index:3;
+}
+.checkout-cart-dialog .preview-product-price {
+  font-size:24px;font-weight:800;margin:4px 0 16px;
+}
+.checkout-cart-dialog .preview-gallery {
+  width:100%;gap:0;scrollbar-width:none;
+  border-radius:8px;background:#f7f6f2;margin-bottom:14px;
+}
+.checkout-cart-dialog .preview-gallery::-webkit-scrollbar { display:none; }
+.checkout-cart-dialog .preview-gallery .preview-image {
+  width:100%;height:min(52dvh,430px);max-height:none;
+  object-fit:contain;padding:10px;
+}
+.checkout-cart-dialog .preview-product-details {
+  display:grid;gap:9px;padding:16px 0;margin:6px 0;
+  border-top:1px solid #e5e1d8;border-bottom:1px solid #e5e1d8;
+}
+.checkout-cart-dialog .preview-product-details p {
+  margin:0;font-size:15px;line-height:1.55;overflow-wrap:anywhere;
+}
+.checkout-cart-dialog .preview-product-details .preview-description {
+  font-size:16px;margin-bottom:4px;
+}
+.checkout-cart-dialog .preview-product-details .preview-label {
+  font-weight:700;color:#735419;
+}
+.checkout-cart-dialog .preview-quantity { margin:14px 0 20px; }
+.checkout-cart-dialog .preview-quantity button {
+  width:46px;height:46px;border-radius:6px;
+}
+.checkout-cart-dialog .preview-shopping-link {
+  margin-top:12px;background:#c9a44c;color:#111;
+}
+@media(max-width:600px) {
+  .order-item { grid-template-columns:100px minmax(0,1fr);gap:10px; }
+  .order-item > .summary-thumbnail { width:100px; }
+  .order-item .summary-thumbnail-button img { width:100%;height:122px; }
+  .order-item .order-price { grid-column:2;justify-self:start;margin-top:-5px; }
+  .order-item .order-name { font-size:16px; }
+  .summary-thumbnail-card { flex-basis:158px; }
+  .summary-thumbnail-card { flex-basis:184px; }
+  .summary-thumbnail-card .summary-thumbnail-button img { height:168px; }
+  .checkout-cart-dialog { padding:18px;width:calc(100vw - 20px); }
+  .checkout-cart-dialog .preview-gallery .preview-image { height:min(46dvh,390px); }
+}
+
+</style>
 </head>
+
 <body>
 
   <div class="checkout-header">
@@ -348,118 +896,2400 @@
   </div>
 
   <div class="logo-area">
-    <a href="https://github.io" class="back-link"><h2>← Continue Shopping</h2></a>
-    <a href="https://github.io"><img src="IM-logo.jpg" alt="IM Collections"></a>
+    <div class="checkout-header-links">
+      <a href="https://imcollections.github.io/" class="back-link"><h2>← Continue Shopping</h2></a>
+      <div id="memberAccountLink" hidden><div class="member-account-nav"><a href="my-account.html">My Account</a><a href="collectors-reward.html">Collectors Reward</a></div></div>
+    </div>
+
+    <a href="https://imcollections.github.io/" aria-label="Shop IM Collections"><img src="IM-logo.jpg" alt="IM Collections"></a>
   </div>
 
   <main class="checkout-container">
+
     <div class="checkout-grid">
+
+  <section>
+    
+  </section>
+
+        <button
+  type="button"
+  class="order-summary-toggle"
+  id="orderSummaryToggle"
+  aria-expanded="true"
+>
+  <span>Order Summary <span class="order-summary-item-count" id="orderSummaryItemCount">(0 items)</span></span>
+
+<span class="order-summary-right">
+  <span id="orderSummaryTotal">$0.00</span>
+  <span id="orderSummaryArrow">⌃</span>
+</span>
+  
+      </button>
+
+<div id="orderSummaryThumbnails" class="summary-thumbnails" hidden aria-label="Products in your order"></div>
+
+<div id="orderSummaryContent">
+
+        <div id="checkoutItems"></div>
+
+        <div class="discount-row">
+          <input
+            type="text"
+            id="discountCode"
+            placeholder="Discount code"
+          >
+
+          <button type="button" id="applyDiscount">
+            Apply
+          </button>
+        </div>
+
+<div id="discountMessage"></div>
+<div class="referral-reward-choice" id="ReferralRewardChoice" hidden>
+  <p id="ReferralRewardStatus" role="status" aria-live="polite"></p>
+  <button type="button" id="UseReferralRewards">Use My Referral Rewards</button>
+</div>
+
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <strong id="checkoutSubtotal">$0.00</strong>
+        </div>
+        
+<div class="summary-row checkout-discount-row">
+  <span>Discount Price:</span>
+  <strong id="checkoutDiscount">−$0.00</strong>
+</div>
+<div class="summary-row checkout-rewards-row">
+  <span>Rewards Price:</span>
+  <strong id="checkoutRewards">$0.00</strong>
+</div>
+<p class="checkout-rewards-note" id="checkoutRewardsNote" aria-live="polite">Not used.</p>
+        
+        <div class="summary-row">
+  <span class="shipping-summary-label">Shipping:</span>
+  <strong id="checkoutShipping">$8.99</strong>
+</div>
+
+        <div class="summary-row">
+  <span>Estimated Tax:</span>
+  <strong id="checkoutTax">$0.00</strong>
+</div>
+        
+        <p class="checkout-program-links"><a href="refer-a-friend.html" data-referral-popup>Been referred by a friend?</a> </p>
+<div class="free-shipping" id="shippingMessage"></div>
+
+        <div class="summary-total">
+  <span>Total</span>
+  <span id="checkoutTotal">$0.00</span>
+</div>
+
+</div>   <!-- closes orderSummaryContent -->
+
+</aside>
+
+<h2>Contact</h2>
+</div>
+
+<p class="guest-note" id="checkoutContactStatus" role="status" aria-live="polite">
+  Guest checkout is available.
+</p>
+
+<div class="contact-account-links" id="guestAccountLinks">
+  <a href="Login.html">Sign In</a>
+  <span>or</span>
+  <a href="Register.html">Register</a>
+  <span>for faster checkout and an additional 15% off your first eligible purchase with COLLECT15 within 30 days of signup. One promotion or reward per order.</span>
+</div>
+
+<div class="checkout-program-links checkout-program-links-stacked">
+  <a href="refer-a-friend.html" data-referral-popup>Refer a Friend — Give $10, Get $10</a>
+  <a id="guestCollectorsRewardLink" href="collectors-reward.html">Collectors Reward</a>
+</div>
+
+<p class="checkout-program-links">Sign up and earn 50 bonus points after your first successful purchase!</p>
+<p id="checkoutProfileMessage" role="status" aria-live="polite"></p>
+<button type="button" id="retryAccountLoad" hidden>Retry Account Details</button>
+
       <section>
-        <button type="button" class="order-summary-toggle" id="orderSummaryToggle">
-          <span>Order Summary</span>
-          <span id="checkoutTotal">$0.00</span>
-        </button>
 
-        <h2>Delivery Information</h2>
-        <div class="guest-form">
-          <label for="guestCountry">Country / Region</label>
-          <select id="guestCountry">
-            <option value="United States">United States</option>
-          </select>
+  <h2>Delivery Information</h2>
 
-          <label>Street Address</label>
-          <input type="text" placeholder="Address">
-          <label>ZIP Code</label>
-          <input type="text" id="guestZip" placeholder="ZIP Code">
+  <div id="savedDeliverySummary" class="saved-delivery" hidden></div>
+  <button type="button" id="editDeliveryButton" class="checkout-secondary" hidden
+    aria-controls="deliveryFields" aria-expanded="false">Edit Delivery Information</button>
+  <div class="guest-form">
+  <div id="deliveryFields">
+
+    <label>Email Address</label>
+    <input type="email" id="guestEmail" placeholder="Email address" autocomplete="email" required>
+
+<label for="guestCountry">Country / Region</label>
+<select id="guestCountry" name="country">
+<option value="United States">United States</option>
+</select>
+
+    <label>First Name</label>
+    <input type="text" id="guestFirstName" placeholder="First Name" required>
+
+    <label>Last Name</label>
+    <input type="text" id="guestLastName" placeholder="Last Name" required>
+
+    <label>Phone Number</label>
+    <input type="tel" id="guestPhone" placeholder="Phone number">
+
+    <label>Street Address</label>
+    <input type="text" id="guestAddress" placeholder="Street address" required>
+
+    <label>Apartment / Unit</label>
+    <input type="text" id="guestAddress2" placeholder="Apartment, suite, unit, etc. (optional)">
+
+    <label>City</label>
+    <input type="text" id="guestCity" placeholder="City" required>
+
+    <label>State</label>
+    <input type="text" id="guestState" placeholder="State" required>
+
+    <label>ZIP Code</label>
+    <input type="text" id="guestZip" placeholder="ZIP Code" autocomplete="postal-code" pattern="[0-9]{5}(-[0-9]{4})?" maxlength="10" required>
+
+</div> <!-- deliveryFields -->
+<div class="save-checkout-info">
+  <label>
+    <input type="checkbox" id="saveCheckoutInfo">
+    <span id="saveCheckoutLabel">Remember my information on this device</span>
+  </label>
+
+      <div class="checkout-box payment-box">
+
+<section class="shipping-method-box">
+  <h2>USPS Shipping Method</h2>
+  <label class="shipping-option">
+    <input type="radio" name="shippingMethod" value="standard" id="shippingStandard" checked>
+    <span class="shipping-option-text"><strong>USPS Standard Shipping</strong><small>3–5 days</small></span>
+    <span class="shipping-option-price" id="standardShippingPrice">$8.99</span>
+  </label>
+  <label class="shipping-option" style="opacity:.65;cursor:not-allowed">
+    <input type="radio" name="shippingMethod" value="priority" id="shippingPriority" disabled>
+    <span class="shipping-option-text"><strong>USPS Priority Mail (1 lb)</strong><small>3 days</small></span>
+    <span class="shipping-option-price">$15.00</span>
+  </label>
+  <label class="shipping-option" style="opacity:.65;cursor:not-allowed">
+    <input type="radio" name="shippingMethod" value="priority_express" id="shippingPriorityExpress" disabled>
+    <span class="shipping-option-text"><strong>USPS Express Shipping</strong><small>2–3 days</small></span>
+    <span class="shipping-option-price">Calculated</span>
+  </label>
+  <p class="secure-note" style="margin:12px 0"><a href="Policy.html" style="color:#8a651f;text-decoration:underline">Shipping &amp; Delivery Policy</a></p>
+</section>
+        
+  <h2>Payment</h2>
+        
+<div class="payment-method-options">
+
+  <label class="payment-method-option">
+    <input
+      type="radio"
+      name="paymentMethod"
+      value="card"
+      id="paymentMethodCard"
+      checked
+    >
+<label class="payment-method-option">
+  <input
+    type="radio"
+    name="paymentMethod"
+    value="card"
+    id="paymentMethodCard"
+    checked
+  >
+  <span>Credit / Debit Card</span>
+</label>
+
+<!-- PASTE THIS NEW SHOP PAY ROW HERE -->
+<label class="payment-method-option">
+  <input type="radio" name="paymentMethod" value="shoppay" id="paymentMethodShopPay">
+  <span>Shop Pay</span>
+</label>
+
+    <span>Credit / Debit Card</span>
+  </label>
+  <label class="payment-method-option">
+    <input type="radio" name="paymentMethod" value="cashapp" id="paymentMethodCashApp">
+    <span>Cash App Pay</span>
+  </label>
+  <label class="payment-method-option">
+    <input type="radio" name="paymentMethod" value="giftcard" id="paymentMethodGiftCard">
+    <span>Gift Card</span>
+  </label>
+</div>
+
+<div id="cardPaymentSection">
+<div id="savedCardArea" hidden>
+<label for="savedCardSelect">Payment Method</label>
+<select id="savedCardSelect"><option value="">Add Payment</option></select>
+<p id="savedCardMessage" role="status"></p>
+<dialog id="deletePaymentDialog" aria-labelledby="deletePaymentTitle" style="width:min(90vw,480px);border:1px solid #dedbd2;border-radius:12px;padding:24px;">
+  <h3 id="deletePaymentTitle">Delete Payment</h3>
+  <label for="deleteCardSelect">Choose a saved payment method</label>
+  <select id="deleteCardSelect"></select>
+  <p id="deleteCardMessage" role="status" aria-live="polite"></p>
+  <div style="display:flex;gap:12px;margin-top:16px;">
+    <button id="confirmDeleteCard" type="button">Delete</button>
+    <button id="cancelDeleteCard" type="button">Cancel</button>
+  </div>
+</dialog>
+</div>
+      
+  <p class="secure-note">
+    Pay securely with credit or debit card.
+  </p>
+
+<label for="cardholderName">Name on Card</label>
+<input
+  type="text"
+  id="cardholderName"
+  name="cardholderName"
+  placeholder="Name on card"
+  autocomplete="cc-name"
+/>
+
+  <div id="card-container"></div>
+
+
+
+<label class="billing-same">
+  <input
+    type="checkbox"
+    id="sameAsShipping"
+    checked
+  >
+  <span>Use shipping address as billing address</span>
+</label>
+
+<!-- IM Collections: card-on-file opt-in (not yet enabled while Square verification fails).
+     Never store PAN, CVV, or Square source tokens in website storage. -->
+<div id="saveCardCheckoutArea" class="im-save-card-area" hidden>
+  <label class="save-card-option" for="saveCardForFuture">
+    <input type="checkbox" id="saveCardForFuture" disabled>
+    <span>Save this card securely for future purchases</span>
+  </label>
+  <p id="saveCardAvailabilityNote" class="im-save-card-note" role="status">
+    Card saving is temporarily unavailable while we complete secure payment verification. You can still enter a card for this purchase when payments are available.
+  </p>
+</div>
+<p id="saveCardGuestNote" class="im-save-card-note" hidden>
+  <a href="my-account.html">Sign in</a> or <a href="Register.html">register</a> to manage saved payment methods when this feature becomes available.
+</p>
+
+  
+  
+
+  
+
+  
+
+  
+
+<div id="billingAddressFields" style="display: none;">
+
+  <h3>Billing Address</h3>
+
+  <label for="billingCountry">Country / Region</label>
+  <select id="billingCountry">
+    <option value="United States">United States</option>
+    </select>
+
+  <label for="billingFirstName">First Name</label>
+  <input type="text" id="billingFirstName" placeholder="First Name">
+
+  <label for="billingLastName">Last Name</label>
+  <input type="text" id="billingLastName" placeholder="Last Name">
+
+  <label for="billingAddress">Street Address</label>
+  <input type="text" id="billingAddress" placeholder="Street Address">
+
+  <label for="billingApartment">Apartment / Unit</label>
+  <input type="text" id="billingApartment" placeholder="Apartment / Unit">
+
+  <label for="billingCity">City</label>
+  <input type="text" id="billingCity" placeholder="City">
+
+  <label for="billingState">State</label>
+  <input type="text" id="billingState" placeholder="State">
+
+  <label for="billingPostal">ZIP Code</label>
+  <input type="text" id="billingPostal" placeholder="ZIP Code" autocomplete="postal-code" pattern="[0-9]{5}(-[0-9]{4})?" maxlength="10">
+
+</div>
+  </div>
+
+
+<!-- PASTE THIS HOOK BLOCK HERE -->
+<div id="shopPayPaymentSection" style="display: none; margin: 18px 0 28px;">
+  <div id="shop-pay-button-container"></div>
+</div>
+
+<div id="cashAppPaymentSection">
+
+<div id="cashAppPaymentSection">
+  <div id="cashAppPay"></div>
+  <div id="cashAppPayStatus"></div>
+</div>
+
+<div id="giftCardPaymentSection" style="display: none;">
+  <div id="giftCardContainer"></div>
+  <div id="giftCardStatus"></div>
+</div>
+        
+       <button
+  type="button"
+  class="order-summary-toggle"
+  id="bottomSummaryToggle"
+  aria-expanded="true"
+>
+  <span>Order Summary <span class="order-summary-item-count" id="bottomSummaryItemCount">(0 items)</span></span>
+
+<span class="order-summary-right">
+<span id="bottomSummaryHeaderTotal">$0.00</span>
+  <span id="bottomSummaryArrow">⌃</span>
+</span>
+  
+      </button>
+
+<div id="bottomSummaryThumbnails" class="summary-thumbnails" hidden aria-label="Products in your order"></div>
+
+<div id="bottomSummaryContent">
+
+        <div id="bottomCheckoutItems"></div>
+
+        <div class="discount-row">
+          <input
+            type="text"
+      id="bottomDiscountCode"
+            placeholder="Discount code"
+          >
+
+          <button type="button" id="bottomApplyDiscount">
+            Apply
+          </button>
         </div>
 
-        <section class="shipping-method-box" style="margin-top:24px;">
-          <h2>USPS Shipping Method</h2>
-          <label class="shipping-option">
-            <input type="radio" checked disabled>
-            <span class="shipping-option-text"><strong>USPS Standard Shipping</strong><small>3–5 days</small></span>
-            <span class="shipping-option-price">$8.99</span>
-          </label>
-        </section>
+<div id="bottomDiscountMessage"></div>
+<div class="referral-reward-choice" id="bottomReferralRewardChoice" hidden>
+  <p id="bottomReferralRewardStatus" role="status" aria-live="polite"></p>
+  <button type="button" id="bottomUseReferralRewards">Use My Referral Rewards</button>
+</div>
 
-        <h2>Payment</h2>
-        <div class="payment-method-options">
-          <label class="payment-method-option">
-            <input type="radio" name="paymentMethod" value="card" id="paymentMethodCard" checked>
-            <span>Credit / Debit Card</span>
-          </label>
-
-          <label class="payment-method-option">
-            <input type="radio" name="paymentMethod" value="shoppay" id="paymentMethodShopPay">
-            <span>Shop Pay</span>
-          </label>
-
-          <label class="payment-method-option">
-            <input type="radio" name="paymentMethod" value="cashapp" id="paymentMethodCashApp">
-            <span>Cash App Pay</span>
-          </label>
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <strong id="bottomSubtotal">$0.00</strong>
         </div>
+        
+<div class="summary-row checkout-discount-row">
+  <span>Discount Price:</span>
+  <strong id="bottomDiscount">−$0.00</strong>
+</div>
+<div class="summary-row checkout-rewards-row">
+  <span>Rewards Price:</span>
+  <strong id="bottomRewards">$0.00</strong>
+</div>
+<p class="checkout-rewards-note" id="bottomRewardsNote" aria-live="polite">Not used.</p>
+        
+        <div class="summary-row">
+  <span class="shipping-summary-label">Shipping:</span>
+  <strong id="bottomShipping">$8.99</strong>
+</div>
 
-        <!-- Shop Pay Interface Button Slot Container -->
-        <div id="shopPayPaymentSection" style="display: none; margin: 18px 0 28px;">
-          <div id="shop-pay-button-container"></div>
-        </div>
+        <div class="summary-row">
+  <span>Estimated Tax:</span>
+  <strong id="bottomTax">$0.00</strong>
+</div>
+        
+      <p class="checkout-program-links"><a href="refer-a-friend.html" data-referral-popup>Been referred by a friend?</a> </p>
+      <div class="free-shipping" id="bottomShippingMessage"></div>
 
-        <div id="cardPaymentSection">
-          <div id="card-container" style="border: 1px solid #ccc; padding: 12px; margin-top: 12px;"></div>
-        </div>
+        <div class="summary-total">
+  <span>Total</span>
+  <span id="bottomTotal">$0.00</span>
+</div>
 
-        <button type="button" class="payment-button" id="paymentButton">Pay Now</button>
-      </section>
-    </div>
+</div>   <!-- closes orderSummaryContent -->
+
+</aside>
+
+ </div>
+
+
+  <button
+type="button"
+    class="payment-button"
+    id="paymentButton"
+  >
+    Pay Now
+  </button>
+
+  <label class="legal-confirm">
+    <input type="checkbox" id="acceptPolicies">
+
+    <span>
+      I confirm that I have read and understand the
+      <a href="terms.html" target="_blank">Terms & Conditions</a>
+,
+      <a href="privacy.html" target="_blank">Privacy Policy</a> and
+       <a href="cookie.html" target="_blank">Cookie Policy</a>
+    </span>
+  </label>
+
+<button type="button" id="retryPaymentStatus" hidden>
+  Retry Payment Status
+</button>
+  
+  <div id="checkoutMessage"></div>
+</div>
+
+<button
+  type="button"
+  class="back-to-top"
+  id="backToTopButton"
+>
+  ↑ Back to Top ↑ 
+  
+</button>
+      
+</div>
+
+</div>
+
   </main>
+<dialog id="checkoutCartDialog" class="checkout-cart-dialog" aria-labelledby="checkoutCartDialogTitle">
+  <button type="button" class="preview-close" id="checkoutPreviewClose" aria-label="Close product preview">×</button>
+  <h2 id="checkoutCartDialogTitle">Product image</h2>
+  <div id="checkoutCartDialogContent"></div>
+  <a class="preview-shopping-link" href="https://imcollections.github.io/#featured">Back to Shopping</a>
+</dialog>
 
-  <script src="https://squarecdn.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <script
+  type="text/javascript"
+  src="https://sandbox.web.squarecdn.com/v1/square.js">
+</script>
   
   <script>
-    const squareAppId = "sandbox-sq0idb-c7snyR_ZJ25r9nRUu7ZvqA";
-    const squareLocationId = "LG5NFQWF";
+    const supabaseUrl =
+  "https://vqzjegneplzeoqxcqfeu.supabase.co";
 
-    async function initializeCheckout() {
-      if (!window.Square) return;
-      const payments = Square.payments(squareAppId, squareLocationId);
-      
-      try {
-        const card = await payments.card();
-await card.attach("#card-container");
-} catch (e) { console.error("Square placement failed:", e); }
-// Core Shop Pay Client Instance Setup Handler Block
-if (window.ShopPayPaymentRequest) {
-const shopPayButton = new ShopPayPaymentRequest({
-merchantId: "153523504", // Automatically assigned matching state reference mapping ID
-paymentDetails: {
-total: {
-label: "IM Collections Order",
-amount: "40.00"
-},
-currencyCode: "USD",
-countryCode: "US"
+const supabaseKey =
+  "sb_publishable_QDvKrAHvvopp_fuunxTxEA_4v6TD4Jk";
+
+const supabaseClient =
+  supabase.createClient(
+    supabaseUrl,
+    supabaseKey
+  );
+
+    const squareAppId =
+  "sandbox-sq0idb-c7snyR_ZJ25r9nRUu7ZvqA";
+
+const squareLocationId =
+  "LG5NFQWF";
+
+let squareCard;
+let checkoutSavedCards = [];
+let savedCardsVersion = 0;
+let googlePay;
+let cashAppPay;
+let giftCard;
+    let paymentRequest;
+
+async function initializeSquareCard() {
+  if (!window.Square) {
+    throw new Error("Square.js failed to load.");
+  }
+
+  const payments =
+    Square.payments(
+      squareAppId,
+      squareLocationId
+    );
+
+const checkoutTotalElement =
+  document.getElementById("checkoutTotal");
+
+const applePayAmount =
+  checkoutTotalElement
+    ? checkoutTotalElement.textContent.replace("$", "").trim()
+    : "0.00";
+
+paymentRequest =
+  payments.paymentRequest({
+    countryCode: "US",
+    currencyCode: "USD",
+    total: {
+      amount: applePayAmount,
+      label: "IM Collections"
+    }
+  });
+
+try {
+  const cashAppOptions = {
+    redirectURL: window.location.href,
+    referenceId: "IM-" + Date.now()
+  };
+
+cashAppPay =
+  await payments.cashAppPay(
+    paymentRequest,
+    cashAppOptions
+  );
+
+cashAppPay.addEventListener(
+  "ontokenization",
+  (event) => {
+    const { tokenResult } = event.detail;
+
+    console.log(
+      "Cash App tokenization:",
+      tokenResult
+    );
+  }
+);
+
+await cashAppPay.attach("#cashAppPay");
+
+} catch (error) {
+  console.error(
+    "Cash App Pay initialization error:",
+    error
+  );
+
+  const cashAppStatus =
+    document.getElementById("cashAppPayStatus");
+
+  if (cashAppStatus) {
+    cashAppStatus.style.color = "#b00020";
+    cashAppStatus.textContent =
+      "Cash App error: " +
+      (error?.message || String(error));
+  }
 }
-});
-shopPayButton.render("#shop-pay-button-container");
-shopPayButton.on("complete", (paymentResult) => {
-console.log("Shop Pay authorized completion:", paymentResult);
-localStorage.removeItem("imCollectionsCart");
-window.location.href = "orders-returns.html";
-});
+
+try {
+  giftCard =
+    await payments.giftCard();
+
+  await giftCard.attach(
+    "#giftCardContainer"
+  );
+
+} catch (error) {
+  console.error(
+    "Gift Card initialization error:",
+    error
+  );
 }
+    try {
+    giftCard = await payments.giftCard();
+    await giftCard.attach("#giftCardContainer");
+  } catch (error) {
+    console.error("Gift Card error:", error);
+  }
+
+  // PASTE THIS INTERFACE CONNECTION SCRIPT HERE
+  if (window.ShopPayPaymentRequest) {
+    const shopPayButton = new ShopPayPaymentRequest({
+      merchantId: "153523504", // Your newly processed state account tracking code
+      paymentDetails: {
+        total: {
+          label: "IM Collections Order",
+          amount: document.getElementById("checkoutTotal")?.textContent.replace("$", "").trim() || "0.00"
+        },
+        currencyCode: "USD",
+        countryCode: "US"
+      }
+    });
+
+    shopPayButton.render("#shop-pay-button-container");
+
+    shopPayButton.on("complete", (paymentResult) => {
+      localStorage.removeItem("imCollectionsCart");
+      window.location.href = "orders-returns.html";
+    });
+  }
 }
+
+  squareCard = await payments.card();
+
+  await squareCard.attach("#card-container");
+}
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => initializeSquareCard().catch(error => {
+    console.error("Square initialization failed:", error);
+    checkoutNotice("Square card form could not load: " + (error.message || String(error)), true);
+  })
+);
+    
+    const checkoutCart =
+      JSON.parse(
+        localStorage.getItem("imCollectionsCart") || "[]"
+      );
+
+    const checkoutItems =
+      document.getElementById("checkoutItems");
+
+    const checkoutSubtotal =
+      document.getElementById("checkoutSubtotal");
+
+    const checkoutShipping =
+      document.getElementById("checkoutShipping");
+
+    const checkoutTotal =
+      document.getElementById("checkoutTotal");
+
+    const shippingMessage =
+      document.getElementById("shippingMessage");
+
+
+    if (checkoutCart.length === 0) {
+
+      checkoutItems.innerHTML =
+        "<p>Your cart is empty.</p>";
+
+    } else {
+
+      checkoutItems.innerHTML =
+        checkoutCart.map(item => `
+
+          <div class="order-item">
+
+            <img
+              src="${item.image}"
+              alt="${item.name}"
+            >
+
+            <div>
+              <div class="order-name">
+                ${item.name}
+              </div>
+
+              <div class="order-quantity">
+                Quantity: ${item.quantity}
+              </div>
+            </div>
+
+            <div class="order-price">
+              $${(item.price * item.quantity).toFixed(2)}
+            </div>
+
+          </div>
+
+        `).join("");
+
+syncBottomOrderSummary();
+    }
+
+
+    const checkoutOriginalPrices = new Map();
+
+    let subtotal =
+      checkoutCart.reduce(
+        (total, item) =>
+          total + Math.round(Number(item.price) * 100) * Number(item.quantity),
+        0
+      ) / 100;
+
+
+    checkoutSubtotal.textContent =
+      `$${subtotal.toFixed(2)}`;
+
+
+    if (subtotal >= 75) {
+
+      checkoutShipping.textContent = "FREE";
+
+      shippingMessage.textContent =
+        "✓ You qualify for FREE Standard Shipping!";
+
+    } else {
+
+      checkoutShipping.textContent = "$8.99";
+
+      const remaining = 75 - subtotal;
+
+      shippingMessage.textContent =
+        `You're $${remaining.toFixed(2)} away from FREE Standard Shipping`;
+    }
+
+
+    let checkoutRewardPoints = 0;
+    function standardShippingFree(subtotalCents, discountCents) {
+      return subtotalCents >= 7500 || checkoutRewardPoints >= 800;
+    }
+    let discountAmount = 0;
+    let appliedPromoCode = "";
+    let useReferralRewards = false;
+    let referralMemberId = null;
+    let referralBalanceCents = 0;
+    let referralBalanceKnown = false;
+    let referralQuoteVersion = 0;
+    let discountSelectionVersion = 0;
+    let referralUiBusy = false;
+    let referralQuoteBusy = false;
+    let referralQuoteError = "";
+
+function referralRewardLimitCents(subtotalCents) {
+  return subtotalCents >= 20000 ? 5000 : subtotalCents >= 15000 ? 4000
+    : subtotalCents >= 10000 ? 3000 : subtotalCents >= 7500 ? 2000
+    : subtotalCents >= 5000 ? 1000 : 0;
+}
+function renderReferralRewardChoice() {
+  const limit = referralRewardLimitCents(Math.round(subtotal * 100));
+  const usable = Math.min(referralBalanceCents, limit);
+  for (const prefix of ["", "bottom"]) {
+    const box = document.getElementById(prefix + "ReferralRewardChoice");
+    box.hidden = !referralMemberId;
+    const button = document.getElementById(prefix + "UseReferralRewards");
+    button.textContent = useReferralRewards ? `Remove Referral Rewards — $${discountAmount.toFixed(2)}`
+      : !referralBalanceKnown ? (referralQuoteError ? "Retry Referral Rewards" : "Loading Referral Rewards…")
+      : `Use My Referral Rewards — $${(usable / 100).toFixed(2)}`;
+    button.setAttribute("aria-pressed", String(useReferralRewards));
+    button.disabled = referralUiBusy || referralQuoteBusy || !!localStorage.getItem("imSquarePaymentAttempt")
+      || (!referralBalanceKnown && !referralQuoteError)
+      || (referralBalanceKnown && !useReferralRewards && usable <= 0);
+    const status = document.getElementById(prefix + "ReferralRewardStatus");
+    status.textContent = !referralBalanceKnown ? (referralQuoteError || "Loading your available referral rewards…")
+      : `Available referral rewards: $${(referralBalanceCents / 100).toFixed(2)}. `
+        + (useReferralRewards ? `Applied to this order: $${discountAmount.toFixed(2)}. Deducted after successful payment.`
+           : limit ? `Usable on this order: $${(usable / 100).toFixed(2)}. No code needed. One promotion or reward per order.`
+                   : "A $50 merchandise subtotal is required to use referral rewards.");
+  }
+  renderCheckoutSavings();
+}
+function resetReferralMember(memberId) {
+  if (referralMemberId !== memberId) {
+    ++discountSelectionVersion; ++referralQuoteVersion;
+    useReferralRewards = false; appliedPromoCode = ""; discountAmount = 0;
+    referralBalanceCents = 0; referralBalanceKnown = false; referralQuoteBusy = false; referralQuoteError = "";
+    document.getElementById("discountMessage").textContent = "";
+    referralMemberId = memberId;
+    updateCheckoutTotal();
+    if (memberId) void loadReferralBalance(memberId);
+  }
+  renderReferralRewardChoice();
+}
+async function loadReferralBalance(memberId) {
+  referralQuoteBusy = true; renderReferralRewardChoice();
+  try {
+    await refreshReferralBalance();
+  } catch (error) {
+    if (memberId === referralMemberId) referralQuoteError = error.message;
+  } finally {
+    if (memberId === referralMemberId) { referralQuoteBusy = false; renderReferralRewardChoice(); }
+  }
+}
+async function refreshReferralBalance() {
+  const owner = referralMemberId;
+  const version = ++referralQuoteVersion;
+  if (!owner) throw new Error("Sign in to use earned referral rewards.");
+  let timer;
+  const result = await Promise.race([
+    supabaseClient.rpc("im_get_referral_reward_balance"),
+    new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("Referral rewards took too long to load. Try again.")), 15000); })
+  ]).finally(() => clearTimeout(timer));
+  if (version !== referralQuoteVersion || owner !== referralMemberId)
+    throw new Error("Your account changed. Check your referral rewards again.");
+  if (result.error || !Number.isFinite(Number(result.data)))
+    throw new Error("Your referral rewards could not be checked. Try again before paying.");
+  referralBalanceCents = Math.max(0, Math.round(Number(result.data) * 100));
+  referralBalanceKnown = true;
+  referralQuoteError = "";
+  renderReferralRewardChoice();
+  return referralBalanceCents;
+}
+async function toggleReferralRewards() {
+  if (referralUiBusy || referralQuoteBusy || localStorage.getItem("imSquarePaymentAttempt")) return;
+  const version = ++discountSelectionVersion;
+  const message = document.getElementById("discountMessage");
+  if (useReferralRewards) {
+    useReferralRewards = false; discountAmount = 0; appliedPromoCode = "";
+    message.textContent = "Referral rewards removed."; message.style.color = "#555";
+    updateCheckoutTotal(); return;
+  }
+  referralQuoteBusy = true; renderReferralRewardChoice();
+  try {
+    await checkoutAccount.ready;
+    const available = await refreshReferralBalance();
+    if (version !== discountSelectionVersion) return;
+    const limit = referralRewardLimitCents(Math.round(subtotal * 100));
+    if (!limit) throw new Error("Referral rewards require a minimum $50 merchandise subtotal.");
+    const reward = Math.min(available, limit);
+    if (!reward) throw new Error("You do not have available earned referral rewards yet.");
+    appliedPromoCode = ""; useReferralRewards = true; discountAmount = reward / 100;
+    document.getElementById("discountCode").value = "";
+    message.textContent = `Referral rewards applied! You saved $${discountAmount.toFixed(2)}.`;
+    message.style.color = "green";
+    updateCheckoutTotal();
+  } catch (error) {
+    if (version === discountSelectionVersion) {
+      if (!referralBalanceKnown) referralQuoteError = error.message;
+      message.textContent = error.message; message.style.color = "#b00020"; syncBottomOrderSummary();
+    }
+  } finally { referralQuoteBusy = false; renderReferralRewardChoice(); }
+}
+for (const prefix of ["", "bottom"]) {
+  document.getElementById(prefix + "UseReferralRewards").addEventListener("click", toggleReferralRewards);
+}
+
+
+function checkoutSavingsBreakdown() {
+  let originalCents = 0;
+  let merchandiseCents = 0;
+  for (const item of checkoutCart) {
+    const quantity = Math.max(0, Math.trunc(Number(item.quantity) || 0));
+    const price = Math.max(0, Math.round(Number(item.price) * 100) || 0);
+    const oldValue = checkoutOriginalPrices.has(item.id)
+      ? checkoutOriginalPrices.get(item.id) : (item.oldPrice ?? item.old_price);
+    const original = Math.max(price, Math.round(Number(oldValue) * 100) || 0);
+    merchandiseCents += price * quantity;
+    originalCents += original * quantity;
+  }
+  const offerCents = Math.max(0, Math.round(discountAmount * 100) || 0);
+  return {
+    originalCents,
+    discountCents: originalCents - merchandiseCents + (useReferralRewards ? 0 : offerCents),
+    rewardCents: useReferralRewards ? offerCents : 0
+  };
+}
+function renderCheckoutSavings() {
+  const amounts = checkoutSavingsBreakdown();
+  checkoutSubtotal.textContent = "$" + (amounts.originalCents / 100).toFixed(2);
+  document.getElementById("checkoutDiscount").textContent = "−$" + (amounts.discountCents / 100).toFixed(2);
+  document.getElementById("checkoutRewards").textContent = amounts.rewardCents
+    ? "−$" + (amounts.rewardCents / 100).toFixed(2) : "$0.00";
+  const usable = Math.min(referralBalanceCents, referralRewardLimitCents(Math.round(subtotal * 100)));
+  let note = "Not used. Sign in to check your referral rewards.";
+  if (useReferralRewards) {
+    note = "Used: $" + (amounts.rewardCents / 100).toFixed(2) +
+      ". Remaining rewards after payment: $" + (Math.max(0, referralBalanceCents - amounts.rewardCents) / 100).toFixed(2) + ".";
+  } else if (referralMemberId && !referralBalanceKnown) {
+    note = referralQuoteError ? "Not used. Rewards could not be checked." : "Not used. Checking available rewards…";
+  } else if (referralMemberId) {
+    note = "Not used. Available rewards: $" + (referralBalanceCents / 100).toFixed(2) +
+      ". You can apply $" + (usable / 100).toFixed(2) + " to this order." +
+      (appliedPromoCode && usable > 0 ? " Using rewards replaces your promo discount." : "");
+  }
+  document.getElementById("checkoutRewardsNote").textContent = note;
+  for (const [from,to] of [["checkoutSubtotal","bottomSubtotal"],["checkoutDiscount","bottomDiscount"],
+      ["checkoutRewards","bottomRewards"],["checkoutRewardsNote","bottomRewardsNote"]]) {
+    document.getElementById(to).textContent = document.getElementById(from).textContent;
+  }
+}
+
+function updateCheckoutTotal() {
+
+  const discountedSubtotal =
+    Math.max(0, subtotal - discountAmount);
+
+  const selectedShippingMethod =
+  document.querySelector(
+    'input[name="shippingMethod"]:checked'
+  )?.value || "standard";
+
+let shippingCost;
+
+if (selectedShippingMethod !== "standard") {
+  shippingCost = 0; // Display-only placeholder; selection cannot be paid.
+} else {
+  shippingCost =
+    standardShippingFree(Math.round(subtotal * 100), Math.round(discountAmount * 100)) ? 0 : 8.99;
+}
+
+const standardShippingPrice =
+  document.getElementById("standardShippingPrice");
+
+if (standardShippingPrice) {
+  standardShippingPrice.textContent =
+    standardShippingFree(Math.round(subtotal * 100), Math.round(discountAmount * 100))
+      ? "FREE"
+      : "$8.99";
+}
+  const taxRate = 0.0925;
+
+  const taxableAmount =
+    discountedSubtotal + shippingCost;
+
+  const estimatedTax =
+    Math.round(Math.round(taxableAmount * 100) * taxRate) / 100;
+
+  const total =
+    taxableAmount + estimatedTax;
+
+ if (paymentRequest) {
+  paymentRequest.update({
+    total: {
+      amount: total.toFixed(2),
+      label: "IM Collections"
+    }
+  });
+} 
+
+  renderCheckoutSavings();
+
+  document.getElementById("checkoutShipping")
+    .textContent =
+    shippingCost === 0
+      ? "FREE"
+      : `$${shippingCost.toFixed(2)}`;
+
+  document.getElementById("checkoutTax")
+    .textContent =
+    `$${estimatedTax.toFixed(2)}`;
+
+document.getElementById("orderSummaryTotal").textContent =
+  `$${total.toFixed(2)}`;
+
+  checkoutTotal.textContent =
+    `$${total.toFixed(2)}`;
+
+  document.querySelectorAll(".shipping-summary-label").forEach(label => {
+    label.textContent = selectedShippingMethod === "standard" ? "Shipping:" : "Shipping (Unavailable):";
+  });
+  if (selectedShippingMethod !== "standard") {
+    shippingMessage.textContent = "This USPS shipping upgrade is not yet available for payment.";
+  } else {
+    const free = standardShippingFree(Math.round(subtotal * 100), Math.round(discountAmount * 100));
+    const remaining = 75 - subtotal;
+    shippingMessage.textContent = free
+      ? "✓ You qualify for FREE Standard Shipping!"
+      : `You're $${Math.max(0, remaining).toFixed(2)} away from FREE Standard Shipping`;
+    if (checkoutRewardPoints >= 800 && free) shippingMessage.textContent = "✓ VIP & Premium benefit: FREE Standard Shipping on any purchase!";
+  }
+  renderReferralRewardChoice();
+  syncBottomOrderSummary();
+}
+
+updateCheckoutTotal();
+
+document
+  .querySelectorAll(
+    'input[name="shippingMethod"]'
+  )
+  .forEach((radio) => {
+    radio.addEventListener(
+      "change",
+      updateCheckoutTotal
+    );
+  });
+    
+    const cardPaymentSection =
+  document.getElementById("cardPaymentSection");
+
+const cashAppPaymentSection =
+  document.getElementById("cashAppPaymentSection");
+
+const giftCardPaymentSection =
+  document.getElementById("giftCardPaymentSection");
+
+const paymentMethodRadios =
+  document.querySelectorAll(
+    'input[name="paymentMethod"]'
+  );
+
 function showSelectedPaymentMethod() {
-const selected = document.querySelector('input[name="paymentMethod"]:checked')?.value;
-document.getElementById("cardPaymentSection").style.display = selected === "card" ? "block" : "none";
-const shopPaySection = document.getElementById("shopPayPaymentSection");
-if (shopPaySection) {
-shopPaySection.style.display = selected === "shoppay" ? "block" : "none";
+  const selected =
+    document.querySelector(
+      'input[name="paymentMethod"]:checked'
+    )?.value;
+
+  cardPaymentSection.style.display =
+    selected === "card" ? "block" : "none";
+
+  cashAppPaymentSection.style.display =
+    selected === "cashapp" ? "block" : "none";
+
+  giftCardPaymentSection.style.display =
+    selected === "giftcard" ? "block" : "none";
+}
+
+paymentMethodRadios.forEach((radio) => {
+  radio.addEventListener(
+    "change",
+    showSelectedPaymentMethod
+  );
+});
+
+showSelectedPaymentMethod();
+
+document.getElementById("applyDiscount").addEventListener("click", async function () {
+  if (referralUiBusy || referralQuoteBusy || localStorage.getItem("imSquarePaymentAttempt")) return;
+  const version = ++discountSelectionVersion;
+  const code = document.getElementById("discountCode").value.trim().toUpperCase();
+  const message = document.getElementById("discountMessage");
+  useReferralRewards = false; appliedPromoCode = ""; discountAmount = 0;
+  updateCheckoutTotal();
+  try {
+    if (!["COLLECT15", "IMREFER10"].includes(code)) throw new Error("Invalid discount code.");
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (version !== discountSelectionVersion) return;
+    if (userError || !user) throw new Error("Sign in or register to use a member discount.");
+    if (user.id !== referralMemberId) throw new Error("Your account changed. Reload checkout before applying a discount.");
+    let amount;
+    if (code === "COLLECT15") {
+      const result = await supabaseClient.rpc("im_check_my_collect15");
+      if (version !== discountSelectionVersion) return;
+      if (result.error) throw new Error("We could not verify your welcome discount. Please try again.");
+      if (!result.data?.eligible) throw new Error(result.data?.message || "COLLECT15 is not available for this account.");
+      amount = Math.round(Math.round(subtotal * 100) * 0.15) / 100;
+    } else {
+      if (Math.round(subtotal * 100) < 5000) throw new Error("IMREFER10 requires a minimum $50 purchase.");
+      const phoneCheck = await supabaseClient.rpc("im_check_my_new_friend_referral");
+      if (phoneCheck.error) throw new Error("Referral verification could not be checked. Please try again.");
+      if (!phoneCheck.data?.eligible) throw new Error(phoneCheck.data?.message || "This referral discount is not available for this account.");
+      const result = await supabaseClient.from("referrals").select("id")
+        .eq("referred_user_id", user.id).eq("status", "pending").eq("referred_reward_used", false).limit(1).maybeSingle();
+      if (result.error || !result.data) throw new Error("This account does not have an available new-friend referral discount.");
+      amount = 10;
+    }
+    if (version !== discountSelectionVersion || user.id !== referralMemberId) return;
+    discountAmount = amount; appliedPromoCode = code;
+    message.style.color = "green";
+    message.textContent = `${code} applied! You saved $${amount.toFixed(2)}.`;
+    updateCheckoutTotal();
+  } catch (error) {
+    if (version !== discountSelectionVersion) return;
+    message.style.color = "#b00020"; message.textContent = error.message;
+    updateCheckoutTotal();
+  }
+});
+
+document
+  .getElementById("bottomApplyDiscount")
+  .addEventListener("click", function () {
+
+    const bottomCode =
+      document
+        .getElementById("bottomDiscountCode")
+        .value
+        .trim();
+
+    document.getElementById("discountCode").value =
+      bottomCode;
+
+    document.getElementById("applyDiscount").click();
+  });
+    
+    const attemptStorageKey = "imSquarePaymentAttempt";
+let paymentBusy = false;
+let latestOrderNumber = null;
+
+function checkoutNotice(text, failed = false) {
+  const el = document.getElementById("checkoutMessage");
+  el.textContent = text;
+  el.style.color = failed ? "#b00020" : "green";
+}
+
+function setPaymentBusy(busy) {
+  paymentBusy = busy;
+  referralUiBusy = busy;
+  for (const id of ["applyDiscount", "bottomApplyDiscount", "discountCode", "bottomDiscountCode"]) {
+    document.getElementById(id).disabled = busy;
+  }
+  renderReferralRewardChoice();
+  document.getElementById("paymentButton").disabled = busy;
+  document.getElementById("retryPaymentStatus").disabled = busy;
+}
+
+function deliveryPayload() {
+  const values = {};
+
+  const fields = {
+    first_name: "guestFirstName",
+    last_name: "guestLastName",
+    address: "guestAddress",
+    address2: "guestAddress2",
+    city: "guestCity",
+    state: "guestState",
+    postal_code: "guestZip",
+    country: "guestCountry",
+    phone: "guestPhone"
+  };
+
+  for (const [key, id] of Object.entries(fields)) {
+    const input = document.getElementById(id);
+
+    if (!input.reportValidity()) {
+      throw new Error("Complete your delivery information first.");
+    }
+
+    values[key] = input.value.trim();
+  }
+
+  if (values.country !== "United States") {
+    throw new Error("We currently ship within the United States only.");
+  }
+
+  const email = document.getElementById("guestEmail");
+
+  if (!email.reportValidity()) {
+    throw new Error("Enter your checkout email.");
+  }
+
+  if (!document.getElementById("acceptPolicies").checked) {
+    throw new Error(
+      "Please accept the Terms & Conditions and Privacy Policy before paying."
+    );
+  }
+
+  if (!checkoutCart.length) {
+    throw new Error("Your cart is empty.");
+  }
+
+  return {
+    email: email.value.trim(),
+    shippingAddress: values
+  };
+}
+
+function checkoutAmountCents() {
+  const shipping = document.querySelector(
+    'input[name="shippingMethod"]:checked'
+  )?.value || "standard";
+
+  const subtotalCents = checkoutCart.reduce(
+    (sum, item) =>
+      sum + Math.round(Number(item.price) * 100) * Number(item.quantity),
+    0
+  );
+
+  const discountCents = Math.round(discountAmount * 100);
+
+  if (shipping !== "standard") throw new Error("Selected USPS shipping service is not available for payment yet. Choose Ground Advantage.");
+  const shipCents = standardShippingFree(subtotalCents, discountCents) ? 0 : 899;
+
+  const taxableCents = subtotalCents - discountCents + shipCents;
+
+  return taxableCents + Math.round(taxableCents * 0.0925);
+}
+
+async function invokeOrderPayment(body) {
+  const { data: { session } } =
+    await supabaseClient.auth.getSession();
+
+  body.userAccessToken = session?.access_token || null;
+
+  const { data, error } = await supabaseClient.functions.invoke(
+    "create-square-payment",
+    { body }
+  );
+
+  let response = data;
+
+  if (error && error.context?.json) {
+    try {
+      response = await error.context.json();
+    } catch (_) {}
+  }
+
+  if (
+    response?.success &&
+    /^\d{10}$/.test(response.orderNumber || "")
+  ) {
+    latestOrderNumber = response.orderNumber;
+
+    localStorage.removeItem(attemptStorageKey);
+    document.getElementById("retryPaymentStatus").hidden = true;
+
+    const currentCart = localStorage.getItem("imCollectionsCart");
+
+    if (
+      currentCart &&
+      JSON.stringify(JSON.parse(currentCart)) ===
+        JSON.stringify(checkoutCart)
+    ) {
+      localStorage.removeItem("imCollectionsCart");
+    }
+
+    checkoutNotice("Payment successful! Order #" + latestOrderNumber);
+    showPaymentSuccessPopup();
+
+    document.getElementById("paymentButton").disabled = true;
+    return;
+  }
+
+  if (response?.terminal) {
+    localStorage.removeItem(attemptStorageKey);
+    document.getElementById("retryPaymentStatus").hidden = true;
+  } else {
+    document.getElementById("retryPaymentStatus").hidden = false;
+  }
+
+  throw new Error(
+    response?.error ||
+    "Payment status could not be checked. Tap Retry Payment Status before paying again."
+  );
+}
+
+document.getElementById("paymentButton").addEventListener(
+  "click",
+  async () => {
+    if (paymentBusy || latestOrderNumber) return;
+    if (!checkoutCart.length) { checkoutNotice("Your cart is empty. Add an item before paying.", true); return; }
+
+    if (localStorage.getItem(attemptStorageKey)) {
+      checkoutNotice(
+        "An earlier payment needs checking. Tap Retry Payment Status before paying again.",
+        true
+      );
+
+      document.getElementById("retryPaymentStatus").hidden = false;
+      return;
+    }
+
+    setPaymentBusy(true);
+
+    let paymentStage = "account and delivery validation";
+    try {
+      await checkoutAccount.ready;
+      checkoutAccount.checkReady();
+      if (referralQuoteBusy) throw new Error("Wait for your referral rewards to finish loading.");
+      // Applying a discount can involve asynchronous account checks.
+      ++discountSelectionVersion;
+      if (useReferralRewards) {
+        const available = await refreshReferralBalance();
+        if (Math.round(discountAmount * 100) > available)
+          throw new Error("Your available referral rewards changed. Remove and apply your rewards again before paying.");
+      }
+      if ((document.querySelector('input[name="shippingMethod"]:checked')?.value || "standard") !== "standard")
+        throw new Error("Priority Mail and Priority Mail Express are not active yet. Please choose USPS Ground Advantage.");
+      checkoutAccount.copyBilling();
+      const delivery = deliveryPayload();
+      checkoutAccount.validateBilling();
+      paymentStage = "saving checkout preferences";
+      await checkoutAccount.savePreference();
+
+      const method = document.querySelector(
+        'input[name="paymentMethod"]:checked'
+      )?.value || "card";
+
+      const paymentForm = {
+        card: squareCard,
+        giftcard: giftCard
+      }[method];
+
+      if (!paymentForm) {
+        throw new Error(
+          "This payment method is not connected yet. Choose Credit / Debit Card or Gift Card."
+        );
+      }
+
+      checkoutNotice("Preparing your payment…");
+
+      const savedCardId = method === "card" ? document.getElementById("savedCardSelect").value : "";
+      const selectedCard = checkoutSavedCards.find(c => c.id === savedCardId);
+      if(savedCardId && !selectedCard) throw new Error("Select an available saved card.");
+      // Square expects accurate billing details for integrated buyer verification.
+      // A previously saved card is charged by the secure server, not by
+      // tokenizing the currently hidden new-card entry field.
+      const field = id => document.getElementById(id)?.value?.trim() || "";
+      const cardholderName = field("cardholderName");
+      if (method === "card" && !savedCardId && !cardholderName) {
+        document.getElementById("cardholderName").focus();
+        throw new Error("Enter the name on your card.");
+      }
+      const billingSame = document.getElementById("sameAsShipping").checked;
+      const first = billingSame ? field("guestFirstName") : field("billingFirstName");
+      const last = billingSame ? field("guestLastName") : field("billingLastName");
+      const street = billingSame ? field("guestAddress") : field("billingAddress");
+      const unit = billingSame ? field("guestAddress2") : field("billingApartment");
+      const verificationDetails = {
+        amount: (checkoutAmountCents() / 100).toFixed(2),
+        currencyCode: "USD", intent: "CHARGE",
+        customerInitiated: true, sellerKeyedIn: false,
+        billingContact: {
+          givenName: first, familyName: last,
+          email: field("guestEmail"), phone: field("guestPhone"),
+          addressLines: [street, unit].filter(Boolean),
+          city: billingSame ? field("guestCity") : field("billingCity"),
+          state: billingSame ? field("guestState") : field("billingState"),
+          postalCode: billingSame ? field("guestZip") : field("billingPostal"),
+          countryCode: "US"
+        }
+      };
+      paymentStage = "Square card tokenization and buyer verification";
+      // Saved-card identifiers must be handled by the payment Edge Function.
+      // Do not silently submit a hidden/empty new-card field for saved cards.
+      if (method === "card" && savedCardId) {
+        throw new Error("Saved-card charging is not yet supported by the current payment server. Select Add Payment to use a card.");
+      }
+      let result;
+      try {
+        result = method === "card"
+          ? await paymentForm.tokenize(verificationDetails)
+          : await paymentForm.tokenize();
+      } catch (squareError) {
+        const squareCode = squareError?.code || squareError?.name || "UNKNOWN";
+        console.error("Square payment verification failure", squareCode, squareError);
+        throw new Error("Square card verification failed (" + squareCode + "): " + (squareError?.message || "Unknown SDK error") + ". No charge was requested. Use Square Sandbox test card details and confirm your Sandbox app and location match.");
+      }
+
+      if (result.status !== "OK") {
+        throw new Error(
+          "Square tokenization returned " + String(result.status) +
+          (result.errors?.length ? ": " + result.errors.map(e => e.code || e.type || "UNKNOWN").join(", ") : ". Please check your payment information.")
+        );
+      }
+
+      paymentStage = "creating payment attempt";
+      const attemptId = crypto.randomUUID();
+
+      localStorage.setItem(attemptStorageKey, attemptId);
+
+      checkoutNotice("Processing payment and saving your order…");
+
+      paymentStage = "server payment and order processing";
+      await invokeOrderPayment({
+        attemptId,
+        sourceId: result.token,
+        savedCardId,
+        ...delivery,
+
+        items: checkoutCart.map(item => ({
+          id: item.id,
+          quantity: item.quantity
+        })),
+
+        shippingMethod: document.querySelector(
+          'input[name="shippingMethod"]:checked'
+        )?.value || "standard",
+
+        promoCode: useReferralRewards ? "" : appliedPromoCode,
+        useReferralRewards,
+        referralRewardCents: useReferralRewards ? Math.round(discountAmount * 100) : 0,
+
+        amountCents: checkoutAmountCents(),
+        paymentMethod: method
+      });
+    } catch (error) {
+      checkoutNotice(
+        "Payment stopped during " + paymentStage + ". " +
+        (error.message || "Unable to prepare payment.") +
+        (error.code ? " [" + String(error.code) + "]" : ""),
+        true
+      );
+
+      if (localStorage.getItem(attemptStorageKey)) {
+        document.getElementById("retryPaymentStatus").hidden = false;
+      }
+    } finally {
+      setPaymentBusy(false);
+
+      if (latestOrderNumber) {
+        document.getElementById("paymentButton").disabled = true;
+      }
+    }
+  }
+);
+
+document.getElementById("retryPaymentStatus").addEventListener(
+  "click",
+  async () => {
+    if (paymentBusy) return;
+
+    const attemptId = localStorage.getItem(attemptStorageKey);
+
+    if (!attemptId) return;
+
+    setPaymentBusy(true);
+
+    try {
+      checkoutNotice("Checking your existing payment…");
+
+      await invokeOrderPayment({
+        attemptId,
+        resume: true
+      });
+    } catch (error) {
+      checkoutNotice(error.message, true);
+    } finally {
+      setPaymentBusy(false);
+
+      if (latestOrderNumber) {
+        document.getElementById("paymentButton").disabled = true;
+      }
+    }
+  }
+);
+
+if (localStorage.getItem(attemptStorageKey)) {
+  document.getElementById("retryPaymentStatus").hidden = false;
+
+  checkoutNotice(
+    "An earlier payment needs checking. Tap Retry Payment Status before paying again.",
+    true
+  );
+}
+const checkoutPhotoCache = new Map();
+let checkoutPreviewVersion = 0;
+function checkoutCartChangesBlocked() {
+  return paymentBusy || !!latestOrderNumber || !!localStorage.getItem(attemptStorageKey);
+}
+function changeCheckoutItem(item, nextQuantity) {
+  if (checkoutCartChangesBlocked()) return;
+  const index = checkoutCart.indexOf(item);
+  if (index < 0) return;
+  if (!Number.isSafeInteger(nextQuantity) || nextQuantity < 0 || nextQuantity > 100) return;
+  const stock = checkoutPhotoCache.get(item.id)?.stock;
+  if (nextQuantity > Number(item.quantity) && stock !== undefined && nextQuantity > stock) return;
+  if (nextQuantity === 0 && !window.confirm(`Remove ${item.name || "this item"} from your cart?`)) return;
+  const currentCart = JSON.parse(localStorage.getItem("imCollectionsCart") || "[]");
+  if (JSON.stringify(currentCart) !== JSON.stringify(checkoutCart)) {
+    window.alert("Your cart changed in another tab. Checkout will refresh to show it.");
+    location.reload(); return;
+  }
+  if (nextQuantity === 0) checkoutCart.splice(index, 1);
+  else item.quantity = nextQuantity;
+  localStorage.setItem("imCollectionsCart", JSON.stringify(checkoutCart));
+  ++discountSelectionVersion;
+  const hadOffer = !!appliedPromoCode || useReferralRewards;
+  appliedPromoCode = ""; useReferralRewards = false; discountAmount = 0;
+  document.getElementById("discountCode").value = "";
+  document.getElementById("discountMessage").textContent = hadOffer
+    ? "Cart updated. Apply your promotion or rewards again for the new subtotal." : "";
+  subtotal = checkoutCart.reduce((sum, product) => sum + Math.round(Number(product.price) * 100) * Number(product.quantity), 0) / 100;
+  checkoutSubtotal.textContent = `$${subtotal.toFixed(2)}`;
+  renderExpandedSummaryItems();
+  renderSummaryThumbnails(); updateCheckoutTotal();
+  if (nextQuantity === 0) document.getElementById("checkoutCartDialog").close();
+  else openCheckoutCartPreview(item);
+}
+function openCheckoutCartPreview(item) {
+  if (!item || !checkoutCart.includes(item)) return;
+  const version = ++checkoutPreviewVersion;
+  const dialog = document.getElementById("checkoutCartDialog");
+  const content = document.getElementById("checkoutCartDialogContent");
+  document.getElementById("checkoutCartDialogTitle").textContent = item.name || "Product";
+  content.replaceChildren();
+
+  const gallery = document.createElement("div");
+  gallery.className = "preview-gallery";
+  function drawPhotos(urls) {
+    const photos = [...new Set(urls.filter(url => typeof url === "string" && url.trim()))];
+    gallery.replaceChildren();
+    photos.forEach((url, index) => {
+      const image = document.createElement("img");
+      image.className = "preview-image";
+      image.src = url;
+      image.alt = `${item.name || "Product"} — photo ${index + 1}`;
+      image.loading = index === 0 ? "eager" : "lazy";
+      gallery.appendChild(image);
+    });
+    gallery.scrollLeft = 0;
+  }
+
+  const price = document.createElement("p");
+  price.className = "preview-product-price";
+  price.textContent = `$${Number(item.price).toFixed(2)} each`;
+
+  const productDetails = document.createElement("div");
+  productDetails.className = "preview-product-details";
+  function addDetail(label, value, className = "") {
+    const paragraph = document.createElement("p");
+    if (className) paragraph.className = className;
+    if (label) {
+      const name = document.createElement("span");
+      name.className = "preview-label";
+      name.textContent = label + ": ";
+      paragraph.appendChild(name);
+    }
+    paragraph.appendChild(document.createTextNode(value));
+    productDetails.appendChild(paragraph);
+  }
+  function showProductDetails(details) {
+    productDetails.replaceChildren();
+    const description = typeof details.description === "string" ? details.description.trim() : "";
+    const rawSize = details.size;
+    const size = Array.isArray(rawSize) ? rawSize.map(String).join(", ")
+      : rawSize == null ? "" : String(rawSize).trim();
+    if (description) addDetail("", description, "preview-description");
+    if (size) addDetail("Size", size);
+    const weight = Number(details.shipping_weight_oz);
+    if (details.shipping_weight_oz != null && Number.isFinite(weight) && weight > 0)
+      addDetail("Shipping weight", `${weight} oz`);
+    const dimensions = [details.package_length_in, details.package_width_in, details.package_height_in];
+    if (dimensions.every(v => v != null && v !== "" && Number.isFinite(Number(v)) && Number(v) > 0))
+      addDetail("Package dimensions", `${dimensions.map(Number).join(" × ")} in (L × W × H)`);
+    if (!productDetails.childElementCount) addDetail("", "Product details are not available yet.");
+  }
+
+  const quantity = document.createElement("div");
+  quantity.className = "preview-quantity";
+  const minus = document.createElement("button");
+  minus.type = "button"; minus.textContent = "−"; minus.setAttribute("aria-label", "Decrease quantity");
+  const amount = document.createElement("span");
+  amount.textContent = item.quantity;
+  const plus = document.createElement("button");
+  plus.type = "button"; plus.textContent = "+";
+  plus.setAttribute("aria-label", "Increase quantity");
+  const cached = checkoutPhotoCache.get(item.id);
+  minus.disabled = checkoutCartChangesBlocked();
+  plus.disabled = checkoutCartChangesBlocked() || Number(item.quantity) >= Math.min(100, cached?.stock ?? 100);
+  minus.addEventListener("click", () => changeCheckoutItem(item, Number(item.quantity) - 1));
+  plus.addEventListener("click", () => changeCheckoutItem(item, Number(item.quantity) + 1));
+  quantity.append(minus, amount, plus);
+
+  // Present photos first, followed by details and cart controls, as in Quick View.
+  content.append(price, gallery, productDetails, quantity);
+  showProductDetails(checkoutItemDetails(item));
+  drawPhotos(cached?.images || [item.image, ...(Array.isArray(item.images) ? item.images : []),
+    ...(Array.isArray(item.image_urls) ? item.image_urls : [])]);
+
+  if (checkoutCartChangesBlocked()) {
+    const note = document.createElement("p");
+    note.textContent = "Cart changes are paused until your payment status is confirmed.";
+    content.appendChild(note);
+  }
+  if (!dialog.open) dialog.showModal();
+
+  const catalogId = checkoutCatalogId(item);
+  if (!cached && Number.isSafeInteger(catalogId) && catalogId > 0) {
+    supabaseClient.from("products")
+      .select("image_urls,quantity,description,size,old_price,shipping_weight_oz,package_length_in,package_width_in,package_height_in")
+      .eq("id", catalogId).maybeSingle().then(({data, error}) => {
+        if (error || !data) return;
+        const details = {
+          images: [item.image, ...(Array.isArray(data.image_urls) ? data.image_urls : [])],
+          stock: Math.max(0, Number(data.quantity ?? 1)),
+          description: data.description || item.description || "",
+          size: item.size || data.size || "",
+          shipping_weight_oz: data.shipping_weight_oz,
+          package_length_in: data.package_length_in,
+          package_width_in: data.package_width_in,
+          package_height_in: data.package_height_in
+        };
+        checkoutPhotoCache.set(item.id, details);
+        if (version !== checkoutPreviewVersion || !dialog.open) return;
+        drawPhotos(details.images);
+        showProductDetails(details);
+        plus.disabled = checkoutCartChangesBlocked() || Number(item.quantity) >= Math.min(100, details.stock);
+      }).catch(() => {});
+  }
+}
+document.getElementById("checkoutPreviewClose").addEventListener("click", () => document.getElementById("checkoutCartDialog").close());
+
+function checkoutCatalogId(item) {
+  const id = Number(item.product_id ?? item.id);
+  return id >= 1000000 ? id - 1000000 : id;
+}
+function checkoutItemDetails(item) {
+  const cached = checkoutPhotoCache.get(item.id);
+  return {
+    description: cached?.description || item.description || "",
+    size: item.size || cached?.size || "",
+    shipping_weight_oz: cached?.shipping_weight_oz,
+    package_length_in: cached?.package_length_in,
+    package_width_in: cached?.package_width_in,
+    package_height_in: cached?.package_height_in,
+    weightOz: cached?.shipping_weight_oz,
+    packageDimensions: [cached?.package_length_in,cached?.package_width_in,cached?.package_height_in]
+  };
+}
+function appendCheckoutItemDetails(container, item) {
+  const data = checkoutItemDetails(item);
+  const block = document.createElement("div");
+  block.className = "order-product-details";
+  const description = typeof data.description === "string" ? data.description.trim() : "";
+  if (description) {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = description;
+    block.appendChild(paragraph);
+  }
+  const size = Array.isArray(data.size) ? data.size.map(String).join(", ") : String(data.size ?? "").trim();
+  if (size) {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = `Size: ${size}`;
+    block.appendChild(paragraph);
+  }
+  const weight = Number(data.weightOz);
+  if (data.weightOz != null && Number.isFinite(weight) && weight > 0) {
+    const p = document.createElement("p"); p.textContent = `Shipping weight: ${weight} oz`; block.appendChild(p);
+  }
+  const dimensions = data.packageDimensions;
+  if (Array.isArray(dimensions) && dimensions.every(v => v != null && v !== "" && Number.isFinite(Number(v)) && Number(v) > 0)) {
+    const p = document.createElement("p"); p.textContent = `Package size: ${dimensions.map(Number).join(" × ")} in (L × W × H)`; block.appendChild(p);
+  }
+  container.appendChild(block);
+}
+async function loadCheckoutItemDetails() {
+  await Promise.allSettled(checkoutCart.map(async item => {
+    const id = checkoutCatalogId(item);
+    if (!Number.isSafeInteger(id) || id <= 0) return;
+    const {data, error} = await supabaseClient.from("products")
+      .select("image_urls,quantity,description,size,old_price,shipping_weight_oz,package_length_in,package_width_in,package_height_in").eq("id", id).maybeSingle();
+    if (error || !data) return;
+    checkoutOriginalPrices.set(item.id, data.old_price);
+    checkoutPhotoCache.set(item.id, {
+      images: [item.image, ...(Array.isArray(data.image_urls) ? data.image_urls : [])],
+      stock: Math.max(0, Number(data.quantity ?? 1)),
+      description: data.description || item.description || "",
+      size: item.size || data.size || "",
+      shipping_weight_oz:data.shipping_weight_oz,
+      package_length_in:data.package_length_in,
+      package_width_in:data.package_width_in,
+      package_height_in:data.package_height_in
+    });
+  }));
+  renderExpandedSummaryItems();
+  renderSummaryThumbnails();
+  renderCheckoutSavings();
+  syncBottomOrderSummary();
+}
+function renderExpandedSummaryItems() {
+  checkoutItems.replaceChildren();
+  checkoutCart.forEach((product, index) => {
+    const row = document.createElement("div"); row.className = "order-item";
+    const wrapper = document.createElement("div"); wrapper.className = "summary-thumbnail";
+    const image = document.createElement("img"); image.src = product.image || ""; image.alt = product.name || "Product";
+    const preview = document.createElement("button"); preview.type = "button"; preview.className = "summary-thumbnail-button";
+    preview.dataset.cartAction = "preview"; preview.dataset.cartIndex = String(index);
+    preview.setAttribute("aria-label", `View ${product.name || "product"} photos and details`); preview.appendChild(image);
+    const remove = document.createElement("button"); remove.type = "button"; remove.className = "summary-remove"; remove.textContent = "×";
+    remove.dataset.cartAction = "remove"; remove.dataset.cartIndex = String(index);
+    remove.setAttribute("aria-label", `Remove ${product.name || "product"} from cart`); remove.disabled = checkoutCartChangesBlocked();
+    wrapper.append(preview, remove);
+    const details = document.createElement("div");
+    const name = document.createElement("div"); name.className = "order-name"; name.textContent = product.name;
+    const quantity = document.createElement("div"); quantity.className = "order-quantity"; quantity.textContent = `Quantity: ${product.quantity}`;
+    details.append(name, quantity);
+    appendCheckoutItemDetails(details, product);
+    const price = document.createElement("div"); price.className = "order-price"; price.textContent = `$${(Number(product.price) * product.quantity).toFixed(2)}`;
+    row.append(wrapper, details, price); checkoutItems.appendChild(row);
+  });
+  if (!checkoutCart.length) checkoutItems.textContent = "Your cart is empty.";
+}
+["checkoutItems", "bottomCheckoutItems"].forEach(id => {
+  document.getElementById(id).addEventListener("click", event => {
+    const button = event.target.closest("button[data-cart-action]");
+    if (!button || !event.currentTarget.contains(button)) return;
+    const item = checkoutCart[Number(button.dataset.cartIndex)];
+    if (!item) return;
+    if (button.dataset.cartAction === "remove") changeCheckoutItem(item, 0);
+    else openCheckoutCartPreview(item);
+  });
+});
+renderExpandedSummaryItems(); syncBottomOrderSummary();
+loadCheckoutItemDetails();
+
+function updateOrderSummaryItemCounts() {
+  const totalQuantity = checkoutCart.reduce((total, item) => {
+    const quantity = Number(item.quantity);
+    return total + (Number.isFinite(quantity) && quantity > 0 ? quantity : 0);
+  }, 0);
+  const label = `(${totalQuantity} ${totalQuantity === 1 ? "item" : "items"})`;
+  ["orderSummaryItemCount", "bottomSummaryItemCount"].forEach(id => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = label;
+  });
+}
+
+function renderSummaryThumbnails() {
+  updateOrderSummaryItemCounts();
+  ["orderSummaryThumbnails", "bottomSummaryThumbnails"].forEach(id => {
+    const container = document.getElementById(id);
+    if (!container) return;
+    container.replaceChildren();
+    checkoutCart.forEach(item => {
+      const card = document.createElement("div");
+      card.className = "summary-thumbnail-card";
+      const image = document.createElement("img");
+      image.src = item.image || "";
+      image.alt = item.name || "Product";
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "summary-thumbnail-button";
+      button.setAttribute("aria-label", `View ${item.name || "product"} photos and details`);
+      button.appendChild(image);
+      button.addEventListener("click", () => openCheckoutCartPreview(item));
+      const remove = document.createElement("button");
+      remove.type = "button"; remove.className = "summary-remove"; remove.textContent = "×";
+      remove.setAttribute("aria-label", `Remove ${item.name || "product"} from cart`);
+      remove.disabled = checkoutCartChangesBlocked();
+      remove.addEventListener("click", () => changeCheckoutItem(item, 0));
+      const info = document.createElement("div"); info.className = "summary-thumbnail-info";
+      const name = document.createElement("div"); name.className = "summary-thumbnail-name"; name.textContent = item.name || "Product";
+      const meta = document.createElement("div"); meta.className = "summary-thumbnail-meta";
+      meta.textContent = `Qty: ${item.quantity} · $${(Number(item.price) * Number(item.quantity)).toFixed(2)}`;
+      info.append(name, meta);
+      const details = checkoutItemDetails(item);
+      const description = typeof details.description === "string" ? details.description.trim() : "";
+      const size = Array.isArray(details.size) ? details.size.map(String).join(", ") : String(details.size ?? "").trim();
+      if (size) { const sizeLine = document.createElement("div"); sizeLine.className = "summary-thumbnail-meta"; sizeLine.textContent = `Size: ${size}`; info.appendChild(sizeLine); }
+      if (description) { const desc = document.createElement("div"); desc.className = "summary-thumbnail-description"; desc.textContent = description; info.appendChild(desc); }
+      card.append(button, remove, info);
+      container.appendChild(card);
+    });
+  });
+}
+
+function setupSummaryToggle(buttonId, contentId, arrowId, thumbnailsId) {
+  const button = document.getElementById(buttonId);
+  const content = document.getElementById(contentId);
+  const arrow = document.getElementById(arrowId);
+  const thumbnails = document.getElementById(thumbnailsId);
+
+  if (!button || !content || !arrow) return;
+
+  button.addEventListener("click", function () {
+    const isOpen = content.style.display !== "none";
+
+    content.style.display = isOpen ? "none" : "block";
+    arrow.textContent = isOpen ? "⌄" : "⌃";
+    if (thumbnails) thumbnails.hidden = !isOpen || checkoutCart.length === 0;
+
+    button.setAttribute(
+      "aria-expanded",
+      String(!isOpen)
+    );
+  });
+}
+
+setupSummaryToggle(
+  "orderSummaryToggle",
+  "orderSummaryContent",
+  "orderSummaryArrow",
+  "orderSummaryThumbnails"
+);
+
+setupSummaryToggle(
+  "bottomSummaryToggle",
+  "bottomSummaryContent",
+  "bottomSummaryArrow",
+  "bottomSummaryThumbnails"
+);
+
+function syncBottomOrderSummary() {
+  const sourceItems =
+    document.getElementById("checkoutItems");
+
+  const bottomItems =
+    document.getElementById("bottomCheckoutItems");
+
+  if (sourceItems && bottomItems) {
+    bottomItems.innerHTML = sourceItems.innerHTML;
+  }
+
+  const copyText = (sourceId, targetId) => {
+    const source = document.getElementById(sourceId);
+    const target = document.getElementById(targetId);
+
+    if (source && target) {
+      target.textContent = source.textContent;
+    }
+  };
+
+copyText("checkoutSubtotal", "bottomSubtotal");
+copyText("checkoutDiscount", "bottomDiscount");
+copyText("checkoutRewards", "bottomRewards");
+copyText("checkoutRewardsNote", "bottomRewardsNote");
+copyText("discountMessage", "bottomDiscountMessage");
+copyText("checkoutShipping", "bottomShipping");
+  copyText("checkoutTax", "bottomTax");
+copyText("shippingMessage", "bottomShippingMessage");
+  copyText("checkoutTotal", "bottomTotal");
+copyText("checkoutTotal", "bottomSummaryHeaderTotal");
+const sourceDiscountMessage =
+  document.getElementById("discountMessage");
+
+const bottomDiscountMessage =
+  document.getElementById("bottomDiscountMessage");
+
+if (sourceDiscountMessage && bottomDiscountMessage) {
+  bottomDiscountMessage.style.color =
+    sourceDiscountMessage.style.color;
+}
+
+const sourceDiscountCode =
+  document.getElementById("discountCode");
+
+const bottomDiscountCode =
+  document.getElementById("bottomDiscountCode");
+
+if (sourceDiscountCode && bottomDiscountCode) {
+  bottomDiscountCode.value =
+    sourceDiscountCode.value;
 }
 }
-document.addEventListener("DOMContentLoaded", () => {
-initializeCheckout().catch(err => console.error(err));
-document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
-radio.addEventListener("change", showSelectedPaymentMethod);
+
+setTimeout(syncBottomOrderSummary, 100);
+
+document
+  .getElementById("backToTopButton")
+  .addEventListener("click", function () {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  });
+syncBottomOrderSummary();
+    function showPaymentSuccessPopup() {
+  const receiptLink = document.getElementById("successReceiptLink");
+  if (receiptLink) {
+    const available = /^\d{10}$/.test(latestOrderNumber || "");
+    receiptLink.hidden = !available;
+    receiptLink.href = available ? "receipt.html?order=" + encodeURIComponent(latestOrderNumber) : "#";
+  }
+  document
+    .getElementById("paymentSuccessPopup")
+    ?.classList.add("show");
+}
+
+function closePaymentSuccessPopup() {
+  document
+    .getElementById("paymentSuccessPopup")
+    ?.classList.remove("show");
+}
+
+    function goToAccountSummary() {
+  window.location.href = "orders-returns.html" +
+    (latestOrderNumber
+      ? "?order=" + encodeURIComponent(latestOrderNumber)
+      : "");
+}
+    
+    </script>
+
+  <!-- PAYMENT SUCCESS POPUP -->
+<div id="paymentSuccessPopup" class="payment-success-popup">
+  <div class="payment-success-content">
+    <button
+      type="button"
+      class="payment-success-close"
+      onclick="closePaymentSuccessPopup()"
+    >
+      ×
+    </button>
+
+    <img
+      src="payment-successful.PNG"
+      alt="Payment Successful"
+    >
+
+    <button
+  type="button"
+  class="payment-success-done"
+  onclick="goToAccountSummary()"
+>
+  CONTINUE
+</button>
+<a id="successReceiptLink" href="#" hidden style="display:block;text-align:center;margin-top:12px;color:#8a651f">View / Print Receipt</a>
+  </div>
+</div>
+
+<script>
+const checkoutAccount = (() => {
+  const fieldMap = {
+    first_name: "guestFirstName", last_name: "guestLastName", phone: "guestPhone",
+    address_line1: "guestAddress", address_line2: "guestAddress2", city: "guestCity",
+    state_province: "guestState", postal_code: "guestZip", country: "guestCountry"
+  };
+  const billingMap = {
+    guestFirstName: "billingFirstName", guestLastName: "billingLastName",
+    guestAddress: "billingAddress", guestAddress2: "billingApartment",
+    guestCity: "billingCity", guestState: "billingState", guestZip: "billingPostal",
+    guestCountry: "billingCountry"
+  };
+  const deliveryIds = ["guestEmail", ...Object.values(fieldMap)];
+  const draftIds = [...deliveryIds, ...Object.values(billingMap)];
+  const watched = new Set([...draftIds, "sameAsShipping", "saveCheckoutInfo"]);
+  const byId = id => document.getElementById(id);
+  let user = null, owner = null, loading = true, failed = false, finished = false;
+  let version = 0, ready;
+  const dirty = new Set();
+  const draftKey = () => "imCheckoutDraftV2:" + owner;
+  const rememberKey = () => "imCheckoutRememberV1:" + owner;
+  function notice(text, error = false) {
+    byId("checkoutProfileMessage").textContent = text;
+    byId("checkoutProfileMessage").style.color = error ? "#b00020" : "#626262";
+  }
+  function stored(key, lifetime) {
+    try {
+      const draft = JSON.parse(localStorage.getItem(key) || "null");
+      if (draft && Number.isFinite(draft.savedAt) && Date.now() - draft.savedAt < lifetime) return draft;
+      localStorage.removeItem(key);
+    } catch (_) {}
+    return null;
+  }
+  function copyBilling() {
+    const same = byId("sameAsShipping");
+    byId("billingAddressFields").style.display = same.checked ? "none" : "grid";
+    if (same.checked) {
+      for (const [source, target] of Object.entries(billingMap)) {
+        byId(target).value = byId(source).value;
+      }
+    }
+  }
+  function snapshot() {
+    const values = {};
+    draftIds.forEach(id => { values[id] = byId(id).value; });
+    return {
+      savedAt: Date.now(), values,
+      shipping: document.querySelector('input[name="shippingMethod"]:checked')?.value || "standard",
+      same: byId("sameAsShipping").checked,
+      remember: byId("saveCheckoutInfo").checked
+    };
+  }
+  function saveDraft() {
+    if (loading || finished || !owner) return;
+    try { localStorage.setItem(draftKey(), JSON.stringify(snapshot())); } catch (_) {}
+  }
+  function supportedCountry(value) {
+    return !value || ["US", "USA", "United States", "United States of America"].includes(value);
+  }
+  function applyDraft(draft) {
+    if (!draft?.values || !supportedCountry(draft.values.guestCountry)) return;
+    draftIds.forEach(id => {
+      if (id === "guestCountry" || id === "billingCountry" || (id === "guestEmail" && user)) return;
+      if (!dirty.has(id) && typeof draft.values[id] === "string") byId(id).value = draft.values[id];
+    });
+    if (!dirty.has("sameAsShipping") && typeof draft.same === "boolean") byId("sameAsShipping").checked = draft.same;
+    if (typeof draft.remember === "boolean") byId("saveCheckoutInfo").checked = draft.remember;
+    document.querySelectorAll('input[name="shippingMethod"]').forEach(radio => {
+      if (radio.value === draft.shipping) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    });
+  }
+  function completeDelivery() {
+    return ["guestEmail", "guestFirstName", "guestLastName", "guestAddress", "guestCity", "guestState", "guestZip"]
+      .every(id => byId(id).value.trim() && byId(id).checkValidity());
+  }
+  function showSummary() {
+    const summary = byId("savedDeliverySummary");
+    summary.replaceChildren();
+    const lines = [
+      byId("guestEmail").value,
+      [byId("guestFirstName").value, byId("guestLastName").value].filter(Boolean).join(" "),
+      byId("guestAddress").value, byId("guestAddress2").value,
+      [byId("guestCity").value, byId("guestState").value, byId("guestZip").value].filter(Boolean).join(", "),
+      "United States", byId("guestPhone").value
+    ];
+    lines.filter(Boolean).forEach(line => {
+      const p = document.createElement("p"); p.textContent = line; summary.append(p);
+    });
+    const collapse = Boolean(user) && completeDelivery();
+    summary.hidden = true;
+    byId("deliveryFields").hidden = collapse;
+    byId("editDeliveryButton").hidden = !collapse;
+    byId("editDeliveryButton").textContent = "Show / Edit Delivery Information ▾";
+    byId("editDeliveryButton").setAttribute("aria-expanded", "false");
+  }
+  async function limited(promise) {
+    let timer;
+    try {
+      return await Promise.race([
+        promise,
+        new Promise((_, reject) => {
+          timer = setTimeout(() => reject(new Error("Account details took too long to load. Try again.")), 15000);
+        })
+      ]);
+    } finally { clearTimeout(timer); }
+  }
+  async function load() {
+    const requestVersion = ++version;
+    loading = true; failed = false;
+    byId("checkoutContactStatus").textContent = "Checking your account…";
+    byId("guestAccountLinks").hidden = true;
+    byId("retryAccountLoad").hidden = true;
+    try {
+      const sessionResult = await limited(supabaseClient.auth.getSession());
+      if (sessionResult.error) throw sessionResult.error;
+      let nextUser = null;
+      if (sessionResult.data.session) {
+        const result = await limited(supabaseClient.auth.getUser());
+        if (result.error || !result.data.user) throw new Error("Please sign in again to load your saved details.");
+        nextUser = result.data.user;
+      }
+      if (requestVersion !== version) return;
+      const nextOwner = nextUser?.id || "guest";
+      if (owner && owner !== nextOwner) {
+        draftIds.forEach(id => { byId(id).value = ""; });
+        dirty.clear(); byId("saveCheckoutInfo").checked = false;
+      }
+      user = nextUser; owner = nextOwner;
+      resetReferralMember(user?.id || null);
+      checkoutRewardPoints = 0; updateCheckoutTotal();
+      byId("guestCountry").value = "United States";
+      byId("billingCountry").value = "United States";
+      byId("guestEmail").readOnly = Boolean(user);
+      byId("memberAccountLink").hidden = !user;
+      byId("guestCollectorsRewardLink").hidden = Boolean(user);
+      byId("guestAccountLinks").hidden = Boolean(user);
+      byId("saveCheckoutLabel").textContent = user
+        ? "Save updated delivery information to My Account"
+        : "Remember my information on this device";
+      byId("checkoutContactStatus").textContent = user
+        ? "Signed in as " + user.email
+        : "Guest checkout is available. We currently ship within the United States only.";
+      notice("");
+      if (user) {
+        byId("guestEmail").value = user.email || "";
+        let profile = null;
+        try {
+          const result = await limited(supabaseClient.from("profiles").select(
+            "first_name,last_name,phone,address_line1,address_line2,city,state_province,postal_code,country,reward_points"
+          ).eq("id", user.id).maybeSingle());
+          if (result.error) throw result.error;
+          profile = result.data;
+        } catch (_) {
+          if (requestVersion !== version) return;
+          notice("Your saved address could not be loaded. Enter your delivery details or try Retry Account Details.", true);
+          byId("retryAccountLoad").hidden = false;
+        }
+        if (requestVersion !== version) return;
+        checkoutRewardPoints = Math.max(0, Number(profile?.reward_points) || 0);
+        updateCheckoutTotal();
+        const domestic = supportedCountry(profile?.country);
+        for (const [column, id] of Object.entries(fieldMap)) {
+          if (id === "guestCountry" || dirty.has(id)) continue;
+          const personal = ["first_name", "last_name", "phone"].includes(column);
+          byId(id).value = domestic || personal
+            ? String(profile?.[column] || (personal ? user.user_metadata?.[column] : "") || "")
+            : "";
+        }
+        if (!domestic) notice("Your profile has an international address. Enter a United States delivery address for this order.", true);
+      }
+      const draft = stored(draftKey(), 24 * 60 * 60 * 1000);
+      if (draft) applyDraft(draft);
+      else if (!user) applyDraft(stored(rememberKey(), 30 * 24 * 60 * 60 * 1000));
+      // Migrate an existing guest timeout draft, but never use it for a member.
+      if (!user && !draft) applyDraft(stored("imCheckoutDraftV1", 24 * 60 * 60 * 1000));
+      try { localStorage.removeItem("imCheckoutDraftV1"); } catch (_) {}
+      copyBilling(); showSummary();
+      if (user && !completeDelivery() && !byId("checkoutProfileMessage").textContent) {
+        notice("Complete the missing delivery details. Check the save box to update My Account.");
+      }
+    } catch (error) {
+      if (requestVersion !== version) return;
+      failed = true;
+      byId("checkoutContactStatus").textContent = "Your account could not be checked.";
+      byId("guestAccountLinks").hidden = false;
+      byId("retryAccountLoad").hidden = false;
+      notice(error.message || "Unable to check your account. Try again.", true);
+    } finally {
+      if (requestVersion === version) { loading = false; saveDraft(); }
+    }
+  }
+  function validateBilling() {
+    const method = document.querySelector('input[name="paymentMethod"]:checked')?.value || "card";
+    if (method !== "card" || byId("sameAsShipping").checked) return;
+    for (const id of ["billingFirstName", "billingLastName", "billingAddress", "billingCity", "billingState", "billingPostal"]) {
+      const input = byId(id);
+      if (!input.value.trim() || !input.reportValidity()) {
+        input.focus(); throw new Error("Complete your billing address or use your shipping address.");
+      }
+    }
+  }
+  async function savePreference() {
+    saveDraft();
+    if (!byId("saveCheckoutInfo").checked) {
+      try { localStorage.removeItem(rememberKey()); } catch (_) {}
+      return;
+    }
+    if (!user) {
+      try { localStorage.setItem(rememberKey(), JSON.stringify(snapshot())); } catch (_) {}
+      return;
+    }
+    const current = await limited(supabaseClient.auth.getUser());
+    if (current.error || current.data.user?.id !== user.id) throw new Error("Your account changed. Reload checkout before paying.");
+    const updates = {};
+    for (const [column, id] of Object.entries(fieldMap)) updates[column] = byId(id).value.trim();
+    const result = await limited(supabaseClient.from("profiles").update(updates).eq("id", user.id).select("id").maybeSingle());
+    if (result.error || !result.data) {
+      throw new Error("Your delivery details could not be saved. Try again, or uncheck Save updated delivery information to pay without updating My Account.");
+    }
+    notice("Delivery information saved to My Account.");
+  }
+  document.addEventListener("input", event => {
+    if (watched.has(event.target.id)) {
+      dirty.add(event.target.id);
+      if (deliveryIds.includes(event.target.id)) copyBilling();
+      saveDraft();
+    }
+  });
+  document.addEventListener("change", event => {
+    if (watched.has(event.target.id) || event.target.name === "shippingMethod") {
+      dirty.add(event.target.id); copyBilling(); saveDraft();
+      if (event.target.id === "saveCheckoutInfo" && !event.target.checked && owner) {
+        try { localStorage.removeItem(rememberKey()); } catch (_) {}
+      }
+    }
+  });
+  byId("editDeliveryButton").addEventListener("click", () => {
+    const fields = byId("deliveryFields");
+    if (fields.hidden) {
+      fields.hidden = false; byId("savedDeliverySummary").hidden = true;
+      byId("editDeliveryButton").textContent = "Hide Delivery Information ▴";
+      byId("editDeliveryButton").setAttribute("aria-expanded", "true");
+    } else {
+      if (!completeDelivery()) { notice("Complete the required delivery details first.", true); return; }
+      copyBilling(); saveDraft(); showSummary();
+    }
+  });
+  byId("retryAccountLoad").addEventListener("click", () => { ready = load(); });
+  window.addEventListener("pagehide", saveDraft);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") saveDraft(); });
+  new MutationObserver(() => {
+    if (byId("paymentSuccessPopup").classList.contains("show")) {
+      finished = true;
+      if (owner) { try { localStorage.removeItem(draftKey()); } catch (_) {} }
+    }
+  }).observe(byId("paymentSuccessPopup"), { attributes: true, attributeFilter: ["class"] });
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === "SIGNED_OUT") {
+      ++version; resetReferralMember(null); checkoutRewardPoints = 0; updateCheckoutTotal(); loading = true; user = null; owner = null; dirty.clear();
+      draftIds.forEach(id => { byId(id).value = ""; });
+      byId("savedDeliverySummary").hidden = true;
+      byId("deliveryFields").hidden = false;
+      byId("editDeliveryButton").hidden = true;
+      byId("guestEmail").readOnly = false;
+      byId("saveCheckoutInfo").checked = false;
+    }
+    if (event === "SIGNED_OUT" || (event === "SIGNED_IN" && owner && session?.user?.id !== owner)) {
+      // Run profile queries outside Supabase's auth callback.
+      setTimeout(() => { ready = load(); }, 0);
+    }
+  });
+  ready = load();
+  return {
+    get ready() { return ready; }, copyBilling, validateBilling, savePreference,
+    checkReady() { if (loading || failed) throw new Error("Check your account with Retry Account Details before paying."); }
+  };
+})();
+
+</script>
+
+
+<dialog id="imReferralDialog" aria-labelledby="imReferralTitle" aria-describedby="imReferralDescription">
+  <button class="im-referral-close" type="button" aria-label="Close referral information" autofocus>×</button>
+  <h2 id="imReferralTitle">Give $10, Get $10</h2>
+  <p id="imReferralDescription"><strong>Give your friend $10 off</strong> their first eligible $50+ purchase when they sign up through your link.</p>
+  <p><strong>Earn $10 for each friend</strong> who successfully completes a qualifying $50+ purchase. Use your reward on a future eligible $50+ order.</p>
+  <p class="im-referral-note">One reward per friend. One discount per order. The $50 minimum excludes shipping and tax.</p>
+  <a class="im-referral-action" href="refer-a-friend.html">Refer a Friend</a>
+
+</dialog>
+<script>
+(() => {
+  const dialog = document.getElementById('imReferralDialog');
+  if (!dialog || typeof dialog.showModal !== 'function') return;
+  document.querySelectorAll('[data-referral-popup]').forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      if (!dialog.open) dialog.showModal();
+    });
+  });
+  dialog.querySelector('button').addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', event => {
+    if (event.target !== dialog) return;
+    const box = dialog.getBoundingClientRect();
+    if (event.clientX < box.left || event.clientX > box.right ||
+        event.clientY < box.top || event.clientY > box.bottom) dialog.close();
+  });
+})();
+</script>
+
+<script>
+let selectedCheckoutCard = "";
+let deletingCheckoutCard = false;
+// Display the saved-card option only to authenticated members. The checkbox
+// stays disabled until Square card-on-file integration is securely operational.
+async function updateSaveCardEligibility() {
+  const area = document.getElementById("saveCardCheckoutArea");
+  const guestNote = document.getElementById("saveCardGuestNote");
+  const checkbox = document.getElementById("saveCardForFuture");
+  if (!area || !guestNote || !checkbox) return;
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const signedIn = Boolean(session?.user?.id);
+    area.hidden = !signedIn;
+    guestNote.hidden = signedIn;
+    checkbox.checked = false;
+    checkbox.disabled = true;
+  } catch (_) {
+    area.hidden = true;
+    guestNote.hidden = false;
+    checkbox.checked = false;
+    checkbox.disabled = true;
+  }
+}
+supabaseClient.auth.onAuthStateChange(() => {
+  setTimeout(updateSaveCardEligibility, 0);
 });
+void updateSaveCardEligibility();
+
+const paymentMenu = document.getElementById("savedCardSelect");
+const deletePaymentDialog = document.getElementById("deletePaymentDialog");
+
+function cardLabel(card) {
+  return (
+    (card.label ? card.label + " — " : "") +
+    card.brand +
+    " •••• " +
+    card.last_four
+  );
+}
+
+async function loadCheckoutSavedCards() {
+  const stamp = ++savedCardsVersion;
+  const area = document.getElementById("savedCardArea");
+  area.hidden = true;
+  paymentMenu.replaceChildren(new Option("Add Payment", ""));
+  checkoutSavedCards = [];
+  selectedCheckoutCard = "";
+  updateSavedCardFields();
+  const {
+    data: { session },
+  } = await supabaseClient.auth.getSession();
+  if (stamp !== savedCardsVersion || !session) return;
+  area.hidden = false;
+  const result = await supabaseClient.functions.invoke(
+    "member-payment-methods",
+    {
+      body: { action: "list", userAccessToken: session.access_token },
+    },
+  );
+  if (stamp !== savedCardsVersion) return;
+  const message = document.getElementById("savedCardMessage");
+  if (result.error || !result.data?.success) {
+    message.textContent =
+      "Saved payments could not load. You can enter your card details below.";
+    return;
+  }
+  message.textContent = "";
+  checkoutSavedCards = result.data.cards || [];
+  for (const card of checkoutSavedCards)
+    paymentMenu.add(new Option(cardLabel(card), card.id));
+  const deleteOption = new Option("Delete Payment", "__delete__");
+  deleteOption.disabled = checkoutSavedCards.length === 0;
+  paymentMenu.add(deleteOption);
+  const preferred = checkoutSavedCards.find((card) => card.is_default);
+  // Default to adding a new card until saved-card server processing is supported.
+  paymentMenu.value = "";
+  selectedCheckoutCard = paymentMenu.value;
+  updateSavedCardFields();
+}
+
+function updateSavedCardFields() {
+  const saved = checkoutSavedCards.some(
+    (card) => card.id === paymentMenu.value,
+  );
+  document.getElementById("card-container").hidden = saved;
+  document.getElementById("cardholderName").hidden = saved;
+  document.querySelector('label[for="cardholderName"]').hidden = saved;
+}
+
+paymentMenu.addEventListener("change", () => {
+  if (paymentMenu.value !== "__delete__") {
+    selectedCheckoutCard = paymentMenu.value;
+    updateSavedCardFields();
+    return;
+  }
+  paymentMenu.value = selectedCheckoutCard;
+  if (paymentBusy || localStorage.getItem("imSquarePaymentAttempt")) {
+    document.getElementById("savedCardMessage").textContent =
+      "Finish checking your payment status before deleting a saved payment.";
+    return;
+  }
+  const select = document.getElementById("deleteCardSelect");
+  select.replaceChildren(
+    ...checkoutSavedCards.map((card) => new Option(cardLabel(card), card.id)),
+  );
+  if (selectedCheckoutCard) select.value = selectedCheckoutCard;
+  document.getElementById("deleteCardMessage").textContent = "";
+  if (checkoutSavedCards.length && !deletePaymentDialog.open)
+    deletePaymentDialog.showModal();
 });
+
+document.getElementById("cancelDeleteCard").addEventListener("click", () => {
+  if (!deletingCheckoutCard) deletePaymentDialog.close();
+});
+deletePaymentDialog.addEventListener("cancel", (event) => {
+  if (deletingCheckoutCard) event.preventDefault();
+});
+document
+  .getElementById("confirmDeleteCard")
+  .addEventListener("click", async () => {
+    if (
+      deletingCheckoutCard ||
+      paymentBusy ||
+      localStorage.getItem("imSquarePaymentAttempt")
+    )
+      return;
+    const cardId = document.getElementById("deleteCardSelect").value;
+    const card = checkoutSavedCards.find((card) => card.id === cardId);
+    if (
+      !card ||
+      !confirm(
+        "Delete " + cardLabel(card) + " from your saved payment methods?",
+      )
+    )
+      return;
+    const stamp = savedCardsVersion;
+    deletingCheckoutCard = true;
+    document.getElementById("confirmDeleteCard").disabled = true;
+    document.getElementById("cancelDeleteCard").disabled = true;
+    paymentMenu.disabled = true;
+    setPaymentBusy(true);
+    try {
+      const {
+        data: { session },
+      } = await supabaseClient.auth.getSession();
+      if (!session || stamp !== savedCardsVersion)
+        throw new Error("Sign in again before deleting a payment method.");
+      const result = await supabaseClient.functions.invoke(
+        "member-payment-methods",
+        {
+          body: {
+            action: "remove",
+            cardId,
+            userAccessToken: session.access_token,
+          },
+        },
+      );
+      if (stamp !== savedCardsVersion)
+        throw new Error(
+          "Your account changed. Sign in again to view saved payments.",
+        );
+      if (result.error || !result.data?.success)
+        throw new Error(
+          result.data?.error ||
+            "The payment method could not be deleted. Please try again.",
+        );
+      deletePaymentDialog.close();
+      await loadCheckoutSavedCards();
+      document.getElementById("savedCardMessage").textContent =
+        "Saved payment method deleted.";
+    } catch (error) {
+      document.getElementById("deleteCardMessage").textContent = error.message;
+    } finally {
+      deletingCheckoutCard = false;
+      document.getElementById("confirmDeleteCard").disabled = false;
+      document.getElementById("cancelDeleteCard").disabled = false;
+      paymentMenu.disabled = false;
+      setPaymentBusy(false);
+    }
+  });
+
+supabaseClient.auth.onAuthStateChange((event) => {
+  if (["SIGNED_IN", "SIGNED_OUT", "INITIAL_SESSION"].includes(event)) {
+    if (deletePaymentDialog.open && !deletingCheckoutCard)
+      deletePaymentDialog.close();
+    setTimeout(loadCheckoutSavedCards, 0);
+  }
+});
+loadCheckoutSavedCards();
+</script>
+</body>
+</html>

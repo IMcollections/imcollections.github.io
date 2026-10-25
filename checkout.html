@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -81,7 +80,7 @@
 
     .order-item {
       display: grid;
-      grid-template-columns: 80px 1fr auto;
+      grid-template-columns: 132px minmax(0, 1fr) auto;
       gap: 14px;
       padding: 14px 0;
       border-bottom: 1px solid #eee;
@@ -89,10 +88,13 @@
     }
 
     .order-item img {
-      width: 80px;
-      height: 95px;
-      object-fit: cover;
+      width: 132px;
+      height: 156px;
+      object-fit: contain;
+      background: #fff;
     }
+    .order-product-details { min-width: 0; }
+    .order-name, .order-quantity, .order-price { overflow-wrap: anywhere; }
 
     .order-name {
       font-weight: 700;
@@ -230,6 +232,61 @@ flex-shrink: 0;
   font-size: 18px;
   line-height: 1;
   margin-left: 12px;
+}
+
+.summary-thumbnails {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 14px;
+  margin: 0 0 24px;
+  padding: 4px 4px 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+}
+.summary-thumbnails[hidden] { display: none; }
+.summary-thumbnail-card {
+  flex: 0 0 176px; min-width: 0; position: relative; scroll-snap-align: start;
+  border: 1px solid #e5e5e5; background: #fff; padding: 8px; border-radius: 5px;
+}
+.summary-thumbnail-button { display:block; width:100%; padding:0; border:0; background:transparent; cursor:pointer; border-radius:4px; }
+.summary-thumbnail-button:focus-visible { outline: 3px solid #c6a34a; outline-offset: 3px; }
+.summary-thumbnail-card .summary-thumbnail-button img {
+  display:block; width:100%; height:164px; object-fit:contain; background:#fff;
+  border:1px solid #eee; border-radius:4px;
+}
+.summary-thumbnail-info { margin-top:8px; font-size:13px; line-height:1.4; overflow-wrap:anywhere; }
+.summary-thumbnail-name { font-weight:700; margin-bottom:4px; }
+.summary-thumbnail-meta { color:#555; }
+.summary-thumbnail-description { margin-top:5px; white-space:pre-line; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.checkout-cart-dialog { width: min(440px, calc(100% - 32px)); max-height: 85vh; overflow: auto; box-sizing: border-box; border: 1px solid #ddd; border-radius: 12px; padding: 20px; }
+.checkout-cart-dialog::backdrop { background: rgba(0,0,0,.55); }
+.checkout-cart-dialog .preview-image { display: block; width: 100%; max-height: 50vh; object-fit: contain; }
+.checkout-cart-dialog button { cursor: pointer; padding: 12px; margin-top: 12px; }
+.checkout-cart-dialog .cart-preview-row { border-bottom: 1px solid #ddd; padding: 16px 0; }
+.checkout-cart-dialog .cart-preview-row img { width: 72px; height: 84px; object-fit: contain; }
+.summary-thumbnail { position: relative; }
+.summary-remove { position: absolute; top: -8px; right: -8px; width: 26px; height: 26px; border-radius: 50%; border: 1px solid #bbb; background: #fff; color: #111; font-size: 20px; line-height: 1; cursor: pointer; }
+.checkout-cart-dialog { position: fixed; }
+.checkout-cart-dialog h2 { padding-right: 32px; }
+.checkout-cart-dialog .preview-close { position: absolute; top: 8px; right: 8px; margin: 0; background: transparent; border: 0; font-size: 28px; }
+.preview-gallery { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; touch-action: pan-x pan-y; }
+.preview-gallery .preview-image { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; }
+.preview-quantity { display: flex; align-items: center; gap: 18px; margin: 16px 0; }
+.checkout-cart-dialog .preview-quantity button { margin: 0; min-width: 44px; background: #fff; border: 1px solid #bbb; }
+.preview-shopping-link { display: inline-block; margin-top: 18px; padding: 12px 18px; border-radius: 4px; background: #c6a34a; color: #111; text-decoration: none; font-weight: 600; }
+.preview-shopping-link:focus-visible { outline: 3px solid #111; outline-offset: 3px; }
+.order-product-details p { margin: 6px 0; font-size: 14px; line-height: 1.5; white-space: pre-line; overflow-wrap: anywhere; }
+.preview-product-details p { white-space: pre-line; overflow-wrap: break-word; }
+.summary-thumbnails img {
+  width: 94px;
+  height: 112px;
+  object-fit: contain;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  background: #fff;
 }
 
 input[type="checkbox"] {
@@ -683,7 +740,155 @@ font-size: 0 !important;
 .payment-success-content img { max-height:calc(100dvh - 126px); object-fit:contain; }
 
 #deliveryFields { display:grid; gap:8px; }
-  </style>
+.checkout-program-links { line-height:1.6; margin:12px 0; }
+.checkout-program-links a { color:#8a651f; }
+.contact-account-links { flex-wrap:wrap; line-height:1.6; }
+.checkout-program-links-stacked { display:flex; flex-direction:column; align-items:flex-start; gap:6px; }
+#memberAccountLink { line-height:1.6; margin-top:10px; }
+#memberAccountLink a { color:#8a651f; }
+.checkout-header-links { min-width:0; }
+.checkout-header-links h2 { margin:0; }
+.logo-area { gap:16px; }
+.logo-area > a { flex-shrink:0; }
+#memberAccountLink .member-account-nav { display:flex; flex-wrap:wrap; gap:8px 20px; }
+
+#imReferralDialog { width:min(520px,calc(100% - 32px)); max-height:85dvh; overflow:auto; padding:28px 22px; border:1px solid #dedbd2; border-radius:14px; background:white; color:#191919; font:16px/1.6 Arial,sans-serif; }
+#imReferralDialog::backdrop { background:rgba(0,0,0,.6); }
+#imReferralDialog h2 { color:#8a651f; margin:0 40px 16px 0; font-size:26px; }
+#imReferralDialog p { margin:12px 0; }
+#imReferralDialog .im-referral-close { position:absolute; top:10px; right:12px; border:0; background:transparent; color:#191919; font-size:28px; cursor:pointer; padding:4px 10px; }
+#imReferralDialog .im-referral-action { display:block; text-align:center; margin-top:20px; padding:12px 16px; border-radius:6px; background:#c9a44c; color:#111; text-decoration:none; }
+#imReferralDialog .im-referral-note { font-size:14px; color:#555; }
+  .referral-reward-choice{margin:16px 0;padding:14px;background:#fbf8ef;border:1px solid #ded3b7;border-radius:6px}
+  .referral-reward-choice p{margin:0 0 10px;font-size:14px;line-height:1.5}
+  .referral-reward-choice button{background:#c8a347;color:#111;border:0;border-radius:4px;padding:12px 16px;font:inherit;cursor:pointer;width:100%}
+  .referral-reward-choice button:disabled{opacity:.55;cursor:default}
+  /* Checkout savings breakdown, shared by both summaries. */
+.checkout-discount-row, .checkout-discount-row strong { color: #b42318; }
+.checkout-rewards-note { margin: -2px 0 18px; font-size: 14px; line-height: 1.5; color: #626262; }
+.checkout-rewards-row strong { color: #25633c; }
+
+/* Card saving is displayed to members, but cannot be selected before secure
+   tokenization, customer vaulting, and saved-card charging are verified. */
+.im-save-card-area { margin: 12px 0 20px; }
+.im-save-card-area .save-card-option { margin: 0; align-items: flex-start; }
+.im-save-card-area .save-card-option input { margin-top: 3px; }
+.im-save-card-area .save-card-option:has(input:disabled) { opacity: .68; }
+.im-save-card-note { margin: 6px 0 18px 30px; color: #626262; font-size: 13px; line-height: 1.5; }
+#saveCardGuestNote { margin-left: 0; }
+#saveCardGuestNote a { color: #8a651f; text-decoration: underline; font-weight: 700; }
+
+/* Checkout payment choices: full-width vertical radio-button rows. */
+.payment-method-options {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin: 0 0 22px;
+}
+.payment-method-options > .payment-method-option {
+  min-width: 0; height: auto !important; min-height: 56px !important;
+  padding: 10px 12px !important; margin: 0 !important;
+  border: 1px solid #dedbd6 !important; border-radius: 6px;
+  display: flex !important; align-items: center !important; gap: 9px;
+}
+.payment-method-options > .payment-method-option:has(input:checked) { border-color:#b78e36 !important; background:#faf6ec; }
+.payment-method-options > .payment-method-option span { font-size: 16px; line-height: 1.3; }
+.im-save-card-area label.save-card-option {
+  display: flex !important; flex-direction: row !important;
+  align-items: center !important; justify-content: flex-start !important;
+  gap: 10px !important; width: 100%; margin: 12px 0 4px !important;
+  text-transform: none; letter-spacing: 0; text-align: left;
+}
+.im-save-card-area label.save-card-option > input {
+  order: 0; flex: 0 0 20px !important; width: 20px !important;
+  height: 20px !important; margin: 0 !important;
+}
+.im-save-card-area label.save-card-option > span {
+  order: 1; flex: 1 1 auto; min-width: 0; font-size: 15px; line-height: 1.45;
+}
+.im-save-card-area .im-save-card-note { margin: 4px 0 16px 30px !important; }
+
+
+/* IM Collections: roomier responsive checkout product rows and gallery. */
+.order-item { gap: 14px; align-items: start; }
+.order-item > .summary-thumbnail { width:112px; max-width:100%; }
+.order-item .summary-thumbnail-button { display:block; width:100%; }
+.order-item .summary-thumbnail-button img { width:100%; height:132px; object-fit:contain; }
+.order-item > div:nth-child(2) { min-width:0; overflow-wrap:anywhere; }
+.order-item .order-price { white-space:nowrap; }
+.summary-thumbnails { gap:16px; }
+.summary-thumbnails .summary-thumbnail-button img { width:94px; height:112px; object-fit:contain; }
+
+/* Checkout product detail popup: same information hierarchy as a product Quick View. */
+.checkout-cart-dialog {
+  width:min(620px,calc(100vw - 24px));
+  max-width:none;
+  max-height:calc(100dvh - 24px);
+  padding:22px;
+  border-radius:14px;
+  overscroll-behavior:contain;
+}
+.checkout-cart-dialog h2 {
+  font-family:Georgia,serif;
+  font-weight:500;
+  font-size:clamp(25px,5vw,34px);
+  line-height:1.2;
+  margin:0 38px 15px 0;
+  overflow-wrap:anywhere;
+}
+.checkout-cart-dialog .preview-close {
+  width:42px;height:42px;display:grid;place-items:center;
+  border-radius:50%;background:#fff;border:1px solid #dedbd2;color:#111;
+  font-size:26px;z-index:3;
+}
+.checkout-cart-dialog .preview-product-price {
+  font-size:24px;font-weight:800;margin:4px 0 16px;
+}
+.checkout-cart-dialog .preview-gallery {
+  width:100%;gap:0;scrollbar-width:none;
+  border-radius:8px;background:#f7f6f2;margin-bottom:14px;
+}
+.checkout-cart-dialog .preview-gallery::-webkit-scrollbar { display:none; }
+.checkout-cart-dialog .preview-gallery .preview-image {
+  width:100%;height:min(52dvh,430px);max-height:none;
+  object-fit:contain;padding:10px;
+}
+.checkout-cart-dialog .preview-swipe-hint {
+  font-size:12px;text-align:center;color:#666;margin:0 0 16px;
+}
+.checkout-cart-dialog .preview-product-details {
+  display:grid;gap:9px;padding:16px 0;margin:6px 0;
+  border-top:1px solid #e5e1d8;border-bottom:1px solid #e5e1d8;
+}
+.checkout-cart-dialog .preview-product-details p {
+  margin:0;font-size:15px;line-height:1.55;overflow-wrap:anywhere;
+}
+.checkout-cart-dialog .preview-product-details .preview-description {
+  font-size:16px;margin-bottom:4px;
+}
+.checkout-cart-dialog .preview-product-details .preview-label {
+  font-weight:700;color:#735419;
+}
+.checkout-cart-dialog .preview-quantity { margin:14px 0 20px; }
+.checkout-cart-dialog .preview-quantity button {
+  width:46px;height:46px;border-radius:6px;
+}
+.checkout-cart-dialog .preview-shopping-link {
+  margin-top:12px;background:#c9a44c;color:#111;
+}
+@media(max-width:600px) {
+  .order-item { grid-template-columns:100px minmax(0,1fr);gap:10px; }
+  .order-item > .summary-thumbnail { width:100px; }
+  .order-item .summary-thumbnail-button img { width:100%;height:122px; }
+  .order-item .order-price { grid-column:2;justify-self:start;margin-top:-5px; }
+  .order-item .order-name { font-size:16px; }
+  .summary-thumbnail-card { flex-basis:158px; }
+  .summary-thumbnail-card .summary-thumbnail-button img { height:142px; }
+  .checkout-cart-dialog { padding:18px;width:calc(100vw - 20px); }
+  .checkout-cart-dialog .preview-gallery .preview-image { height:min(46dvh,390px); }
+}
+
+</style>
 </head>
 
 <body>
@@ -693,11 +898,12 @@ font-size: 0 !important;
   </div>
 
   <div class="logo-area">
-    <a href="index.html" class="back-link">
-   <h2>   ← Continue Shopping </h2>
-    </a>
+    <div class="checkout-header-links">
+      <a href="https://imcollections.github.io/" class="back-link"><h2>← Continue Shopping</h2></a>
+      <div id="memberAccountLink" hidden><div class="member-account-nav"><a href="my-account.html">My Account</a><a href="collectors-reward.html">Collectors Reward</a></div></div>
+    </div>
 
-    <img src="IM-logo.jpg" alt="IM Collections">
+    <a href="https://imcollections.github.io/" aria-label="Shop IM Collections"><img src="IM-logo.jpg" alt="IM Collections"></a>
   </div>
 
   <main class="checkout-container">
@@ -718,10 +924,12 @@ font-size: 0 !important;
 
 <span class="order-summary-right">
   <span id="orderSummaryTotal">$0.00</span>
-  <span id="orderSummaryArrow">⌄</span>
+  <span id="orderSummaryArrow">⌃</span>
 </span>
   
       </button>
+
+<div id="orderSummaryThumbnails" class="summary-thumbnails" hidden aria-label="Products in your order"></div>
 
 <div id="orderSummaryContent">
 
@@ -740,28 +948,38 @@ font-size: 0 !important;
         </div>
 
 <div id="discountMessage"></div>
+<div class="referral-reward-choice" id="ReferralRewardChoice" hidden>
+  <p id="ReferralRewardStatus" role="status" aria-live="polite"></p>
+  <button type="button" id="UseReferralRewards">Use My Referral Rewards</button>
+</div>
 
         <div class="summary-row">
           <span>Subtotal</span>
           <strong id="checkoutSubtotal">$0.00</strong>
         </div>
         
-<div class="summary-row">
-  <span>Discount</span>
-  <strong id="checkoutDiscount">-$0.00</strong>
+<div class="summary-row checkout-discount-row">
+  <span>Discount Price:</span>
+  <strong id="checkoutDiscount">−$0.00</strong>
 </div>
+<div class="summary-row checkout-rewards-row">
+  <span>Rewards Price:</span>
+  <strong id="checkoutRewards">$0.00</strong>
+</div>
+<p class="checkout-rewards-note" id="checkoutRewardsNote" aria-live="polite">Not used.</p>
         
         <div class="summary-row">
-  <span class="shipping-summary-label">Standard Shipping</span>
+  <span class="shipping-summary-label">Shipping:</span>
   <strong id="checkoutShipping">$8.99</strong>
 </div>
 
         <div class="summary-row">
-  <span>Estimated Tax</span>
+  <span>Estimated Tax:</span>
   <strong id="checkoutTax">$0.00</strong>
 </div>
         
-        <div class="free-shipping" id="shippingMessage"></div>
+        <p class="checkout-program-links"><a href="refer-a-friend.html" data-referral-popup>Been referred by a friend?</a> </p>
+<div class="free-shipping" id="shippingMessage"></div>
 
         <div class="summary-total">
   <span>Total</span>
@@ -783,10 +1001,15 @@ font-size: 0 !important;
   <a href="Login.html">Sign In</a>
   <span>or</span>
   <a href="Register.html">Register</a>
-  <span>for faster checkout.</span>
+  <span>for faster checkout and an additional 15% off your first eligible purchase with COLLECT15 within 30 days of signup. One promotion or reward per order.</span>
 </div>
 
-<p id="memberAccountLink" hidden><a href="my-account.html">My Account</a></p>
+<div class="checkout-program-links checkout-program-links-stacked">
+  <a href="refer-a-friend.html" data-referral-popup>Refer a Friend — Give $10, Get $10</a>
+  <a id="guestCollectorsRewardLink" href="collectors-reward.html">Collectors Reward</a>
+</div>
+
+<p class="checkout-program-links">Sign up and earn 50 bonus points after your first successful purchase!</p>
 <p id="checkoutProfileMessage" role="status" aria-live="polite"></p>
 <button type="button" id="retryAccountLoad" hidden>Retry Account Details</button>
 
@@ -842,47 +1065,23 @@ font-size: 0 !important;
       <div class="checkout-box payment-box">
 
 <section class="shipping-method-box">
-  <h2>Shipping Method</h2>
-
+  <h2>USPS Shipping Method</h2>
   <label class="shipping-option">
-    <input
-      type="radio"
-      name="shippingMethod"
-      value="standard"
-      id="shippingStandard"
-      checked
-    >
-
-    <span class="shipping-option-text">
-      <strong>Standard Delivery</strong>
-      <small>3–5 Working Days</small>
-    </span>
-
-    <span
-      class="shipping-option-price"
-      id="standardShippingPrice"
-    >
-      $8.99
-    </span>
+    <input type="radio" name="shippingMethod" value="standard" id="shippingStandard" checked>
+    <span class="shipping-option-text"><strong>USPS Standard Shipping</strong><small>3–5 days</small></span>
+    <span class="shipping-option-price" id="standardShippingPrice">$8.99</span>
   </label>
-
-  <label class="shipping-option">
-    <input
-      type="radio"
-      name="shippingMethod"
-      value="express"
-      id="shippingExpress"
-    >
-
-    <span class="shipping-option-text">
-      <strong>Express Delivery</strong>
-      <small>3 Working Days</small>
-    </span>
-
-    <span class="shipping-option-price">
-      $15.00
-    </span>
+  <label class="shipping-option" style="opacity:.65;cursor:not-allowed">
+    <input type="radio" name="shippingMethod" value="priority" id="shippingPriority" disabled>
+    <span class="shipping-option-text"><strong>USPS Priority Mail (1 lb)</strong><small>3 days</small></span>
+    <span class="shipping-option-price">$15.00</span>
   </label>
+  <label class="shipping-option" style="opacity:.65;cursor:not-allowed">
+    <input type="radio" name="shippingMethod" value="priority_express" id="shippingPriorityExpress" disabled>
+    <span class="shipping-option-text"><strong>USPS Express Shipping</strong><small>2–3 days</small></span>
+    <span class="shipping-option-price">Calculated</span>
+  </label>
+  <p class="secure-note" style="margin:12px 0"><a href="Policy.html" style="color:#8a651f;text-decoration:underline">Shipping &amp; Delivery Policy</a></p>
 </section>
         
   <h2>Payment</h2>
@@ -899,10 +1098,32 @@ font-size: 0 !important;
     >
     <span>Credit / Debit Card</span>
   </label>
-
+  <label class="payment-method-option">
+    <input type="radio" name="paymentMethod" value="cashapp" id="paymentMethodCashApp">
+    <span>Cash App Pay</span>
+  </label>
+  <label class="payment-method-option">
+    <input type="radio" name="paymentMethod" value="giftcard" id="paymentMethodGiftCard">
+    <span>Gift Card</span>
+  </label>
 </div>
 
 <div id="cardPaymentSection">
+<div id="savedCardArea" hidden>
+<label for="savedCardSelect">Payment Method</label>
+<select id="savedCardSelect"><option value="">Add Payment</option></select>
+<p id="savedCardMessage" role="status"></p>
+<dialog id="deletePaymentDialog" aria-labelledby="deletePaymentTitle" style="width:min(90vw,480px);border:1px solid #dedbd2;border-radius:12px;padding:24px;">
+  <h3 id="deletePaymentTitle">Delete Payment</h3>
+  <label for="deleteCardSelect">Choose a saved payment method</label>
+  <select id="deleteCardSelect"></select>
+  <p id="deleteCardMessage" role="status" aria-live="polite"></p>
+  <div style="display:flex;gap:12px;margin-top:16px;">
+    <button id="confirmDeleteCard" type="button">Delete</button>
+    <button id="cancelDeleteCard" type="button">Cancel</button>
+  </div>
+</dialog>
+</div>
       
   <p class="secure-note">
     Pay securely with credit or debit card.
@@ -930,46 +1151,29 @@ font-size: 0 !important;
   <span>Use shipping address as billing address</span>
 </label>
 
+<!-- IM Collections: card-on-file opt-in (not yet enabled while Square verification fails).
+     Never store PAN, CVV, or Square source tokens in website storage. -->
+<div id="saveCardCheckoutArea" class="im-save-card-area" hidden>
+  <label class="save-card-option" for="saveCardForFuture">
+    <input type="checkbox" id="saveCardForFuture" disabled>
+    <span>Save this card securely for future purchases</span>
+  </label>
+  <p id="saveCardAvailabilityNote" class="im-save-card-note" role="status">
+    Card saving is temporarily unavailable while we complete secure payment verification. You can still enter a card for this purchase when payments are available.
+  </p>
+</div>
+<p id="saveCardGuestNote" class="im-save-card-note" hidden>
+  <a href="my-account.html">Sign in</a> or <a href="Register.html">register</a> to manage saved payment methods when this feature becomes available.
+</p>
+
   
-  <label class="payment-method-option">
-    <input
-      type="radio"
-      name="paymentMethod"
-      value="applepay"
-      id="paymentMethodApplePay"
-    >
-    <span>Apple Pay</span>
-  </label>
+  
 
-  <label class="payment-method-option">
-    <input
-      type="radio"
-      name="paymentMethod"
-      value="googlepay"
-      id="paymentMethodGooglePay"
-    >
-    <span>Google Pay</span>
-  </label>
+  
 
-  <label class="payment-method-option">
-    <input
-      type="radio"
-      name="paymentMethod"
-      value="cashapp"
-      id="paymentMethodCashApp"
-    >
-    <span>Cash App Pay</span>
-  </label>
+  
 
-  <label class="payment-method-option">
-    <input
-      type="radio"
-      name="paymentMethod"
-      value="giftcard"
-      id="paymentMethodGiftCard"
-    >
-    <span>Gift Card</span>
-  </label>
+  
 
 <div id="billingAddressFields" style="display: none;">
 
@@ -1004,25 +1208,7 @@ font-size: 0 !important;
 </div>
   </div>
 
-<div id="applePayPaymentSection" style="display: none;">
-        
-  <button
-  type="button"
-  id="applePay"
-  class="apple-pay-button"
-  aria-label="Apple Pay"
-></button>
 
-<div id="applePayStatus"></div>
-
-<div class="payment-divider" id="applePayDivider">
-</div>
-  </div>
-
-<div id="googlePayPaymentSection" style="display: none;">
-  <div id="googlePay"></div>
-  <div id="googlePayStatus"></div>
-</div>
 
 <div id="cashAppPaymentSection">
   <div id="cashAppPay"></div>
@@ -1044,10 +1230,12 @@ font-size: 0 !important;
 
 <span class="order-summary-right">
 <span id="bottomSummaryHeaderTotal">$0.00</span>
-  <span id="bottomSummaryArrow">⌄</span>
+  <span id="bottomSummaryArrow">⌃</span>
 </span>
   
       </button>
+
+<div id="bottomSummaryThumbnails" class="summary-thumbnails" hidden aria-label="Products in your order"></div>
 
 <div id="bottomSummaryContent">
 
@@ -1060,33 +1248,43 @@ font-size: 0 !important;
             placeholder="Discount code"
           >
 
-          <button type="button" id="bottomApplyDiscount"
+          <button type="button" id="bottomApplyDiscount">
             Apply
           </button>
         </div>
 
 <div id="bottomDiscountMessage"></div>
+<div class="referral-reward-choice" id="bottomReferralRewardChoice" hidden>
+  <p id="bottomReferralRewardStatus" role="status" aria-live="polite"></p>
+  <button type="button" id="bottomUseReferralRewards">Use My Referral Rewards</button>
+</div>
 
         <div class="summary-row">
           <span>Subtotal</span>
           <strong id="bottomSubtotal">$0.00</strong>
         </div>
         
-<div class="summary-row">
-  <span>Discount</span>
-  <strong id="bottomDiscount">-$0.00</strong>
+<div class="summary-row checkout-discount-row">
+  <span>Discount Price:</span>
+  <strong id="bottomDiscount">−$0.00</strong>
 </div>
+<div class="summary-row checkout-rewards-row">
+  <span>Rewards Price:</span>
+  <strong id="bottomRewards">$0.00</strong>
+</div>
+<p class="checkout-rewards-note" id="bottomRewardsNote" aria-live="polite">Not used.</p>
         
         <div class="summary-row">
-  <span class="shipping-summary-label">Standard Shipping</span>
+  <span class="shipping-summary-label">Shipping:</span>
   <strong id="bottomShipping">$8.99</strong>
 </div>
 
         <div class="summary-row">
-  <span>Estimated Tax</span>
+  <span>Estimated Tax:</span>
   <strong id="bottomTax">$0.00</strong>
 </div>
         
+      <p class="checkout-program-links"><a href="refer-a-friend.html" data-referral-popup>Been referred by a friend?</a> </p>
       <div class="free-shipping" id="bottomShippingMessage"></div>
 
         <div class="summary-total">
@@ -1142,6 +1340,12 @@ type="button"
 </div>
 
   </main>
+<dialog id="checkoutCartDialog" class="checkout-cart-dialog" aria-labelledby="checkoutCartDialogTitle">
+  <button type="button" class="preview-close" id="checkoutPreviewClose" aria-label="Close product preview">×</button>
+  <h2 id="checkoutCartDialogTitle">Product image</h2>
+  <div id="checkoutCartDialogContent"></div>
+  <a class="preview-shopping-link" href="https://imcollections.github.io/#featured">Back to Shopping</a>
+</dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
@@ -1170,6 +1374,8 @@ const squareLocationId =
   "LG5NFQWF";
 
 let squareCard;
+let checkoutSavedCards = [];
+let savedCardsVersion = 0;
 let googlePay;
 let cashAppPay;
 let giftCard;
@@ -1203,22 +1409,6 @@ paymentRequest =
       label: "IM Collections"
     }
   });
-
-try {
-  googlePay =
-    await payments.googlePay(paymentRequest);
-
-  await googlePay.attach("#googlePay", {
-    buttonColor: "default",
-    buttonType: "long"
-  });
-
-} catch (error) {
-  console.error(
-    "Google Pay initialization error:",
-    error
-  );
-}
 
 try {
   const cashAppOptions = {
@@ -1278,70 +1468,6 @@ try {
   );
 }
   
-try {
-  const applePay =
-    await payments.applePay(paymentRequest);
-
-  const applePayButton =
-    document.getElementById("applePay");
-
-  if (applePayButton) {
-  applePayButton.addEventListener("click", async function () {
-
-    const status =
-      document.getElementById("applePayStatus");
-
-    status.textContent =
-  "Opening Apple Pay for $" + applePayAmount + "…";
-
-    try {
-      const result =
-        await applePay.tokenize();
-
-      if (result.status === "OK") {
-
-        status.textContent =
-          "Apple Pay authorized. Processing…";
-
-        console.log(
-          "Apple Pay token created:",
-          result.token
-        );
-
-      } else {
-
-        status.textContent =
-          "Apple Pay was not completed. Please try again.";
-
-        console.error(
-          "Apple Pay tokenization failed:",
-          result.errors
-        );
-      }
-
-    } catch (error) {
-
-      status.textContent =
-        "Apple Pay closed: " +
-        (error.message || "Unable to start payment.");
-
-      console.error(
-        "Apple Pay error:",
-        error
-      );
-    }
-  });
-}
-} catch (error) {
-  console.warn(
-    "Apple Pay is not available yet:",
-    error
-  );
-
-  const applePayButton =
-    document.getElementById("applePay");
-}
-
   squareCard = await payments.card();
 
   await squareCard.attach("#card-container");
@@ -1349,7 +1475,10 @@ try {
 
 document.addEventListener(
   "DOMContentLoaded",
-  initializeSquareCard
+  () => initializeSquareCard().catch(error => {
+    console.error("Square initialization failed:", error);
+    checkoutNotice("Square card form could not load: " + (error.message || String(error)), true);
+  })
 );
     
     const checkoutCart =
@@ -1412,12 +1541,14 @@ syncBottomOrderSummary();
     }
 
 
-    const subtotal =
+    const checkoutOriginalPrices = new Map();
+
+    let subtotal =
       checkoutCart.reduce(
         (total, item) =>
-          total + item.price * item.quantity,
+          total + Math.round(Number(item.price) * 100) * Number(item.quantity),
         0
-      );
+      ) / 100;
 
 
     checkoutSubtotal.textContent =
@@ -1442,7 +1573,169 @@ syncBottomOrderSummary();
     }
 
 
+    let checkoutRewardPoints = 0;
+    function standardShippingFree(subtotalCents, discountCents) {
+      return subtotalCents >= 7500 || checkoutRewardPoints >= 800;
+    }
     let discountAmount = 0;
+    let appliedPromoCode = "";
+    let useReferralRewards = false;
+    let referralMemberId = null;
+    let referralBalanceCents = 0;
+    let referralBalanceKnown = false;
+    let referralQuoteVersion = 0;
+    let discountSelectionVersion = 0;
+    let referralUiBusy = false;
+    let referralQuoteBusy = false;
+    let referralQuoteError = "";
+
+function referralRewardLimitCents(subtotalCents) {
+  return subtotalCents >= 20000 ? 5000 : subtotalCents >= 15000 ? 4000
+    : subtotalCents >= 10000 ? 3000 : subtotalCents >= 7500 ? 2000
+    : subtotalCents >= 5000 ? 1000 : 0;
+}
+function renderReferralRewardChoice() {
+  const limit = referralRewardLimitCents(Math.round(subtotal * 100));
+  const usable = Math.min(referralBalanceCents, limit);
+  for (const prefix of ["", "bottom"]) {
+    const box = document.getElementById(prefix + "ReferralRewardChoice");
+    box.hidden = !referralMemberId;
+    const button = document.getElementById(prefix + "UseReferralRewards");
+    button.textContent = useReferralRewards ? `Remove Referral Rewards — $${discountAmount.toFixed(2)}`
+      : !referralBalanceKnown ? (referralQuoteError ? "Retry Referral Rewards" : "Loading Referral Rewards…")
+      : `Use My Referral Rewards — $${(usable / 100).toFixed(2)}`;
+    button.setAttribute("aria-pressed", String(useReferralRewards));
+    button.disabled = referralUiBusy || referralQuoteBusy || !!localStorage.getItem("imSquarePaymentAttempt")
+      || (!referralBalanceKnown && !referralQuoteError)
+      || (referralBalanceKnown && !useReferralRewards && usable <= 0);
+    const status = document.getElementById(prefix + "ReferralRewardStatus");
+    status.textContent = !referralBalanceKnown ? (referralQuoteError || "Loading your available referral rewards…")
+      : `Available referral rewards: $${(referralBalanceCents / 100).toFixed(2)}. `
+        + (useReferralRewards ? `Applied to this order: $${discountAmount.toFixed(2)}. Deducted after successful payment.`
+           : limit ? `Usable on this order: $${(usable / 100).toFixed(2)}. No code needed. One promotion or reward per order.`
+                   : "A $50 merchandise subtotal is required to use referral rewards.");
+  }
+  renderCheckoutSavings();
+}
+function resetReferralMember(memberId) {
+  if (referralMemberId !== memberId) {
+    ++discountSelectionVersion; ++referralQuoteVersion;
+    useReferralRewards = false; appliedPromoCode = ""; discountAmount = 0;
+    referralBalanceCents = 0; referralBalanceKnown = false; referralQuoteBusy = false; referralQuoteError = "";
+    document.getElementById("discountMessage").textContent = "";
+    referralMemberId = memberId;
+    updateCheckoutTotal();
+    if (memberId) void loadReferralBalance(memberId);
+  }
+  renderReferralRewardChoice();
+}
+async function loadReferralBalance(memberId) {
+  referralQuoteBusy = true; renderReferralRewardChoice();
+  try {
+    await refreshReferralBalance();
+  } catch (error) {
+    if (memberId === referralMemberId) referralQuoteError = error.message;
+  } finally {
+    if (memberId === referralMemberId) { referralQuoteBusy = false; renderReferralRewardChoice(); }
+  }
+}
+async function refreshReferralBalance() {
+  const owner = referralMemberId;
+  const version = ++referralQuoteVersion;
+  if (!owner) throw new Error("Sign in to use earned referral rewards.");
+  let timer;
+  const result = await Promise.race([
+    supabaseClient.rpc("im_get_referral_reward_balance"),
+    new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("Referral rewards took too long to load. Try again.")), 15000); })
+  ]).finally(() => clearTimeout(timer));
+  if (version !== referralQuoteVersion || owner !== referralMemberId)
+    throw new Error("Your account changed. Check your referral rewards again.");
+  if (result.error || !Number.isFinite(Number(result.data)))
+    throw new Error("Your referral rewards could not be checked. Try again before paying.");
+  referralBalanceCents = Math.max(0, Math.round(Number(result.data) * 100));
+  referralBalanceKnown = true;
+  referralQuoteError = "";
+  renderReferralRewardChoice();
+  return referralBalanceCents;
+}
+async function toggleReferralRewards() {
+  if (referralUiBusy || referralQuoteBusy || localStorage.getItem("imSquarePaymentAttempt")) return;
+  const version = ++discountSelectionVersion;
+  const message = document.getElementById("discountMessage");
+  if (useReferralRewards) {
+    useReferralRewards = false; discountAmount = 0; appliedPromoCode = "";
+    message.textContent = "Referral rewards removed."; message.style.color = "#555";
+    updateCheckoutTotal(); return;
+  }
+  referralQuoteBusy = true; renderReferralRewardChoice();
+  try {
+    await checkoutAccount.ready;
+    const available = await refreshReferralBalance();
+    if (version !== discountSelectionVersion) return;
+    const limit = referralRewardLimitCents(Math.round(subtotal * 100));
+    if (!limit) throw new Error("Referral rewards require a minimum $50 merchandise subtotal.");
+    const reward = Math.min(available, limit);
+    if (!reward) throw new Error("You do not have available earned referral rewards yet.");
+    appliedPromoCode = ""; useReferralRewards = true; discountAmount = reward / 100;
+    document.getElementById("discountCode").value = "";
+    message.textContent = `Referral rewards applied! You saved $${discountAmount.toFixed(2)}.`;
+    message.style.color = "green";
+    updateCheckoutTotal();
+  } catch (error) {
+    if (version === discountSelectionVersion) {
+      if (!referralBalanceKnown) referralQuoteError = error.message;
+      message.textContent = error.message; message.style.color = "#b00020"; syncBottomOrderSummary();
+    }
+  } finally { referralQuoteBusy = false; renderReferralRewardChoice(); }
+}
+for (const prefix of ["", "bottom"]) {
+  document.getElementById(prefix + "UseReferralRewards").addEventListener("click", toggleReferralRewards);
+}
+
+
+function checkoutSavingsBreakdown() {
+  let originalCents = 0;
+  let merchandiseCents = 0;
+  for (const item of checkoutCart) {
+    const quantity = Math.max(0, Math.trunc(Number(item.quantity) || 0));
+    const price = Math.max(0, Math.round(Number(item.price) * 100) || 0);
+    const oldValue = checkoutOriginalPrices.has(item.id)
+      ? checkoutOriginalPrices.get(item.id) : (item.oldPrice ?? item.old_price);
+    const original = Math.max(price, Math.round(Number(oldValue) * 100) || 0);
+    merchandiseCents += price * quantity;
+    originalCents += original * quantity;
+  }
+  const offerCents = Math.max(0, Math.round(discountAmount * 100) || 0);
+  return {
+    originalCents,
+    discountCents: originalCents - merchandiseCents + (useReferralRewards ? 0 : offerCents),
+    rewardCents: useReferralRewards ? offerCents : 0
+  };
+}
+function renderCheckoutSavings() {
+  const amounts = checkoutSavingsBreakdown();
+  checkoutSubtotal.textContent = "$" + (amounts.originalCents / 100).toFixed(2);
+  document.getElementById("checkoutDiscount").textContent = "−$" + (amounts.discountCents / 100).toFixed(2);
+  document.getElementById("checkoutRewards").textContent = amounts.rewardCents
+    ? "−$" + (amounts.rewardCents / 100).toFixed(2) : "$0.00";
+  const usable = Math.min(referralBalanceCents, referralRewardLimitCents(Math.round(subtotal * 100)));
+  let note = "Not used. Sign in to check your referral rewards.";
+  if (useReferralRewards) {
+    note = "Used: $" + (amounts.rewardCents / 100).toFixed(2) +
+      ". Remaining rewards after payment: $" + (Math.max(0, referralBalanceCents - amounts.rewardCents) / 100).toFixed(2) + ".";
+  } else if (referralMemberId && !referralBalanceKnown) {
+    note = referralQuoteError ? "Not used. Rewards could not be checked." : "Not used. Checking available rewards…";
+  } else if (referralMemberId) {
+    note = "Not used. Available rewards: $" + (referralBalanceCents / 100).toFixed(2) +
+      ". You can apply $" + (usable / 100).toFixed(2) + " to this order." +
+      (appliedPromoCode && usable > 0 ? " Using rewards replaces your promo discount." : "");
+  }
+  document.getElementById("checkoutRewardsNote").textContent = note;
+  for (const [from,to] of [["checkoutSubtotal","bottomSubtotal"],["checkoutDiscount","bottomDiscount"],
+      ["checkoutRewards","bottomRewards"],["checkoutRewardsNote","bottomRewardsNote"]]) {
+    document.getElementById(to).textContent = document.getElementById(from).textContent;
+  }
+}
 
 function updateCheckoutTotal() {
 
@@ -1456,11 +1749,11 @@ function updateCheckoutTotal() {
 
 let shippingCost;
 
-if (selectedShippingMethod === "express") {
-  shippingCost = 15;
+if (selectedShippingMethod !== "standard") {
+  shippingCost = 0; // Display-only placeholder; selection cannot be paid.
 } else {
   shippingCost =
-    subtotal >= 75 ? 0 : 8.99;
+    standardShippingFree(Math.round(subtotal * 100), Math.round(discountAmount * 100)) ? 0 : 8.99;
 }
 
 const standardShippingPrice =
@@ -1468,7 +1761,7 @@ const standardShippingPrice =
 
 if (standardShippingPrice) {
   standardShippingPrice.textContent =
-    subtotal >= 75
+    standardShippingFree(Math.round(subtotal * 100), Math.round(discountAmount * 100))
       ? "FREE"
       : "$8.99";
 }
@@ -1478,7 +1771,7 @@ if (standardShippingPrice) {
     discountedSubtotal + shippingCost;
 
   const estimatedTax =
-    taxableAmount * taxRate;
+    Math.round(Math.round(taxableAmount * 100) * taxRate) / 100;
 
   const total =
     taxableAmount + estimatedTax;
@@ -1492,9 +1785,7 @@ if (standardShippingPrice) {
   });
 } 
 
-  document.getElementById("checkoutDiscount")
-    .textContent =
-    `-$${discountAmount.toFixed(2)}`;
+  renderCheckoutSavings();
 
   document.getElementById("checkoutShipping")
     .textContent =
@@ -1513,16 +1804,19 @@ document.getElementById("orderSummaryTotal").textContent =
     `$${total.toFixed(2)}`;
 
   document.querySelectorAll(".shipping-summary-label").forEach(label => {
-    label.textContent = selectedShippingMethod === "express"
-      ? "Express Shipping" : "Standard Shipping";
+    label.textContent = selectedShippingMethod === "standard" ? "Shipping:" : "Shipping (Unavailable):";
   });
-  if (selectedShippingMethod === "express") {
-    shippingMessage.textContent = "Express delivery selected.";
+  if (selectedShippingMethod !== "standard") {
+    shippingMessage.textContent = "This USPS shipping upgrade is not yet available for payment.";
   } else {
-    shippingMessage.textContent = subtotal >= 75
+    const free = standardShippingFree(Math.round(subtotal * 100), Math.round(discountAmount * 100));
+    const remaining = 75 - subtotal;
+    shippingMessage.textContent = free
       ? "✓ You qualify for FREE Standard Shipping!"
-      : `You're $${(75 - subtotal).toFixed(2)} away from FREE Standard Shipping`;
+      : `You're $${Math.max(0, remaining).toFixed(2)} away from FREE Standard Shipping`;
+    if (checkoutRewardPoints >= 800 && free) shippingMessage.textContent = "✓ VIP & Premium benefit: FREE Standard Shipping on any purchase!";
   }
+  renderReferralRewardChoice();
   syncBottomOrderSummary();
 }
 
@@ -1541,12 +1835,6 @@ document
     
     const cardPaymentSection =
   document.getElementById("cardPaymentSection");
-
-const applePayPaymentSection =
-  document.getElementById("applePayPaymentSection");
-
-const googlePayPaymentSection =
-  document.getElementById("googlePayPaymentSection");
 
 const cashAppPaymentSection =
   document.getElementById("cashAppPaymentSection");
@@ -1568,12 +1856,6 @@ function showSelectedPaymentMethod() {
   cardPaymentSection.style.display =
     selected === "card" ? "block" : "none";
 
-  applePayPaymentSection.style.display =
-    selected === "applepay" ? "block" : "none";
-
-  googlePayPaymentSection.style.display =
-    selected === "googlepay" ? "block" : "none";
-
   cashAppPaymentSection.style.display =
     selected === "cashapp" ? "block" : "none";
 
@@ -1590,162 +1872,46 @@ paymentMethodRadios.forEach((radio) => {
 
 showSelectedPaymentMethod();
 
-document
-  .getElementById("applyDiscount")
-  .addEventListener("click", async function () {
-
-    const code =
-      document
-        .getElementById("discountCode")
-        .value
-        .trim()
-        .toUpperCase();
-
-  const message =
-  document.getElementById("discountMessage");
-
-   if (code === "COLLECT15") {
-
-  const {
-    data: { user },
-    error: userError
-  } = await supabaseClient.auth.getUser();
-
-  if (userError || !user) {
-    discountAmount = 0;
-    updateCheckoutTotal();
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "COLLECT15 is for registered members only. Please sign in or register to use your welcome discount.";
-    return;
-  }
-
-  const {
-    data: profile,
-    error: profileError
-  } = await supabaseClient
-    .from("profiles")
-    .select("welcome_discount_code, welcome_discount_used")
-    .eq("id", user.id)
-    .single();
-
-  if (profileError || !profile) {
-    discountAmount = 0;
-    updateCheckoutTotal();
-
-  message.style.color = "#b00020";
-message.textContent =
-  "We could not verify your welcome discount. Please try again.";
-
-syncBottomOrderSummary();
-
-return;
-  }
-
-  if (profile.welcome_discount_used === true) {
-    discountAmount = 0;
-    updateCheckoutTotal();
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "Your COLLECT15 welcome discount has already been used.";
-    return;
-  }
-
-  if (profile.welcome_discount_code !== "COLLECT15") {
-    discountAmount = 0;
-    updateCheckoutTotal();
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "COLLECT15 is not available for this account.";
-    return;
-  }
-
-  discountAmount = subtotal * 0.15;
+document.getElementById("applyDiscount").addEventListener("click", async function () {
+  if (referralUiBusy || referralQuoteBusy || localStorage.getItem("imSquarePaymentAttempt")) return;
+  const version = ++discountSelectionVersion;
+  const code = document.getElementById("discountCode").value.trim().toUpperCase();
+  const message = document.getElementById("discountMessage");
+  useReferralRewards = false; appliedPromoCode = ""; discountAmount = 0;
   updateCheckoutTotal();
-
-  message.style.color = "green";
-  message.textContent =
-    `COLLECT15 applied! You saved $${discountAmount.toFixed(2)}.`;
-
-syncBottomOrderSummary();
-
-} else if (code === "IMREFER10") {
-
-  const {
-    data: { user },
-    error: userError
-  } = await supabaseClient.auth.getUser();
-
-  if (userError || !user) {
-    discountAmount = 0;
+  try {
+    if (!["COLLECT15", "IMREFER10"].includes(code)) throw new Error("Invalid discount code.");
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (version !== discountSelectionVersion) return;
+    if (userError || !user) throw new Error("Sign in or register to use a member discount.");
+    if (user.id !== referralMemberId) throw new Error("Your account changed. Reload checkout before applying a discount.");
+    let amount;
+    if (code === "COLLECT15") {
+      const result = await supabaseClient.rpc("im_check_my_collect15");
+      if (version !== discountSelectionVersion) return;
+      if (result.error) throw new Error("We could not verify your welcome discount. Please try again.");
+      if (!result.data?.eligible) throw new Error(result.data?.message || "COLLECT15 is not available for this account.");
+      amount = Math.round(Math.round(subtotal * 100) * 0.15) / 100;
+    } else {
+      if (Math.round(subtotal * 100) < 5000) throw new Error("IMREFER10 requires a minimum $50 purchase.");
+      const phoneCheck = await supabaseClient.rpc("im_check_my_new_friend_referral");
+      if (phoneCheck.error) throw new Error("Referral verification could not be checked. Please try again.");
+      if (!phoneCheck.data?.eligible) throw new Error(phoneCheck.data?.message || "This referral discount is not available for this account.");
+      const result = await supabaseClient.from("referrals").select("id")
+        .eq("referred_user_id", user.id).eq("status", "pending").eq("referred_reward_used", false).limit(1).maybeSingle();
+      if (result.error || !result.data) throw new Error("This account does not have an available new-friend referral discount.");
+      amount = 10;
+    }
+    if (version !== discountSelectionVersion || user.id !== referralMemberId) return;
+    discountAmount = amount; appliedPromoCode = code;
+    message.style.color = "green";
+    message.textContent = `${code} applied! You saved $${amount.toFixed(2)}.`;
     updateCheckoutTotal();
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "Please sign in to use your referral reward.";
-
-    syncBottomOrderSummary();
-    return;
-  }
-
-  if (subtotal < 50) {
-    discountAmount = 0;
+  } catch (error) {
+    if (version !== discountSelectionVersion) return;
+    message.style.color = "#b00020"; message.textContent = error.message;
     updateCheckoutTotal();
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "IMREFER10 requires a minimum $50 purchase.";
-
-    syncBottomOrderSummary();
-    return;
   }
-
-  const {
-    data: referral,
-    error: referralError
-  } = await supabaseClient
-    .from("referrals")
-    .select("id, status, referred_reward_used")
-    .eq("referred_user_id", user.id)
-    .eq("status", "pending")
-    .eq("referred_reward_used", false)
-    .limit(1)
-    .maybeSingle();
-
-  if (referralError || !referral) {
-    discountAmount = 0;
-    updateCheckoutTotal();
-
-    message.style.color = "#b00020";
-    message.textContent =
-      "This account does not have an available referral reward.";
-
-    syncBottomOrderSummary();
-    return;
-  }
-
-  discountAmount = 10;
-  updateCheckoutTotal();
-
-  message.style.color = "green";
-  message.textContent =
-    "IMREFER10 applied! You saved $10.00";
-
-  syncBottomOrderSummary();
-
-} else {
-
-  discountAmount = 0;
-  updateCheckoutTotal();
-
-  message.style.color = "#b00020";
-  message.textContent =
-    "Invalid discount code.";
-}
-
 });
 
 document
@@ -1776,6 +1942,11 @@ function checkoutNotice(text, failed = false) {
 
 function setPaymentBusy(busy) {
   paymentBusy = busy;
+  referralUiBusy = busy;
+  for (const id of ["applyDiscount", "bottomApplyDiscount", "discountCode", "bottomDiscountCode"]) {
+    document.getElementById(id).disabled = busy;
+  }
+  renderReferralRewardChoice();
   document.getElementById("paymentButton").disabled = busy;
   document.getElementById("retryPaymentStatus").disabled = busy;
 }
@@ -1844,9 +2015,8 @@ function checkoutAmountCents() {
 
   const discountCents = Math.round(discountAmount * 100);
 
-  const shipCents = shipping === "express"
-    ? 1500
-    : subtotalCents >= 7500 ? 0 : 899;
+  if (shipping !== "standard") throw new Error("Selected USPS shipping service is not available for payment yet. Choose Ground Advantage.");
+  const shipCents = standardShippingFree(subtotalCents, discountCents) ? 0 : 899;
 
   const taxableCents = subtotalCents - discountCents + shipCents;
 
@@ -1915,6 +2085,7 @@ document.getElementById("paymentButton").addEventListener(
   "click",
   async () => {
     if (paymentBusy || latestOrderNumber) return;
+    if (!checkoutCart.length) { checkoutNotice("Your cart is empty. Add an item before paying.", true); return; }
 
     if (localStorage.getItem(attemptStorageKey)) {
       checkoutNotice(
@@ -1928,12 +2099,24 @@ document.getElementById("paymentButton").addEventListener(
 
     setPaymentBusy(true);
 
+    let paymentStage = "account and delivery validation";
     try {
       await checkoutAccount.ready;
       checkoutAccount.checkReady();
+      if (referralQuoteBusy) throw new Error("Wait for your referral rewards to finish loading.");
+      // Applying a discount can involve asynchronous account checks.
+      ++discountSelectionVersion;
+      if (useReferralRewards) {
+        const available = await refreshReferralBalance();
+        if (Math.round(discountAmount * 100) > available)
+          throw new Error("Your available referral rewards changed. Remove and apply your rewards again before paying.");
+      }
+      if ((document.querySelector('input[name="shippingMethod"]:checked')?.value || "standard") !== "standard")
+        throw new Error("Priority Mail and Priority Mail Express are not active yet. Please choose USPS Ground Advantage.");
       checkoutAccount.copyBilling();
       const delivery = deliveryPayload();
       checkoutAccount.validateBilling();
+      paymentStage = "saving checkout preferences";
       await checkoutAccount.savePreference();
 
       const method = document.querySelector(
@@ -1942,35 +2125,84 @@ document.getElementById("paymentButton").addEventListener(
 
       const paymentForm = {
         card: squareCard,
-        giftcard: giftCard,
-        googlepay: googlePay
+        giftcard: giftCard
       }[method];
 
       if (!paymentForm) {
         throw new Error(
-          "This payment method is not connected yet. Choose Card, Gift Card, or Google Pay."
+          "This payment method is not connected yet. Choose Credit / Debit Card or Gift Card."
         );
       }
 
       checkoutNotice("Preparing your payment…");
 
-      const result = await paymentForm.tokenize();
+      const savedCardId = method === "card" ? document.getElementById("savedCardSelect").value : "";
+      const selectedCard = checkoutSavedCards.find(c => c.id === savedCardId);
+      if(savedCardId && !selectedCard) throw new Error("Select an available saved card.");
+      // Square expects accurate billing details for integrated buyer verification.
+      // A previously saved card is charged by the secure server, not by
+      // tokenizing the currently hidden new-card entry field.
+      const field = id => document.getElementById(id)?.value?.trim() || "";
+      const cardholderName = field("cardholderName");
+      if (method === "card" && !savedCardId && !cardholderName) {
+        document.getElementById("cardholderName").focus();
+        throw new Error("Enter the name on your card.");
+      }
+      const billingSame = document.getElementById("sameAsShipping").checked;
+      const first = billingSame ? field("guestFirstName") : field("billingFirstName");
+      const last = billingSame ? field("guestLastName") : field("billingLastName");
+      const street = billingSame ? field("guestAddress") : field("billingAddress");
+      const unit = billingSame ? field("guestAddress2") : field("billingApartment");
+      const verificationDetails = {
+        amount: (checkoutAmountCents() / 100).toFixed(2),
+        currencyCode: "USD", intent: "CHARGE",
+        customerInitiated: true, sellerKeyedIn: false,
+        billingContact: {
+          givenName: first, familyName: last,
+          email: field("guestEmail"), phone: field("guestPhone"),
+          addressLines: [street, unit].filter(Boolean),
+          city: billingSame ? field("guestCity") : field("billingCity"),
+          state: billingSame ? field("guestState") : field("billingState"),
+          postalCode: billingSame ? field("guestZip") : field("billingPostal"),
+          countryCode: "US"
+        }
+      };
+      paymentStage = "Square card tokenization and buyer verification";
+      // Saved-card identifiers must be handled by the payment Edge Function.
+      // Do not silently submit a hidden/empty new-card field for saved cards.
+      if (method === "card" && savedCardId) {
+        throw new Error("Saved-card charging is not yet supported by the current payment server. Select Add Payment to use a card.");
+      }
+      let result;
+      try {
+        result = method === "card"
+          ? await paymentForm.tokenize(verificationDetails)
+          : await paymentForm.tokenize();
+      } catch (squareError) {
+        const squareCode = squareError?.code || squareError?.name || "UNKNOWN";
+        console.error("Square payment verification failure", squareCode, squareError);
+        throw new Error("Square card verification failed (" + squareCode + "): " + (squareError?.message || "Unknown SDK error") + ". No charge was requested. Use Square Sandbox test card details and confirm your Sandbox app and location match.");
+      }
 
       if (result.status !== "OK") {
         throw new Error(
-          "Please check your payment information and try again."
+          "Square tokenization returned " + String(result.status) +
+          (result.errors?.length ? ": " + result.errors.map(e => e.code || e.type || "UNKNOWN").join(", ") : ". Please check your payment information.")
         );
       }
 
+      paymentStage = "creating payment attempt";
       const attemptId = crypto.randomUUID();
 
       localStorage.setItem(attemptStorageKey, attemptId);
 
       checkoutNotice("Processing payment and saving your order…");
 
+      paymentStage = "server payment and order processing";
       await invokeOrderPayment({
         attemptId,
         sourceId: result.token,
+        savedCardId,
         ...delivery,
 
         items: checkoutCart.map(item => ({
@@ -1982,17 +2214,18 @@ document.getElementById("paymentButton").addEventListener(
           'input[name="shippingMethod"]:checked'
         )?.value || "standard",
 
-        promoCode: discountAmount > 0
-          ? document.getElementById("discountCode")
-              .value.trim().toUpperCase()
-          : "",
+        promoCode: useReferralRewards ? "" : appliedPromoCode,
+        useReferralRewards,
+        referralRewardCents: useReferralRewards ? Math.round(discountAmount * 100) : 0,
 
         amountCents: checkoutAmountCents(),
         paymentMethod: method
       });
     } catch (error) {
       checkoutNotice(
-        error.message || "Unable to prepare payment.",
+        "Payment stopped during " + paymentStage + ". " +
+        (error.message || "Unable to prepare payment.") +
+        (error.code ? " [" + String(error.code) + "]" : ""),
         true
       );
 
@@ -2047,10 +2280,305 @@ if (localStorage.getItem(attemptStorageKey)) {
     true
   );
 }
-function setupSummaryToggle(buttonId, contentId, arrowId) {
+const checkoutPhotoCache = new Map();
+let checkoutPreviewVersion = 0;
+function checkoutCartChangesBlocked() {
+  return paymentBusy || !!latestOrderNumber || !!localStorage.getItem(attemptStorageKey);
+}
+function changeCheckoutItem(item, nextQuantity) {
+  if (checkoutCartChangesBlocked()) return;
+  const index = checkoutCart.indexOf(item);
+  if (index < 0) return;
+  if (!Number.isSafeInteger(nextQuantity) || nextQuantity < 0 || nextQuantity > 100) return;
+  const stock = checkoutPhotoCache.get(item.id)?.stock;
+  if (nextQuantity > Number(item.quantity) && stock !== undefined && nextQuantity > stock) return;
+  if (nextQuantity === 0 && !window.confirm(`Remove ${item.name || "this item"} from your cart?`)) return;
+  const currentCart = JSON.parse(localStorage.getItem("imCollectionsCart") || "[]");
+  if (JSON.stringify(currentCart) !== JSON.stringify(checkoutCart)) {
+    window.alert("Your cart changed in another tab. Checkout will refresh to show it.");
+    location.reload(); return;
+  }
+  if (nextQuantity === 0) checkoutCart.splice(index, 1);
+  else item.quantity = nextQuantity;
+  localStorage.setItem("imCollectionsCart", JSON.stringify(checkoutCart));
+  ++discountSelectionVersion;
+  const hadOffer = !!appliedPromoCode || useReferralRewards;
+  appliedPromoCode = ""; useReferralRewards = false; discountAmount = 0;
+  document.getElementById("discountCode").value = "";
+  document.getElementById("discountMessage").textContent = hadOffer
+    ? "Cart updated. Apply your promotion or rewards again for the new subtotal." : "";
+  subtotal = checkoutCart.reduce((sum, product) => sum + Math.round(Number(product.price) * 100) * Number(product.quantity), 0) / 100;
+  checkoutSubtotal.textContent = `$${subtotal.toFixed(2)}`;
+  renderExpandedSummaryItems();
+  renderSummaryThumbnails(); updateCheckoutTotal();
+  if (nextQuantity === 0) document.getElementById("checkoutCartDialog").close();
+  else openCheckoutCartPreview(item);
+}
+function openCheckoutCartPreview(item) {
+  if (!item || !checkoutCart.includes(item)) return;
+  const version = ++checkoutPreviewVersion;
+  const dialog = document.getElementById("checkoutCartDialog");
+  const content = document.getElementById("checkoutCartDialogContent");
+  document.getElementById("checkoutCartDialogTitle").textContent = item.name || "Product";
+  content.replaceChildren();
+
+  const gallery = document.createElement("div");
+  gallery.className = "preview-gallery";
+  function drawPhotos(urls) {
+    const photos = [...new Set(urls.filter(url => typeof url === "string" && url.trim()))];
+    gallery.replaceChildren();
+    photos.forEach((url, index) => {
+      const image = document.createElement("img");
+      image.className = "preview-image";
+      image.src = url;
+      image.alt = `${item.name || "Product"} — photo ${index + 1}`;
+      image.loading = index === 0 ? "eager" : "lazy";
+      gallery.appendChild(image);
+    });
+    gallery.scrollLeft = 0;
+    swipeHint.hidden = photos.length < 2;
+  }
+
+  const swipeHint = document.createElement("p");
+  swipeHint.className = "preview-swipe-hint";
+  swipeHint.textContent = "Swipe left or right to view photos";
+
+  const price = document.createElement("p");
+  price.className = "preview-product-price";
+  price.textContent = `$${Number(item.price).toFixed(2)} each`;
+
+  const productDetails = document.createElement("div");
+  productDetails.className = "preview-product-details";
+  function addDetail(label, value, className = "") {
+    const paragraph = document.createElement("p");
+    if (className) paragraph.className = className;
+    if (label) {
+      const name = document.createElement("span");
+      name.className = "preview-label";
+      name.textContent = label + ": ";
+      paragraph.appendChild(name);
+    }
+    paragraph.appendChild(document.createTextNode(value));
+    productDetails.appendChild(paragraph);
+  }
+  function showProductDetails(details) {
+    productDetails.replaceChildren();
+    const description = typeof details.description === "string" ? details.description.trim() : "";
+    const rawSize = details.size;
+    const size = Array.isArray(rawSize) ? rawSize.map(String).join(", ")
+      : rawSize == null ? "" : String(rawSize).trim();
+    if (description) addDetail("", description, "preview-description");
+    if (size) addDetail("Size", size);
+    const weight = Number(details.shipping_weight_oz);
+    if (details.shipping_weight_oz != null && Number.isFinite(weight) && weight > 0)
+      addDetail("Shipping weight", `${weight} oz`);
+    const dimensions = [details.package_length_in, details.package_width_in, details.package_height_in];
+    if (dimensions.every(v => v != null && v !== "" && Number.isFinite(Number(v)) && Number(v) > 0))
+      addDetail("Package dimensions", `${dimensions.map(Number).join(" × ")} in (L × W × H)`);
+    if (!productDetails.childElementCount) addDetail("", "Product details are not available yet.");
+  }
+
+  const quantity = document.createElement("div");
+  quantity.className = "preview-quantity";
+  const minus = document.createElement("button");
+  minus.type = "button"; minus.textContent = "−"; minus.setAttribute("aria-label", "Decrease quantity");
+  const amount = document.createElement("span");
+  amount.textContent = item.quantity;
+  const plus = document.createElement("button");
+  plus.type = "button"; plus.textContent = "+";
+  plus.setAttribute("aria-label", "Increase quantity");
+  const cached = checkoutPhotoCache.get(item.id);
+  minus.disabled = checkoutCartChangesBlocked();
+  plus.disabled = checkoutCartChangesBlocked() || Number(item.quantity) >= Math.min(100, cached?.stock ?? 100);
+  minus.addEventListener("click", () => changeCheckoutItem(item, Number(item.quantity) - 1));
+  plus.addEventListener("click", () => changeCheckoutItem(item, Number(item.quantity) + 1));
+  quantity.append(minus, amount, plus);
+
+  // Present photos first, followed by details and cart controls, as in Quick View.
+  content.append(price, gallery, swipeHint, productDetails, quantity);
+  showProductDetails(checkoutItemDetails(item));
+  drawPhotos(cached?.images || [item.image, ...(Array.isArray(item.images) ? item.images : []),
+    ...(Array.isArray(item.image_urls) ? item.image_urls : [])]);
+
+  if (checkoutCartChangesBlocked()) {
+    const note = document.createElement("p");
+    note.textContent = "Cart changes are paused until your payment status is confirmed.";
+    content.appendChild(note);
+  }
+  if (!dialog.open) dialog.showModal();
+
+  const catalogId = checkoutCatalogId(item);
+  if (!cached && Number.isSafeInteger(catalogId) && catalogId > 0) {
+    supabaseClient.from("products")
+      .select("image_urls,quantity,description,size,old_price,shipping_weight_oz,package_length_in,package_width_in,package_height_in")
+      .eq("id", catalogId).maybeSingle().then(({data, error}) => {
+        if (error || !data) return;
+        const details = {
+          images: [item.image, ...(Array.isArray(data.image_urls) ? data.image_urls : [])],
+          stock: Math.max(0, Number(data.quantity ?? 1)),
+          description: data.description || item.description || "",
+          size: item.size || data.size || "",
+          shipping_weight_oz: data.shipping_weight_oz,
+          package_length_in: data.package_length_in,
+          package_width_in: data.package_width_in,
+          package_height_in: data.package_height_in
+        };
+        checkoutPhotoCache.set(item.id, details);
+        if (version !== checkoutPreviewVersion || !dialog.open) return;
+        drawPhotos(details.images);
+        showProductDetails(details);
+        plus.disabled = checkoutCartChangesBlocked() || Number(item.quantity) >= Math.min(100, details.stock);
+      }).catch(() => {});
+  }
+}
+document.getElementById("checkoutPreviewClose").addEventListener("click", () => document.getElementById("checkoutCartDialog").close());
+
+function checkoutCatalogId(item) {
+  const id = Number(item.product_id ?? item.id);
+  return id >= 1000000 ? id - 1000000 : id;
+}
+function checkoutItemDetails(item) {
+  const cached = checkoutPhotoCache.get(item.id);
+  return {
+    description: cached?.description || item.description || "",
+    size: item.size || cached?.size || "",
+    shipping_weight_oz: cached?.shipping_weight_oz,
+    package_length_in: cached?.package_length_in,
+    package_width_in: cached?.package_width_in,
+    package_height_in: cached?.package_height_in,
+    weightOz: cached?.shipping_weight_oz,
+    packageDimensions: [cached?.package_length_in,cached?.package_width_in,cached?.package_height_in]
+  };
+}
+function appendCheckoutItemDetails(container, item) {
+  const data = checkoutItemDetails(item);
+  const block = document.createElement("div");
+  block.className = "order-product-details";
+  const description = typeof data.description === "string" ? data.description.trim() : "";
+  if (description) {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = description;
+    block.appendChild(paragraph);
+  }
+  const size = Array.isArray(data.size) ? data.size.map(String).join(", ") : String(data.size ?? "").trim();
+  if (size) {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = `Size: ${size}`;
+    block.appendChild(paragraph);
+  }
+  const weight = Number(data.weightOz);
+  if (data.weightOz != null && Number.isFinite(weight) && weight > 0) {
+    const p = document.createElement("p"); p.textContent = `Shipping weight: ${weight} oz`; block.appendChild(p);
+  }
+  const dimensions = data.packageDimensions;
+  if (Array.isArray(dimensions) && dimensions.every(v => v != null && v !== "" && Number.isFinite(Number(v)) && Number(v) > 0)) {
+    const p = document.createElement("p"); p.textContent = `Package size: ${dimensions.map(Number).join(" × ")} in (L × W × H)`; block.appendChild(p);
+  }
+  container.appendChild(block);
+}
+async function loadCheckoutItemDetails() {
+  await Promise.allSettled(checkoutCart.map(async item => {
+    const id = checkoutCatalogId(item);
+    if (!Number.isSafeInteger(id) || id <= 0) return;
+    const {data, error} = await supabaseClient.from("products")
+      .select("image_urls,quantity,description,size,old_price,shipping_weight_oz,package_length_in,package_width_in,package_height_in").eq("id", id).maybeSingle();
+    if (error || !data) return;
+    checkoutOriginalPrices.set(item.id, data.old_price);
+    checkoutPhotoCache.set(item.id, {
+      images: [item.image, ...(Array.isArray(data.image_urls) ? data.image_urls : [])],
+      stock: Math.max(0, Number(data.quantity ?? 1)),
+      description: data.description || item.description || "",
+      size: item.size || data.size || "",
+      shipping_weight_oz:data.shipping_weight_oz,
+      package_length_in:data.package_length_in,
+      package_width_in:data.package_width_in,
+      package_height_in:data.package_height_in
+    });
+  }));
+  renderExpandedSummaryItems();
+  renderSummaryThumbnails();
+  renderCheckoutSavings();
+  syncBottomOrderSummary();
+}
+function renderExpandedSummaryItems() {
+  checkoutItems.replaceChildren();
+  checkoutCart.forEach((product, index) => {
+    const row = document.createElement("div"); row.className = "order-item";
+    const wrapper = document.createElement("div"); wrapper.className = "summary-thumbnail";
+    const image = document.createElement("img"); image.src = product.image || ""; image.alt = product.name || "Product";
+    const preview = document.createElement("button"); preview.type = "button"; preview.className = "summary-thumbnail-button";
+    preview.dataset.cartAction = "preview"; preview.dataset.cartIndex = String(index);
+    preview.setAttribute("aria-label", `View ${product.name || "product"} photos and details`); preview.appendChild(image);
+    const remove = document.createElement("button"); remove.type = "button"; remove.className = "summary-remove"; remove.textContent = "×";
+    remove.dataset.cartAction = "remove"; remove.dataset.cartIndex = String(index);
+    remove.setAttribute("aria-label", `Remove ${product.name || "product"} from cart`); remove.disabled = checkoutCartChangesBlocked();
+    wrapper.append(preview, remove);
+    const details = document.createElement("div");
+    const name = document.createElement("div"); name.className = "order-name"; name.textContent = product.name;
+    const quantity = document.createElement("div"); quantity.className = "order-quantity"; quantity.textContent = `Quantity: ${product.quantity}`;
+    details.append(name, quantity);
+    appendCheckoutItemDetails(details, product);
+    const price = document.createElement("div"); price.className = "order-price"; price.textContent = `$${(Number(product.price) * product.quantity).toFixed(2)}`;
+    row.append(wrapper, details, price); checkoutItems.appendChild(row);
+  });
+  if (!checkoutCart.length) checkoutItems.textContent = "Your cart is empty.";
+}
+["checkoutItems", "bottomCheckoutItems"].forEach(id => {
+  document.getElementById(id).addEventListener("click", event => {
+    const button = event.target.closest("button[data-cart-action]");
+    if (!button || !event.currentTarget.contains(button)) return;
+    const item = checkoutCart[Number(button.dataset.cartIndex)];
+    if (!item) return;
+    if (button.dataset.cartAction === "remove") changeCheckoutItem(item, 0);
+    else openCheckoutCartPreview(item);
+  });
+});
+renderExpandedSummaryItems(); syncBottomOrderSummary();
+loadCheckoutItemDetails();
+
+function renderSummaryThumbnails() {
+  ["orderSummaryThumbnails", "bottomSummaryThumbnails"].forEach(id => {
+    const container = document.getElementById(id);
+    if (!container) return;
+    container.replaceChildren();
+    checkoutCart.forEach(item => {
+      const card = document.createElement("div");
+      card.className = "summary-thumbnail-card";
+      const image = document.createElement("img");
+      image.src = item.image || "";
+      image.alt = item.name || "Product";
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "summary-thumbnail-button";
+      button.setAttribute("aria-label", `View ${item.name || "product"} photos and details`);
+      button.appendChild(image);
+      button.addEventListener("click", () => openCheckoutCartPreview(item));
+      const remove = document.createElement("button");
+      remove.type = "button"; remove.className = "summary-remove"; remove.textContent = "×";
+      remove.setAttribute("aria-label", `Remove ${item.name || "product"} from cart`);
+      remove.disabled = checkoutCartChangesBlocked();
+      remove.addEventListener("click", () => changeCheckoutItem(item, 0));
+      const info = document.createElement("div"); info.className = "summary-thumbnail-info";
+      const name = document.createElement("div"); name.className = "summary-thumbnail-name"; name.textContent = item.name || "Product";
+      const meta = document.createElement("div"); meta.className = "summary-thumbnail-meta";
+      meta.textContent = `Qty: ${item.quantity} · $${(Number(item.price) * Number(item.quantity)).toFixed(2)}`;
+      info.append(name, meta);
+      const details = checkoutItemDetails(item);
+      const description = typeof details.description === "string" ? details.description.trim() : "";
+      const size = Array.isArray(details.size) ? details.size.map(String).join(", ") : String(details.size ?? "").trim();
+      if (size) { const sizeLine = document.createElement("div"); sizeLine.className = "summary-thumbnail-meta"; sizeLine.textContent = `Size: ${size}`; info.appendChild(sizeLine); }
+      if (description) { const desc = document.createElement("div"); desc.className = "summary-thumbnail-description"; desc.textContent = description; info.appendChild(desc); }
+      card.append(button, remove, info);
+      container.appendChild(card);
+    });
+  });
+}
+
+function setupSummaryToggle(buttonId, contentId, arrowId, thumbnailsId) {
   const button = document.getElementById(buttonId);
   const content = document.getElementById(contentId);
   const arrow = document.getElementById(arrowId);
+  const thumbnails = document.getElementById(thumbnailsId);
 
   if (!button || !content || !arrow) return;
 
@@ -2059,6 +2587,7 @@ function setupSummaryToggle(buttonId, contentId, arrowId) {
 
     content.style.display = isOpen ? "none" : "block";
     arrow.textContent = isOpen ? "⌄" : "⌃";
+    if (thumbnails) thumbnails.hidden = !isOpen || checkoutCart.length === 0;
 
     button.setAttribute(
       "aria-expanded",
@@ -2070,13 +2599,15 @@ function setupSummaryToggle(buttonId, contentId, arrowId) {
 setupSummaryToggle(
   "orderSummaryToggle",
   "orderSummaryContent",
-  "orderSummaryArrow"
+  "orderSummaryArrow",
+  "orderSummaryThumbnails"
 );
 
 setupSummaryToggle(
   "bottomSummaryToggle",
   "bottomSummaryContent",
-  "bottomSummaryArrow"
+  "bottomSummaryArrow",
+  "bottomSummaryThumbnails"
 );
 
 function syncBottomOrderSummary() {
@@ -2101,6 +2632,8 @@ function syncBottomOrderSummary() {
 
 copyText("checkoutSubtotal", "bottomSubtotal");
 copyText("checkoutDiscount", "bottomDiscount");
+copyText("checkoutRewards", "bottomRewards");
+copyText("checkoutRewardsNote", "bottomRewardsNote");
 copyText("discountMessage", "bottomDiscountMessage");
 copyText("checkoutShipping", "bottomShipping");
   copyText("checkoutTax", "bottomTax");
@@ -2142,6 +2675,12 @@ document
   });
 syncBottomOrderSummary();
     function showPaymentSuccessPopup() {
+  const receiptLink = document.getElementById("successReceiptLink");
+  if (receiptLink) {
+    const available = /^\d{10}$/.test(latestOrderNumber || "");
+    receiptLink.hidden = !available;
+    receiptLink.href = available ? "receipt.html?order=" + encodeURIComponent(latestOrderNumber) : "#";
+  }
   document
     .getElementById("paymentSuccessPopup")
     ?.classList.add("show");
@@ -2185,6 +2724,7 @@ function closePaymentSuccessPopup() {
 >
   CONTINUE
 </button>
+<a id="successReceiptLink" href="#" hidden style="display:block;text-align:center;margin-top:12px;color:#8a651f">View / Print Receipt</a>
   </div>
 </div>
 
@@ -2281,10 +2821,10 @@ const checkoutAccount = (() => {
       const p = document.createElement("p"); p.textContent = line; summary.append(p);
     });
     const collapse = Boolean(user) && completeDelivery();
-    summary.hidden = !collapse;
+    summary.hidden = true;
     byId("deliveryFields").hidden = collapse;
     byId("editDeliveryButton").hidden = !collapse;
-    byId("editDeliveryButton").textContent = "Edit Delivery Information";
+    byId("editDeliveryButton").textContent = "Show / Edit Delivery Information ▾";
     byId("editDeliveryButton").setAttribute("aria-expanded", "false");
   }
   async function limited(promise) {
@@ -2320,10 +2860,13 @@ const checkoutAccount = (() => {
         dirty.clear(); byId("saveCheckoutInfo").checked = false;
       }
       user = nextUser; owner = nextOwner;
+      resetReferralMember(user?.id || null);
+      checkoutRewardPoints = 0; updateCheckoutTotal();
       byId("guestCountry").value = "United States";
       byId("billingCountry").value = "United States";
       byId("guestEmail").readOnly = Boolean(user);
       byId("memberAccountLink").hidden = !user;
+      byId("guestCollectorsRewardLink").hidden = Boolean(user);
       byId("guestAccountLinks").hidden = Boolean(user);
       byId("saveCheckoutLabel").textContent = user
         ? "Save updated delivery information to My Account"
@@ -2337,7 +2880,7 @@ const checkoutAccount = (() => {
         let profile = null;
         try {
           const result = await limited(supabaseClient.from("profiles").select(
-            "first_name,last_name,phone,address_line1,address_line2,city,state_province,postal_code,country"
+            "first_name,last_name,phone,address_line1,address_line2,city,state_province,postal_code,country,reward_points"
           ).eq("id", user.id).maybeSingle());
           if (result.error) throw result.error;
           profile = result.data;
@@ -2347,6 +2890,8 @@ const checkoutAccount = (() => {
           byId("retryAccountLoad").hidden = false;
         }
         if (requestVersion !== version) return;
+        checkoutRewardPoints = Math.max(0, Number(profile?.reward_points) || 0);
+        updateCheckoutTotal();
         const domestic = supportedCountry(profile?.country);
         for (const [column, id] of Object.entries(fieldMap)) {
           if (id === "guestCountry" || dirty.has(id)) continue;
@@ -2427,7 +2972,7 @@ const checkoutAccount = (() => {
     const fields = byId("deliveryFields");
     if (fields.hidden) {
       fields.hidden = false; byId("savedDeliverySummary").hidden = true;
-      byId("editDeliveryButton").textContent = "Done Editing";
+      byId("editDeliveryButton").textContent = "Hide Delivery Information ▴";
       byId("editDeliveryButton").setAttribute("aria-expanded", "true");
     } else {
       if (!completeDelivery()) { notice("Complete the required delivery details first.", true); return; }
@@ -2445,7 +2990,7 @@ const checkoutAccount = (() => {
   }).observe(byId("paymentSuccessPopup"), { attributes: true, attributeFilter: ["class"] });
   supabaseClient.auth.onAuthStateChange((event, session) => {
     if (event === "SIGNED_OUT") {
-      ++version; loading = true; user = null; owner = null; dirty.clear();
+      ++version; resetReferralMember(null); checkoutRewardPoints = 0; updateCheckoutTotal(); loading = true; user = null; owner = null; dirty.clear();
       draftIds.forEach(id => { byId(id).value = ""; });
       byId("savedDeliverySummary").hidden = true;
       byId("deliveryFields").hidden = false;
@@ -2467,5 +3012,226 @@ const checkoutAccount = (() => {
 
 </script>
 
+
+<dialog id="imReferralDialog" aria-labelledby="imReferralTitle" aria-describedby="imReferralDescription">
+  <button class="im-referral-close" type="button" aria-label="Close referral information" autofocus>×</button>
+  <h2 id="imReferralTitle">Give $10, Get $10</h2>
+  <p id="imReferralDescription"><strong>Give your friend $10 off</strong> their first eligible $50+ purchase when they sign up through your link.</p>
+  <p><strong>Earn $10 for each friend</strong> who successfully completes a qualifying $50+ purchase. Use your reward on a future eligible $50+ order.</p>
+  <p class="im-referral-note">One reward per friend. One discount per order. The $50 minimum excludes shipping and tax.</p>
+  <a class="im-referral-action" href="refer-a-friend.html">Refer a Friend</a>
+
+</dialog>
+<script>
+(() => {
+  const dialog = document.getElementById('imReferralDialog');
+  if (!dialog || typeof dialog.showModal !== 'function') return;
+  document.querySelectorAll('[data-referral-popup]').forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      if (!dialog.open) dialog.showModal();
+    });
+  });
+  dialog.querySelector('button').addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', event => {
+    if (event.target !== dialog) return;
+    const box = dialog.getBoundingClientRect();
+    if (event.clientX < box.left || event.clientX > box.right ||
+        event.clientY < box.top || event.clientY > box.bottom) dialog.close();
+  });
+})();
+</script>
+
+<script>
+let selectedCheckoutCard = "";
+let deletingCheckoutCard = false;
+// Display the saved-card option only to authenticated members. The checkbox
+// stays disabled until Square card-on-file integration is securely operational.
+async function updateSaveCardEligibility() {
+  const area = document.getElementById("saveCardCheckoutArea");
+  const guestNote = document.getElementById("saveCardGuestNote");
+  const checkbox = document.getElementById("saveCardForFuture");
+  if (!area || !guestNote || !checkbox) return;
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const signedIn = Boolean(session?.user?.id);
+    area.hidden = !signedIn;
+    guestNote.hidden = signedIn;
+    checkbox.checked = false;
+    checkbox.disabled = true;
+  } catch (_) {
+    area.hidden = true;
+    guestNote.hidden = false;
+    checkbox.checked = false;
+    checkbox.disabled = true;
+  }
+}
+supabaseClient.auth.onAuthStateChange(() => {
+  setTimeout(updateSaveCardEligibility, 0);
+});
+void updateSaveCardEligibility();
+
+const paymentMenu = document.getElementById("savedCardSelect");
+const deletePaymentDialog = document.getElementById("deletePaymentDialog");
+
+function cardLabel(card) {
+  return (
+    (card.label ? card.label + " — " : "") +
+    card.brand +
+    " •••• " +
+    card.last_four
+  );
+}
+
+async function loadCheckoutSavedCards() {
+  const stamp = ++savedCardsVersion;
+  const area = document.getElementById("savedCardArea");
+  area.hidden = true;
+  paymentMenu.replaceChildren(new Option("Add Payment", ""));
+  checkoutSavedCards = [];
+  selectedCheckoutCard = "";
+  updateSavedCardFields();
+  const {
+    data: { session },
+  } = await supabaseClient.auth.getSession();
+  if (stamp !== savedCardsVersion || !session) return;
+  area.hidden = false;
+  const result = await supabaseClient.functions.invoke(
+    "member-payment-methods",
+    {
+      body: { action: "list", userAccessToken: session.access_token },
+    },
+  );
+  if (stamp !== savedCardsVersion) return;
+  const message = document.getElementById("savedCardMessage");
+  if (result.error || !result.data?.success) {
+    message.textContent =
+      "Saved payments could not load. You can enter your card details below.";
+    return;
+  }
+  message.textContent = "";
+  checkoutSavedCards = result.data.cards || [];
+  for (const card of checkoutSavedCards)
+    paymentMenu.add(new Option(cardLabel(card), card.id));
+  const deleteOption = new Option("Delete Payment", "__delete__");
+  deleteOption.disabled = checkoutSavedCards.length === 0;
+  paymentMenu.add(deleteOption);
+  const preferred = checkoutSavedCards.find((card) => card.is_default);
+  // Default to adding a new card until saved-card server processing is supported.
+  paymentMenu.value = "";
+  selectedCheckoutCard = paymentMenu.value;
+  updateSavedCardFields();
+}
+
+function updateSavedCardFields() {
+  const saved = checkoutSavedCards.some(
+    (card) => card.id === paymentMenu.value,
+  );
+  document.getElementById("card-container").hidden = saved;
+  document.getElementById("cardholderName").hidden = saved;
+  document.querySelector('label[for="cardholderName"]').hidden = saved;
+}
+
+paymentMenu.addEventListener("change", () => {
+  if (paymentMenu.value !== "__delete__") {
+    selectedCheckoutCard = paymentMenu.value;
+    updateSavedCardFields();
+    return;
+  }
+  paymentMenu.value = selectedCheckoutCard;
+  if (paymentBusy || localStorage.getItem("imSquarePaymentAttempt")) {
+    document.getElementById("savedCardMessage").textContent =
+      "Finish checking your payment status before deleting a saved payment.";
+    return;
+  }
+  const select = document.getElementById("deleteCardSelect");
+  select.replaceChildren(
+    ...checkoutSavedCards.map((card) => new Option(cardLabel(card), card.id)),
+  );
+  if (selectedCheckoutCard) select.value = selectedCheckoutCard;
+  document.getElementById("deleteCardMessage").textContent = "";
+  if (checkoutSavedCards.length && !deletePaymentDialog.open)
+    deletePaymentDialog.showModal();
+});
+
+document.getElementById("cancelDeleteCard").addEventListener("click", () => {
+  if (!deletingCheckoutCard) deletePaymentDialog.close();
+});
+deletePaymentDialog.addEventListener("cancel", (event) => {
+  if (deletingCheckoutCard) event.preventDefault();
+});
+document
+  .getElementById("confirmDeleteCard")
+  .addEventListener("click", async () => {
+    if (
+      deletingCheckoutCard ||
+      paymentBusy ||
+      localStorage.getItem("imSquarePaymentAttempt")
+    )
+      return;
+    const cardId = document.getElementById("deleteCardSelect").value;
+    const card = checkoutSavedCards.find((card) => card.id === cardId);
+    if (
+      !card ||
+      !confirm(
+        "Delete " + cardLabel(card) + " from your saved payment methods?",
+      )
+    )
+      return;
+    const stamp = savedCardsVersion;
+    deletingCheckoutCard = true;
+    document.getElementById("confirmDeleteCard").disabled = true;
+    document.getElementById("cancelDeleteCard").disabled = true;
+    paymentMenu.disabled = true;
+    setPaymentBusy(true);
+    try {
+      const {
+        data: { session },
+      } = await supabaseClient.auth.getSession();
+      if (!session || stamp !== savedCardsVersion)
+        throw new Error("Sign in again before deleting a payment method.");
+      const result = await supabaseClient.functions.invoke(
+        "member-payment-methods",
+        {
+          body: {
+            action: "remove",
+            cardId,
+            userAccessToken: session.access_token,
+          },
+        },
+      );
+      if (stamp !== savedCardsVersion)
+        throw new Error(
+          "Your account changed. Sign in again to view saved payments.",
+        );
+      if (result.error || !result.data?.success)
+        throw new Error(
+          result.data?.error ||
+            "The payment method could not be deleted. Please try again.",
+        );
+      deletePaymentDialog.close();
+      await loadCheckoutSavedCards();
+      document.getElementById("savedCardMessage").textContent =
+        "Saved payment method deleted.";
+    } catch (error) {
+      document.getElementById("deleteCardMessage").textContent = error.message;
+    } finally {
+      deletingCheckoutCard = false;
+      document.getElementById("confirmDeleteCard").disabled = false;
+      document.getElementById("cancelDeleteCard").disabled = false;
+      paymentMenu.disabled = false;
+      setPaymentBusy(false);
+    }
+  });
+
+supabaseClient.auth.onAuthStateChange((event) => {
+  if (["SIGNED_IN", "SIGNED_OUT", "INITIAL_SESSION"].includes(event)) {
+    if (deletePaymentDialog.open && !deletingCheckoutCard)
+      deletePaymentDialog.close();
+    setTimeout(loadCheckoutSavedCards, 0);
+  }
+});
+loadCheckoutSavedCards();
+</script>
 </body>
 </html>

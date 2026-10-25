@@ -248,13 +248,13 @@ flex-shrink: 0;
 }
 .summary-thumbnails[hidden] { display: none; }
 .summary-thumbnail-card {
-  flex: 0 0 176px; min-width: 0; position: relative; scroll-snap-align: start;
+  flex: 0 0 208px; min-width: 0; position: relative; scroll-snap-align: start;
   border: 1px solid #e5e5e5; background: #fff; padding: 8px; border-radius: 5px;
 }
 .summary-thumbnail-button { display:block; width:100%; padding:0; border:0; background:transparent; cursor:pointer; border-radius:4px; }
 .summary-thumbnail-button:focus-visible { outline: 3px solid #c6a34a; outline-offset: 3px; }
 .summary-thumbnail-card .summary-thumbnail-button img {
-  display:block; width:100%; height:164px; object-fit:contain; background:#fff;
+  display:block; width:100%; height:190px; object-fit:contain; background:#fff;
   border:1px solid #eee; border-radius:4px;
 }
 .summary-thumbnail-info { margin-top:8px; font-size:13px; line-height:1.4; overflow-wrap:anywhere; }
@@ -853,9 +853,6 @@ font-size: 0 !important;
   width:100%;height:min(52dvh,430px);max-height:none;
   object-fit:contain;padding:10px;
 }
-.checkout-cart-dialog .preview-swipe-hint {
-  font-size:12px;text-align:center;color:#666;margin:0 0 16px;
-}
 .checkout-cart-dialog .preview-product-details {
   display:grid;gap:9px;padding:16px 0;margin:6px 0;
   border-top:1px solid #e5e1d8;border-bottom:1px solid #e5e1d8;
@@ -883,7 +880,8 @@ font-size: 0 !important;
   .order-item .order-price { grid-column:2;justify-self:start;margin-top:-5px; }
   .order-item .order-name { font-size:16px; }
   .summary-thumbnail-card { flex-basis:158px; }
-  .summary-thumbnail-card .summary-thumbnail-button img { height:142px; }
+  .summary-thumbnail-card { flex-basis:184px; }
+  .summary-thumbnail-card .summary-thumbnail-button img { height:168px; }
   .checkout-cart-dialog { padding:18px;width:calc(100vw - 20px); }
   .checkout-cart-dialog .preview-gallery .preview-image { height:min(46dvh,390px); }
 }
@@ -920,7 +918,7 @@ font-size: 0 !important;
   id="orderSummaryToggle"
   aria-expanded="true"
 >
-  <span>Order Summary</span>
+  <span>Order Summary <span class="order-summary-item-count" id="orderSummaryItemCount">(0 items)</span></span>
 
 <span class="order-summary-right">
   <span id="orderSummaryTotal">$0.00</span>
@@ -1226,7 +1224,7 @@ font-size: 0 !important;
   id="bottomSummaryToggle"
   aria-expanded="true"
 >
-  <span>Order Summary</span>
+  <span>Order Summary <span class="order-summary-item-count" id="bottomSummaryItemCount">(0 items)</span></span>
 
 <span class="order-summary-right">
 <span id="bottomSummaryHeaderTotal">$0.00</span>
@@ -2336,12 +2334,7 @@ function openCheckoutCartPreview(item) {
       gallery.appendChild(image);
     });
     gallery.scrollLeft = 0;
-    swipeHint.hidden = photos.length < 2;
   }
-
-  const swipeHint = document.createElement("p");
-  swipeHint.className = "preview-swipe-hint";
-  swipeHint.textContent = "Swipe left or right to view photos";
 
   const price = document.createElement("p");
   price.className = "preview-product-price";
@@ -2395,7 +2388,7 @@ function openCheckoutCartPreview(item) {
   quantity.append(minus, amount, plus);
 
   // Present photos first, followed by details and cart controls, as in Quick View.
-  content.append(price, gallery, swipeHint, productDetails, quantity);
+  content.append(price, gallery, productDetails, quantity);
   showProductDetails(checkoutItemDetails(item));
   drawPhotos(cached?.images || [item.image, ...(Array.isArray(item.images) ? item.images : []),
     ...(Array.isArray(item.image_urls) ? item.image_urls : [])]);
@@ -2536,7 +2529,20 @@ function renderExpandedSummaryItems() {
 renderExpandedSummaryItems(); syncBottomOrderSummary();
 loadCheckoutItemDetails();
 
+function updateOrderSummaryItemCounts() {
+  const totalQuantity = checkoutCart.reduce((total, item) => {
+    const quantity = Number(item.quantity);
+    return total + (Number.isFinite(quantity) && quantity > 0 ? quantity : 0);
+  }, 0);
+  const label = `(${totalQuantity} ${totalQuantity === 1 ? "item" : "items"})`;
+  ["orderSummaryItemCount", "bottomSummaryItemCount"].forEach(id => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = label;
+  });
+}
+
 function renderSummaryThumbnails() {
+  updateOrderSummaryItemCounts();
   ["orderSummaryThumbnails", "bottomSummaryThumbnails"].forEach(id => {
     const container = document.getElementById(id);
     if (!container) return;

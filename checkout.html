@@ -426,3 +426,40 @@
       
       try {
         const card = await payments.card();
+await card.attach("#card-container");
+} catch (e) { console.error("Square placement failed:", e); }
+// Core Shop Pay Client Instance Setup Handler Block
+if (window.ShopPayPaymentRequest) {
+const shopPayButton = new ShopPayPaymentRequest({
+merchantId: "153523504", // Automatically assigned matching state reference mapping ID
+paymentDetails: {
+total: {
+label: "IM Collections Order",
+amount: "40.00"
+},
+currencyCode: "USD",
+countryCode: "US"
+}
+});
+shopPayButton.render("#shop-pay-button-container");
+shopPayButton.on("complete", (paymentResult) => {
+console.log("Shop Pay authorized completion:", paymentResult);
+localStorage.removeItem("imCollectionsCart");
+window.location.href = "orders-returns.html";
+});
+}
+}
+function showSelectedPaymentMethod() {
+const selected = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+document.getElementById("cardPaymentSection").style.display = selected === "card" ? "block" : "none";
+const shopPaySection = document.getElementById("shopPayPaymentSection");
+if (shopPaySection) {
+shopPaySection.style.display = selected === "shoppay" ? "block" : "none";
+}
+}
+document.addEventListener("DOMContentLoaded", () => {
+initializeCheckout().catch(err => console.error(err));
+document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+radio.addEventListener("change", showSelectedPaymentMethod);
+});
+});

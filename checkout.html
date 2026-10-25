@@ -80,7 +80,7 @@
 
     .order-item {
       display: grid;
-      grid-template-columns: 112px minmax(0, 1fr) auto;
+      grid-template-columns: 80px 1fr auto;
       gap: 14px;
       padding: 14px 0;
       border-bottom: 1px solid #eee;
@@ -88,8 +88,8 @@
     }
 
     .order-item img {
-      width: 112px;
-      height: 132px;
+      width: 80px;
+      height: 95px;
       object-fit: cover;
     }
 
@@ -260,8 +260,8 @@ flex-shrink: 0;
 .order-product-details p { margin: 6px 0; font-size: 14px; line-height: 1.5; white-space: pre-line; overflow-wrap: anywhere; }
 .preview-product-details p { white-space: pre-line; overflow-wrap: break-word; }
 .summary-thumbnails img {
-  width: 94px;
-  height: 112px;
+  width: 64px;
+  height: 76px;
   object-fit: contain;
   border: 1px solid #e5e5e5;
   border-radius: 4px;
@@ -746,133 +746,13 @@ font-size: 0 !important;
 .checkout-discount-row, .checkout-discount-row strong { color: #b42318; }
 .checkout-rewards-note { margin: -2px 0 18px; font-size: 14px; line-height: 1.5; color: #626262; }
 .checkout-rewards-row strong { color: #25633c; }
-
-/* Card saving is displayed to members, but cannot be selected before secure
-   tokenization, customer vaulting, and saved-card charging are verified. */
-.im-save-card-area { margin: 12px 0 20px; }
-.im-save-card-area .save-card-option { margin: 0; align-items: flex-start; }
-.im-save-card-area .save-card-option input { margin-top: 3px; }
-.im-save-card-area .save-card-option:has(input:disabled) { opacity: .68; }
-.im-save-card-note { margin: 6px 0 18px 30px; color: #626262; font-size: 13px; line-height: 1.5; }
-#saveCardGuestNote { margin-left: 0; }
-#saveCardGuestNote a { color: #8a651f; text-decoration: underline; font-weight: 700; }
-
-/* Checkout payment choices: full-width vertical radio-button rows. */
-.payment-method-options {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
-  margin: 0 0 22px;
-}
-.payment-method-options > .payment-method-option {
-  min-width: 0; height: auto !important; min-height: 56px !important;
-  padding: 10px 12px !important; margin: 0 !important;
-  border: 1px solid #dedbd6 !important; border-radius: 6px;
-  display: flex !important; align-items: center !important; gap: 9px;
-}
-.payment-method-options > .payment-method-option:has(input:checked) { border-color:#b78e36 !important; background:#faf6ec; }
-.payment-method-options > .payment-method-option span { font-size: 16px; line-height: 1.3; }
-.im-save-card-area label.save-card-option {
-  display: flex !important; flex-direction: row !important;
-  align-items: center !important; justify-content: flex-start !important;
-  gap: 10px !important; width: 100%; margin: 12px 0 4px !important;
-  text-transform: none; letter-spacing: 0; text-align: left;
-}
-.im-save-card-area label.save-card-option > input {
-  order: 0; flex: 0 0 20px !important; width: 20px !important;
-  height: 20px !important; margin: 0 !important;
-}
-.im-save-card-area label.save-card-option > span {
-  order: 1; flex: 1 1 auto; min-width: 0; font-size: 15px; line-height: 1.45;
-}
-.im-save-card-area .im-save-card-note { margin: 4px 0 16px 30px !important; }
-
-
-/* IM Collections: roomier responsive checkout product rows and gallery. */
-.order-item { gap: 14px; align-items: start; }
-.order-item > .summary-thumbnail { width:112px; max-width:100%; }
-.order-item .summary-thumbnail-button { display:block; width:100%; }
-.order-item .summary-thumbnail-button img { width:100%; height:132px; object-fit:contain; }
-.order-item > div:nth-child(2) { min-width:0; overflow-wrap:anywhere; }
-.order-item .order-price { white-space:nowrap; }
-.summary-thumbnails { gap:16px; }
-.summary-thumbnails .summary-thumbnail-button img { width:94px; height:112px; object-fit:contain; }
-
-/* Checkout product detail popup: same information hierarchy as a product Quick View. */
-.checkout-cart-dialog {
-  width:min(620px,calc(100vw - 24px));
-  max-width:none;
-  max-height:calc(100dvh - 24px);
-  padding:22px;
-  border-radius:14px;
-  overscroll-behavior:contain;
-}
-.checkout-cart-dialog h2 {
-  font-family:Georgia,serif;
-  font-weight:500;
-  font-size:clamp(25px,5vw,34px);
-  line-height:1.2;
-  margin:0 38px 15px 0;
-  overflow-wrap:anywhere;
-}
-.checkout-cart-dialog .preview-close {
-  width:42px;height:42px;display:grid;place-items:center;
-  border-radius:50%;background:#fff;border:1px solid #dedbd2;color:#111;
-  font-size:26px;z-index:3;
-}
-.checkout-cart-dialog .preview-product-price {
-  font-size:24px;font-weight:800;margin:4px 0 16px;
-}
-.checkout-cart-dialog .preview-gallery {
-  width:100%;gap:0;scrollbar-width:none;
-  border-radius:8px;background:#f7f6f2;margin-bottom:14px;
-}
-.checkout-cart-dialog .preview-gallery::-webkit-scrollbar { display:none; }
-.checkout-cart-dialog .preview-gallery .preview-image {
-  width:100%;height:min(52dvh,430px);max-height:none;
-  object-fit:contain;padding:10px;
-}
-.checkout-cart-dialog .preview-swipe-hint {
-  font-size:12px;text-align:center;color:#666;margin:0 0 16px;
-}
-.checkout-cart-dialog .preview-product-details {
-  display:grid;gap:9px;padding:16px 0;margin:6px 0;
-  border-top:1px solid #e5e1d8;border-bottom:1px solid #e5e1d8;
-}
-.checkout-cart-dialog .preview-product-details p {
-  margin:0;font-size:15px;line-height:1.55;overflow-wrap:anywhere;
-}
-.checkout-cart-dialog .preview-product-details .preview-description {
-  font-size:16px;margin-bottom:4px;
-}
-.checkout-cart-dialog .preview-product-details .preview-label {
-  font-weight:700;color:#735419;
-}
-.checkout-cart-dialog .preview-quantity { margin:14px 0 20px; }
-.checkout-cart-dialog .preview-quantity button {
-  width:46px;height:46px;border-radius:6px;
-}
-.checkout-cart-dialog .preview-shopping-link {
-  margin-top:12px;background:#c9a44c;color:#111;
-}
-@media(max-width:600px) {
-  .order-item { grid-template-columns:92px minmax(0,1fr);gap:12px; }
-  .order-item > .summary-thumbnail { width:92px; }
-  .order-item .summary-thumbnail-button img { height:116px; }
-  .order-item .order-price { grid-column:2;justify-self:start;margin-top:-5px; }
-  .order-item .order-name { font-size:16px; }
-  .summary-thumbnails .summary-thumbnail-button img { width:82px;height:100px; }
-  .checkout-cart-dialog { padding:18px;width:calc(100vw - 20px); }
-  .checkout-cart-dialog .preview-gallery .preview-image { height:min(46dvh,390px); }
-}
-
 </style>
 </head>
 
 <body>
 
   <div class="checkout-header">
-    IM COLLECTIONS • SECURE CHECKOUT
+    IM COLLECTIONS • STRIPE SANDBOX DRAFT • NOT LIVE
   </div>
 
   <div class="logo-area">
@@ -1043,23 +923,47 @@ font-size: 0 !important;
       <div class="checkout-box payment-box">
 
 <section class="shipping-method-box">
-  <h2>USPS Shipping Method</h2>
+  <h2>Shipping Method</h2>
+
   <label class="shipping-option">
-    <input type="radio" name="shippingMethod" value="standard" id="shippingStandard" checked>
-    <span class="shipping-option-text"><strong>USPS Ground Advantage</strong><small>Typically 2–5 business days</small></span>
-    <span class="shipping-option-price" id="standardShippingPrice">$8.99</span>
+    <input
+      type="radio"
+      name="shippingMethod"
+      value="standard"
+      id="shippingStandard"
+      checked
+    >
+
+    <span class="shipping-option-text">
+      <strong>Standard Delivery</strong>
+      <small>3–5 Working Days</small>
+    </span>
+
+    <span
+      class="shipping-option-price"
+      id="standardShippingPrice"
+    >
+      $8.99
+    </span>
   </label>
-  <label class="shipping-option" style="opacity:.65;cursor:not-allowed">
-    <input type="radio" name="shippingMethod" value="priority" id="shippingPriority" disabled>
-    <span class="shipping-option-text"><strong>USPS Priority Mail</strong><small>Typically 2–3 business days · $15 for eligible packed shipments up to 1 lb · Available after package verification</small></span>
-    <span class="shipping-option-price">$15.00*</span>
+
+  <label class="shipping-option">
+    <input
+      type="radio"
+      name="shippingMethod"
+      value="express"
+      id="shippingExpress"
+    >
+
+    <span class="shipping-option-text">
+      <strong>Express Delivery</strong>
+      <small>3 Working Days</small>
+    </span>
+
+    <span class="shipping-option-price">
+      $15.00
+    </span>
   </label>
-  <label class="shipping-option" style="opacity:.65;cursor:not-allowed">
-    <input type="radio" name="shippingMethod" value="priority_express" id="shippingPriorityExpress" disabled>
-    <span class="shipping-option-text"><strong>USPS Priority Mail Express</strong><small>Typically 1–3 calendar days · Address-based rate service coming soon</small></span>
-    <span class="shipping-option-price">Calculated</span>
-  </label>
-  <p class="secure-note" style="margin:12px 0">* Priority Mail and Priority Mail Express are temporarily unavailable until USPS pricing and shipping validation are connected. Standard checkout is unchanged.</p>
 </section>
         
   <h2>Payment</h2>
@@ -1076,18 +980,12 @@ font-size: 0 !important;
     >
     <span>Credit / Debit Card</span>
   </label>
-  <label class="payment-method-option">
-    <input type="radio" name="paymentMethod" value="cashapp" id="paymentMethodCashApp">
-    <span>Cash App Pay</span>
-  </label>
-  <label class="payment-method-option">
-    <input type="radio" name="paymentMethod" value="giftcard" id="paymentMethodGiftCard">
-    <span>Gift Card</span>
-  </label>
+  <label class="payment-method-option"><input type="radio" name="paymentMethod" value="klarna" id="paymentMethodKlarna"><span>Klarna</span></label>
+
 </div>
 
 <div id="cardPaymentSection">
-<div id="savedCardArea" hidden>
+<div id="savedCardArea" hidden data-legacy-square="true">
 <label for="savedCardSelect">Payment Method</label>
 <select id="savedCardSelect"><option value="">Add Payment</option></select>
 <p id="savedCardMessage" role="status"></p>
@@ -1116,7 +1014,8 @@ font-size: 0 !important;
   autocomplete="cc-name"
 />
 
-  <div id="card-container"></div>
+  <div id="stripePaymentElement" style="min-height:36px; margin:12px 0;"></div>
+<p id="stripePaymentHint" class="secure-note">Stripe Sandbox checkout draft. Payment details will appear after server preparation is enabled.</p>
 
 
 
@@ -1129,30 +1028,7 @@ font-size: 0 !important;
   <span>Use shipping address as billing address</span>
 </label>
 
-<!-- IM Collections: card-on-file opt-in (not yet enabled while Square verification fails).
-     Never store PAN, CVV, or Square source tokens in website storage. -->
-<div id="saveCardCheckoutArea" class="im-save-card-area" hidden>
-  <label class="save-card-option" for="saveCardForFuture">
-    <input type="checkbox" id="saveCardForFuture" disabled>
-    <span>Save this card securely for future purchases</span>
-  </label>
-  <p id="saveCardAvailabilityNote" class="im-save-card-note" role="status">
-    Card saving is temporarily unavailable while we complete secure payment verification. You can still enter a card for this purchase when payments are available.
-  </p>
-</div>
-<p id="saveCardGuestNote" class="im-save-card-note" hidden>
-  <a href="my-account.html">Sign in</a> or <a href="Register.html">register</a> to manage saved payment methods when this feature becomes available.
-</p>
-
   
-  
-
-  
-
-  
-
-  
-
 <div id="billingAddressFields" style="display: none;">
 
   <h3>Billing Address</h3>
@@ -1186,18 +1062,6 @@ font-size: 0 !important;
 </div>
   </div>
 
-
-
-<div id="cashAppPaymentSection">
-  <div id="cashAppPay"></div>
-  <div id="cashAppPayStatus"></div>
-</div>
-
-<div id="giftCardPaymentSection" style="display: none;">
-  <div id="giftCardContainer"></div>
-  <div id="giftCardStatus"></div>
-</div>
-        
        <button
   type="button"
   class="order-summary-toggle"
@@ -1282,7 +1146,7 @@ type="button"
     class="payment-button"
     id="paymentButton"
   >
-    Pay Now
+    Prepare Stripe Sandbox Payment
   </button>
 
   <label class="legal-confirm">
@@ -1301,7 +1165,7 @@ type="button"
   Retry Payment Status
 </button>
   
-  <div id="checkoutMessage"></div>
+  <div id="checkoutMessage" role="status">Stripe Sandbox preview — payments are not yet enabled in Supabase.</div>
 </div>
 
 <button
@@ -1327,10 +1191,7 @@ type="button"
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
-  <script
-  type="text/javascript"
-  src="https://sandbox.web.squarecdn.com/v1/square.js">
-</script>
+  <script src="https://js.stripe.com/v3/"></script>
   
   <script>
     const supabaseUrl =
@@ -1345,120 +1206,13 @@ const supabaseClient =
     supabaseKey
   );
 
-    const squareAppId =
-  "sandbox-sq0idb-c7snyR_ZJ25r9nRUu7ZvqA";
+    // Stripe Sandbox draft. Checkout remains disabled until secure payment settlement is tested.
+    const stripe = Stripe("pk_test_51URrTfQyDeuXnUwQW3sXLObPGcW6hwfOHwT0baS9Za8g3PPeeaG7tB330wNhxTXeC5aFqghdXuL76pxW3q5IAEbS00Ymx0Ao5i");
+    let checkoutSavedCards = [];
+    let savedCardsVersion = 0;
+    let stripeElements = null;
+    let stripePaymentElement = null;
 
-const squareLocationId =
-  "LG5NFQWF";
-
-let squareCard;
-let checkoutSavedCards = [];
-let savedCardsVersion = 0;
-let googlePay;
-let cashAppPay;
-let giftCard;
-    let paymentRequest;
-
-async function initializeSquareCard() {
-  if (!window.Square) {
-    throw new Error("Square.js failed to load.");
-  }
-
-  const payments =
-    Square.payments(
-      squareAppId,
-      squareLocationId
-    );
-
-const checkoutTotalElement =
-  document.getElementById("checkoutTotal");
-
-const applePayAmount =
-  checkoutTotalElement
-    ? checkoutTotalElement.textContent.replace("$", "").trim()
-    : "0.00";
-
-paymentRequest =
-  payments.paymentRequest({
-    countryCode: "US",
-    currencyCode: "USD",
-    total: {
-      amount: applePayAmount,
-      label: "IM Collections"
-    }
-  });
-
-try {
-  const cashAppOptions = {
-    redirectURL: window.location.href,
-    referenceId: "IM-" + Date.now()
-  };
-
-cashAppPay =
-  await payments.cashAppPay(
-    paymentRequest,
-    cashAppOptions
-  );
-
-cashAppPay.addEventListener(
-  "ontokenization",
-  (event) => {
-    const { tokenResult } = event.detail;
-
-    console.log(
-      "Cash App tokenization:",
-      tokenResult
-    );
-  }
-);
-
-await cashAppPay.attach("#cashAppPay");
-
-} catch (error) {
-  console.error(
-    "Cash App Pay initialization error:",
-    error
-  );
-
-  const cashAppStatus =
-    document.getElementById("cashAppPayStatus");
-
-  if (cashAppStatus) {
-    cashAppStatus.style.color = "#b00020";
-    cashAppStatus.textContent =
-      "Cash App error: " +
-      (error?.message || String(error));
-  }
-}
-
-try {
-  giftCard =
-    await payments.giftCard();
-
-  await giftCard.attach(
-    "#giftCardContainer"
-  );
-
-} catch (error) {
-  console.error(
-    "Gift Card initialization error:",
-    error
-  );
-}
-  
-  squareCard = await payments.card();
-
-  await squareCard.attach("#card-container");
-}
-
-document.addEventListener(
-  "DOMContentLoaded",
-  () => initializeSquareCard().catch(error => {
-    console.error("Square initialization failed:", error);
-    checkoutNotice("Square card form could not load: " + (error.message || String(error)), true);
-  })
-);
-    
     const checkoutCart =
       JSON.parse(
         localStorage.getItem("imCollectionsCart") || "[]"
@@ -1583,7 +1337,7 @@ function renderReferralRewardChoice() {
       : !referralBalanceKnown ? (referralQuoteError ? "Retry Referral Rewards" : "Loading Referral Rewards…")
       : `Use My Referral Rewards — $${(usable / 100).toFixed(2)}`;
     button.setAttribute("aria-pressed", String(useReferralRewards));
-    button.disabled = referralUiBusy || referralQuoteBusy || !!localStorage.getItem("imSquarePaymentAttempt")
+    button.disabled = referralUiBusy || referralQuoteBusy || !!localStorage.getItem("imStripeSandboxDraftAttempt")
       || (!referralBalanceKnown && !referralQuoteError)
       || (referralBalanceKnown && !useReferralRewards && usable <= 0);
     const status = document.getElementById(prefix + "ReferralRewardStatus");
@@ -1637,7 +1391,7 @@ async function refreshReferralBalance() {
   return referralBalanceCents;
 }
 async function toggleReferralRewards() {
-  if (referralUiBusy || referralQuoteBusy || localStorage.getItem("imSquarePaymentAttempt")) return;
+  if (referralUiBusy || referralQuoteBusy || localStorage.getItem("imStripeSandboxDraftAttempt")) return;
   const version = ++discountSelectionVersion;
   const message = document.getElementById("discountMessage");
   if (useReferralRewards) {
@@ -1727,8 +1481,8 @@ function updateCheckoutTotal() {
 
 let shippingCost;
 
-if (selectedShippingMethod !== "standard") {
-  shippingCost = 0; // Display-only placeholder; selection cannot be paid.
+if (selectedShippingMethod === "express") {
+  shippingCost = 15;
 } else {
   shippingCost =
     standardShippingFree(Math.round(subtotal * 100), Math.round(discountAmount * 100)) ? 0 : 8.99;
@@ -1782,10 +1536,11 @@ document.getElementById("orderSummaryTotal").textContent =
     `$${total.toFixed(2)}`;
 
   document.querySelectorAll(".shipping-summary-label").forEach(label => {
-    label.textContent = selectedShippingMethod === "standard" ? "Shipping:" : "Shipping (Unavailable):";
+    label.textContent = selectedShippingMethod === "express"
+      ? "Shipping (Express):" : "Shipping:";
   });
-  if (selectedShippingMethod !== "standard") {
-    shippingMessage.textContent = "This USPS shipping upgrade is not yet available for payment.";
+  if (selectedShippingMethod === "express") {
+    shippingMessage.textContent = "Express delivery selected.";
   } else {
     const free = standardShippingFree(Math.round(subtotal * 100), Math.round(discountAmount * 100));
     const remaining = 75 - subtotal;
@@ -1814,32 +1569,12 @@ document
     const cardPaymentSection =
   document.getElementById("cardPaymentSection");
 
-const cashAppPaymentSection =
-  document.getElementById("cashAppPaymentSection");
-
-const giftCardPaymentSection =
-  document.getElementById("giftCardPaymentSection");
-
 const paymentMethodRadios =
   document.querySelectorAll(
     'input[name="paymentMethod"]'
   );
 
-function showSelectedPaymentMethod() {
-  const selected =
-    document.querySelector(
-      'input[name="paymentMethod"]:checked'
-    )?.value;
-
-  cardPaymentSection.style.display =
-    selected === "card" ? "block" : "none";
-
-  cashAppPaymentSection.style.display =
-    selected === "cashapp" ? "block" : "none";
-
-  giftCardPaymentSection.style.display =
-    selected === "giftcard" ? "block" : "none";
-}
+function showSelectedPaymentMethod() { cardPaymentSection.style.display = "block"; }
 
 paymentMethodRadios.forEach((radio) => {
   radio.addEventListener(
@@ -1851,7 +1586,7 @@ paymentMethodRadios.forEach((radio) => {
 showSelectedPaymentMethod();
 
 document.getElementById("applyDiscount").addEventListener("click", async function () {
-  if (referralUiBusy || referralQuoteBusy || localStorage.getItem("imSquarePaymentAttempt")) return;
+  if (referralUiBusy || referralQuoteBusy || localStorage.getItem("imStripeSandboxDraftAttempt")) return;
   const version = ++discountSelectionVersion;
   const code = document.getElementById("discountCode").value.trim().toUpperCase();
   const message = document.getElementById("discountMessage");
@@ -1908,356 +1643,81 @@ document
     document.getElementById("applyDiscount").click();
   });
     
-    const attemptStorageKey = "imSquarePaymentAttempt";
-let paymentBusy = false;
-let latestOrderNumber = null;
-
-function checkoutNotice(text, failed = false) {
-  const el = document.getElementById("checkoutMessage");
-  el.textContent = text;
-  el.style.color = failed ? "#b00020" : "green";
+// Stripe Sandbox draft: intentional two-step payment setup and confirmation.
+// The Supabase payment function is gated until server-side order/reward tests pass.
+let stripeSessionId = null;
+let stripePendingPayment = false;
+function checkoutNotice(message, failed=false) {
+ const el=document.getElementById("checkoutMessage");
+ el.textContent=message; el.style.color=failed?"#b42318":"#176a37";
 }
-
 function setPaymentBusy(busy) {
-  paymentBusy = busy;
-  referralUiBusy = busy;
-  for (const id of ["applyDiscount", "bottomApplyDiscount", "discountCode", "bottomDiscountCode"]) {
-    document.getElementById(id).disabled = busy;
-  }
-  renderReferralRewardChoice();
-  document.getElementById("paymentButton").disabled = busy;
-  document.getElementById("retryPaymentStatus").disabled = busy;
+ paymentBusy=busy; referralUiBusy=busy;
+ for (const id of ["applyDiscount","bottomApplyDiscount","discountCode","bottomDiscountCode"])
+  document.getElementById(id).disabled=busy;
+ document.getElementById("paymentButton").disabled=busy;
+ renderReferralRewardChoice();
 }
-
 function deliveryPayload() {
-  const values = {};
-
-  const fields = {
-    first_name: "guestFirstName",
-    last_name: "guestLastName",
-    address: "guestAddress",
-    address2: "guestAddress2",
-    city: "guestCity",
-    state: "guestState",
-    postal_code: "guestZip",
-    country: "guestCountry",
-    phone: "guestPhone"
-  };
-
-  for (const [key, id] of Object.entries(fields)) {
-    const input = document.getElementById(id);
-
-    if (!input.reportValidity()) {
-      throw new Error("Complete your delivery information first.");
-    }
-
-    values[key] = input.value.trim();
-  }
-
-  if (values.country !== "United States") {
-    throw new Error("We currently ship within the United States only.");
-  }
-
-  const email = document.getElementById("guestEmail");
-
-  if (!email.reportValidity()) {
-    throw new Error("Enter your checkout email.");
-  }
-
-  if (!document.getElementById("acceptPolicies").checked) {
-    throw new Error(
-      "Please accept the Terms & Conditions and Privacy Policy before paying."
-    );
-  }
-
-  if (!checkoutCart.length) {
-    throw new Error("Your cart is empty.");
-  }
-
-  return {
-    email: email.value.trim(),
-    shippingAddress: values
-  };
+ const ids={first_name:"guestFirstName",last_name:"guestLastName",address:"guestAddress",address2:"guestAddress2",city:"guestCity",state:"guestState",postal_code:"guestZip",country:"guestCountry",phone:"guestPhone"};
+ const values={};
+ for(const [name,id] of Object.entries(ids)){const field=document.getElementById(id);if(!field.reportValidity())throw Error("Complete delivery information first.");values[name]=field.value.trim();}
+ const email=document.getElementById("guestEmail");if(!email.reportValidity())throw Error("Enter your email.");
+ if(values.country!=="United States")throw Error("Shipping is currently limited to the United States.");
+ if(!document.getElementById("acceptPolicies").checked)throw Error("Accept the terms and privacy policy to continue.");
+ if(!checkoutCart.length)throw Error("Your cart is empty.");
+ return {email:email.value.trim(),shippingAddress:values};
 }
-
 function checkoutAmountCents() {
-  const shipping = document.querySelector(
-    'input[name="shippingMethod"]:checked'
-  )?.value || "standard";
-
-  const subtotalCents = checkoutCart.reduce(
-    (sum, item) =>
-      sum + Math.round(Number(item.price) * 100) * Number(item.quantity),
-    0
-  );
-
-  const discountCents = Math.round(discountAmount * 100);
-
-  if (shipping !== "standard") throw new Error("Selected USPS shipping service is not available for payment yet. Choose Ground Advantage.");
-  const shipCents = standardShippingFree(subtotalCents, discountCents) ? 0 : 899;
-
-  const taxableCents = subtotalCents - discountCents + shipCents;
-
-  return taxableCents + Math.round(taxableCents * 0.0925);
+ const sub=checkoutCart.reduce((sum,item)=>sum+Math.round(Number(item.price)*100)*Number(item.quantity),0);
+ const ship=document.querySelector('input[name="shippingMethod"]:checked')?.value==="express"?1500:standardShippingFree(sub,Math.round(discountAmount*100))?0:899;
+ const taxable=sub-Math.round(discountAmount*100)+ship;
+ return taxable+Math.round(taxable*.0925);
 }
-
-async function invokeOrderPayment(body) {
-  const { data: { session } } =
-    await supabaseClient.auth.getSession();
-
-  body.userAccessToken = session?.access_token || null;
-
-  const { data, error } = await supabaseClient.functions.invoke(
-    "create-square-payment",
-    { body }
-  );
-
-  let response = data;
-
-  if (error && error.context?.json) {
-    try {
-      response = await error.context.json();
-    } catch (_) {}
-  }
-
-  if (
-    response?.success &&
-    /^\d{10}$/.test(response.orderNumber || "")
-  ) {
-    latestOrderNumber = response.orderNumber;
-
-    localStorage.removeItem(attemptStorageKey);
-    document.getElementById("retryPaymentStatus").hidden = true;
-
-    const currentCart = localStorage.getItem("imCollectionsCart");
-
-    if (
-      currentCart &&
-      JSON.stringify(JSON.parse(currentCart)) ===
-        JSON.stringify(checkoutCart)
-    ) {
-      localStorage.removeItem("imCollectionsCart");
-    }
-
-    checkoutNotice("Payment successful! Order #" + latestOrderNumber);
-    showPaymentSuccessPopup();
-
-    document.getElementById("paymentButton").disabled = true;
-    return;
-  }
-
-  if (response?.terminal) {
-    localStorage.removeItem(attemptStorageKey);
-    document.getElementById("retryPaymentStatus").hidden = true;
-  } else {
-    document.getElementById("retryPaymentStatus").hidden = false;
-  }
-
-  throw new Error(
-    response?.error ||
-    "Payment status could not be checked. Tap Retry Payment Status before paying again."
-  );
-}
-
-document.getElementById("paymentButton").addEventListener(
-  "click",
-  async () => {
-    if (paymentBusy || latestOrderNumber) return;
-    if (!checkoutCart.length) { checkoutNotice("Your cart is empty. Add an item before paying.", true); return; }
-
-    if (localStorage.getItem(attemptStorageKey)) {
-      checkoutNotice(
-        "An earlier payment needs checking. Tap Retry Payment Status before paying again.",
-        true
-      );
-
-      document.getElementById("retryPaymentStatus").hidden = false;
-      return;
-    }
-
-    setPaymentBusy(true);
-
-    let paymentStage = "account and delivery validation";
-    try {
-      await checkoutAccount.ready;
-      checkoutAccount.checkReady();
-      if (referralQuoteBusy) throw new Error("Wait for your referral rewards to finish loading.");
-      // Applying a discount can involve asynchronous account checks.
-      ++discountSelectionVersion;
-      if (useReferralRewards) {
-        const available = await refreshReferralBalance();
-        if (Math.round(discountAmount * 100) > available)
-          throw new Error("Your available referral rewards changed. Remove and apply your rewards again before paying.");
-      }
-      if ((document.querySelector('input[name="shippingMethod"]:checked')?.value || "standard") !== "standard")
-        throw new Error("Priority Mail and Priority Mail Express are not active yet. Please choose USPS Ground Advantage.");
-      checkoutAccount.copyBilling();
-      const delivery = deliveryPayload();
-      checkoutAccount.validateBilling();
-      paymentStage = "saving checkout preferences";
-      await checkoutAccount.savePreference();
-
-      const method = document.querySelector(
-        'input[name="paymentMethod"]:checked'
-      )?.value || "card";
-
-      const paymentForm = {
-        card: squareCard,
-        giftcard: giftCard
-      }[method];
-
-      if (!paymentForm) {
-        throw new Error(
-          "This payment method is not connected yet. Choose Credit / Debit Card or Gift Card."
-        );
-      }
-
-      checkoutNotice("Preparing your payment…");
-
-      const savedCardId = method === "card" ? document.getElementById("savedCardSelect").value : "";
-      const selectedCard = checkoutSavedCards.find(c => c.id === savedCardId);
-      if(savedCardId && !selectedCard) throw new Error("Select an available saved card.");
-      // Square expects accurate billing details for integrated buyer verification.
-      // A previously saved card is charged by the secure server, not by
-      // tokenizing the currently hidden new-card entry field.
-      const field = id => document.getElementById(id)?.value?.trim() || "";
-      const cardholderName = field("cardholderName");
-      if (method === "card" && !savedCardId && !cardholderName) {
-        document.getElementById("cardholderName").focus();
-        throw new Error("Enter the name on your card.");
-      }
-      const billingSame = document.getElementById("sameAsShipping").checked;
-      const first = billingSame ? field("guestFirstName") : field("billingFirstName");
-      const last = billingSame ? field("guestLastName") : field("billingLastName");
-      const street = billingSame ? field("guestAddress") : field("billingAddress");
-      const unit = billingSame ? field("guestAddress2") : field("billingApartment");
-      const verificationDetails = {
-        amount: (checkoutAmountCents() / 100).toFixed(2),
-        currencyCode: "USD", intent: "CHARGE",
-        customerInitiated: true, sellerKeyedIn: false,
-        billingContact: {
-          givenName: first, familyName: last,
-          email: field("guestEmail"), phone: field("guestPhone"),
-          addressLines: [street, unit].filter(Boolean),
-          city: billingSame ? field("guestCity") : field("billingCity"),
-          state: billingSame ? field("guestState") : field("billingState"),
-          postalCode: billingSame ? field("guestZip") : field("billingPostal"),
-          countryCode: "US"
-        }
-      };
-      paymentStage = "Square card tokenization and buyer verification";
-      // Saved-card identifiers must be handled by the payment Edge Function.
-      // Do not silently submit a hidden/empty new-card field for saved cards.
-      if (method === "card" && savedCardId) {
-        throw new Error("Saved-card charging is not yet supported by the current payment server. Select Add Payment to use a card.");
-      }
-      let result;
-      try {
-        result = method === "card"
-          ? await paymentForm.tokenize(verificationDetails)
-          : await paymentForm.tokenize();
-      } catch (squareError) {
-        const squareCode = squareError?.code || squareError?.name || "UNKNOWN";
-        console.error("Square payment verification failure", squareCode, squareError);
-        throw new Error("Square card verification failed (" + squareCode + "): " + (squareError?.message || "Unknown SDK error") + ". No charge was requested. Use Square Sandbox test card details and confirm your Sandbox app and location match.");
-      }
-
-      if (result.status !== "OK") {
-        throw new Error(
-          "Square tokenization returned " + String(result.status) +
-          (result.errors?.length ? ": " + result.errors.map(e => e.code || e.type || "UNKNOWN").join(", ") : ". Please check your payment information.")
-        );
-      }
-
-      paymentStage = "creating payment attempt";
-      const attemptId = crypto.randomUUID();
-
-      localStorage.setItem(attemptStorageKey, attemptId);
-
-      checkoutNotice("Processing payment and saving your order…");
-
-      paymentStage = "server payment and order processing";
-      await invokeOrderPayment({
-        attemptId,
-        sourceId: result.token,
-        savedCardId,
-        ...delivery,
-
-        items: checkoutCart.map(item => ({
-          id: item.id,
-          quantity: item.quantity
-        })),
-
-        shippingMethod: document.querySelector(
-          'input[name="shippingMethod"]:checked'
-        )?.value || "standard",
-
-        promoCode: useReferralRewards ? "" : appliedPromoCode,
-        useReferralRewards,
-        referralRewardCents: useReferralRewards ? Math.round(discountAmount * 100) : 0,
-
-        amountCents: checkoutAmountCents(),
-        paymentMethod: method
-      });
-    } catch (error) {
-      checkoutNotice(
-        "Payment stopped during " + paymentStage + ". " +
-        (error.message || "Unable to prepare payment.") +
-        (error.code ? " [" + String(error.code) + "]" : ""),
-        true
-      );
-
-      if (localStorage.getItem(attemptStorageKey)) {
-        document.getElementById("retryPaymentStatus").hidden = false;
-      }
-    } finally {
-      setPaymentBusy(false);
-
-      if (latestOrderNumber) {
-        document.getElementById("paymentButton").disabled = true;
-      }
-    }
-  }
-);
-
-document.getElementById("retryPaymentStatus").addEventListener(
-  "click",
-  async () => {
-    if (paymentBusy) return;
-
-    const attemptId = localStorage.getItem(attemptStorageKey);
-
-    if (!attemptId) return;
-
-    setPaymentBusy(true);
-
-    try {
-      checkoutNotice("Checking your existing payment…");
-
-      await invokeOrderPayment({
-        attemptId,
-        resume: true
-      });
-    } catch (error) {
-      checkoutNotice(error.message, true);
-    } finally {
-      setPaymentBusy(false);
-
-      if (latestOrderNumber) {
-        document.getElementById("paymentButton").disabled = true;
-      }
-    }
-  }
-);
-
-if (localStorage.getItem(attemptStorageKey)) {
-  document.getElementById("retryPaymentStatus").hidden = false;
-
-  checkoutNotice(
-    "An earlier payment needs checking. Tap Retry Payment Status before paying again.",
-    true
-  );
-}
+const attemptStorageKey="imStripeSandboxDraftAttempt";
+let paymentBusy=false;
+let latestOrderNumber=null;
+document.getElementById("paymentButton").addEventListener("click",async()=>{
+ if(paymentBusy)return;
+ setPaymentBusy(true);
+ try {
+   await checkoutAccount.ready; checkoutAccount.checkReady();checkoutAccount.copyBilling();
+   const delivery=deliveryPayload();checkoutAccount.validateBilling();
+   if(appliedPromoCode||useReferralRewards)throw Error("Promotions and referral rewards are not connected to Stripe yet. No payment has been started.");
+   if(!stripeSessionId) {
+     checkoutNotice("Checking Stripe Sandbox readiness…");
+     const {data:{session}}=await supabaseClient.auth.getSession();
+     const attemptId=crypto.randomUUID();
+     const body={attemptId,...delivery,userAccessToken:session?.access_token||null,
+       items:checkoutCart.map(i=>({id:i.id,quantity:i.quantity,size:i.size,color:i.color})),
+       shippingMethod:document.querySelector('input[name="shippingMethod"]:checked')?.value||"standard",
+       promoCode:appliedPromoCode,useReferralRewards};
+     const {data,error}=await supabaseClient.functions.invoke("stripe-create-payment-intent",{body});
+     if(error||!data?.clientSecret)throw Error(data?.error||"Stripe Sandbox is not ready. No charge was made.");
+     stripeElements=stripe.elements({clientSecret:data.clientSecret});
+     stripePaymentElement=stripeElements.create("payment",{layout:"tabs",fields:{billingDetails:{name:"never",email:"never",address:"never"}}});
+     stripePaymentElement.mount("#stripePaymentElement");
+     stripeSessionId=attemptId;
+     stripePendingPayment=true;
+     document.getElementById("stripePaymentHint").textContent="Enter your payment details using the secure Stripe form, then tap Pay Now again.";
+     checkoutNotice("Payment form ready. Confirm your details and tap Pay Now again.");
+     return;
+   }
+   if(!stripePendingPayment)throw Error("Refresh checkout before continuing.");
+   const {error:submitError}=await stripeElements.submit();if(submitError)throw Error(submitError.message);
+   const billingName=document.getElementById("cardholderName").value.trim();
+   if(!billingName)throw Error("Enter the name on your card.");
+   const url=new URL(location.href);url.searchParams.set("stripe_return","1");
+   const result=await stripe.confirmPayment({elements:stripeElements,
+      confirmParams:{return_url:url.toString(),payment_method_data:{billing_details:{name:billingName}}},
+      redirect:"if_required"});
+   if(result.error)throw Error(result.error.message||"Payment could not be completed.");
+   checkoutNotice("Payment submitted. Await Stripe confirmation; do not submit another payment.");
+   document.getElementById("paymentButton").disabled=true;
+ }catch(error){checkoutNotice(error.message||"Sandbox setup incomplete.",true);}
+ finally{setPaymentBusy(false);}
+});
+document.getElementById("retryPaymentStatus").hidden=true;
 const checkoutPhotoCache = new Map();
 let checkoutPreviewVersion = 0;
 function checkoutCartChangesBlocked() {
@@ -2297,116 +1757,62 @@ function openCheckoutCartPreview(item) {
   const version = ++checkoutPreviewVersion;
   const dialog = document.getElementById("checkoutCartDialog");
   const content = document.getElementById("checkoutCartDialogContent");
-  document.getElementById("checkoutCartDialogTitle").textContent = item.name || "Product";
+  document.getElementById("checkoutCartDialogTitle").textContent = item.name || "Product image";
   content.replaceChildren();
-
-  const gallery = document.createElement("div");
-  gallery.className = "preview-gallery";
+  const gallery = document.createElement("div"); gallery.className = "preview-gallery";
   function drawPhotos(urls) {
     const photos = [...new Set(urls.filter(url => typeof url === "string" && url.trim()))];
     gallery.replaceChildren();
     photos.forEach((url, index) => {
-      const image = document.createElement("img");
-      image.className = "preview-image";
-      image.src = url;
-      image.alt = `${item.name || "Product"} — photo ${index + 1}`;
-      image.loading = index === 0 ? "eager" : "lazy";
-      gallery.appendChild(image);
+      const image = document.createElement("img"); image.className = "preview-image"; image.src = url;
+      image.alt = `${item.name || "Product"} — Photo ${index + 1}`; gallery.appendChild(image);
     });
     gallery.scrollLeft = 0;
-    swipeHint.hidden = photos.length < 2;
   }
-
-  const swipeHint = document.createElement("p");
-  swipeHint.className = "preview-swipe-hint";
-  swipeHint.textContent = "Swipe left or right to view photos";
-
-  const price = document.createElement("p");
-  price.className = "preview-product-price";
-  price.textContent = `$${Number(item.price).toFixed(2)} each`;
-
-  const productDetails = document.createElement("div");
-  productDetails.className = "preview-product-details";
-  function addDetail(label, value, className = "") {
-    const paragraph = document.createElement("p");
-    if (className) paragraph.className = className;
-    if (label) {
-      const name = document.createElement("span");
-      name.className = "preview-label";
-      name.textContent = label + ": ";
-      paragraph.appendChild(name);
-    }
-    paragraph.appendChild(document.createTextNode(value));
-    productDetails.appendChild(paragraph);
-  }
-  function showProductDetails(details) {
-    productDetails.replaceChildren();
-    const description = typeof details.description === "string" ? details.description.trim() : "";
-    const rawSize = details.size;
-    const size = Array.isArray(rawSize) ? rawSize.map(String).join(", ")
-      : rawSize == null ? "" : String(rawSize).trim();
-    if (description) addDetail("", description, "preview-description");
-    if (size) addDetail("Size", size);
-    const weight = Number(details.shipping_weight_oz);
-    if (details.shipping_weight_oz != null && Number.isFinite(weight) && weight > 0)
-      addDetail("Shipping weight", `${weight} oz`);
-    const dimensions = [details.package_length_in, details.package_width_in, details.package_height_in];
-    if (dimensions.every(v => v != null && v !== "" && Number.isFinite(Number(v)) && Number(v) > 0))
-      addDetail("Package dimensions", `${dimensions.map(Number).join(" × ")} in (L × W × H)`);
-    if (!productDetails.childElementCount) addDetail("", "Product details are not available yet.");
-  }
-
-  const quantity = document.createElement("div");
-  quantity.className = "preview-quantity";
-  const minus = document.createElement("button");
-  minus.type = "button"; minus.textContent = "−"; minus.setAttribute("aria-label", "Decrease quantity");
-  const amount = document.createElement("span");
-  amount.textContent = item.quantity;
-  const plus = document.createElement("button");
-  plus.type = "button"; plus.textContent = "+";
-  plus.setAttribute("aria-label", "Increase quantity");
   const cached = checkoutPhotoCache.get(item.id);
+  drawPhotos(cached?.images || [item.image, ...(Array.isArray(item.images) ? item.images : []), ...(Array.isArray(item.image_urls) ? item.image_urls : [])]);
+  const label = document.createElement("p"); label.textContent = `$${Number(item.price).toFixed(2)} each`; content.appendChild(label);
+  const quantity = document.createElement("div"); quantity.className = "preview-quantity";
+  const minus = document.createElement("button"); minus.type = "button"; minus.textContent = "−"; minus.setAttribute("aria-label", "Decrease quantity");
+  const amount = document.createElement("span"); amount.textContent = item.quantity;
+  const plus = document.createElement("button"); plus.type = "button"; plus.textContent = "+"; plus.setAttribute("aria-label", "Increase quantity");
   minus.disabled = checkoutCartChangesBlocked();
   plus.disabled = checkoutCartChangesBlocked() || Number(item.quantity) >= Math.min(100, cached?.stock ?? 100);
   minus.addEventListener("click", () => changeCheckoutItem(item, Number(item.quantity) - 1));
   plus.addEventListener("click", () => changeCheckoutItem(item, Number(item.quantity) + 1));
-  quantity.append(minus, amount, plus);
-
-  // Present photos first, followed by details and cart controls, as in Quick View.
-  content.append(price, gallery, swipeHint, productDetails, quantity);
+  quantity.append(minus, amount, plus); content.appendChild(quantity);
+  const productDetails = document.createElement("div"); productDetails.className = "preview-product-details";
+  function showProductDetails(details) {
+    productDetails.replaceChildren();
+    const description = typeof details.description === "string" ? details.description.trim() : "";
+    const rawSize = details.size;
+    const size = Array.isArray(rawSize) ? rawSize.map(String).join(", ") : typeof rawSize === "string" || typeof rawSize === "number" ? String(rawSize).trim() : "";
+    if (description) {
+      const paragraph = document.createElement("p"); paragraph.textContent = description;
+      productDetails.appendChild(paragraph);
+    }
+    if (size) {
+      const paragraph = document.createElement("p"); paragraph.textContent = `Size: ${size}`;
+      productDetails.appendChild(paragraph);
+    }
+  }
   showProductDetails(checkoutItemDetails(item));
-  drawPhotos(cached?.images || [item.image, ...(Array.isArray(item.images) ? item.images : []),
-    ...(Array.isArray(item.image_urls) ? item.image_urls : [])]);
-
+  content.append(productDetails, gallery, quantity);
   if (checkoutCartChangesBlocked()) {
-    const note = document.createElement("p");
-    note.textContent = "Cart changes are paused until your payment status is confirmed.";
+    const note = document.createElement("p"); note.textContent = "Cart changes are paused until your payment status is confirmed.";
     content.appendChild(note);
   }
   if (!dialog.open) dialog.showModal();
-
   const catalogId = checkoutCatalogId(item);
   if (!cached && Number.isSafeInteger(catalogId) && catalogId > 0) {
-    supabaseClient.from("products")
-      .select("image_urls,quantity,description,size,old_price,shipping_weight_oz,package_length_in,package_width_in,package_height_in")
-      .eq("id", catalogId).maybeSingle().then(({data, error}) => {
-        if (error || !data) return;
-        const details = {
-          images: [item.image, ...(Array.isArray(data.image_urls) ? data.image_urls : [])],
-          stock: Math.max(0, Number(data.quantity ?? 1)),
-          description: data.description || item.description || "",
-          size: item.size || data.size || "",
-          shipping_weight_oz: data.shipping_weight_oz,
-          package_length_in: data.package_length_in,
-          package_width_in: data.package_width_in,
-          package_height_in: data.package_height_in
-        };
-        checkoutPhotoCache.set(item.id, details);
-        if (version !== checkoutPreviewVersion || !dialog.open) return;
-        drawPhotos(details.images);
-        showProductDetails(details);
-        plus.disabled = checkoutCartChangesBlocked() || Number(item.quantity) >= Math.min(100, details.stock);
-      }).catch(() => {});
+    supabaseClient.from("products").select("image_urls,quantity,description,size,old_price").eq("id", catalogId).maybeSingle().then(({data, error}) => {
+      if (error || !data) return;
+      const details = {images: [item.image, ...(Array.isArray(data.image_urls) ? data.image_urls : [])], stock: Math.max(0, Number(data.quantity ?? 1)), description: data.description || item.description || "", size: item.size || data.size || ""};
+      checkoutPhotoCache.set(item.id, details);
+      if (version !== checkoutPreviewVersion || !dialog.open) return;
+      drawPhotos(details.images); showProductDetails(details);
+      plus.disabled = checkoutCartChangesBlocked() || Number(item.quantity) >= Math.min(100, details.stock);
+    }).catch(() => {});
   }
 }
 document.getElementById("checkoutPreviewClose").addEventListener("click", () => document.getElementById("checkoutCartDialog").close());
@@ -2419,13 +1825,7 @@ function checkoutItemDetails(item) {
   const cached = checkoutPhotoCache.get(item.id);
   return {
     description: cached?.description || item.description || "",
-    size: item.size || cached?.size || "",
-    shipping_weight_oz: cached?.shipping_weight_oz,
-    package_length_in: cached?.package_length_in,
-    package_width_in: cached?.package_width_in,
-    package_height_in: cached?.package_height_in,
-    weightOz: cached?.shipping_weight_oz,
-    packageDimensions: [cached?.package_length_in,cached?.package_width_in,cached?.package_height_in]
+    size: item.size || cached?.size || ""
   };
 }
 function appendCheckoutItemDetails(container, item) {
@@ -2444,14 +1844,6 @@ function appendCheckoutItemDetails(container, item) {
     paragraph.textContent = `Size: ${size}`;
     block.appendChild(paragraph);
   }
-  const weight = Number(data.weightOz);
-  if (data.weightOz != null && Number.isFinite(weight) && weight > 0) {
-    const p = document.createElement("p"); p.textContent = `Shipping weight: ${weight} oz`; block.appendChild(p);
-  }
-  const dimensions = data.packageDimensions;
-  if (Array.isArray(dimensions) && dimensions.every(v => v != null && v !== "" && Number.isFinite(Number(v)) && Number(v) > 0)) {
-    const p = document.createElement("p"); p.textContent = `Package size: ${dimensions.map(Number).join(" × ")} in (L × W × H)`; block.appendChild(p);
-  }
   container.appendChild(block);
 }
 async function loadCheckoutItemDetails() {
@@ -2459,18 +1851,14 @@ async function loadCheckoutItemDetails() {
     const id = checkoutCatalogId(item);
     if (!Number.isSafeInteger(id) || id <= 0) return;
     const {data, error} = await supabaseClient.from("products")
-      .select("image_urls,quantity,description,size,old_price,shipping_weight_oz,package_length_in,package_width_in,package_height_in").eq("id", id).maybeSingle();
+      .select("image_urls,quantity,description,size,old_price").eq("id", id).maybeSingle();
     if (error || !data) return;
     checkoutOriginalPrices.set(item.id, data.old_price);
     checkoutPhotoCache.set(item.id, {
       images: [item.image, ...(Array.isArray(data.image_urls) ? data.image_urls : [])],
       stock: Math.max(0, Number(data.quantity ?? 1)),
       description: data.description || item.description || "",
-      size: item.size || data.size || "",
-      shipping_weight_oz:data.shipping_weight_oz,
-      package_length_in:data.package_length_in,
-      package_width_in:data.package_width_in,
-      package_height_in:data.package_height_in
+      size: item.size || data.size || ""
     });
   }));
   renderExpandedSummaryItems();
@@ -3004,32 +2392,6 @@ const checkoutAccount = (() => {
 <script>
 let selectedCheckoutCard = "";
 let deletingCheckoutCard = false;
-// Display the saved-card option only to authenticated members. The checkbox
-// stays disabled until Square card-on-file integration is securely operational.
-async function updateSaveCardEligibility() {
-  const area = document.getElementById("saveCardCheckoutArea");
-  const guestNote = document.getElementById("saveCardGuestNote");
-  const checkbox = document.getElementById("saveCardForFuture");
-  if (!area || !guestNote || !checkbox) return;
-  try {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    const signedIn = Boolean(session?.user?.id);
-    area.hidden = !signedIn;
-    guestNote.hidden = signedIn;
-    checkbox.checked = false;
-    checkbox.disabled = true;
-  } catch (_) {
-    area.hidden = true;
-    guestNote.hidden = false;
-    checkbox.checked = false;
-    checkbox.disabled = true;
-  }
-}
-supabaseClient.auth.onAuthStateChange(() => {
-  setTimeout(updateSaveCardEligibility, 0);
-});
-void updateSaveCardEligibility();
-
 const paymentMenu = document.getElementById("savedCardSelect");
 const deletePaymentDialog = document.getElementById("deletePaymentDialog");
 
@@ -3076,8 +2438,7 @@ async function loadCheckoutSavedCards() {
   deleteOption.disabled = checkoutSavedCards.length === 0;
   paymentMenu.add(deleteOption);
   const preferred = checkoutSavedCards.find((card) => card.is_default);
-  // Default to adding a new card until saved-card server processing is supported.
-  paymentMenu.value = "";
+  if (preferred) paymentMenu.value = preferred.id;
   selectedCheckoutCard = paymentMenu.value;
   updateSavedCardFields();
 }
@@ -3098,7 +2459,7 @@ paymentMenu.addEventListener("change", () => {
     return;
   }
   paymentMenu.value = selectedCheckoutCard;
-  if (paymentBusy || localStorage.getItem("imSquarePaymentAttempt")) {
+  if (paymentBusy || localStorage.getItem("imStripeSandboxDraftAttempt")) {
     document.getElementById("savedCardMessage").textContent =
       "Finish checking your payment status before deleting a saved payment.";
     return;
@@ -3109,7 +2470,7 @@ paymentMenu.addEventListener("change", () => {
   );
   if (selectedCheckoutCard) select.value = selectedCheckoutCard;
   document.getElementById("deleteCardMessage").textContent = "";
-  if (checkoutSavedCards.length && !deletePaymentDialog.open)
+  if (false && checkoutSavedCards.length && !deletePaymentDialog.open)
     deletePaymentDialog.showModal();
 });
 
@@ -3125,7 +2486,7 @@ document
     if (
       deletingCheckoutCard ||
       paymentBusy ||
-      localStorage.getItem("imSquarePaymentAttempt")
+      localStorage.getItem("imStripeSandboxDraftAttempt")
     )
       return;
     const cardId = document.getElementById("deleteCardSelect").value;

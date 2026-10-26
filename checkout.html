@@ -918,7 +918,7 @@ font-size: 0 !important;
   id="orderSummaryToggle"
   aria-expanded="true"
 >
-  <span>Order Summary <span class="order-summary-item-count" id="orderSummaryItemCount">(0 items)</span></span>
+  <span>Order Summary</span>
 
 <span class="order-summary-right">
   <span id="orderSummaryTotal">$0.00</span>
@@ -1234,7 +1234,7 @@ font-size: 0 !important;
   id="bottomSummaryToggle"
   aria-expanded="true"
 >
-  <span>Order Summary <span class="order-summary-item-count" id="bottomSummaryItemCount">(0 items)</span></span>
+  <span>Order Summary</span>
 
 <span class="order-summary-right">
 <span id="bottomSummaryHeaderTotal">$0.00</span>
@@ -1298,6 +1298,11 @@ font-size: 0 !important;
         <div class="summary-total">
   <span>Total</span>
   <span id="bottomTotal">$0.00</span>
+</div>
+
+<div class="summary-row" id="bottomOrderItemCountRow" style="border-top:1px solid #eee;margin-top:10px;padding-top:12px;">
+  <span>Total items in your order</span>
+  <strong id="bottomOrderItemCount">0</strong>
 </div>
 
 </div>   <!-- closes orderSummaryContent -->
@@ -2544,11 +2549,10 @@ function updateOrderSummaryItemCounts() {
     const quantity = Number(item.quantity);
     return total + (Number.isFinite(quantity) && quantity > 0 ? quantity : 0);
   }, 0);
-  const label = `(${totalQuantity} ${totalQuantity === 1 ? "item" : "items"})`;
-  ["orderSummaryItemCount", "bottomSummaryItemCount"].forEach(id => {
-    const element = document.getElementById(id);
-    if (element) element.textContent = label;
-  });
+  const bottomCount = document.getElementById("bottomOrderItemCount");
+  if (bottomCount) {
+    bottomCount.textContent = String(totalQuantity);
+  }
 }
 
 function renderSummaryThumbnails() {

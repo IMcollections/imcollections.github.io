@@ -1561,36 +1561,21 @@ document.addEventListener(
 
     if (checkoutCart.length === 0) {
 
-      checkoutItems.innerHTML =
-        "<p>Your cart is empty.</p>";
+// FIX: Force the loop to stack and render your dynamic array elements cleanly
+checkoutItems.innerHTML = ""; // Clear initial state first
+savedCart.forEach(item => {
+  checkoutItems.innerHTML += `
+    <div class="order-item">
+      <img src="${item.image || 'default-placeholder.jpg'}" alt="${item.name}">
+      <div class="order-product-details">
+        <div class="order-name">${item.name}</div>
+        <div class="order-quantity">QTY: ${item.quantity || 1}</div>
+      </div>
+      <div class="order-price">$${(item.price * (item.quantity || 1)).toFixed(2)}</div>
+    </div>
+  `;
+});
 
-    } else {
-
-      checkoutItems.innerHTML =
-        checkoutCart.map(item => `
-
-          <div class="order-item">
-
-            <img
-              src="${item.image}"
-              alt="${item.name}"
-            >
-
-            <div>
-              <div class="order-name">
-                ${item.name}
-              </div>
-
-              <div class="order-quantity">
-                Quantity: ${item.quantity}
-              </div>
-            </div>
-
-            <div class="order-price">
-              $${(item.price * item.quantity).toFixed(2)}
-            </div>
-
-          </div>
 
         `).join("");
 

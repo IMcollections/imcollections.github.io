@@ -1081,34 +1081,34 @@ font-size: 0 !important;
       <strong>USPS Express Shipping</strong>
       <small>1–2 days</small>
     </span>
-    <span class="shipping-option-price" id="expressShippingPrice">$25.00</span>
-  </label> <!-- Ensure this label tag is cleanly closed! -->
-</section>
+    <span class="shipping-option-price" id="expressShippingPrice">$15.00</span>
+  </label> 
 
   <p class="secure-note" style="margin:12px 0"><a href="Policy.html" style="color:#8a651f;text-decoration:underline">Shipping &amp; Delivery Policy</a></p>
 </section>
         
   <h2>Payment</h2>
         
+<div class="payment-method-options">
 
   <label class="payment-method-option">
-<div class="payment-method-options">
-  <label class="payment-method-option">
-    <input type="radio" name="paymentMethod" value="card" id="paymentMethodCard" checked>
+    <input
+      type="radio"
+      name="paymentMethod"
+      value="card"
+      id="paymentMethodCard"
+      checked
+    >
     <span>Credit / Debit Card</span>
   </label>
-
-  <!-- INSERTED: Shop Pay Option -->
   <label class="payment-method-option">
     <input type="radio" name="paymentMethod" value="shoppay" id="paymentMethodShopPay">
     <span>Shop Pay</span>
   </label>
-
   <label class="payment-method-option">
     <input type="radio" name="paymentMethod" value="cashapp" id="paymentMethodCashApp">
     <span>Cash App Pay</span>
   </label>
-
   <label class="payment-method-option">
     <input type="radio" name="paymentMethod" value="giftcard" id="paymentMethodGiftCard">
     <span>Gift Card</span>
@@ -1116,20 +1116,6 @@ font-size: 0 !important;
 </div>
 
 <div id="cardPaymentSection">
-  <p class="secure-note">Pay securely with credit or debit card.</p>
-  ...
-</div>
-
-<!-- INSERTED: Hidden Container Box for the actual Shop Pay Button -->
-<div id="shopPayPaymentSection" style="display: none; margin: 18px 0 28px;">
-  <div id="shop-pay-button-container"></div>
-</div>
-
-<div id="cashAppPaymentSection">
-  <div id="cashAppPay"></div>
-  <div id="cashAppPayStatus"></div>
-</div>
-
 <div id="savedCardArea" hidden>
 <label for="savedCardSelect">Payment Method</label>
 <select id="savedCardSelect"><option value="">Add Payment</option></select>
@@ -1230,12 +1216,6 @@ font-size: 0 !important;
   </div>
 
 
-<!-- PASTE THIS HOOK BLOCK HERE -->
-<div id="shopPayPaymentSection" style="display: none; margin: 18px 0 28px;">
-  <div id="shop-pay-button-container"></div>
-</div>
-
-<div id="cashAppPaymentSection">
 
 <div id="cashAppPaymentSection">
   <div id="cashAppPay"></div>
@@ -1494,36 +1474,7 @@ try {
     error
   );
 }
-    try {
-    giftCard = await payments.giftCard();
-    await giftCard.attach("#giftCardContainer");
-  } catch (error) {
-    console.error("Gift Card error:", error);
-  }
-
-  // PASTE THIS INTERFACE CONNECTION SCRIPT HERE
-  if (window.ShopPayPaymentRequest) {
-    const shopPayButton = new ShopPayPaymentRequest({
-      merchantId: "153523504", // Your newly processed state account tracking code
-      paymentDetails: {
-        total: {
-          label: "IM Collections Order",
-          amount: document.getElementById("checkoutTotal")?.textContent.replace("$", "").trim() || "0.00"
-        },
-        currencyCode: "USD",
-        countryCode: "US"
-      }
-    });
-
-    shopPayButton.render("#shop-pay-button-container");
-
-    shopPayButton.on("complete", (paymentResult) => {
-      localStorage.removeItem("imCollectionsCart");
-      window.location.href = "orders-returns.html";
-    });
-  }
-}
-
+  
   squareCard = await payments.card();
 
   await squareCard.attach("#card-container");
@@ -1560,21 +1511,36 @@ document.addEventListener(
 
     if (checkoutCart.length === 0) {
 
-// FIX: Force the loop to stack and render your dynamic array elements cleanly
-checkoutItems.innerHTML = ""; // Clear initial state first
-savedCart.forEach(item => {
-  checkoutItems.innerHTML += `
-    <div class="order-item">
-      <img src="${item.image || 'default-placeholder.jpg'}" alt="${item.name}">
-      <div class="order-product-details">
-        <div class="order-name">${item.name}</div>
-        <div class="order-quantity">QTY: ${item.quantity || 1}</div>
-      </div>
-      <div class="order-price">$${(item.price * (item.quantity || 1)).toFixed(2)}</div>
-    </div>
-  `;
-});
+      checkoutItems.innerHTML =
+        "<p>Your cart is empty.</p>";
 
+    } else {
+
+      checkoutItems.innerHTML =
+        checkoutCart.map(item => `
+
+          <div class="order-item">
+
+            <img
+              src="${item.image}"
+              alt="${item.name}"
+            >
+
+            <div>
+              <div class="order-name">
+                ${item.name}
+              </div>
+
+              <div class="order-quantity">
+                Quantity: ${item.quantity}
+              </div>
+            </div>
+
+            <div class="order-price">
+              $${(item.price * item.quantity).toFixed(2)}
+            </div>
+
+          </div>
 
         `).join("");
 
@@ -1889,19 +1855,20 @@ const paymentMethodRadios =
   );
 
 function showSelectedPaymentMethod() {
-  const selected = document.querySelector('input[name="paymentMethod"]:checked')?.value;
-  
-  document.getElementById("cardPaymentSection").style.display = selected === "card" ? "block" : "none";
-  document.getElementById("cashAppPaymentSection").style.display = selected === "cashapp" ? "block" : "none";
-  document.getElementById("giftCardPaymentSection").style.display = selected === "giftcard" ? "block" : "none";
-  
-  // ADD THESE THREE LINES: Controls the visual toggle state
-  const shopPaySection = document.getElementById("shopPayPaymentSection");
-  if (shopPaySection) {
-    shopPaySection.style.display = selected === "shoppay" ? "block" : "none";
-  }
-}
+  const selected =
+    document.querySelector(
+      'input[name="paymentMethod"]:checked'
+    )?.value;
 
+  cardPaymentSection.style.display =
+    selected === "card" ? "block" : "none";
+
+  cashAppPaymentSection.style.display =
+    selected === "cashapp" ? "block" : "none";
+
+  giftCardPaymentSection.style.display =
+    selected === "giftcard" ? "block" : "none";
+}
 
 paymentMethodRadios.forEach((radio) => {
   radio.addEventListener(

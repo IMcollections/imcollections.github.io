@@ -992,6 +992,11 @@ font-size: 0 !important;
 
 </aside>
 
+<div class="summary-row" id="bottomOrderItemCountRow" style="border-top:1px solid #eee;margin-top:10px;padding-top:12px;">
+  <span>Total items</span>
+  <strong id="bottomOrderItemCount">0</strong>
+</div>
+
 <h2>Contact</h2>
 </div>
 
@@ -1083,7 +1088,7 @@ font-size: 0 !important;
     <input type="radio" name="shippingMethod" value="express" id="shippingExpress">
     <span class="shipping-option-text">
       <strong>USPS Express Shipping</strong>
-      <small>1–2 days</small>
+      <small>2-3 days</small>
     </span>
     <span class="shipping-option-price" id="expressShippingPrice">$15.00</span>
   </label> 
@@ -1105,19 +1110,17 @@ font-size: 0 !important;
     >
     <span>Credit / Debit Card</span>
   </label>
-  <label class="payment-method-option">
-    <input type="radio" name="paymentMethod" value="shoppay" id="paymentMethodShopPay">
-    <span>Shop Pay</span>
-  </label>
+<label class="payment-method-option">
+  <input type="radio" name="paymentMethod" value="shoppay" id="paymentMethodShopPay">
+  <!-- This displays the official purple Shop Pay brand icon inside your list -->
+  <img src="https://shopify.com" alt="Shop Pay" style="height: 24px; margin-left: 8px; vertical-align: middle;">
+</label>
+
+
   <label class="payment-method-option">
     <input type="radio" name="paymentMethod" value="giftcard" id="paymentMethodGiftCard">
     <span>Gift Card</span>
   </label>
-</div>
-
-<!-- INSERTED: Hidden Container Box for the actual Shop Pay Button -->
-<div id="shopPayPaymentSection" style="display: none; margin: 18px 0 28px;">
-  <div id="shop-pay-button-container"></div>
 </div>
 
 <div id="cardPaymentSection">

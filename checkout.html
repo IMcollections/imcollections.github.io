@@ -1062,21 +1062,30 @@ font-size: 0 !important;
 
       <div class="checkout-box payment-box">
 
+<!-- Check this entire block carefully -->
 <section class="shipping-method-box">
   <h2>USPS Shipping Method</h2>
+  
   <label class="shipping-option">
     <input type="radio" name="shippingMethod" value="standard" id="shippingStandard" checked>
-    <span class="shipping-option-text"><strong>USPS Standard Shipping</strong><small>3–5 days</small></span>
+    <span class="shipping-option-text">
+      <strong>USPS Standard Shipping</strong>
+      <small>3–5 days</small>
+    </span>
     <span class="shipping-option-price" id="standardShippingPrice">$8.99</span>
-  </label>
-  <label class="shipping-option" style="opacity:.65;cursor:not-allowed">
-    <input type="radio" name="shippingMethod" value="priority" id="shippingPriority" disabled>
-   <span class="shipping-option-text">
-  <strong>USPS Express Shipping</strong>
-  <small>1–2 days</small> <!-- Add this line -->
-</span>
+  </label> <!-- Ensure this label tag is cleanly closed! -->
 
-   <!-- FIX: Change it to a number (like 25.00 or 0.00) so the math works! -->
+  <label class="shipping-option">
+    <input type="radio" name="shippingMethod" value="express" id="shippingExpress">
+    <span class="shipping-option-text">
+      <strong>USPS Express Shipping</strong>
+      <small>1–2 days</small>
+    </span>
+    <span class="shipping-option-price" id="expressShippingPrice">$25.00</span>
+  </label> <!-- Ensure this label tag is cleanly closed! -->
+</section>
+
+ Change it to a number (like 25.00 or 0.00) so the math works! -->
 <span class="shipping-option-price" id="expressShippingPrice">$25.00</span>
 
   <p class="secure-note" style="margin:12px 0"><a href="Policy.html" style="color:#8a651f;text-decoration:underline">Shipping &amp; Delivery Policy</a></p>

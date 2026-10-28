@@ -1608,10 +1608,10 @@ if (standardShippingPrice) {
     "Calculated before payment";
 
 document.getElementById("orderSummaryTotal").textContent =
-  "Pending tax quote";
+  `${total.toFixed(2)} (before tax)`;
 
   checkoutTotal.textContent =
-    "Pending tax quote";
+    `${total.toFixed(2)} (before tax)`;
 
   document.querySelectorAll(".shipping-summary-label").forEach(label => {
     label.textContent = selectedShippingMethod === "standard" ? "Shipping:" : "Shipping (Unavailable):";

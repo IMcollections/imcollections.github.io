@@ -1001,7 +1001,60 @@ font-size: 0 !important;
     <input type="text" id="guestCity" placeholder="City" required>
 
     <label>State</label>
-    <input type="text" id="guestState" placeholder="State (e.g. CA)" autocomplete="address-level1" autocapitalize="characters" required>
+    <input type="text" id="guestState" list="usStateOptions" placeholder="Select or type state (e.g. CA)" autocomplete="address-level1" autocapitalize="characters" required>
+    <datalist id="usStateOptions">
+      <option value="AL" label="Alabama"></option>
+      <option value="AK" label="Alaska"></option>
+      <option value="AZ" label="Arizona"></option>
+      <option value="AR" label="Arkansas"></option>
+      <option value="CA" label="California"></option>
+      <option value="CO" label="Colorado"></option>
+      <option value="CT" label="Connecticut"></option>
+      <option value="DE" label="Delaware"></option>
+      <option value="FL" label="Florida"></option>
+      <option value="GA" label="Georgia"></option>
+      <option value="HI" label="Hawaii"></option>
+      <option value="ID" label="Idaho"></option>
+      <option value="IL" label="Illinois"></option>
+      <option value="IN" label="Indiana"></option>
+      <option value="IA" label="Iowa"></option>
+      <option value="KS" label="Kansas"></option>
+      <option value="KY" label="Kentucky"></option>
+      <option value="LA" label="Louisiana"></option>
+      <option value="ME" label="Maine"></option>
+      <option value="MD" label="Maryland"></option>
+      <option value="MA" label="Massachusetts"></option>
+      <option value="MI" label="Michigan"></option>
+      <option value="MN" label="Minnesota"></option>
+      <option value="MS" label="Mississippi"></option>
+      <option value="MO" label="Missouri"></option>
+      <option value="MT" label="Montana"></option>
+      <option value="NE" label="Nebraska"></option>
+      <option value="NV" label="Nevada"></option>
+      <option value="NH" label="New Hampshire"></option>
+      <option value="NJ" label="New Jersey"></option>
+      <option value="NM" label="New Mexico"></option>
+      <option value="NY" label="New York"></option>
+      <option value="NC" label="North Carolina"></option>
+      <option value="ND" label="North Dakota"></option>
+      <option value="OH" label="Ohio"></option>
+      <option value="OK" label="Oklahoma"></option>
+      <option value="OR" label="Oregon"></option>
+      <option value="PA" label="Pennsylvania"></option>
+      <option value="RI" label="Rhode Island"></option>
+      <option value="SC" label="South Carolina"></option>
+      <option value="SD" label="South Dakota"></option>
+      <option value="TN" label="Tennessee"></option>
+      <option value="TX" label="Texas"></option>
+      <option value="UT" label="Utah"></option>
+      <option value="VT" label="Vermont"></option>
+      <option value="VA" label="Virginia"></option>
+      <option value="WA" label="Washington"></option>
+      <option value="WV" label="West Virginia"></option>
+      <option value="WI" label="Wisconsin"></option>
+      <option value="WY" label="Wyoming"></option>
+      <option value="DC" label="District of Columbia"></option>
+    </datalist>
 
     <label>ZIP Code</label>
     <input type="text" id="guestZip" placeholder="ZIP Code" autocomplete="postal-code" pattern="[0-9]{5}(-[0-9]{4})?" maxlength="10" required>
@@ -1747,8 +1800,11 @@ function deliveryPayload() {
   }
   if (shippingAddress.country !== "United States") throw Error("Shipping is limited to the United States.");
   // Stripe Tax expects a two-letter US state code and a valid US ZIP code.
-  shippingAddress.state = shippingAddress.state.toUpperCase();
-  if (!/^[A-Z]{2}$/.test(shippingAddress.state)) throw Error("Enter the two-letter state abbreviation (for example, CA).");
+  const stateEntry = shippingAddress.state.trim().toUpperCase();
+  const stateOptions = Array.from(document.querySelectorAll("#usStateOptions option"));
+  const matchingState = stateOptions.find(option => option.value === stateEntry || option.label.toUpperCase() === stateEntry);
+  if (!matchingState) throw Error("Select a valid U.S. state or enter its name or two-letter abbreviation.");
+  shippingAddress.state = matchingState.value;
   if (!/^\d{5}(-\d{4})?$/.test(shippingAddress.postal_code)) throw Error("Enter a valid five-digit US ZIP code.");
   const email=document.getElementById("guestEmail");
   if (!email.reportValidity()) throw Error("Enter a valid checkout email.");

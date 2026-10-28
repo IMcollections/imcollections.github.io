@@ -898,7 +898,7 @@ font-size: 0 !important;
   <div class="logo-area">
     <div class="checkout-header-links">
       <a href="https://imcollections.github.io/" class="back-link"><h2>← Continue Shopping</h2></a>
-      <div id="memberAccountLink" hidden><div class="member-account-nav"><a href="my-account.html">My Account</a><a href="collectors-reward.html">My Rewards</a></div></div>
+      <div id="memberAccountLink" hidden><div class="member-account-nav"><a href="my-account.html">My Account</a><a href="collectors-reward.html">Collectors Reward</a></div></div>
     </div>
 
     <a href="https://imcollections.github.io/" aria-label="Shop IM Collections"><img src="IM-logo.jpg" alt="IM Collections"></a>
@@ -924,6 +924,7 @@ font-size: 0 !important;
   <span id="orderSummaryTotal">$0.00</span>
   <span id="orderSummaryArrow">⌃</span>
 </span>
+  
       </button>
 
 <div id="orderSummaryThumbnails" class="summary-thumbnails" hidden aria-label="Products in your order"></div>
@@ -931,11 +932,6 @@ font-size: 0 !important;
 <div id="orderSummaryContent">
 
         <div id="checkoutItems"></div>
-
-<div class="summary-row" id="OrderItemCountRow" style="border-top:1px solid #eee;margin-top:10px;padding-top:12px;">
-  <span>Total items</span>
-  <strong id="OrderItemCount">0</strong>
-</div>
 
         <div class="discount-row">
           <input
@@ -986,11 +982,6 @@ font-size: 0 !important;
         <div class="summary-total">
   <span>Total</span>
   <span id="checkoutTotal">$0.00</span>
-</div>
-
-<div class="summary-row" id="OrderItemCountRow" style="border-top:1px solid #eee;margin-top:10px;padding-top:12px;">
-  <span>Total items</span>
-  <strong id="OrderItemCount">0</strong>
 </div>
 
 </div>   <!-- closes orderSummaryContent -->
@@ -1088,7 +1079,7 @@ font-size: 0 !important;
     <input type="radio" name="shippingMethod" value="express" id="shippingExpress">
     <span class="shipping-option-text">
       <strong>USPS Express Shipping</strong>
-      <small>2-3 days</small>
+      <small>1–2 days</small>
     </span>
     <span class="shipping-option-price" id="expressShippingPrice">$15.00</span>
   </label> 
@@ -1110,18 +1101,19 @@ font-size: 0 !important;
     >
     <span>Credit / Debit Card</span>
   </label>
-
-<label class="payment-method-option">
-  <input type="radio" name="paymentMethod" value="shoppay" id="paymentMethodShopPay">
-  <!-- This displays the official purple Shop Pay brand icon inside your list -->
-  <img src="https://shopify.com" alt="Shop Pay" style="height: 24px; margin-left: 8px; vertical-align: middle;">
-</label>
-
-
+  <label class="payment-method-option">
+    <input type="radio" name="paymentMethod" value="shoppay" id="paymentMethodShopPay">
+    <span>Shop Pay</span>
+  </label>
   <label class="payment-method-option">
     <input type="radio" name="paymentMethod" value="giftcard" id="paymentMethodGiftCard">
     <span>Gift Card</span>
   </label>
+</div>
+
+<!-- INSERTED: Hidden Container Box for the actual Shop Pay Button -->
+<div id="shopPayPaymentSection" style="display: none; margin: 18px 0 28px;">
+  <div id="shop-pay-button-container"></div>
 </div>
 
 <div id="cardPaymentSection">
@@ -1224,6 +1216,13 @@ font-size: 0 !important;
 </div>
   </div>
 
+
+
+<div id="cashAppPaymentSection">
+  <div id="cashAppPay"></div>
+  <div id="cashAppPayStatus"></div>
+</div>
+
 <div id="giftCardPaymentSection" style="display: none;">
   <div id="giftCardContainer"></div>
   <div id="giftCardStatus"></div>
@@ -1243,16 +1242,12 @@ font-size: 0 !important;
 </span>
   
       </button>
+
 <div id="bottomSummaryThumbnails" class="summary-thumbnails" hidden aria-label="Products in your order"></div>
 
 <div id="bottomSummaryContent">
 
         <div id="bottomCheckoutItems"></div>
-
-<div class="summary-row" id="bottomOrderItemCountRow" style="border-top:1px solid #eee;margin-top:10px;padding-top:12px;">
-  <span>Total items</span>
-  <strong id="bottomOrderItemCount">0</strong>
-</div>
 
         <div class="discount-row">
           <input
@@ -1288,7 +1283,7 @@ font-size: 0 !important;
 <p class="checkout-rewards-note" id="bottomRewardsNote" aria-live="polite">Not used.</p>
         
         <div class="summary-row">
-  <span class="shipping-summary-label">Standard Shipping:</span>
+  <span class="shipping-summary-label">Shipping:</span>
   <strong id="bottomShipping">$8.99</strong>
 </div>
 

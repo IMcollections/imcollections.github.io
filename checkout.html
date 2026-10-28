@@ -417,35 +417,10 @@ input[type="checkbox"] {
   cursor: pointer;
 }
 
-#applePay {
-  display: block;
-  width: 100%;
-  min-height: 48px;
-  margin: 12px 0;
-  border: none;
-  border-radius: 6px;
-  background: #000;
-  color: #fff;
-  font-size: 18px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
 .payment-divider {
   text-align: center;
   margin: 12px 0;
   font-weight: 700;
-}
-
-.apple-pay-button {
-  -webkit-appearance: -apple-pay-button;
-  -apple-pay-button-type: buy;
-  -apple-pay-button-style: black;
-
-  width: 100%;
-  height: 50px;
-border: none;
-margin: 18px 0 28px;
 }
 
 #bottomApplyDiscount {
@@ -638,30 +613,6 @@ font-size: 0 !important;
 
 .payment-method-option:last-of-type {
   margin-bottom: 20px;
-}
-
-      #cashAppPaymentSection {
-  display: none;
-}
-      
-#googlePayPaymentSection {
-  width: 100%;
-  margin: 18px 0 28px;
-}
-
-#googlePay {
-  width: 100%;
-}
-
-#googlePay > div,
-#googlePay button {
-  width: 100% !important;
-  max-width: none !important;
-  height: 50px !important;
-  min-height: 50px !important;
-  border-radius: 0 !important;
-  font-size: 16px !important;
-}
 
       .payment-success-popup {
   display: none;
@@ -898,7 +849,7 @@ font-size: 0 !important;
   <div class="logo-area">
     <div class="checkout-header-links">
       <a href="https://imcollections.github.io/" class="back-link"><h2>← Continue Shopping</h2></a>
-      <div id="memberAccountLink" hidden><div class="member-account-nav"><a href="my-account.html">My Account</a><a href="collectors-reward.html">My Rewards</a></div></div>
+      <div id="memberAccountLink" hidden><div class="member-account-nav"><a href="my-account.html">My Account</a><a href="collectors-reward.html">Collectors Reward</a></div></div>
     </div>
 
     <a href="https://imcollections.github.io/" aria-label="Shop IM Collections"><img src="IM-logo.jpg" alt="IM Collections"></a>
@@ -924,6 +875,7 @@ font-size: 0 !important;
   <span id="orderSummaryTotal">$0.00</span>
   <span id="orderSummaryArrow">⌃</span>
 </span>
+  
       </button>
 
 <div id="orderSummaryThumbnails" class="summary-thumbnails" hidden aria-label="Products in your order"></div>
@@ -983,9 +935,9 @@ font-size: 0 !important;
   <span id="checkoutTotal">$0.00</span>
 </div>
 
-<div class="summary-row" id="bottomOrderItemCountRow" style="border-top:1px solid #eee;margin-top:10px;padding-top:12px;">
-  <span>Total items</span>
-  <strong id="bottomOrderItemCount">0</strong>
+<div class="summary-row" id="OrderItemCountRow" style="border-top:1px solid #eee;margin-top:10px;padding-top:12px;">
+  <span>Total items in your order</span>
+  <strong id="OrderItemCount">0</strong>
 </div>
 
 </div>   <!-- closes orderSummaryContent -->
@@ -1083,7 +1035,7 @@ font-size: 0 !important;
     <input type="radio" name="shippingMethod" value="express" id="shippingExpress">
     <span class="shipping-option-text">
       <strong>USPS Express Shipping</strong>
-      <small>2-3 days</small>
+      <small>-2 - 3 days</small>
     </span>
     <span class="shipping-option-price" id="expressShippingPrice">$15.00</span>
   </label> 
@@ -1105,18 +1057,19 @@ font-size: 0 !important;
     >
     <span>Credit / Debit Card</span>
   </label>
-
-<label class="payment-method-option">
-  <input type="radio" name="paymentMethod" value="shoppay" id="paymentMethodShopPay">
-  <!-- This displays the official purple Shop Pay brand icon inside your list -->
-  <img src="https://shopify.com" alt="Shop Pay" style="height: 24px; margin-left: 8px; vertical-align: middle;">
-</label>
-
-
+  <label class="payment-method-option">
+    <input type="radio" name="paymentMethod" value="shoppay" id="paymentMethodShopPay">
+    <span>Shop Pay</span>
+  </label>
   <label class="payment-method-option">
     <input type="radio" name="paymentMethod" value="giftcard" id="paymentMethodGiftCard">
     <span>Gift Card</span>
   </label>
+</div>
+
+<!-- INSERTED: Hidden Container Box for the actual Shop Pay Button -->
+<div id="shopPayPaymentSection" style="display: none; margin: 18px 0 28px;">
+  <div id="shop-pay-button-container"></div>
 </div>
 
 <div id="cardPaymentSection">
@@ -1162,8 +1115,8 @@ font-size: 0 !important;
   <span>Use shipping address as billing address</span>
 </label>
 
-<!-- IM Collections: card-on-file opt-in (not yet enabled while Square verification fails).
-     Never store PAN, CVV, or Square source tokens in website storage. -->
+<!-- IM Collections: card-on-file opt-in (not yet enabled while Credit / Debit card verification fails).
+     Never store PAN, CVV, or Cred/ Debit source tokens in website storage. -->
 <div id="saveCardCheckoutArea" class="im-save-card-area" hidden>
   <label class="save-card-option" for="saveCardForFuture">
     <input type="checkbox" id="saveCardForFuture" disabled>
@@ -1219,6 +1172,14 @@ font-size: 0 !important;
 </div>
   </div>
 
+
+
+<div id="ShopPayPaymentSection">
+  <div id="ShopPay"></div>
+  <div id=ShopPayStatus"></div>
+</div>
+label>
+
 <div id="giftCardPaymentSection" style="display: none;">
   <div id="giftCardContainer"></div>
   <div id="giftCardStatus"></div>
@@ -1238,6 +1199,7 @@ font-size: 0 !important;
 </span>
   
       </button>
+
 <div id="bottomSummaryThumbnails" class="summary-thumbnails" hidden aria-label="Products in your order"></div>
 
 <div id="bottomSummaryContent">
@@ -1278,7 +1240,7 @@ font-size: 0 !important;
 <p class="checkout-rewards-note" id="bottomRewardsNote" aria-live="polite">Not used.</p>
         
         <div class="summary-row">
-  <span class="shipping-summary-label">Standard Shipping:</span>
+  <span class="shipping-summary-label">Shipping:</span>
   <strong id="bottomShipping">$8.99</strong>
 </div>
 
@@ -1319,7 +1281,7 @@ type="button"
     <input type="checkbox" id="acceptPolicies">
 
     <span>
-      I confirm that I have read and understand the
+      I have read and understand the
       <a href="terms.html" target="_blank">Terms & Conditions</a>
 ,
       <a href="privacy.html" target="_blank">Privacy Policy</a> and
@@ -1356,11 +1318,7 @@ type="button"
 </dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
-  <script
-  type="text/javascript"
-  src="https://sandbox.web.squarecdn.com/v1/square.js">
-</script>
+ 
   
   <script>
     const supabaseUrl =
@@ -1375,91 +1333,51 @@ const supabaseClient =
     supabaseKey
   );
 
-    const squareAppId =
-  "sandbox-sq0idb-c7snyR_ZJ25r9nRUu7ZvqA";
-
-const squareLocationId =
-  "LG5NFQWF";
-
-let squareCard;
 let checkoutSavedCards = [];
-let savedCardsVersion = 0;
-let googlePay;
-let cashAppPay;
+let savedCardsVersion = 0
+let ShopPay;
 let giftCard;
     let paymentRequest;
 
-async function initializeSquareCard() {
-  if (!window.Square) {
-    throw new Error("Square.js failed to load.");
-  }
-
-  const payments =
-    Square.payments(
-      squareAppId,
-      squareLocationId
-    );
 
 const checkoutTotalElement =
   document.getElementById("checkoutTotal");
 
-const applePayAmount =
-  checkoutTotalElement
-    ? checkoutTotalElement.textContent.replace("$", "").trim()
-    : "0.00";
-
-paymentRequest =
-  payments.paymentRequest({
-    countryCode: "US",
-    currencyCode: "USD",
-    total: {
-      amount: applePayAmount,
-      label: "IM Collections"
-    }
-  });
 
 try {
-  const cashAppOptions = {
+  const shoppayOptions = {
     redirectURL: window.location.href,
     referenceId: "IM-" + Date.now()
   };
 
-cashAppPay =
-  await payments.cashAppPay(
+ShopPay =
+  await payments.ShopPay(
     paymentRequest,
-    cashAppOptions
+   shoppayOptions
   );
 
-cashAppPay.addEventListener(
+ShopPay.addEventListener(
   "ontokenization",
   (event) => {
     const { tokenResult } = event.detail;
 
-    console.log(
-      "Cash App tokenization:",
-      tokenResult
-    );
-  }
-);
+if (window.ShopPayPaymentRequest) {
+  const shopPayButton = new ShopPayPaymentRequest({
+    merchantId: "153523504", // Your verified processed CDTFA merchant routing ID
+    paymentDetails: {
+      total: {
+        label: "IM Collections Order",
+        amount: document.getElementById("checkoutTotal")?.textContent.replace("$", "").trim() || "0.00"
+      },
+      currencyCode: "USD",
+      countryCode: "US"
+    }
+  });
 
-await cashAppPay.attach("#cashAppPay");
-
-} catch (error) {
-  console.error(
-    "Cash App Pay initialization error:",
-    error
-  );
-
-  const cashAppStatus =
-    document.getElementById("cashAppPayStatus");
-
-  if (cashAppStatus) {
-    cashAppStatus.style.color = "#b00020";
-    cashAppStatus.textContent =
-      "Cash App error: " +
-      (error?.message || String(error));
-  }
+  // This line pushes the official purple logo asset directly into your layout
+  shopPayButton.render("#shop-pay-button-container");
 }
+
 
 try {
   giftCard =
@@ -1475,20 +1393,6 @@ try {
     error
   );
 }
-  
-  squareCard = await payments.card();
-
-  await squareCard.attach("#card-container");
-}
-
-document.addEventListener(
-  "DOMContentLoaded",
-  () => initializeSquareCard().catch(error => {
-    console.error("Square initialization failed:", error);
-    checkoutNotice("Square card form could not load: " + (error.message || String(error)), true);
-  })
-);
-    
     const checkoutCart =
       JSON.parse(
         localStorage.getItem("imCollectionsCart") || "[]"
@@ -1613,7 +1517,7 @@ function renderReferralRewardChoice() {
       : !referralBalanceKnown ? (referralQuoteError ? "Retry Referral Rewards" : "Loading Referral Rewards…")
       : `Use My Referral Rewards — $${(usable / 100).toFixed(2)}`;
     button.setAttribute("aria-pressed", String(useReferralRewards));
-    button.disabled = referralUiBusy || referralQuoteBusy || !!localStorage.getItem("imSquarePaymentAttempt")
+    button.disabled = referralUiBusy || referralQuoteBusy || !!localStorage.getItem("imShopPaymentAttempt")
       || (!referralBalanceKnown && !referralQuoteError)
       || (referralBalanceKnown && !useReferralRewards && usable <= 0);
     const status = document.getElementById(prefix + "ReferralRewardStatus");
@@ -1667,7 +1571,7 @@ async function refreshReferralBalance() {
   return referralBalanceCents;
 }
 async function toggleReferralRewards() {
-  if (referralUiBusy || referralQuoteBusy || localStorage.getItem("imSquarePaymentAttempt")) return;
+  if (referralUiBusy || referralQuoteBusy || localStorage.getItem("imShopPaymentAttempt")) return;
   const version = ++discountSelectionVersion;
   const message = document.getElementById("discountMessage");
   if (useReferralRewards) {
@@ -1844,8 +1748,8 @@ document
     const cardPaymentSection =
   document.getElementById("cardPaymentSection");
 
-const cashAppPaymentSection =
-  document.getElementById("cashAppPaymentSection");
+const ShopPaymentSection =
+  document.getElementById("ShopPaymentSection");
 
 const giftCardPaymentSection =
   document.getElementById("giftCardPaymentSection");
@@ -1864,8 +1768,8 @@ function showSelectedPaymentMethod() {
   cardPaymentSection.style.display =
     selected === "card" ? "block" : "none";
 
-  cashAppPaymentSection.style.display =
-    selected === "cashapp" ? "block" : "none";
+  ShopPaymentSection.style.display =
+    selected === "shoppay" ? "block" : "none"l;
 
   giftCardPaymentSection.style.display =
     selected === "giftcard" ? "block" : "none";
@@ -1881,7 +1785,7 @@ paymentMethodRadios.forEach((radio) => {
 showSelectedPaymentMethod();
 
 document.getElementById("applyDiscount").addEventListener("click", async function () {
-  if (referralUiBusy || referralQuoteBusy || localStorage.getItem("imSquarePaymentAttempt")) return;
+  if (referralUiBusy || referralQuoteBusy || localStorage.getItem("imShopPaymentAttempt")) return;
   const version = ++discountSelectionVersion;
   const code = document.getElementById("discountCode").value.trim().toUpperCase();
   const message = document.getElementById("discountMessage");
@@ -1938,7 +1842,7 @@ document
     document.getElementById("applyDiscount").click();
   });
     
-    const attemptStorageKey = "imSquarePaymentAttempt";
+    const attemptStorageKey = "imShopPaymentAttempt";
 let paymentBusy = false;
 let latestOrderNumber = null;
 
@@ -2037,11 +1941,6 @@ async function invokeOrderPayment(body) {
 
   body.userAccessToken = session?.access_token || null;
 
-  const { data, error } = await supabaseClient.functions.invoke(
-    "create-square-payment",
-    { body }
-  );
-
   let response = data;
 
   if (error && error.context?.json) {
@@ -2132,7 +2031,7 @@ document.getElementById("paymentButton").addEventListener(
       )?.value || "card";
 
       const paymentForm = {
-        card: squareCard,
+        card: Card,
         giftcard: giftCard
       }[method];
 
@@ -2147,7 +2046,7 @@ document.getElementById("paymentButton").addEventListener(
       const savedCardId = method === "card" ? document.getElementById("savedCardSelect").value : "";
       const selectedCard = checkoutSavedCards.find(c => c.id === savedCardId);
       if(savedCardId && !selectedCard) throw new Error("Select an available saved card.");
-      // Square expects accurate billing details for integrated buyer verification.
+      // Shop Pay expects accurate billing details for integrated buyer verification.
       // A previously saved card is charged by the secure server, not by
       // tokenizing the currently hidden new-card entry field.
       const field = id => document.getElementById(id)?.value?.trim() || "";
@@ -2175,26 +2074,19 @@ document.getElementById("paymentButton").addEventListener(
           countryCode: "US"
         }
       };
-      paymentStage = "Square card tokenization and buyer verification";
+  
       // Saved-card identifiers must be handled by the payment Edge Function.
       // Do not silently submit a hidden/empty new-card field for saved cards.
       if (method === "card" && savedCardId) {
         throw new Error("Saved-card charging is not yet supported by the current payment server. Select Add Payment to use a card.");
       }
       let result;
-      try {
-        result = method === "card"
-          ? await paymentForm.tokenize(verificationDetails)
-          : await paymentForm.tokenize();
-      } catch (squareError) {
-        const squareCode = squareError?.code || squareError?.name || "UNKNOWN";
-        console.error("Square payment verification failure", squareCode, squareError);
-        throw new Error("Square card verification failed (" + squareCode + "): " + (squareError?.message || "Unknown SDK error") + ". No charge was requested. Use Square Sandbox test card details and confirm your Sandbox app and location match.");
+ 
       }
 
       if (result.status !== "OK") {
         throw new Error(
-          "Square tokenization returned " + String(result.status) +
+          "Shop Pay tokenization returned " + String(result.status) +
           (result.errors?.length ? ": " + result.errors.map(e => e.code || e.type || "UNKNOWN").join(", ") : ". Please check your payment information.")
         );
       }
@@ -3061,7 +2953,7 @@ const checkoutAccount = (() => {
 let selectedCheckoutCard = "";
 let deletingCheckoutCard = false;
 // Display the saved-card option only to authenticated members. The checkbox
-// stays disabled until Square card-on-file integration is securely operational.
+// stays disabled until Credit / Debit card-on-file integration is securely operational.
 async function updateSaveCardEligibility() {
   const area = document.getElementById("saveCardCheckoutArea");
   const guestNote = document.getElementById("saveCardGuestNote");
@@ -3154,7 +3046,7 @@ paymentMenu.addEventListener("change", () => {
     return;
   }
   paymentMenu.value = selectedCheckoutCard;
-  if (paymentBusy || localStorage.getItem("imSquarePaymentAttempt")) {
+  if (paymentBusy || localStorage.getItem("imShopPaymentAttempt")) {
     document.getElementById("savedCardMessage").textContent =
       "Finish checking your payment status before deleting a saved payment.";
     return;
@@ -3181,7 +3073,7 @@ document
     if (
       deletingCheckoutCard ||
       paymentBusy ||
-      localStorage.getItem("imSquarePaymentAttempt")
+      localStorage.getItem("imShopPaymentAttempt")
     )
       return;
     const cardId = document.getElementById("deleteCardSelect").value;

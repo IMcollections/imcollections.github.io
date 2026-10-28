@@ -839,6 +839,16 @@ font-size: 0 !important;
   .checkout-cart-dialog .preview-gallery .preview-image { height:min(46dvh,390px); }
 }
 
+
+/* Searchable single-field state picker, shared by delivery and billing. */
+.im-state-combobox { position:relative; width:100%; }
+.im-state-field { position:relative; }
+.im-state-field input { width:100%; padding-right:52px !important; box-sizing:border-box; }
+.im-state-arrow { position:absolute; right:0; top:0; height:100%; width:48px; border:0; background:transparent; color:inherit; font-size:23px; cursor:pointer; }
+.im-state-suggestions { position:absolute; z-index:1000; left:0; right:0; top:100%; max-height:240px; overflow-y:auto; background:#fff; color:#222; border:1px solid #aaa; box-shadow:0 4px 12px #0002; }
+.im-state-suggestions[hidden] { display:none; }
+.im-state-choice { display:block; width:100%; padding:12px; text-align:left; background:#fff; color:#222; border:0; border-bottom:1px solid #eee; font-size:16px; cursor:pointer; }
+.im-state-choice:hover,.im-state-choice.is-active { background:#f0f0f0; }
 </style>
 </head>
 
@@ -1001,8 +1011,10 @@ font-size: 0 !important;
     <input type="text" id="guestCity" placeholder="City" required>
 
     <label>State</label>
-    <select id="guestStateSelect" aria-label="Choose a U.S. state" style="width:100%;margin-bottom:10px;"><option value="">Choose a state ▼</option><option value="AL">Alabama (AL)</option><option value="AK">Alaska (AK)</option><option value="AZ">Arizona (AZ)</option><option value="AR">Arkansas (AR)</option><option value="CA">California (CA)</option><option value="CO">Colorado (CO)</option><option value="CT">Connecticut (CT)</option><option value="DE">Delaware (DE)</option><option value="FL">Florida (FL)</option><option value="GA">Georgia (GA)</option><option value="HI">Hawaii (HI)</option><option value="ID">Idaho (ID)</option><option value="IL">Illinois (IL)</option><option value="IN">Indiana (IN)</option><option value="IA">Iowa (IA)</option><option value="KS">Kansas (KS)</option><option value="KY">Kentucky (KY)</option><option value="LA">Louisiana (LA)</option><option value="ME">Maine (ME)</option><option value="MD">Maryland (MD)</option><option value="MA">Massachusetts (MA)</option><option value="MI">Michigan (MI)</option><option value="MN">Minnesota (MN)</option><option value="MS">Mississippi (MS)</option><option value="MO">Missouri (MO)</option><option value="MT">Montana (MT)</option><option value="NE">Nebraska (NE)</option><option value="NV">Nevada (NV)</option><option value="NH">New Hampshire (NH)</option><option value="NJ">New Jersey (NJ)</option><option value="NM">New Mexico (NM)</option><option value="NY">New York (NY)</option><option value="NC">North Carolina (NC)</option><option value="ND">North Dakota (ND)</option><option value="OH">Ohio (OH)</option><option value="OK">Oklahoma (OK)</option><option value="OR">Oregon (OR)</option><option value="PA">Pennsylvania (PA)</option><option value="RI">Rhode Island (RI)</option><option value="SC">South Carolina (SC)</option><option value="SD">South Dakota (SD)</option><option value="TN">Tennessee (TN)</option><option value="TX">Texas (TX)</option><option value="UT">Utah (UT)</option><option value="VT">Vermont (VT)</option><option value="VA">Virginia (VA)</option><option value="WA">Washington (WA)</option><option value="WV">West Virginia (WV)</option><option value="WI">Wisconsin (WI)</option><option value="WY">Wyoming (WY)</option><option value="DC">District of Columbia (DC)</option></select>
-    <input type="text" id="guestState" list="usStateOptions" placeholder="Or type state name or code" autocomplete="address-level1" autocapitalize="characters" required>
+    <div class="im-state-combobox" data-state-input="guestState">
+  <div class="im-state-field"><input type="text" id="guestState" placeholder="Type or select a state" autocomplete="address-level1" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="guestStateSuggestions" aria-label="delivery state" required><button type="button" class="im-state-arrow" aria-label="Show states" tabindex="-1">▾</button></div>
+  <div class="im-state-suggestions" id="guestStateSuggestions" role="listbox" hidden></div>
+</div>
     <datalist id="usStateOptions">
       <option value="AL" label="Alabama"></option>
       <option value="AK" label="Alaska"></option>
@@ -1191,8 +1203,10 @@ font-size: 0 !important;
   <input type="text" id="billingCity" placeholder="City">
 
   <label for="billingState">State</label>
-  <select id="billingStateSelect" aria-label="Choose billing state" style="width:100%;margin-bottom:10px;"><option value="">Choose a state ▼</option><option value="AL">Alabama (AL)</option><option value="AK">Alaska (AK)</option><option value="AZ">Arizona (AZ)</option><option value="AR">Arkansas (AR)</option><option value="CA">California (CA)</option><option value="CO">Colorado (CO)</option><option value="CT">Connecticut (CT)</option><option value="DE">Delaware (DE)</option><option value="FL">Florida (FL)</option><option value="GA">Georgia (GA)</option><option value="HI">Hawaii (HI)</option><option value="ID">Idaho (ID)</option><option value="IL">Illinois (IL)</option><option value="IN">Indiana (IN)</option><option value="IA">Iowa (IA)</option><option value="KS">Kansas (KS)</option><option value="KY">Kentucky (KY)</option><option value="LA">Louisiana (LA)</option><option value="ME">Maine (ME)</option><option value="MD">Maryland (MD)</option><option value="MA">Massachusetts (MA)</option><option value="MI">Michigan (MI)</option><option value="MN">Minnesota (MN)</option><option value="MS">Mississippi (MS)</option><option value="MO">Missouri (MO)</option><option value="MT">Montana (MT)</option><option value="NE">Nebraska (NE)</option><option value="NV">Nevada (NV)</option><option value="NH">New Hampshire (NH)</option><option value="NJ">New Jersey (NJ)</option><option value="NM">New Mexico (NM)</option><option value="NY">New York (NY)</option><option value="NC">North Carolina (NC)</option><option value="ND">North Dakota (ND)</option><option value="OH">Ohio (OH)</option><option value="OK">Oklahoma (OK)</option><option value="OR">Oregon (OR)</option><option value="PA">Pennsylvania (PA)</option><option value="RI">Rhode Island (RI)</option><option value="SC">South Carolina (SC)</option><option value="SD">South Dakota (SD)</option><option value="TN">Tennessee (TN)</option><option value="TX">Texas (TX)</option><option value="UT">Utah (UT)</option><option value="VT">Vermont (VT)</option><option value="VA">Virginia (VA)</option><option value="WA">Washington (WA)</option><option value="WV">West Virginia (WV)</option><option value="WI">Wisconsin (WI)</option><option value="WY">Wyoming (WY)</option><option value="DC">District of Columbia (DC)</option></select>
-  <input type="text" id="billingState" list="usStateOptions" placeholder="Or type state name or code" autocomplete="billing address-level1">
+  <div class="im-state-combobox" data-state-input="billingState">
+  <div class="im-state-field"><input type="text" id="billingState" placeholder="Type or select a state" autocomplete="billing address-level1" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="billingStateSuggestions" aria-label="billing state" required><button type="button" class="im-state-arrow" aria-label="Show states" tabindex="-1">▾</button></div>
+  <div class="im-state-suggestions" id="billingStateSuggestions" role="listbox" hidden></div>
+</div>
 
   <label for="billingPostal">ZIP Code</label>
   <input type="text" id="billingPostal" placeholder="ZIP Code" autocomplete="postal-code" pattern="[0-9]{5}(-[0-9]{4})?" maxlength="10">
@@ -1793,28 +1807,53 @@ function setPaymentBusy(busy) {
   renderReferralRewardChoice();
 }
 // Keep the visible dropdown and manually typed state in sync.
-const stateSelect = document.getElementById("guestStateSelect");
-const stateInput = document.getElementById("guestState");
-stateSelect.addEventListener("change", () => {
-  if (stateSelect.value) stateInput.value = stateSelect.value;
-});
-stateInput.addEventListener("input", () => {
-  const entered = stateInput.value.trim().toUpperCase();
-  const option = Array.from(document.querySelectorAll("#usStateOptions option"))
-    .find(item => item.value === entered || item.label.toUpperCase() === entered);
-  stateSelect.value = option ? option.value : "";
-});
-const billingStateSelect = document.getElementById("billingStateSelect");
-const billingStateInput = document.getElementById("billingState");
-billingStateSelect.addEventListener("change", () => {
-  if (billingStateSelect.value) billingStateInput.value = billingStateSelect.value;
-});
-billingStateInput.addEventListener("input", () => {
-  const entry = billingStateInput.value.trim().toUpperCase();
-  const option = Array.from(document.querySelectorAll("#usStateOptions option"))
-    .find(item => item.value === entry || item.label.toUpperCase() === entry);
-  billingStateSelect.value = option ? option.value : "";
-});
+// One editable field with a visible arrow and filtered state suggestions (including iPhone Safari).
+const usStates = Array.from(document.querySelectorAll("#usStateOptions option"))
+  .map(option => ({code:option.value, name:option.label}));
+function initStateCombobox(inputId) {
+  const input = document.getElementById(inputId);
+  const wrapper = input.closest(".im-state-combobox");
+  const arrow = wrapper.querySelector(".im-state-arrow");
+  const list = wrapper.querySelector(".im-state-suggestions");
+  let highlighted = -1;
+  let visible = [];
+  function close() { list.hidden = true; input.setAttribute("aria-expanded", "false"); highlighted = -1; }
+  function choose(state) { input.value = state.code; input.dispatchEvent(new Event("input", {bubbles:true})); close(); }
+  function render(showAll=false) {
+    const query = showAll ? "" : input.value.trim().toLowerCase();
+    visible = usStates.filter(state => state.code.toLowerCase().includes(query) || state.name.toLowerCase().includes(query));
+    list.replaceChildren();
+    visible.forEach((state, index) => {
+      const item = document.createElement("button");
+      item.type = "button"; item.className = "im-state-choice"; item.setAttribute("role", "option");
+      item.textContent = state.name + " (" + state.code + ")";
+      item.addEventListener("pointerdown", event => event.preventDefault());
+      item.addEventListener("click", () => choose(state));
+      list.appendChild(item);
+    });
+    list.hidden = visible.length === 0;
+    input.setAttribute("aria-expanded", String(!list.hidden));
+    highlighted = -1;
+  }
+  input.addEventListener("input", () => render());
+  input.addEventListener("focus", () => render());
+  arrow.addEventListener("click", () => { if (list.hidden) { render(true); input.focus(); } else close(); });
+  input.addEventListener("keydown", event => {
+    if (event.key === "Escape") { close(); return; }
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault(); if (list.hidden) render(true);
+      if (!visible.length) return;
+      highlighted = (highlighted + (event.key === "ArrowDown" ? 1 : -1) + visible.length) % visible.length;
+      Array.from(list.children).forEach((item,i) => item.classList.toggle("is-active", i===highlighted));
+      list.children[highlighted]?.scrollIntoView({block:"nearest"});
+    } else if (event.key === "Enter" && !list.hidden && highlighted >= 0) {
+      event.preventDefault(); choose(visible[highlighted]);
+    }
+  });
+  document.addEventListener("pointerdown", event => { if (!wrapper.contains(event.target)) close(); });
+}
+initStateCombobox("guestState");
+initStateCombobox("billingState");
 function deliveryPayload() {
   const fields={first_name:"guestFirstName",last_name:"guestLastName",address:"guestAddress",address2:"guestAddress2",city:"guestCity",state:"guestState",postal_code:"guestZip",country:"guestCountry",phone:"guestPhone"};
   const shippingAddress={};
@@ -2612,7 +2651,6 @@ const checkoutAccount = (() => {
       .find(option => option.value === stateEntry || option.label.toUpperCase() === stateEntry);
     if (!matchingState) { byId("billingState").focus(); throw new Error("Choose or enter a valid U.S. billing state."); }
     byId("billingState").value = matchingState.value;
-    byId("billingStateSelect").value = matchingState.value;
     for (const id of ["billingFirstName", "billingLastName", "billingAddress", "billingCity", "billingState", "billingPostal"]) {
       const input = byId(id);
       if (!input.value.trim() || !input.reportValidity()) {

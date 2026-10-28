@@ -1593,7 +1593,7 @@ if (standardShippingPrice) {
       ? "FREE"
       : "$8.99";
 }
-  const taxRate = 0.0925; // DISPLAY ESTIMATE ONLY; server quote is authoritative.
+  const taxRate = 0.0925; // TEMPORARY ESTIMATE ONLY. Server also uses this rate; verify destination tax before enabling payments.
 
   const taxableAmount =
     discountedSubtotal + shippingCost;
@@ -1795,6 +1795,15 @@ payButton.addEventListener("click", async () => {
         shippingMethod,promoCode:appliedPromoCode,useReferralRewards};
       const {data,error}=await supabaseClient.functions.invoke("stripe-create-payment-intent",{body});
       if (error || !data?.clientSecret) throw Error(data?.error || "Stripe server preparation is not enabled or failed. No card payment was submitted.");
+      // Fail closed if the server's authoritative amount differs from the displayed estimate.
+      // Do not expose the card form when totals disagree.
+      const displayedTotal = document.getElementById("orderSummaryTotal")?.textContent?.trim() || "";
+      const displayedCents = Math.round(Number(displayedTotal.replace(/[^0-9.]/g, "")) * 100);
+      if (data.environment !== "test" || !Number.isSafeInteger(data.amountCents) ||
+          !Number.isSafeInteger(displayedCents) || displayedCents < 50 ||
+          data.amountCents !== displayedCents) {
+        throw Error("Checkout amount does not match the server-approved Stripe test amount. No card form was opened. Please contact support.");
+      }
       stripeElements=stripe.elements({clientSecret:data.clientSecret});
       stripePaymentElement=stripeElements.create("payment",{layout:"tabs",fields:{billingDetails:{name:"never",email:"never",address:"never"}}});
       stripePaymentElement.mount("#stripePaymentElement");

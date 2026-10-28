@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IM Collections — Cart & Checkout Test</title>
+<style>body{font-family:Arial,sans-serif;background:#f7f7f7;color:#111;margin:0}header{background:#111;color:white;padding:20px;text-align:center}main{max-width:760px;margin:20px auto;padding:16px}.notice{background:#fff3cd;padding:15px;border:1px solid #d6b45d;border-radius:8px}.item{display:flex;gap:15px;align-items:center;background:#fff;border:1px solid #ddd;border-radius:10px;padding:14px;margin:12px 0}.item img{width:85px;height:85px;object-fit:contain}.item div{flex:1}.muted{color:#555}.summary{background:#fff;border-radius:10px;padding:18px;margin-top:20px}.line{display:flex;justify-content:space-between;margin:10px 0}a{color:#111}button{background:#111;color:white;padding:12px;border:0;border-radius:6px}</style></head>
+<body><header>IM COLLECTIONS · CHECKOUT CART TEST</header><main>
+<div class="notice"><strong>TEST PAGE — NO PAYMENTS</strong><p>This page checks the products, quantities and selling-price subtotal saved by your store. Your live checkout is unchanged.</p></div>
+<p><a href="index.html">← Return to store</a></p><h2>Your selected products <span id="count"></span></h2><div id="items"></div>
+<div class="summary"><div class="line"><strong>Merchandise subtotal (selling prices)</strong><strong id="subtotal"></strong></div><p class="muted">Shipping, promotions, sales tax and payment are not calculated on this diagnostic page.</p></div>
+</main><script>
+(function(){
+const target=document.getElementById('items'), subtotal=document.getElementById('subtotal');
+let cart;try{cart=JSON.parse(localStorage.getItem('imCollectionsCart')||'[]')}catch(e){cart=[]}
+if(!Array.isArray(cart))cart=[];
+document.getElementById('count').textContent='('+cart.length+' cart lines)';
+if(!cart.length){target.textContent='No products found in this browser\'s store cart. Open the store, confirm the cart, then use its checkout link.';subtotal.textContent='$0.00';return}
+let total=0;
+for(const item of cart){
+ const qty=Number(item.quantity),price=Number(item.price);
+ const valid=Number.isSafeInteger(qty)&&qty>0&&Number.isFinite(price)&&price>=0;
+ const cents=valid?Math.round(price*100)*qty:0;total+=cents;
+ const row=document.createElement('div');row.className='item';
+ const src=(Array.isArray(item.images)&&item.images.filter(Boolean)[0])||item.image||'';
+ if(src){const img=document.createElement('img');img.src=src;img.alt='';row.appendChild(img)}
+ const info=document.createElement('div');
+ const name=document.createElement('strong');name.textContent=String(item.name||'Unnamed product');info.appendChild(name);
+ const detail=document.createElement('p');detail.className='muted';detail.textContent='Qty: '+(valid?qty:'INVALID')+' · Unit price: '+(Number.isFinite(price)?'$'+price.toFixed(2):'INVALID')+(item.size?' · Size: '+item.size:'')+(item.color?' · Color: '+item.color:'');info.appendChild(detail);
+ const amount=document.createElement('strong');amount.textContent=valid?'$'+(cents/100).toFixed(2):'Check item data';row.append(info,amount);target.appendChild(row);
+}
+subtotal.textContent='$'+(total/100).toFixed(2);
+})();
+</script></body></html>

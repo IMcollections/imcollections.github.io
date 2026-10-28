@@ -1785,7 +1785,7 @@ payButton.addEventListener("click", async () => {
     if (shippingMethod !== "standard") throw Error("This Stripe test draft only supports standard shipping until server pricing is verified.");
     if (appliedPromoCode || useReferralRewards) throw Error("Stripe discount and referral settlement has not been verified. Clear rewards/promotions before this test.");
     if (!stripeAttemptId) {
-      checkoutNotice("Preparing Stripe test payment through Supabase…");
+      checkoutNotice("Calculating destination-based sales tax with Stripe Tax (sandbox)…");
       const {data:{session}}=await supabaseClient.auth.getSession();
       const attemptId=crypto.randomUUID();
       const body={attemptId,...delivery,userAccessToken:session?.access_token||null,
@@ -1803,6 +1803,7 @@ payButton.addEventListener("click", async () => {
       document.getElementById("orderSummaryTotal").textContent = `${(quote.totalCents/100).toFixed(2)}`;
       checkoutTotal.textContent = `${(quote.totalCents/100).toFixed(2)}`;
       syncBottomOrderSummary();
+      checkoutNotice(`Stripe Tax quote verified: ${(quote.taxCents/100).toFixed(2)} tax; ${(quote.totalCents/100).toFixed(2)} total. Checking whether sandbox payment setup is enabled…`);
       const {data,error}=await supabaseClient.functions.invoke("stripe-create-payment-intent",{body});
       if (error || !data?.clientSecret) {
         // Supabase FunctionsHttpError often stores the JSON error in the response body.
@@ -1813,6 +1814,10 @@ payButton.addEventListener("click", async () => {
             const details = await error.context.json();
             serverMessage = details?.error;
           } catch (_) { /* Response may not be JSON. */ }
+        }
+        if (data?.setupPending || serverMessage?.includes("payment setup is not ready")) {
+          checkoutNotice(`Stripe Tax quote verified: ${(quote.taxCents/100).toFixed(2)} tax; ${(quote.totalCents/100).toFixed(2)} total. Payments remain disabled for safety; no charge was started.`);
+          return;
         }
         throw Error(serverMessage || "Stripe test payment preparation failed. No card payment was submitted.");
       }

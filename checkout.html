@@ -1052,23 +1052,15 @@ font-size: 0 !important;
       id="paymentMethodCard"
       checked
     >
-    <span>Credit / Debit Card</span>
+    <span>Credit / Debit Card (Stripe test mode)</span>
   </label>
-  <label class="payment-method-option">
-    <input type="radio" name="paymentMethod" value="shoppay" id="paymentMethodShopPay">
-    <span>Shop Pay</span>
-  </label>
+
   
 </div>
 
-<!-- INSERTED: Hidden Container Box for the actual Shop Pay Button -->
-<div id="shopPayPaymentSection" style="display: none; margin: 18px 0 28px;">
-  <div id="shop-pay-button-container"></div>
-</div>
 
-<div id="cardPaymentSection">
-</dialog>
-</div>
+
+
       
   <p class="secure-note">
     Pay securely with credit or debit card.
@@ -1593,13 +1585,12 @@ if (standardShippingPrice) {
       ? "FREE"
       : "$8.99";
 }
-  const taxRate = 0.0925; // TEMPORARY ESTIMATE ONLY. Server also uses this rate; verify destination tax before enabling payments.
+  // Destination tax must come from the server quote; never assume a California rate.
 
   const taxableAmount =
     discountedSubtotal + shippingCost;
 
-  const estimatedTax =
-    Math.round(Math.round(taxableAmount * 100) * taxRate) / 100;
+  const estimatedTax = 0; // Pending a verified server-side CDTFA quote.
 
   const total =
     taxableAmount + estimatedTax; 
@@ -1614,13 +1605,13 @@ if (standardShippingPrice) {
 
   document.getElementById("checkoutTax")
     .textContent =
-    `$${estimatedTax.toFixed(2)}`;
+    "Calculated before payment";
 
 document.getElementById("orderSummaryTotal").textContent =
-  `$${total.toFixed(2)}`;
+  "Pending tax quote";
 
   checkoutTotal.textContent =
-    `$${total.toFixed(2)}`;
+    "Pending tax quote";
 
   document.querySelectorAll(".shipping-summary-label").forEach(label => {
     label.textContent = selectedShippingMethod === "standard" ? "Shipping:" : "Shipping (Unavailable):";
@@ -1656,7 +1647,9 @@ document
   document.getElementById("cardPaymentSection");
 
 const paymentMethodRadios = document.querySelectorAll('input[name="paymentMethod"]');
-function showSelectedPaymentMethod() { cardPaymentSection.style.display = "block"; }
+function showSelectedPaymentMethod() {
+  if (cardPaymentSection) cardPaymentSection.style.display = "block";
+}
 paymentMethodRadios.forEach((radio) => {
   radio.addEventListener(
     "change",
@@ -1724,7 +1717,8 @@ document
     document.getElementById("applyDiscount").click();
   });
     
-    // Stripe sandbox integration, based on checkout.html 14; v31 remains the source of truth for layout and cart.
+    // Stripe sandbox integration. Version 36 draft based on version 35.
+    // Keep the V31 storage key for backward-compatible duplicate-payment protection.
 const attemptStorageKey = "imStripeTestAttemptV31";
 let paymentBusy = false;
 let latestOrderNumber = null;
@@ -1797,6 +1791,18 @@ payButton.addEventListener("click", async () => {
       const body={attemptId,...delivery,userAccessToken:session?.access_token||null,
         items:checkoutCart.map(i=>({id:i.id,quantity:i.quantity,size:i.size,color:i.color})),
         shippingMethod,promoCode:appliedPromoCode,useReferralRewards};
+      // Quote must use the same cart, address, shipping and member context as the intent.
+      // The quote endpoint must first be upgraded to the CDTFA calculation.
+      const {data:quote, error:quoteError}=await supabaseClient.functions.invoke("stripe-sandbox-quote",{body});
+      if (quoteError || !quote || !Number.isSafeInteger(quote.totalCents) ||
+          !Number.isSafeInteger(quote.taxCents) || quote.taxCents < 0 ||
+          quote.taxSource !== "cdtfa-destination-v1") {
+        throw Error("Verified destination-tax quote unavailable. No payment was started.");
+      }
+      document.getElementById("checkoutTax").textContent = `${(quote.taxCents/100).toFixed(2)}`;
+      document.getElementById("orderSummaryTotal").textContent = `${(quote.totalCents/100).toFixed(2)}`;
+      checkoutTotal.textContent = `${(quote.totalCents/100).toFixed(2)}`;
+      syncBottomOrderSummary();
       const {data,error}=await supabaseClient.functions.invoke("stripe-create-payment-intent",{body});
       if (error || !data?.clientSecret) {
         // Supabase FunctionsHttpError often stores the JSON error in the response body.
@@ -1851,6 +1857,9 @@ payButton.addEventListener("click", async () => {
     }
     checkoutNotice("Stripe confirmation submitted. Order fulfillment requires verified webhook processing; check the order in Supabase before treating it as complete.");
   } catch(error) {
+    if (stripeConfirmationPending || localStorage.getItem(attemptStorageKey)) {
+      statusButton.hidden = false;
+    }
     checkoutNotice(error.message||"Stripe test checkout failed.",true);
   } finally { setPaymentBusy(false); }
 });

@@ -1792,11 +1792,11 @@ payButton.addEventListener("click", async () => {
         items:checkoutCart.map(i=>({id:i.id,quantity:i.quantity,size:i.size,color:i.color})),
         shippingMethod,promoCode:appliedPromoCode,useReferralRewards};
       // Quote must use the same cart, address, shipping and member context as the intent.
-      // The quote endpoint must first be upgraded to the CDTFA calculation.
+      // Quote uses Stripe Tax destination calculation; payments remain separately gated.
       const {data:quote, error:quoteError}=await supabaseClient.functions.invoke("stripe-sandbox-quote",{body});
       if (quoteError || !quote || !Number.isSafeInteger(quote.totalCents) ||
           !Number.isSafeInteger(quote.taxCents) || quote.taxCents < 0 ||
-          quote.taxSource !== "cdtfa-destination-v1") {
+          quote.taxSource !== "stripe-tax-v1") {
         throw Error("Verified destination-tax quote unavailable. No payment was started.");
       }
       document.getElementById("checkoutTax").textContent = `${(quote.taxCents/100).toFixed(2)}`;

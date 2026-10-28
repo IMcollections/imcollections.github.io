@@ -1746,6 +1746,10 @@ function deliveryPayload() {
     shippingAddress[key]=field.value.trim();
   }
   if (shippingAddress.country !== "United States") throw Error("Shipping is limited to the United States.");
+  // Stripe Tax expects a two-letter US state code and a valid US ZIP code.
+  shippingAddress.state = shippingAddress.state.toUpperCase();
+  if (!/^[A-Z]{2}$/.test(shippingAddress.state)) throw Error("Enter the two-letter state abbreviation (for example, CA).");
+  if (!/^\d{5}(-\d{4})?$/.test(shippingAddress.postal_code)) throw Error("Enter a valid five-digit US ZIP code.");
   const email=document.getElementById("guestEmail");
   if (!email.reportValidity()) throw Error("Enter a valid checkout email.");
   if (!document.getElementById("acceptPolicies").checked) throw Error("Accept the checkout policies before continuing.");

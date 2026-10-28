@@ -1758,10 +1758,13 @@ function deliveryPayload() {
   if (!checkoutCart.length) throw Error("Your cart is empty.");
   return {email:email.value.trim(),shippingAddress};
 }
-function stripeCartSnapshot() {
+function stripeCartSnapshot(delivery) {
+  // A prepared PaymentIntent is tied to the quoted cart AND delivery details.
+  // Any change requires a new, separately verified quote; never reuse the old intent.
   return JSON.stringify({items:checkoutCart.map(i=>({id:i.id,quantity:i.quantity,size:i.size,color:i.color})),
     shippingMethod:document.querySelector('input[name="shippingMethod"]:checked')?.value||"standard",
-    promoCode:appliedPromoCode,useReferralRewards});
+    promoCode:appliedPromoCode,useReferralRewards,
+    email:delivery.email,shippingAddress:delivery.shippingAddress});
 }
 let stripePreparedSnapshot = null;
 const payButton = document.getElementById("paymentButton");
@@ -1808,13 +1811,13 @@ payButton.addEventListener("click", async () => {
       stripePaymentElement=stripeElements.create("payment",{layout:"tabs",fields:{billingDetails:{name:"never",email:"never",address:"never"}}});
       stripePaymentElement.mount("#stripePaymentElement");
       stripeAttemptId=attemptId;
-      stripePreparedSnapshot=stripeCartSnapshot();
+      stripePreparedSnapshot=stripeCartSnapshot(delivery);
       payButton.textContent="CONFIRM STRIPE TEST PAYMENT";
       document.getElementById("stripePaymentHint").textContent="Enter Stripe test card details, then confirm your test payment.";
       checkoutNotice("Stripe test form prepared. Verify the total and enter test card details.");
       return;
     }
-    if (stripeCartSnapshot() !== stripePreparedSnapshot) throw Error("Cart or shipping changed. Refresh to prepare a new quote; do not confirm this payment.");
+    if (stripeCartSnapshot(delivery) !== stripePreparedSnapshot) throw Error("Cart, delivery address, email, or shipping changed after the Stripe quote. Do not confirm this payment. The existing attempt must be reviewed before starting a new quote.");
     const name=document.getElementById("cardholderName").value.trim();
     if (!name) throw Error("Enter the name on the card.");
     const {error:submitError}=await stripeElements.submit();

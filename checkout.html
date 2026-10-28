@@ -1775,6 +1775,7 @@ statusButton.hidden = true;
 if (localStorage.getItem(attemptStorageKey)) {
   stripeConfirmationPending = true;
   payButton.disabled = true;
+  statusButton.hidden = false;
   checkoutNotice("A Stripe test payment was previously submitted or prepared. Check its status in Stripe/Supabase before attempting another payment. No automatic retry is allowed.",true);
 }
 payButton.addEventListener("click", async () => {
@@ -1797,7 +1798,18 @@ payButton.addEventListener("click", async () => {
         items:checkoutCart.map(i=>({id:i.id,quantity:i.quantity,size:i.size,color:i.color})),
         shippingMethod,promoCode:appliedPromoCode,useReferralRewards};
       const {data,error}=await supabaseClient.functions.invoke("stripe-create-payment-intent",{body});
-      if (error || !data?.clientSecret) throw Error(data?.error || "Stripe server preparation is not enabled or failed. No card payment was submitted.");
+      if (error || !data?.clientSecret) {
+        // Supabase FunctionsHttpError often stores the JSON error in the response body.
+        // Show the server's actual setup/validation message instead of a generic failure.
+        let serverMessage = data?.error;
+        if (!serverMessage && error?.context && typeof error.context.json === "function") {
+          try {
+            const details = await error.context.json();
+            serverMessage = details?.error;
+          } catch (_) { /* Response may not be JSON. */ }
+        }
+        throw Error(serverMessage || "Stripe test payment preparation failed. No card payment was submitted.");
+      }
       // Fail closed if the server's authoritative amount differs from the displayed estimate.
       // Do not expose the card form when totals disagree.
       const displayedTotal = document.getElementById("orderSummaryTotal")?.textContent?.trim() || "";
@@ -1808,7 +1820,9 @@ payButton.addEventListener("click", async () => {
         throw Error("Checkout amount does not match the server-approved Stripe test amount. No card form was opened. Please contact support.");
       }
       stripeElements=stripe.elements({clientSecret:data.clientSecret});
-      stripePaymentElement=stripeElements.create("payment",{layout:"tabs",fields:{billingDetails:{name:"never",email:"never",address:"never"}}});
+      // Let Stripe collect any billing address fields required by the selected card.
+      // The cardholder name and email are also supplied at confirmation.
+      stripePaymentElement=stripeElements.create("payment",{layout:"tabs",fields:{billingDetails:{name:"never",email:"never"}}});
       stripePaymentElement.mount("#stripePaymentElement");
       stripeAttemptId=attemptId;
       stripePreparedSnapshot=stripeCartSnapshot(delivery);

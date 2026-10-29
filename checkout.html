@@ -946,6 +946,10 @@ font-size: 0 !important;
   <span>Total</span>
   <span id="checkoutTotal">$0.00</span>
 </div>
+<div class="summary-row" style="padding-top:8px;">
+  <span>Total products/items purchased</span>
+  <strong id="checkoutOrderItemCount">0</strong>
+</div>
 
 </div>   <!-- closes orderSummaryContent -->
 
@@ -2260,9 +2264,9 @@ function updateOrderSummaryItemCounts() {
     const quantity = Number(item.quantity);
     return total + (Number.isFinite(quantity) && quantity > 0 ? quantity : 0);
   }, 0);
-  const bottomCount = document.getElementById("bottomOrderItemCount");
-  if (bottomCount) {
-    bottomCount.textContent = String(totalQuantity);
+  for (const id of ["bottomOrderItemCount", "checkoutOrderItemCount"]) {
+    const count = document.getElementById(id);
+    if (count) count.textContent = String(totalQuantity);
   }
 }
 

@@ -1924,7 +1924,8 @@ payButton.addEventListener("click", async () => {
       const {data:quote, error:quoteError}=await supabaseClient.functions.invoke("stripe-sandbox-quote",{body});
       if (quoteError || !quote || !Number.isSafeInteger(quote.totalCents) ||
           !Number.isSafeInteger(quote.taxCents) || quote.taxCents < 0 ||
-          quote.taxSource !== "stripe-tax-v1") {
+          !((delivery.shippingAddress.state === "CA" && quote.taxSource === "stripe-tax-v1") ||
+            (delivery.shippingAddress.state !== "CA" && quote.taxSource === "ca-only-zero-v1" && quote.taxCents === 0))) {
         throw Error("Verified destination-tax quote unavailable. No payment was started.");
       }
       document.getElementById("checkoutTax").textContent = `${(quote.taxCents/100).toFixed(2)}`;

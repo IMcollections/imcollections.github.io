@@ -2226,7 +2226,18 @@ function renderExpandedSummaryItems() {
     const quantity = document.createElement("div"); quantity.className = "order-quantity"; quantity.textContent = `Quantity: ${product.quantity}`;
     details.append(name, quantity);
     appendCheckoutItemDetails(details, product);
-    const price = document.createElement("div"); price.className = "order-price"; price.textContent = `$${(Number(product.price) * product.quantity).toFixed(2)}`;
+    const price = document.createElement("div"); price.className = "order-price";
+    const saleAmount = Number(product.price) * Number(product.quantity);
+    price.textContent = `${saleAmount.toFixed(2)}`;
+    const oldValue = checkoutOriginalPrices.has(product.id)
+      ? checkoutOriginalPrices.get(product.id) : (product.oldPrice ?? product.old_price);
+    const oldAmount = Number(oldValue) * Number(product.quantity);
+    if (Number.isFinite(oldAmount) && oldAmount > saleAmount) {
+      const original = document.createElement("span");
+      original.textContent = `${oldAmount.toFixed(2)}`;
+      original.style.cssText = "margin-left:10px;color:#777;text-decoration:line-through;font-weight:400;";
+      price.appendChild(original);
+    }
     row.append(wrapper, details, price); checkoutItems.appendChild(row);
   });
   if (!checkoutCart.length) checkoutItems.textContent = "Your cart is empty.";

@@ -1636,10 +1636,11 @@ let checkoutTaxQuoteVersion = 0;
 function checkoutTaxAddress() {
   const read = id => document.getElementById(id)?.value.trim() || "";
   const entered = read("guestState").toUpperCase();
-  const state = usStates.find(s => s.code === entered || s.name.toUpperCase() === entered)?.code;
+  const state = Array.from(document.querySelectorAll("#usStateOptions option"))
+    .find(o => o.value === entered || o.label.toUpperCase() === entered)?.value;
   const address = read("guestAddress"), city = read("guestCity");
   const postal_code = read("guestZip"), country = read("guestCountry");
-  if (!state || !address || !city || !/^\\d{5}(-\\d{4})?$/.test(postal_code) || country !== "United States") return null;
+  if (!state || !address || !city || !/^\d{5}(-\d{4})?$/.test(postal_code) || country !== "United States") return null;
   return {address, address2:read("guestAddress2"),city,state,postal_code,country};
 }
 function queueCheckoutTaxQuote() {

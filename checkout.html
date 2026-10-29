@@ -1630,6 +1630,68 @@ function renderCheckoutSavings() {
   }
 }
 
+
+let checkoutTaxQuoteTimer = null;
+let checkoutTaxQuoteVersion = 0;
+function checkoutTaxAddress() {
+  const read = id => document.getElementById(id)?.value.trim() || "";
+  const entered = read("guestState").toUpperCase();
+  const state = usStates.find(s => s.code === entered || s.name.toUpperCase() === entered)?.code;
+  const address = read("guestAddress"), city = read("guestCity");
+  const postal_code = read("guestZip"), country = read("guestCountry");
+  if (!state || !address || !city || !/^\\d{5}(-\\d{4})?$/.test(postal_code) || country !== "United States") return null;
+  return {address, address2:read("guestAddress2"),city,state,postal_code,country};
+}
+function queueCheckoutTaxQuote() {
+  clearTimeout(checkoutTaxQuoteTimer);
+  const version = ++checkoutTaxQuoteVersion;
+  const taxNode = document.getElementById("checkoutTax");
+  const totalNode = document.getElementById("orderSummaryTotal");
+  const method = document.querySelector('input[name="shippingMethod"]:checked')?.value || "standard";
+  const address = checkoutTaxAddress();
+  const showPending = message => {
+    taxNode.textContent = message;
+    totalNode.textContent = "Pending verified tax";
+    checkoutTotal.textContent = "Pending verified tax";
+    syncBottomOrderSummary();
+  };
+  if (!address) { showPending("Enter shipping address"); return; }
+  if (method !== "standard") { showPending("Shipping option unavailable"); return; }
+  showPending("Calculating…");
+  checkoutTaxQuoteTimer = setTimeout(async () => {
+    try {
+      const {data:{session}} = await supabaseClient.auth.getSession();
+      const {data:quote,error} = await supabaseClient.functions.invoke("stripe-sandbox-quote",{
+        body:{attemptId:crypto.randomUUID(),shippingAddress:address,
+          items:checkoutCart.map(i=>({id:i.id,quantity:i.quantity,size:i.size,color:i.color})),
+          shippingMethod:method,promoCode:appliedPromoCode,useReferralRewards,
+          userAccessToken:session?.access_token||null}
+      });
+      if (version !== checkoutTaxQuoteVersion) return;
+      const expectedSubtotal = Math.round(subtotal*100);
+      const expectedDiscount = Math.round(discountAmount*100);
+      const expectedShipping = standardShippingFree(expectedSubtotal,expectedDiscount) ? 0 : 899;
+      const valid = !error && quote &&
+        [quote.subtotalCents,quote.discountCents,quote.rewardCents,quote.shippingCents,
+          quote.taxCents,quote.totalCents].every(Number.isSafeInteger) &&
+        quote.subtotalCents === expectedSubtotal &&
+        quote.discountCents + quote.rewardCents === expectedDiscount &&
+        quote.shippingCents === expectedShipping && quote.taxCents >= 0 &&
+        quote.totalCents === quote.subtotalCents-quote.discountCents-quote.rewardCents+
+          quote.shippingCents+quote.taxCents &&
+        (address.state === "CA" ? quote.taxSource === "stripe-tax-v1" :
+          quote.taxSource === "ca-only-zero-v1" && quote.taxCents === 0);
+      if (!valid) throw Error("Quote does not match cart or address");
+      taxNode.textContent = "$" + (quote.taxCents/100).toFixed(2);
+      totalNode.textContent = (quote.totalCents/100).toFixed(2);
+      checkoutTotal.textContent = (quote.totalCents/100).toFixed(2);
+      syncBottomOrderSummary();
+    } catch (_) {
+      if (version === checkoutTaxQuoteVersion) showPending("Tax unavailable — verify address");
+    }
+  }, 700);
+}
+
 function updateCheckoutTotal() {
 
   const discountedSubtotal =
@@ -1701,9 +1763,15 @@ document.getElementById("orderSummaryTotal").textContent =
   }
   renderReferralRewardChoice();
   syncBottomOrderSummary();
+  queueCheckoutTaxQuote();
 }
 
 updateCheckoutTotal();
+["guestAddress","guestAddress2","guestCity","guestState","guestZip","guestCountry"].forEach(id => {
+  const field = document.getElementById(id);
+  field?.addEventListener("input",queueCheckoutTaxQuote);
+  field?.addEventListener("change",queueCheckoutTaxQuote);
+});
 
 document
   .querySelectorAll(
@@ -2745,6 +2813,7 @@ const checkoutAccount = (() => {
     }
   });
   ready = load();
+  ready.then(() => queueCheckoutTaxQuote()).catch(() => {});
   return {
     get ready() { return ready; }, copyBilling, validateBilling, savePreference,
     checkReady() { if (loading || failed) throw new Error("Check your account with Retry Account Details before paying."); }

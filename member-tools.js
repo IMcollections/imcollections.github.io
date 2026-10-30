@@ -519,7 +519,7 @@
       copy.append(el("h3", p.name), el("p", "$" + Number(p.price).toFixed(2)));
       if (p.size) copy.append(el("p", "Size: " + p.size));
       if (Number(p.quantity) === 0)
-        copy.append(el("p", "Currently unavailable"));
+        copy.append(el("p", "Out of Stock — this item is unavailable right now."));
       const shop = el("a", "Find Your Collections");
       shop.href = "index.html#featured";
       const choices = {};

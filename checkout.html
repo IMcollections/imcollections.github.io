@@ -1146,8 +1146,8 @@ font-size: 0 !important;
 />
 
   <div id="stripeCardFields" aria-label="Secure Stripe card details" style="border:1px solid #d6d6d6;border-radius:10px;padding:14px;margin:12px 0;">
-    <strong style="display:block;margin-bottom:8px">Card number · Expiration date · Security code (CVC)</strong>
-    <p id="stripePaymentHint" class="secure-note" role="status">These secure Stripe card fields appear here after you tap PREPARE STRIPE TEST PAYMENT at the bottom of checkout. Stripe verifies the tax and total before opening the card form.</p>
+    <strong style="display:block;margin-bottom:8px">Secure Stripe card entry</strong>
+    <p id="stripePaymentHint" class="secure-note" role="status">The secure card number, expiration date, and CVC fields will load here only after Stripe successfully prepares a test payment. Complete checkout and tap PREPARE STRIPE TEST PAYMENT at the bottom.</p>
     <div id="stripePaymentElement" style="min-height:36px;margin:12px 0"></div>
   </div>
 
@@ -2017,7 +2017,8 @@ payButton.addEventListener("click", async () => {
           } catch (_) { /* Response may not be JSON. */ }
         }
         if (data?.setupPending || serverMessage?.includes("payment setup is not ready")) {
-          checkoutNotice(`Stripe Tax quote verified: ${(quote.taxCents/100).toFixed(2)} tax; ${(quote.totalCents/100).toFixed(2)} total. Payments remain disabled for safety; no charge was started.`);
+          document.getElementById("stripePaymentHint").textContent = "Stripe card fields are unavailable because the payment server reports that IM_STRIPE_PAYMENTS_READY is not enabled. No charge was started.";
+          checkoutNotice(`Stripe Tax quote verified: ${(quote.taxCents/100).toFixed(2)} tax; ${(quote.totalCents/100).toFixed(2)} total. The server is still blocking Stripe test payments (IM_STRIPE_PAYMENTS_READY). No charge was started.`,true);
           return;
         }
         throw Error(serverMessage || "Stripe test payment preparation failed. No card payment was submitted.");

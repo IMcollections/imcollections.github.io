@@ -577,7 +577,7 @@
           if (live.error) throw Error("Could not verify live stock. Please try again.");
           const remaining = Number(live.data?.find(x => Number(x.product_id) === Number(product.id))?.available ?? 0);
           if (total + 1 > remaining) {
-            throw Error("Out of Stock — this item is no longer available in the requested quantity.");
+            throw Error(remaining <= 0 ? "Out of Stock — this item is unavailable." : "You already have " + total + " in your cart; only " + remaining + " available.");
           }
           for (const [field, selected] of [["size", size], ["color", color]]) {
             const available = product[field + "s"];

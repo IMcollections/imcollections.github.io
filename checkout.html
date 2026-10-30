@@ -1145,9 +1145,11 @@ font-size: 0 !important;
   autocomplete="cc-name"
 />
 
-  <div id="stripePaymentElement" style="min-height:36px;margin:12px 0"></div>
-  <p id="stripePaymentHint" class="secure-note" role="status">To enter test card details, first complete your shipping address and accept the checkout policies. Then tap Prepare Stripe Test Payment below. Stripe securely displays the card fields after verifying your order total and tax.</p>
-  <button type="button" id="prepareStripeNearCard" class="payment-button" style="width:100%;margin:12px 0">PREPARE SECURE TEST CARD FORM</button>
+  <div id="stripeCardFields" aria-label="Secure Stripe card details" style="border:1px solid #d6d6d6;border-radius:10px;padding:14px;margin:12px 0;">
+    <strong style="display:block;margin-bottom:8px">Card number · Expiration date · Security code (CVC)</strong>
+    <p id="stripePaymentHint" class="secure-note" role="status">These secure Stripe card fields appear here after you tap PREPARE STRIPE TEST PAYMENT at the bottom of checkout. Stripe verifies the tax and total before opening the card form.</p>
+    <div id="stripePaymentElement" style="min-height:36px;margin:12px 0"></div>
+  </div>
 
 
 
@@ -1961,8 +1963,6 @@ function stripeCartSnapshot(delivery) {
 let stripePreparedSnapshot = null;
 const payButton = document.getElementById("paymentButton");
 payButton.textContent = "PREPARE STRIPE TEST PAYMENT";
-const nearCardPrepareButton = document.getElementById("prepareStripeNearCard");
-nearCardPrepareButton?.addEventListener("click", () => payButton.click());
 const statusButton = document.getElementById("retryPaymentStatus");
 statusButton.hidden = true;
 // Never retry an unresolved payment automatically or initiate a duplicate charge.
@@ -2036,7 +2036,6 @@ payButton.addEventListener("click", async () => {
       // The cardholder name and email are also supplied at confirmation.
       stripePaymentElement=stripeElements.create("payment",{layout:"tabs",fields:{billingDetails:{name:"never",email:"never"}}});
       stripePaymentElement.mount("#stripePaymentElement");
-      if (nearCardPrepareButton) nearCardPrepareButton.hidden = true;
       stripeAttemptId=attemptId;
       stripePreparedSnapshot=stripeCartSnapshot(delivery);
       payButton.textContent="CONFIRM STRIPE TEST PAYMENT";

@@ -285,7 +285,7 @@
         const status = el('p'); status.className = 'im-view-status'; status.setAttribute('role','status');
         if (wishlistRow) {
           const add = el('button', 'Add to Cart'); add.type = 'button'; add.className = 'im-view-add';
-          add.disabled = product.quantity != null && Number(product.quantity) <= 0;
+          add.disabled = Number(product.imAvailable ?? product.quantity ?? 0) <= 0;
           add.onclick = async () => {
             if (sizes.length && !chosenSize) { status.textContent = 'Please select a size first.'; return; }
             const existingChoice = wishlistRow.querySelector('label select');
@@ -295,7 +295,7 @@
             if (!wishlistAdd || typeof wishlistAdd.onclick !== 'function') { status.textContent = 'Please add this product from your Wishlist card.'; return; }
             add.disabled = true;
             try { await wishlistAdd.onclick(); status.textContent = wishlistRow.querySelector('[role="status"]')?.textContent || 'Please check your cart.'; }
-            finally { add.disabled = product.quantity != null && Number(product.quantity) <= 0; }
+            finally { add.disabled = Number(product.imAvailable ?? product.quantity ?? 0) <= 0; }
           };
           details.append(add);
         }
@@ -498,8 +498,17 @@
       );
       return;
     }
+    const stock = await db.rpc("im_wishlist_available_stock", { p_product_ids: [...wishlist] });
+    if (stamp !== version) return;
+    if (stock.error) {
+      target.replaceChildren(el("p", "Live stock is unavailable. Please refresh your Wishlist."));
+      return;
+    }
+    const availableById = new Map((stock.data || []).map(x => [Number(x.product_id), Number(x.available)]));
     target.replaceChildren();
     for (const p of r.data || []) {
+      const available = availableById.get(Number(p.id)) ?? 0;
+      p.imAvailable = available;
       const row = el("article");
       row.className = "im-wish-item";
       const image = safeImage(p.image_urls?.[0]);
@@ -518,7 +527,7 @@
       const copy = el("div");
       copy.append(el("h3", p.name), el("p", "$" + Number(p.price).toFixed(2)));
       if (p.size) copy.append(el("p", "Size: " + p.size));
-      if (Number(p.quantity) === 0)
+      if (available <= 0)
         copy.append(el("p", "Out of Stock — this item is unavailable right now."));
       const shop = el("a", "Find Your Collections");
       shop.href = "index.html#featured";
@@ -542,7 +551,7 @@
       }
       const add = el("button", "Add to Cart");
       add.type = "button";
-      add.disabled = p.quantity != null && Number(p.quantity) <= 0;
+      add.disabled = available <= 0;
       const cartMessage = el("p");
       cartMessage.setAttribute("role", "status");
       cartMessage.setAttribute("aria-live", "polite");
@@ -564,8 +573,11 @@
           const id = 1000000 + Number(product.id);
           const total = cart.filter(item => Number(item.id) === id)
             .reduce((sum, item) => sum + Number(item.quantity || 0), 0);
-          if (product.quantity != null && total + 1 > Number(product.quantity)) {
-            throw Error("No more stock is available for this item.");
+          const live = await db.rpc("im_wishlist_available_stock", { p_product_ids: [Number(product.id)] });
+          if (live.error) throw Error("Could not verify live stock. Please try again.");
+          const remaining = Number(live.data?.find(x => Number(x.product_id) === Number(product.id))?.available ?? 0);
+          if (total + 1 > remaining) {
+            throw Error("Out of Stock — this item is no longer available in the requested quantity.");
           }
           for (const [field, selected] of [["size", size], ["color", color]]) {
             const available = product[field + "s"];
@@ -586,7 +598,7 @@
         } catch (error) {
           cartMessage.textContent = error.message || "Could not add this item to your cart.";
         } finally {
-          add.disabled = p.quantity != null && Number(p.quantity) <= 0;
+          add.disabled = available <= 0;
         }
       };
       const remove = el("button", "Remove");

@@ -1146,7 +1146,8 @@ font-size: 0 !important;
 />
 
   <div id="stripePaymentElement" style="min-height:36px;margin:12px 0"></div>
-  <p id="stripePaymentHint" class="secure-note">Test mode: prepare the secure Stripe card form to continue.</p>
+  <p id="stripePaymentHint" class="secure-note" role="status">To enter test card details, first complete your shipping address and accept the checkout policies. Then tap Prepare Stripe Test Payment below. Stripe securely displays the card fields after verifying your order total and tax.</p>
+  <button type="button" id="prepareStripeNearCard" class="payment-button" style="width:100%;margin:12px 0">PREPARE SECURE TEST CARD FORM</button>
 
 
 
@@ -1960,6 +1961,8 @@ function stripeCartSnapshot(delivery) {
 let stripePreparedSnapshot = null;
 const payButton = document.getElementById("paymentButton");
 payButton.textContent = "PREPARE STRIPE TEST PAYMENT";
+const nearCardPrepareButton = document.getElementById("prepareStripeNearCard");
+nearCardPrepareButton?.addEventListener("click", () => payButton.click());
 const statusButton = document.getElementById("retryPaymentStatus");
 statusButton.hidden = true;
 // Never retry an unresolved payment automatically or initiate a duplicate charge.
@@ -2033,11 +2036,13 @@ payButton.addEventListener("click", async () => {
       // The cardholder name and email are also supplied at confirmation.
       stripePaymentElement=stripeElements.create("payment",{layout:"tabs",fields:{billingDetails:{name:"never",email:"never"}}});
       stripePaymentElement.mount("#stripePaymentElement");
+      if (nearCardPrepareButton) nearCardPrepareButton.hidden = true;
       stripeAttemptId=attemptId;
       stripePreparedSnapshot=stripeCartSnapshot(delivery);
       payButton.textContent="CONFIRM STRIPE TEST PAYMENT";
       document.getElementById("stripePaymentHint").textContent="Enter Stripe test card details, then confirm your test payment.";
       checkoutNotice("Stripe test form prepared. Verify the total and enter test card details.");
+      document.getElementById("stripePaymentElement")?.scrollIntoView({behavior:"smooth",block:"center"});
       return;
     }
     if (stripeCartSnapshot(delivery) !== stripePreparedSnapshot) throw Error("Cart, delivery address, email, or shipping changed after the Stripe quote. Do not confirm this payment. The existing attempt must be reviewed before starting a new quote.");

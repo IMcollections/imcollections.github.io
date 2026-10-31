@@ -1075,7 +1075,7 @@
           const cancelMessage = node("p", undefined, "message");
           cancelMessage.id = "cancelMessage-" + order.id;
           cancelMessage.setAttribute("role", "status");
-          const deadline = new Date(order.paid_at).getTime() + 30 * 60 * 1000;
+          const deadline = new Date(order.created_at).getTime() + 30 * 60 * 1000;
           if (cancellation) {
             cancelMessage.textContent = cancellationLabel(cancellation.state);
             if (["requested", "pending"].includes(cancellation.state)) {
@@ -1087,12 +1087,13 @@
             }
           } else if (
             cancellationReady &&
-            order.status === "pending" &&
+            ["pending", "completed"].includes(order.status) &&
             order.paid_at &&
             order.payment_provider === "stripe" &&
             !order.processing_started_at &&
             !order.shipped_at &&
             !order.tracking_number &&
+            (order.fulfillment_status || "unfulfilled") === "unfulfilled" &&
             Date.now() < deadline
           ) {
             const cancel = node("button", "Cancel Order");

@@ -1106,16 +1106,6 @@
           }
           metadata.append(cancelMessage);
 
-          const tracking =
-            order.status === "cancelled"
-              ? "Not applicable"
-              : order.tracking_number ||
-                (order.status === "completed"
-                  ? "Not added yet"
-                  : "Available when the shipping label is created");
-
-          metadata.append(node("p", "Tracking Number: " + tracking));
-
           const details = node("section");
           details.append(node("h3", "Order Summary"));
 
@@ -1233,27 +1223,6 @@
           for (const line of lines) {
             if (line) {
               delivery.append(node("p", line));
-            }
-          }
-
-          if (order.status === "completed") {
-            delivery.append(node("h3", "Shipment Tracking"));
-
-            if (order.carrier) {
-              delivery.append(node("p", "Carrier: " + order.carrier));
-            }
-
-            delivery.append(
-              node(
-                "p",
-                order.tracking_number
-                  ? "Tracking Number: " + order.tracking_number
-                  : "Tracking details have not been added yet.",
-              ),
-            );
-
-            if (order.shipped_at) {
-              delivery.append(node("p", "Shipped: " + date(order.shipped_at)));
             }
           }
 

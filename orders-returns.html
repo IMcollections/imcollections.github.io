@@ -463,6 +463,10 @@
   margin-top: 28px;
 }
       
+    
+      /* Expandable order summary, matching the checkout disclosure pattern. */
+      .order-summary-toggle > summary { cursor: pointer; color: #94712b; font-weight: 700; font-size: 1.35rem; padding: 12px 0; }
+      .order-summary-toggle > summary:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
     </style>
   </head>
 
@@ -1048,6 +1052,7 @@
             node("p", "Order Total: " + money(order.total, order.currency)),
             node("p", "Order Status: " + statusLabel(order.status)),
             node("p", "Payment Info: " + paymentLabel(order)),
+            node("p", "USPS Tracking Number: " + (order.tracking_number || "Not added yet")),
           );
 
           if (order.paid_at && order.payment_id) {
@@ -1106,8 +1111,10 @@
           }
           metadata.append(cancelMessage);
 
-          const details = node("section");
-          details.append(node("h3", "Order Summary"));
+          const details = node("details");
+          details.className = "order-summary-toggle";
+          details.open = true;
+          details.append(node("summary", "Order Summary"));
 
           const items = Array.isArray(order.items) ? order.items : [];
 

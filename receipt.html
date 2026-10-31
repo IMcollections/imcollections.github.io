@@ -558,7 +558,7 @@ Receipts
           ["Order Number", order.order_number],
           ["Order Date", dated(order.paid_at)],
           ["Payment Method", method || order.payment_provider || "Not available"],
-          ...(order.tracking_number ? [["USPS Tracking Number", order.tracking_number]] : []),
+          ["USPS Tracking Number", order.tracking_number || "Not added yet"],
         ]) {
           const p = node("p");
           p.append(node("strong", label + ": "), node("span", value));

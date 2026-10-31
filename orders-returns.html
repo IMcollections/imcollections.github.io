@@ -773,7 +773,7 @@
       }
 
       function statusLabel(status) {
-        if (status === "completed") return "Completed (Shipped)";
+        if (status === "completed") return "Completed (Payment Confirmed)";
         if (status === "cancelled") return "Cancelled";
         return "Pending";
       }
@@ -1058,6 +1058,7 @@
             ),
             node("p", "Order Total: " + money(order.total, order.currency)),
             node("p", "Order Status: " + statusLabel(order.status)),
+            node("p", "Fulfillment Status: " + ({unfulfilled:"Awaiting Processing",processing:"Processing",label_created:"Tracking Added — Awaiting USPS Acceptance",shipped:"Shipped — USPS Accepted",delivered:"Delivered"}[order.fulfillment_status] || "Awaiting Processing")),
             node("p", "Payment Info: " + paymentLabel(order)),
             node("p", "USPS Tracking Number: " + (order.tracking_number || "Not added yet")),
           );

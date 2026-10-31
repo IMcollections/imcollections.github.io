@@ -466,6 +466,13 @@
     
       /* Expandable order summary, matching the checkout disclosure pattern. */
       .order-summary-toggle > summary { cursor: pointer; color: #94712b; font-weight: 700; font-size: 1.35rem; padding: 12px 0; }
+      /* Match Delivery Information and Order Details headings to Order Summary. */
+      .order-card > .shipping > h3,
+      .order-card > details:not(.order-summary-toggle) > summary {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #94712b;
+      }
       .order-summary-toggle > summary:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
     </style>
   </head>

@@ -18,7 +18,7 @@ main{max-width:1450px;margin:auto;padding:24px clamp(12px,3vw,36px) 60px}.notice
 /* Mobile-first management layout: readable cards instead of sideways tables. */
 html,body{max-width:100%;overflow-x:hidden}
 .content,.layout,.panel,.tablewrap{min-width:0}
-@media(max-width:700px){
+@media(max-width:850px){
  header{padding:15px 14px;align-items:center;flex-wrap:wrap}
  .brand{min-width:0;gap:10px}.brand img{width:44px;height:44px;flex-shrink:0}.brand h1{font-size:16px;letter-spacing:.8px}.brand p{font-size:11px}
  main{padding:16px 12px 36px}.panel{padding:14px}.content h2{font-size:22px}
@@ -27,6 +27,20 @@ html,body{max-width:100%;overflow-x:hidden}
  .toolbar{align-items:stretch}.toolbar input,.toolbar select{flex:1 1 100%;width:100%;min-width:0;font-size:16px}
  .tablewrap{overflow:visible}table{min-width:0;width:100%;display:block}thead{display:none}tbody{display:block}tr{display:block;border:1px solid var(--line);border-radius:10px;margin-bottom:12px;padding:9px 12px;background:#fff}td{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #f0ece4;font-size:14px;min-width:0;overflow-wrap:anywhere;text-align:right}td:last-child{border-bottom:0}td::before{content:attr(data-label);font-weight:700;color:#786337;text-align:left;flex:0 0 36%}td>*{max-width:100%}td .actions{flex:1;min-width:0;justify-content:flex-end}td .actions input{width:100%;min-width:0;font-size:16px}td .actions button{width:100%}
  .grid2{grid-template-columns:minmax(0,1fr)}
+}
+@media(min-width:851px){
+ .tablewrap{overflow-x:auto;overscroll-behavior-x:contain}
+ .tablewrap table{width:100%;min-width:650px}
+ .sidebar{position:sticky;top:12px}
+}
+@media(max-width:390px){
+ .brand h1{font-size:14px;letter-spacing:.4px}
+ .brand p{font-size:10px}
+ .navbtn{font-size:12px}
+ .panel{padding:12px}
+ td{display:block;text-align:left}
+ td::before{display:block;margin-bottom:5px}
+ td .actions{justify-content:flex-start}
 }
 </style>
 </head>

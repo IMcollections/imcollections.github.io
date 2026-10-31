@@ -1249,7 +1249,8 @@
             details.append(button);
           }
 
-          card.append(details, delivery);
+          card.prepend(delivery);
+          card.append(details);
           list.append(card);
         }
       }

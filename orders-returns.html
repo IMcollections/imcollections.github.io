@@ -765,9 +765,6 @@
           return "Klarna";
         }
 
-        if (provider === "square") {
-          return "Square";
-        }
 
         return "Not available";
       }
@@ -920,9 +917,9 @@
         return (
           {
             requested: "Cancellation saved. Refund status needs checking.",
-            pending: "Order cancelled. Refund pending with Square.",
+            pending: "Order cancelled. Refund pending with Stripe.",
             completed:
-              "Order cancelled. Refund completed by Square; your bank may take additional time.",
+              "Order cancelled. Refund completed by Stripe; your bank may take additional time.",
             failed:
               "Order cancelled. Refund failed; please contact us for help.",
             rejected:
@@ -958,7 +955,7 @@
           if (!session || session.user.id !== memberId)
             throw new Error("Please sign in again.");
           const { data, error } = await client.functions.invoke(
-            "cancel-square-order",
+            "im-cancel-stripe-order",
             {
               body: {
                 orderNumber: order.order_number,
@@ -1092,7 +1089,7 @@
             cancellationReady &&
             order.status === "pending" &&
             order.paid_at &&
-            order.payment_provider === "square" &&
+            order.payment_provider === "stripe" &&
             !order.processing_started_at &&
             !order.shipped_at &&
             !order.tracking_number &&

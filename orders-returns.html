@@ -1233,7 +1233,6 @@
             }
           }
 
-          details.append(delivery);
 
           if (
             order.status === "completed" &&
@@ -1250,7 +1249,7 @@
             details.append(button);
           }
 
-          card.append(details);
+          card.append(details, delivery);
           list.append(card);
         }
       }

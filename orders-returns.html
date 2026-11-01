@@ -1085,12 +1085,12 @@
             const refund = node("section", undefined, "refund-status-card");
             refund.setAttribute("aria-label", "Refund status");
             const state = cancellation.state;
-            const label = state === "completed" ? "Refund Successful" : state === "pending" || state === "requested" ? "Refund Pending" : "Refund Needs Review";
-            const amount = node("strong", money(order.total, order.currency) + (state === "completed" ? " Refunded" : " Refund"));
+            const label = state === "completed" ? "Refund Submitted" : state === "pending" || state === "requested" ? "Refund Pending" : "Refund Needs Review";
+            const amount = node("strong", money(order.total, order.currency) + (state === "completed" ? " Refund Submitted" : " Refund"));
             refund.append(node("strong", label, "refund-status-label"), amount,
-              node("p", state === "completed" ? "Your refund has been processed by Stripe. Your bank or card issuer may take additional time to post it." : cancellationLabel(state)),
+              node("p", state === "completed" ? "Stripe has processed your refund to your original payment method. Your bank or card issuer may take additional time to post the credit." : cancellationLabel(state)),
               node("p", "Order status: Cancelled"),
-              node("p", "Refund status: " + (state === "completed" ? "Completed" : state === "pending" || state === "requested" ? "Pending" : "Needs review")),
+              node("p", "Refund status: " + (state === "completed" ? "Submitted to Payment Provider" : state === "pending" || state === "requested" ? "Pending" : "Needs review")),
               node("p", "Refund method: Original payment method"));
             metadata.append(refund);
             cancelMessage.textContent = cancellationLabel(cancellation.state);

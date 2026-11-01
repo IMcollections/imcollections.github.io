@@ -275,6 +275,10 @@
       .success {
         color: #216437;
       }
+      .refund-status-card { margin: 18px 0; padding: 18px; border: 1px solid #cbdccc; border-radius: 10px; background: #f5faf5; display: grid; gap: 8px; }
+      .refund-status-card strong { color: #216437; }
+      .refund-status-card .refund-status-label { font-size: 1.1rem; }
+      .refund-status-card p { margin: 0; }
       .return-note {
         font-size: 14px;
       }
@@ -766,6 +770,7 @@
         }
 
 
+        if (provider === "stripe") return "Stripe" + (method ? " — " + method : "");
         return "Not available";
       }
 
@@ -1055,7 +1060,7 @@
             ),
             node("p", "Order Total: " + money(order.total, order.currency)),
             node("p", "Order Status: " + statusLabel(order.status)),
-            node("p", "Fulfillment Status: " + ({unfulfilled:"Awaiting Processing",processing:"Processing",label_created:"Tracking Added — Awaiting USPS Acceptance",shipped:"Shipped — USPS Accepted",delivered:"Delivered"}[order.fulfillment_status] || "Awaiting Processing")),
+            node("p", "Fulfillment Status: " + (order.status === "cancelled" ? "Cancelled — Do Not Fulfill" : ({unfulfilled:"Awaiting Processing",processing:"Processing",label_created:"Tracking Added — Awaiting USPS Acceptance",shipped:"Shipped — USPS Accepted",delivered:"Delivered"}[order.fulfillment_status] || "Awaiting Processing"))),
             node("p", "Payment Info: " + paymentLabel(order)),
             node("p", "USPS Tracking Number: " + (order.tracking_number || "Not added yet")),
           );
@@ -1077,6 +1082,17 @@
           cancelMessage.setAttribute("role", "status");
           const deadline = new Date(order.created_at).getTime() + 30 * 60 * 1000;
           if (cancellation) {
+            const refund = node("section", undefined, "refund-status-card");
+            refund.setAttribute("aria-label", "Refund status");
+            const state = cancellation.state;
+            const label = state === "completed" ? "Refund Successful" : state === "pending" || state === "requested" ? "Refund Pending" : "Refund Needs Review";
+            const amount = node("strong", money(order.total, order.currency) + (state === "completed" ? " Refunded" : " Refund"));
+            refund.append(node("strong", label, "refund-status-label"), amount,
+              node("p", state === "completed" ? "Your refund has been processed by Stripe. Your bank or card issuer may take additional time to post it." : cancellationLabel(state)),
+              node("p", "Order status: Cancelled"),
+              node("p", "Refund status: " + (state === "completed" ? "Completed" : state === "pending" || state === "requested" ? "Pending" : "Needs review")),
+              node("p", "Refund method: Original payment method"));
+            metadata.append(refund);
             cancelMessage.textContent = cancellationLabel(cancellation.state);
             if (["requested", "pending"].includes(cancellation.state)) {
               const retry = node("button", "Check Refund Status");

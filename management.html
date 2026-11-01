@@ -151,11 +151,27 @@ async function renderSection(name){
  if(name==='overview'){
   let [o,of,r]=await Promise.all([sb.from('orders').select('id,order_number,status,total,created_at,payment_provider').order('created_at',{ascending:false}).limit(200),sb.from('im_product_offers').select('id,status,offer_amount,created_at').order('created_at',{ascending:false}).limit(200),loadReturns()]);
   if(o.error)throw o.error;if(of.error)throw of.error;cachedOrders=o.data||[];cachedOffers=of.data||[];cachedReturns=r;
-  const recentOrderRows = cachedOrders.slice(0, 8).map(x => `<tr><td>${safe(x.order_number)}</td><td>${safe(new Date(x.created_at).toLocaleDateString())}</td><td>${pill(x.status)}</td><td>${money(x.total)}</td></tr>`).join('');
-  const recentOrdersContent = cachedOrders.length
-    ? table(['Order', 'Date', 'Status', 'Total'], recentOrderRows)
-    : empty('No orders found');
-  body.innerHTML = `<div class="metrics"><div class="metric"><span>Orders loaded</span><strong>${cachedOrders.length}</strong></div><div class="metric"><span>Pending offers</span><strong>${cachedOffers.filter(x => x.status === 'pending').length}</strong></div><div class="metric"><span>Open return requests</span><strong>${cachedReturns.filter(x => ['requested', 'received', 'approved'].includes(x.status)).length}</strong></div><div class="metric"><span>Order totals shown*</span><strong>${money(cachedOrders.filter(x => x.status === 'completed').reduce((s, x) => s + Number(x.total || 0), 0))}</strong></div></div>${panel('Recent Orders', recentOrdersContent)}<p class="small">*This is the sum of completed order records, not verified accounting revenue. Confirm payments in the provider dashboard.</p>`;
+  const periodOptions = '<option value="30days">Past 30 Days</option><option value="3months">Past 3 Months</option><option value="6months">Past 6 Months</option><option value="2026">2026</option><option value="2027">2027</option>';
+  body.innerHTML = '<div class="toolbar"><label for="overviewPeriod"><strong>Order History</strong></label><select id="overviewPeriod" aria-label="Filter overview orders by date">'+periodOptions+'</select></div><div id="overviewResults"></div>';
+  const drawOverview = () => {
+    const selected = $('overviewPeriod').value;
+    const now = new Date();
+    let start = new Date(now);
+    if(selected==='30days') start.setDate(start.getDate()-30);
+    else if(selected==='3months') start.setMonth(start.getMonth()-3);
+    else if(selected==='6months') start.setMonth(start.getMonth()-6);
+    const scoped = cachedOrders.filter(x => {
+      const d = new Date(x.created_at);
+      if(Number.isNaN(d.getTime())) return false;
+      if(selected==='2026'||selected==='2027') return d.getFullYear()===Number(selected);
+      return d>=start && d<=now;
+    });
+    const rows = scoped.slice(0,8).map(x => `<tr><td>${safe(x.order_number)}</td><td>${safe(new Date(x.created_at).toLocaleDateString())}</td><td>${pill(x.status)}</td><td>${money(x.total)}</td></tr>`).join('');
+    const recent = scoped.length ? table(['Order','Date','Status','Total'],rows) : empty('No orders in this period');
+    $('overviewResults').innerHTML = `<div class="metrics"><div class="metric"><span>Orders in period</span><strong>${scoped.length}</strong></div><div class="metric"><span>Pending offers (all dates)</span><strong>${cachedOffers.filter(x=>x.status==='pending').length}</strong></div><div class="metric"><span>Open returns (all dates)</span><strong>${cachedReturns.filter(x=>['requested','received','approved'].includes(x.status)).length}</strong></div><div class="metric"><span>Completed order totals*</span><strong>${money(scoped.filter(x=>x.status==='completed').reduce((sum,x)=>sum+Number(x.total||0),0))}</strong></div></div>${panel('Recent Orders',recent)}<p class="small">Showing ${Math.min(scoped.length,8)} of ${scoped.length} orders in the selected period. *Completed order totals are database order amounts, not verified Stripe revenue. Pending offers and open returns show all dates.</p>`;
+  };
+  $('overviewPeriod').onchange = drawOverview;
+  drawOverview();
  }else if(name==='orders'){
   const {data,error}=await sb.from('orders').select('id,order_number,customer_email,status,total,created_at,carrier,tracking_number,fulfillment_status,payment_provider,payment_method').order('created_at',{ascending:false}).limit(300);if(error)throw error;cachedOrders=data||[];
   body.innerHTML=panel('Orders',`<div class="toolbar"><input id="orderSearch" placeholder="Search order number or customer email"><select id="orderFilter"><option value="">All statuses</option><option>pending</option><option>completed</option><option>cancelled</option></select></div><div id="orderTable"></div><p id="trackingMessage" class="status" role="status"></p><p class="small">Saving tracking does not confirm USPS acceptance or send a shipping notification.</p>`);

@@ -2072,7 +2072,26 @@ payButton.addEventListener("click", async () => {
     checkoutNotice(error.message||"Stripe test checkout failed.",true);
   } finally { setPaymentBusy(false); }
 });
-statusButton.addEventListener("click",()=>checkoutNotice("Verify the saved Stripe attempt in the dashboard and Supabase. This draft will not retry a charge automatically.",true));
+statusButton.addEventListener("click",async()=>{
+  const attemptId=localStorage.getItem(attemptStorageKey);
+  if (!attemptId) { checkoutNotice("No saved Stripe attempt to check."); return; }
+  statusButton.disabled=true;
+  checkoutNotice("Checking the previous Stripe payment before allowing another checkout.");
+  try {
+    const email=document.getElementById("guestEmail").value.trim();
+    if (!email) throw Error("Enter the email used for your previous Stripe test checkout.");
+    const {data,error}=await supabaseClient.functions.invoke("stripe-check-attempt-status",{body:{attemptId,email}});
+    if (error || !data || data.error) throw Error(data?.error||"Payment status could not be verified. The checkout remains locked.");
+    if (!data.resolved) throw Error("The previous Stripe payment is still unresolved. Do not start another charge.");
+    localStorage.removeItem(attemptStorageKey);
+    stripeConfirmationPending=false;
+    statusButton.hidden=true;
+    payButton.disabled=false;
+    checkoutNotice(data.status==="order_saved" ? "Previous test order was verified and recorded. You may now prepare a NEW test checkout." : "Previous attempt was verified as cancelled. You may now prepare a NEW test checkout.");
+  } catch(error) {
+    checkoutNotice(error.message||"Could not verify the previous payment.",true);
+  } finally { statusButton.disabled=false; }
+});
 const checkoutPhotoCache = new Map();
 let checkoutPreviewVersion = 0;
 function checkoutCartChangesBlocked() {

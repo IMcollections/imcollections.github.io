@@ -242,9 +242,41 @@ async function renderSection(name){
   }).join('');
   body.innerHTML=panel('Payment record review',table(['Order','Provider','Payment reference','Payment status','Order status','Order amount','Refund status','Refund amount','Stripe refund reference'],rows)+`<p class="small">Stripe labels indicate the current sandbox environment, not live settlement. Payment confirmation is based on recorded payment ID and paid timestamp. Refund status and amount come from the cancellation ledger, not order totals. ${refundsAccessible?'':'Refund records could not be accessed; do not interpret missing refund information as no refund.'} Verify external settlement and disputes directly with Stripe. Historical payments remain available for reference.</p>`);
  }else if(name==='reports'){
-  const {data,error}=await sb.from('orders').select('status,total,discount,shipping,tax,created_at').order('created_at',{ascending:false}).limit(1000);if(error)throw error;const rows=data||[],completed=rows.filter(x=>x.status==='completed');const sum=k=>completed.reduce((a,x)=>a+Number(x[k]||0),0);
-  body.innerHTML=`<div class="metrics"><div class="metric"><span>Order records</span><strong>${rows.length}</strong></div><div class="metric"><span>Completed order totals</span><strong>${money(sum('total'))}</strong></div><div class="metric"><span>Discounts recorded</span><strong>${money(sum('discount'))}</strong></div><div class="metric"><span>Shipping recorded</span><strong>${money(sum('shipping'))}</strong></div></div>`+panel('Reporting notes',`<p>These totals reflect order records available to this administrator session. They are not audited net sales and may include timing differences, cancellations, refunds, or payment discrepancies.</p><button id="exportOrders">Export visible summary (CSV)</button>`);
-  $('exportOrders').onclick=()=>{const csv=['status,total,discount,shipping,tax,created_at',...rows.map(x=>[x.status,x.total,x.discount,x.shipping,x.tax,x.created_at].map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(','))].join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='im-collections-order-summary.csv';a.click();URL.revokeObjectURL(a.href)};
+  const [ordersResponse,refundResponse]=await Promise.all([
+    sb.from('orders').select('id,order_number,status,total,discount,shipping,tax,created_at,payment_provider,payment_id,paid_at').order('created_at',{ascending:false}).limit(1000),
+    sb.from('im_order_cancellations').select('order_id,state,amount_cents').limit(1000)
+  ]);
+  if(ordersResponse.error)throw ordersResponse.error;
+  const rows=ordersResponse.data||[],refundReadable=!refundResponse.error;
+  const refundsByOrder=new Map((refundResponse.data||[]).map(r=>[r.order_id,r]));
+  const stripe=x=>String(x.payment_provider||'').toLowerCase()==='stripe';
+  const paid=x=>Boolean(x.paid_at&&x.payment_id);
+  const stripePaid=rows.filter(x=>stripe(x)&&paid(x));
+  const sum=(list,key)=>list.reduce((v,x)=>v+Number(x[key]||0),0);
+  const gross=sum(stripePaid,'total');
+  const refunded=refundReadable?stripePaid.reduce((v,x)=>{const r=refundsByOrder.get(x.id);return v+(r?.state==='completed'?Number(r.amount_cents||0)/100:0)},0):null;
+  const metric=(label,value)=>'<div class="metric"><span>'+label+'</span><strong>'+value+'</strong></div>';
+  body.innerHTML='<div class="notice"><strong>STRIPE TEST DATA — NOT LIVE REVENUE.</strong> These figures are from Supabase records, not verified Stripe payouts or bank deposits.</div><div class="metrics">'+
+    metric('Orders loaded',rows.length)+metric('Confirmed Stripe test orders',stripePaid.length)+
+    metric('Historical / other provider orders',rows.filter(x=>!stripe(x)).length)+
+    metric('Cancelled Stripe orders',rows.filter(x=>stripe(x)&&x.status==='cancelled').length)+
+    metric('Stripe test payments recorded',money(gross))+
+    metric('Submitted Stripe refunds',refundReadable?money(refunded):'Unavailable')+
+    metric('Net Stripe test payments recorded',refundReadable?money(gross-refunded):'Unavailable')+
+    metric('Discounts on confirmed Stripe orders',money(sum(stripePaid,'discount')))+
+    metric('Shipping on confirmed Stripe orders',money(sum(stripePaid,'shipping')))+
+    metric('Tax on confirmed Stripe orders',money(sum(stripePaid,'tax')))+
+    '</div>'+panel('Transaction breakdown',table(['Order','Provider','Order status','Payment status','Order amount','Submitted refund'],rows.map(x=>{
+      const r=refundsByOrder.get(x.id);
+      return '<tr><td>'+safe(x.order_number)+'</td><td>'+safe(stripe(x)?'Stripe — TEST MODE':x.payment_provider||'Historical')+'</td><td>'+pill(x.status)+'</td><td>'+safe(paid(x)?'Confirmed':'Not confirmed')+'</td><td>'+money(x.total)+'</td><td>'+(stripe(x)&&!refundReadable?'Unavailable':r&&r.state==='completed'?money(Number(r.amount_cents||0)/100):'—')+'</td></tr>';
+    }).join('')))+panel('Reporting notes','<p>Net recorded Stripe test payments = confirmed Stripe order totals minus completed cancellation-ledger refunds. This is not live revenue, profit, or bank settlement. Historical provider orders are excluded. Discounts, shipping and tax are components of order amounts, not extra revenue. Results are limited to 1,000 latest records. '+(refundReadable?'Refund records accessible.':'Refund records unavailable; net amount suppressed.')+'</p><button id="exportOrders">Export report rows (CSV)</button>');
+  $('exportOrders').onclick=()=>{
+    const lines=['order_number,provider,status,payment_confirmed,total,discount,shipping,tax,refund_amount,created_at',...rows.map(x=>{
+      const r=refundsByOrder.get(x.id);
+      return [x.order_number,x.payment_provider,x.status,paid(x),x.total,x.discount,x.shipping,x.tax,refundReadable&&r?.state==='completed'?Number(r.amount_cents||0)/100:refundReadable?0:'unavailable',x.created_at].map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',');
+    })];
+    const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([lines.join('\r\n')],{type:'text/csv'}));link.download='im-collections-report-test.csv';link.click();URL.revokeObjectURL(link.href);
+  };
  }else if(name==='activity'){
   body.innerHTML=panel('Administrative audit history',empty('No unified admin activity log is connected yet. Before enabling sensitive actions, create a server-written audit log that records actor, action, record ID, timestamp, and reason.'))+panel('Required safeguards','<ul><li>Record offer decisions and counter amounts.</li><li>Record return inspection and refund references.</li><li>Record reward point changes with a required reason.</li><li>Never store passwords, full payment credentials, or secret API keys.</li></ul>');
  }else if(name==='support'){

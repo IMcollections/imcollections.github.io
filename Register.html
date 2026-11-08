@@ -283,7 +283,7 @@
 
         <div class="form-group">
           <label for="birthdate">Date of Birth (optional)</label>
-          <input type="date" id="birthdate" name="birthdate" autocomplete="bday" aria-describedby="birthdayHelp" style="width:100%;padding:13px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box">
+          <input type="text" id="birthdate" name="birthdate" autocomplete="bday" inputmode="numeric" maxlength="10" placeholder="MM/DD/YYYY" aria-describedby="birthdayHelp" style="display:block;width:100%;height:50px;padding:0 14px;font-size:16px;border:1px solid #ccc;border-radius:6px;background:#fff">
           <p id="birthdayHelp" style="font-size:12px;color:#666;line-height:1.5">Share your birthday to qualify for a one-time 20% discount during your birth month. You can receive this benefit even without subscribing to marketing emails.</p>
         </div>
         <div class="form-group" style="display:flex;align-items:flex-start;gap:10px">
@@ -414,6 +414,23 @@ const referralCode =
     confirmPasswordInput.addEventListener("input", updatePasswordMatch);
     registerForm.addEventListener("reset", () => setTimeout(updatePasswordMatch, 0));
 
+    const birthdateInput = document.getElementById("birthdate");
+    birthdateInput.addEventListener("input", () => {
+      const digits = birthdateInput.value.replace(/\D/g, "").slice(0, 8);
+      birthdateInput.value = digits.length > 4
+        ? digits.slice(0, 2) + "/" + digits.slice(2, 4) + "/" + digits.slice(4)
+        : digits.length > 2 ? digits.slice(0, 2) + "/" + digits.slice(2) : digits;
+    });
+    function parseBirthdate(value) {
+      if (!value) return null;
+      const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
+      if (!match) return false;
+      const month = Number(match[1]), day = Number(match[2]), year = Number(match[3]);
+      const date = new Date(Date.UTC(year, month - 1, day));
+      if (year < 1900 || date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day || date.getTime() > Date.now()) return false;
+      return match[3] + "-" + match[1] + "-" + match[2];
+    }
+
     registerForm.addEventListener(
       "submit",
       async function(event) {
@@ -432,9 +449,9 @@ const lastName =
           document.getElementById("email")
             .value.trim();
 
-        const birthdate = document.getElementById("birthdate").value;
+        const birthdate = parseBirthdate(document.getElementById("birthdate").value.trim());
         const marketingOptIn = document.getElementById("marketingOptIn").checked;
-        if (birthdate && (birthdate > new Date().toISOString().slice(0, 10) || birthdate < "1900-01-01")) {
+        if (birthdate === false) {
           registerMessage.className = "message error";
           registerMessage.textContent = "Please enter a valid birthdate.";
           return;

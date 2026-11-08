@@ -282,6 +282,16 @@
 </div>
 
         <div class="form-group">
+          <label for="birthdate">Date of Birth (optional)</label>
+          <input type="date" id="birthdate" name="birthdate" autocomplete="bday" aria-describedby="birthdayHelp" style="width:100%;padding:13px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box">
+          <p id="birthdayHelp" style="font-size:12px;color:#666;line-height:1.5">Share your birthday to qualify for a one-time 20% discount during your birth month. You can receive this benefit even without subscribing to marketing emails.</p>
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-start;gap:10px">
+          <input type="checkbox" id="marketingOptIn" name="marketingOptIn" style="width:auto;margin-top:4px;flex:none">
+          <label for="marketingOptIn" style="font-size:13px;line-height:1.5">Yes, I want to receive optional promotional emails, seasonal offers, birthday reminders, and marketing updates from IM Collections. I can unsubscribe at any time.</label>
+        </div>
+
+        <div class="form-group">
           <label for="email">
             Email Address
           </label>
@@ -422,6 +432,14 @@ const lastName =
           document.getElementById("email")
             .value.trim();
 
+        const birthdate = document.getElementById("birthdate").value;
+        const marketingOptIn = document.getElementById("marketingOptIn").checked;
+        if (birthdate && (birthdate > new Date().toISOString().slice(0, 10) || birthdate < "1900-01-01")) {
+          registerMessage.className = "message error";
+          registerMessage.textContent = "Please enter a valid birthdate.";
+          return;
+        }
+
         const password =
           document.getElementById("password")
             .value;
@@ -466,7 +484,10 @@ const { data, error } =
    data: {
   first_name: firstName,
   last_name: lastName,
-  referred_by_code: referralCode
+  referred_by_code: referralCode,
+  birthdate: birthdate || null,
+  marketing_opt_in: marketingOptIn,
+  marketing_opt_in_at: marketingOptIn ? new Date().toISOString() : null
 }
     }
   });

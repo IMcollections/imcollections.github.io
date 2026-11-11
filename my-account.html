@@ -827,7 +827,14 @@
           <section class="account-section" id="savedPaymentMethodsSection">
             <h3>Saved Payment Methods</h3>
             <p>Manage payment methods for future purchases. Stripe checkout accepts cards without requiring them to be saved.</p>
-            <p id="savedPaymentMethodsNotice" role="status">Saving and editing cards from My Account is being updated for Stripe. No payment card details are stored on this page.</p>
+            <p id="savedPaymentMethodsNotice" role="status" aria-live="polite">Loading saved cards…</p>
+            <div id="savedCardList"></div>
+            <button type="button" id="addSavedCardButton" style="margin-top:12px">Add a Card</button>
+            <div id="savedCardForm" hidden style="margin-top:16px">
+              <div id="savedCardElement" style="padding:14px;border:1px solid #bbb;border-radius:8px;background:white"></div>
+              <button type="button" id="confirmSavedCardButton" style="margin-top:12px">Save Card Securely</button>
+              <button type="button" id="cancelSavedCardButton" style="margin-top:8px;background:#eee;color:#111">Cancel</button>
+            </div>
           </section>
           <section class="account-section" id="trackRewardsSection">
             <h3>Track Rewards</h3>
@@ -1589,7 +1596,8 @@
       });
     </script>
 
-    <script src="member-tools.js?v=20261111-account-payment-v3"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+<script src="member-tools.js?v=20261111-account-payment-v3"></script>
 
     <script>
       /* Keep only Back to Shopping in the account-page header. */
@@ -1733,6 +1741,68 @@
    const section=id==='membershipLevel'?el?.closest('section.account-section'):el;
    if(section)rewards.appendChild(section);
  });
+})();
+</script>
+<script>
+(function(){
+ const section=document.getElementById('savedPaymentMethodsSection'),list=document.getElementById('savedCardList'),notice=document.getElementById('savedPaymentMethodsNotice');
+ const add=document.getElementById('addSavedCardButton'),form=document.getElementById('savedCardForm'),confirm=document.getElementById('confirmSavedCardButton'),cancel=document.getElementById('cancelSavedCardButton');
+ const stripe=Stripe("pk_test_51URrTfQyDeuXnUwQW3sXLObPGcW6hwfOHwT0baS9Za8g3PPeeaG7tB330wNhxTXeC5aFqghdXuL76pxW3q5IAEbS00Ymx0Ao5i");
+ let elements=null,clientSecret=null,busy=false,loaded=false;
+ async function api(action,extra={}){
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  if(!session)throw Error('Please sign in.');
+  const res=await fetch('https://vqzjegneplzeoqxcqfeu.supabase.co/functions/v1/im-stripe-saved-cards',{
+   method:'POST',headers:{'Content-Type':'application/json','apikey':supabaseKey,'Authorization':'Bearer '+session.access_token},body:JSON.stringify({action,...extra})
+  });
+  const result=await res.json();
+  if(!res.ok)throw Error(result.error||'Unable to access saved cards');
+  return result;
+ }
+ async function load(){
+  if(busy)return;
+  notice.textContent='Loading saved cards…';
+  try{
+   const result=await api('list');list.replaceChildren();
+   for(const card of result.cards){
+    const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0;padding:12px;border:1px solid #ddd;border-radius:8px';
+    const detail=document.createElement('span');detail.textContent=card.brand+' •••• '+card.last4+' (expires '+card.expMonth+'/'+card.expYear+')';
+    const remove=document.createElement('button');remove.type='button';remove.textContent='Remove';remove.style.cssText='width:auto;padding:10px;font-size:14px';
+    remove.onclick=async()=>{if(!window.confirm('Remove this saved card?'))return;remove.disabled=true;try{await api('remove',{paymentMethodId:card.id});await load();}catch(e){notice.textContent=e.message;remove.disabled=false;}};
+    row.append(detail,remove);list.append(row);
+   }
+   notice.textContent=result.cards.length?'Your saved cards are managed securely by Stripe.':'No saved cards yet.';
+   loaded=true;
+  }catch(e){notice.textContent=e.message;}
+ }
+ add.onclick=async()=>{
+  if(busy)return;busy=true;add.disabled=true;notice.textContent='Preparing secure card form…';
+  try{
+   const result=await api('setup');clientSecret=result.clientSecret;
+   elements=stripe.elements({clientSecret});
+   const payment=elements.create('payment',{layout:'tabs'});
+   document.getElementById('savedCardElement').replaceChildren();payment.mount('#savedCardElement');
+   form.hidden=false;notice.textContent='Cards are saved only with your permission. No charge will be made.';
+  }catch(e){notice.textContent=e.message;}finally{busy=false;add.disabled=false;}
+ };
+ cancel.onclick=()=>{form.hidden=true;elements=null;clientSecret=null;document.getElementById('savedCardElement').replaceChildren();notice.textContent='Card entry cancelled.';};
+ confirm.onclick=async()=>{
+  if(!elements||busy)return;busy=true;confirm.disabled=true;notice.textContent='Saving card securely…';
+  try{
+   const {error:validation}=await elements.submit();if(validation)throw Error(validation.message);
+   const {error,setupIntent}=await stripe.confirmSetup({elements,clientSecret,confirmParams:{return_url:location.origin+location.pathname+'#summary'},redirect:'if_required'});
+   if(error)throw Error(error.message);
+   if(setupIntent?.status==='succeeded'){form.hidden=true;elements=null;clientSecret=null;await load();}
+   else notice.textContent='Follow the bank verification steps to finish saving your card.';
+  }catch(e){notice.textContent=e.message;}finally{busy=false;confirm.disabled=false;}
+ };
+ const observer=new MutationObserver(()=>{
+  const dashboard=document.getElementById('accountDashboard');
+  if(dashboard&&getComputedStyle(dashboard).display!=='none'&&!loaded){observer.disconnect();load();}
+ });
+ const dashboard=document.getElementById('accountDashboard');
+ if(dashboard)observer.observe(dashboard,{attributes:true,attributeFilter:['style']});
+ if(location.search.includes('setup_intent')){notice.textContent='Card verification completed. Checking saved cards…';}
 })();
 </script>
 </body>

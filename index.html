@@ -5649,7 +5649,8 @@ updateAccountLinks();
 <script>
 // Keep the homepage header and footer menus identical after member-tools builds them.
 (() => {
-  const links = [["Account Summary", "my-account.html#summary"], ["Wishlist", "my-account.html#wishlist"], ["Payment", "my-account.html#payment"], ["Order", "orders-returns.html#orders"], ["Returns", "returns.html"], ["Refer A Friend", "refer-a-friend.html"]];
+  const links = [["Account Summary", "my-account.html#summary"],
+    ["Rewards", "my-account.html#rewards"], ["Wishlist", "my-account.html#wishlist"], ["Payment", "my-account.html#payment"], ["Order", "orders-returns.html#orders"], ["Returns", "returns.html"], ["Refer A Friend", "refer-a-friend.html"]];
   for (const id of ["headerLoggedIn", "loggedInAccount"]) {
     const nav = document.querySelector("#" + id + " [data-member-links]");
     if (!nav) continue;

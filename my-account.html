@@ -1619,7 +1619,7 @@
       });
     </script>
 
-    <script src="member-tools.js?v=20261030-live-stock-v1"></script>
+    <script src="member-tools.js?v=20261111-rewards-nav-v2"></script>
 
     <script>
       /* Keep only Back to Shopping in the account-page header. */
@@ -1759,8 +1759,8 @@
 (function(){
  const summary=document.getElementById('memberSummary'), rewards=document.getElementById('memberRewards'), title=document.getElementById('accountSectionTitle'), accountTab=document.getElementById('accountTab'), rewardsTab=document.getElementById('rewardsTab');
  ['membershipLevel','trackRewardsSection','referralSection'].forEach(id=>{const el=document.getElementById(id);const section=id==='membershipLevel'?el?.closest('section.account-section'):el;if(section)rewards.appendChild(section)});
- function show(which){const isRewards=which==='rewards';summary.hidden=isRewards;rewards.hidden=!isRewards;accountTab.setAttribute('aria-selected',String(!isRewards));rewardsTab.setAttribute('aria-selected',String(isRewards));title.textContent=isRewards?'Collectors Rewards':'Account Summary';}
- accountTab.addEventListener('click',()=>show('account'));rewardsTab.addEventListener('click',()=>show('rewards'));show(location.hash==='#rewards'?'rewards':'account');
+ function show(which){location.hash=which==='rewards'?'rewards':'summary';}
+ accountTab.addEventListener('click',()=>show('account'));rewardsTab.addEventListener('click',()=>show('rewards'));
 })();
 </script>
 </body>

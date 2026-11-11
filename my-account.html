@@ -832,8 +832,8 @@
             <button type="button" id="addSavedCardButton" style="display:block;width:100%;margin-top:16px;padding:14px 18px;border:0;border-radius:7px;background:#111;color:#fff;font-size:16px;font-weight:600;cursor:pointer">Add a Card</button>
             <div id="savedCardForm" hidden style="margin-top:16px">
               <div id="savedCardElement" style="padding:14px;border:1px solid #bbb;border-radius:8px;background:white"></div>
-              <button type="button" id="confirmSavedCardButton" style="margin-top:12px">Save Card Securely</button>
-              <button type="button" id="cancelSavedCardButton" style="margin-top:8px;background:#eee;color:#111">Cancel</button>
+              <button type="button" id="confirmSavedCardButton" style="display:block;width:100%;margin-top:12px;padding:14px;border:0;border-radius:7px;background:#111;color:#fff;font-size:16px;font-weight:600">Save Card Securely</button>
+              <button type="button" id="cancelSavedCardButton" style="display:block;width:100%;margin-top:8px;padding:12px;border:1px solid #ccc;border-radius:7px;background:#eee;color:#111;font-size:16px">Cancel</button>
             </div>
           </section>
           <section class="account-section" id="trackRewardsSection">
@@ -1745,10 +1745,10 @@
 </script>
 <script>
 (function(){
- const section=document.getElementById('savedPaymentMethodsSection'),list=document.getElementById('savedCardList'),notice=document.getElementById('savedPaymentMethodsNotice');
+ const list=document.getElementById('savedCardList'),notice=document.getElementById('savedPaymentMethodsNotice');
  const add=document.getElementById('addSavedCardButton'),form=document.getElementById('savedCardForm'),confirm=document.getElementById('confirmSavedCardButton'),cancel=document.getElementById('cancelSavedCardButton');
  const stripe=Stripe("pk_test_51URrTfQyDeuXnUwQW3sXLObPGcW6hwfOHwT0baS9Za8g3PPeeaG7tB330wNhxTXeC5aFqghdXuL76pxW3q5IAEbS00Ymx0Ao5i");
- let elements=null,clientSecret=null,busy=false,loaded=false;
+ let cardElement=null,clientSecret=null,busy=false,loaded=false,replaceId=null;
  async function api(action,extra={}){
   const {data:{session}}=await supabaseClient.auth.getSession();
   if(!session)throw Error('Please sign in.');
@@ -1759,42 +1759,59 @@
   if(!res.ok)throw Error(result.error||'Unable to access saved cards');
   return result;
  }
+ function closeForm(){
+  form.hidden=true;
+  if(cardElement){cardElement.destroy();cardElement=null;}
+  clientSecret=null;replaceId=null;
+  document.getElementById('savedCardElement').replaceChildren();
+ }
  async function load(){
-  if(busy)return;
   notice.textContent='Loading saved cards…';
   try{
    const result=await api('list');list.replaceChildren();
    for(const card of result.cards){
-    const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0;padding:12px;border:1px solid #ddd;border-radius:8px';
+    const row=document.createElement('div');row.style.cssText='display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:12px 0;padding:12px;border:1px solid #ddd;border-radius:8px';
     const detail=document.createElement('span');detail.textContent=card.brand+' •••• '+card.last4+' (expires '+card.expMonth+'/'+card.expYear+')';
+    const actions=document.createElement('div');actions.style.cssText='display:flex;gap:8px;flex-wrap:wrap';
+    const replace=document.createElement('button');replace.type='button';replace.textContent='Replace Card';replace.style.cssText='width:auto;padding:10px;font-size:14px';
+    replace.onclick=()=>startCard(card.id);
     const remove=document.createElement('button');remove.type='button';remove.textContent='Remove';remove.style.cssText='width:auto;padding:10px;font-size:14px';
-    remove.onclick=async()=>{if(!window.confirm('Remove this saved card?'))return;remove.disabled=true;try{await api('remove',{paymentMethodId:card.id});await load();}catch(e){notice.textContent=e.message;remove.disabled=false;}};
-    row.append(detail,remove);list.append(row);
+    remove.onclick=async()=>{if(!window.confirm('Remove this saved card?'))return;remove.disabled=true;try{await api('remove',{paymentMethodId:card.id});await load();notice.textContent='Card removed successfully.';}catch(e){notice.textContent=e.message;remove.disabled=false;}};
+    actions.append(replace,remove);row.append(detail,actions);list.append(row);
    }
-   notice.textContent=result.cards.length?'Your saved cards are managed securely by Stripe.':'No saved cards yet.';
+   notice.textContent=result.cards.length?'Saved cards are managed securely by Stripe.':'No saved cards yet.';
    loaded=true;
   }catch(e){notice.textContent=e.message;}
  }
- add.onclick=async()=>{
+ async function startCard(id=null){
   if(busy)return;busy=true;add.disabled=true;notice.textContent='Preparing secure card form…';
   try{
+   closeForm();replaceId=id;
    const result=await api('setup');clientSecret=result.clientSecret;
-   elements=stripe.elements({clientSecret});
-   const payment=elements.create('payment',{layout:'tabs'});
-   document.getElementById('savedCardElement').replaceChildren();payment.mount('#savedCardElement');
-   form.hidden=false;notice.textContent='Cards are saved only with your permission. No charge will be made.';
+   cardElement=stripe.elements().create('card',{hidePostalCode:false,style:{base:{fontSize:'16px',color:'#111'}}});
+   cardElement.mount('#savedCardElement');form.hidden=false;
+   notice.textContent=id?'Enter the replacement card. The old card will be removed only after the new card is saved successfully.':'Enter your card details. No charge will be made.';
   }catch(e){notice.textContent=e.message;}finally{busy=false;add.disabled=false;}
- };
- cancel.onclick=()=>{form.hidden=true;elements=null;clientSecret=null;document.getElementById('savedCardElement').replaceChildren();notice.textContent='Card entry cancelled.';};
+ }
+ add.onclick=()=>startCard();
+ cancel.onclick=()=>{if(busy)return;closeForm();notice.textContent='Card entry cancelled.';};
  confirm.onclick=async()=>{
-  if(!elements||busy)return;busy=true;confirm.disabled=true;notice.textContent='Saving card securely…';
+  if(!cardElement||busy)return;busy=true;confirm.disabled=true;notice.textContent='Saving card securely…';
   try{
-   const {error:validation}=await elements.submit();if(validation)throw Error(validation.message);
-   const {error,setupIntent}=await stripe.confirmSetup({elements,clientSecret,confirmParams:{return_url:location.origin+location.pathname+'#summary'},redirect:'if_required'});
+   const {error,setupIntent}=await stripe.confirmCardSetup(clientSecret,{payment_method:{card:cardElement}});
    if(error)throw Error(error.message);
-   if(setupIntent?.status==='succeeded'){form.hidden=true;elements=null;clientSecret=null;await load();}
-   else notice.textContent='Follow the bank verification steps to finish saving your card.';
-  }catch(e){notice.textContent=e.message;}finally{busy=false;confirm.disabled=false;}
+   if(setupIntent?.status==='succeeded'){
+    const oldCard=replaceId;
+    closeForm();
+    let message='Card saved successfully.';
+    if(oldCard){
+     try{await api('remove',{paymentMethodId:oldCard});message='Replacement card saved and old card removed.';}
+     catch(e){message='New card saved, but the old card could not be removed. Please remove it manually.';}
+    }
+    await load();notice.textContent=message;
+   }else{notice.textContent='Additional verification may be required. Please check your bank verification prompt.';}
+  }catch(e){notice.textContent='Card not saved: '+e.message;}
+  finally{busy=false;confirm.disabled=false;}
  };
  const observer=new MutationObserver(()=>{
   const dashboard=document.getElementById('accountDashboard');
@@ -1802,7 +1819,6 @@
  });
  const dashboard=document.getElementById('accountDashboard');
  if(dashboard)observer.observe(dashboard,{attributes:true,attributeFilter:['style']});
- if(location.search.includes('setup_intent')){notice.textContent='Card verification completed. Checking saved cards…';}
 })();
 </script>
 </body>

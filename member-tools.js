@@ -123,6 +123,7 @@
   }
   const routes = [
     ["Account Summary", "my-account.html#summary"],
+    ["Rewards", "my-account.html#rewards"],
     ["Wishlist", "my-account.html#wishlist"],
     ["Orders", "orders-returns.html#orders"],
     ["Returns", "returns.html"],
@@ -150,9 +151,9 @@
         container.closest("footer") || container.closest("#loggedInAccount")
           ? [
               routes[0],
-              routes[2],
+              routes[1],
               routes[3],
-              ["Refer A Friend", "my-account.html#referral"],
+              routes[4],
             ]
           : routes;
       container.replaceChildren();
@@ -814,8 +815,14 @@
     const summary = document.getElementById("memberSummary");
     if (!summary) return;
     const name = location.hash.slice(1);
-    const tab = ["wishlist", "payment"].includes(name) ? name : "summary";
+    const tab = ["wishlist", "payment", "rewards"].includes(name) ? name : "summary";
     summary.hidden = tab !== "summary";
+    const rewardsPanel = document.getElementById("memberRewards");
+    if (rewardsPanel) rewardsPanel.hidden = tab !== "rewards";
+    const accountTab = document.getElementById("accountTab");
+    const rewardsTab = document.getElementById("rewardsTab");
+    if (accountTab) accountTab.setAttribute("aria-selected", String(tab === "summary"));
+    if (rewardsTab) rewardsTab.setAttribute("aria-selected", String(tab === "rewards"));
     document.getElementById("wishlistSection").hidden = tab !== "wishlist";
     document.getElementById("paymentSection").hidden = tab !== "payment";
     document.getElementById("accountSectionTitle").textContent =

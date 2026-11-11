@@ -824,6 +824,11 @@
             <button type="button" id="saveMarketingPreferences">Save Preferences</button>
             <p id="marketingPreferencesStatus" role="status" aria-live="polite"></p>
           </section>
+          <section class="account-section" id="savedPaymentMethodsSection">
+            <h3>Saved Payment Methods</h3>
+            <p>Manage payment methods for future purchases. Stripe checkout accepts cards without requiring them to be saved.</p>
+            <p id="savedPaymentMethodsNotice" role="status">Saving and editing cards from My Account is being updated for Stripe. No payment card details are stored on this page.</p>
+          </section>
           <section class="account-section" id="trackRewardsSection">
             <h3>Track Rewards</h3>
             <p>See points earned from purchases and sign-up bonuses, point adjustments after refunds, and referral rewards earned or redeemed.</p>
@@ -879,41 +884,7 @@
           <h3>💙 Wishlist</h3>
           <div id="memberWishlist"></div>
         </section>
-        <section id="paymentSection" class="account-section" hidden style="display:none!important">
-          <h3>Payment</h3>
-          <div id="memberCards" aria-live="polite"></div>
-          <div id="memberAddCardHome">
-            <button type="button" id="memberAddCard">
-              Add a New Payment Method
-            </button>
-          </div>
-          <form id="memberCardForm" hidden>
-            <label for="memberCardholder">Name on Card</label>
-            <input
-              id="memberCardholder"
-              autocomplete="cc-name"
-              maxlength="100"
-              required
-            />
-            <label for="memberCardLabel">Card Label (optional)</label>
-            <input
-              id="memberCardLabel"
-              maxlength="60"
-              placeholder="Personal card"
-            />
-            <div id="member-card-container"></div>
-            <label class="im-consent"
-              ><input type="checkbox" id="memberCardConsent" required /> I
-              authorize IM Collections to save this card securely
-              for my future purchases.</label
-            >
-            <div class="im-card-actions" id="memberCardActions">
-              <button type="submit" id="memberSaveCard">Save Card</button>
-              <button type="button" id="memberCancelCard">Cancel</button>
-            </div>
-            <p id="memberCardMessage" role="status"></p>
-          </form>
-        </section>
+
         <button type="button" id="logoutBtn">Logout</button>
       </div>
     </main>

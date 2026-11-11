@@ -128,7 +128,6 @@
     ["Orders", "orders-returns.html#orders"],
     ["Returns", "returns.html"],
     ["Track Orders", "track-orders.html"],
-    ["Payment", "my-account.html#payment"],
   ];
   let wishlistReady = false;
   let user = null,
@@ -815,7 +814,7 @@
     const summary = document.getElementById("memberSummary");
     if (!summary) return;
     const name = location.hash.slice(1);
-    const tab = ["wishlist", "payment", "rewards"].includes(name) ? name : "summary";
+    const tab = ["wishlist", "rewards"].includes(name) ? name : "summary";
     summary.hidden = tab !== "summary";
     const rewardsPanel = document.getElementById("memberRewards");
     if (rewardsPanel) rewardsPanel.hidden = tab !== "rewards";
@@ -824,11 +823,11 @@
     if (accountTab) accountTab.setAttribute("aria-selected", String(tab === "summary"));
     if (rewardsTab) rewardsTab.setAttribute("aria-selected", String(tab === "rewards"));
     document.getElementById("wishlistSection").hidden = tab !== "wishlist";
-    document.getElementById("paymentSection").hidden = tab !== "payment";
+
     document.getElementById("accountSectionTitle").textContent =
       routes.find((x) => x[1].endsWith("#" + tab))?.[0] || "Account Summary";
     if (user && tab === "wishlist") renderWishlist();
-    if (user && tab === "payment") renderCards();
+
     if (name === "referral" && user) {
       document.getElementById("referFriendBtn")?.click();
       document

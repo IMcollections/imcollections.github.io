@@ -662,7 +662,8 @@
       #myOffersSection .im-offer-actions button {min-height:42px;background:#111;color:#fff;border:0;
         border-radius:7px;padding:10px 15px;font-weight:700;cursor:pointer;}
       #myOffersSection .im-offer-empty {color:#666;font-size:14px;}
-    </style>
+    .im-account-tabs{display:flex;gap:10px;margin:20px 0}.im-account-tabs button{flex:1;min-height:44px;padding:10px;border:1px solid #bfa66d;border-radius:7px;background:#fff;color:#111;font-size:15px;font-weight:600;cursor:pointer}.im-account-tabs button[aria-selected="true"]{background:#111;color:#fff;border-color:#111}#memberRewards[hidden],#memberSummary[hidden]{display:none!important}
+</style>
   </head>
 
   <body>
@@ -736,6 +737,7 @@
           <summary>Account Menu</summary>
           <nav data-member-links aria-label="My Account sections"></nav>
         </details>
+        <div class="im-account-tabs" role="tablist" aria-label="Member dashboard"><button type="button" id="accountTab" role="tab" aria-selected="true">My Account</button><button type="button" id="rewardsTab" role="tab" aria-selected="false">Rewards</button></div>
         <h2 id="accountSectionTitle">Account Summary</h2>
         <div id="memberSummary">
           <section class="account-section">
@@ -873,6 +875,7 @@
             </div>
           </section>
         </div>
+        <div id="memberRewards" role="tabpanel" aria-labelledby="rewardsTab" hidden></div>
         <section id="wishlistSection" class="account-section" hidden>
           <h3>💙 Wishlist</h3>
           <div id="memberWishlist"></div>
@@ -1751,6 +1754,14 @@
     const dashboard=document.getElementById("accountDashboard");
     if(dashboard) observer.observe(dashboard,{attributes:true,attributeFilter:["style"]});
   })();
+</script>
+<script>
+(function(){
+ const summary=document.getElementById('memberSummary'), rewards=document.getElementById('memberRewards'), title=document.getElementById('accountSectionTitle'), accountTab=document.getElementById('accountTab'), rewardsTab=document.getElementById('rewardsTab');
+ ['membershipLevel','trackRewardsSection','referralSection'].forEach(id=>{const el=document.getElementById(id);const section=id==='membershipLevel'?el?.closest('section.account-section'):el;if(section)rewards.appendChild(section)});
+ function show(which){const isRewards=which==='rewards';summary.hidden=isRewards;rewards.hidden=!isRewards;accountTab.setAttribute('aria-selected',String(!isRewards));rewardsTab.setAttribute('aria-selected',String(isRewards));title.textContent=isRewards?'Collectors Rewards':'Account Summary';}
+ accountTab.addEventListener('click',()=>show('account'));rewardsTab.addEventListener('click',()=>show('rewards'));show(location.hash==='#rewards'?'rewards':'account');
+})();
 </script>
 </body>
 </html>

@@ -737,7 +737,6 @@
           <summary>Account Menu</summary>
           <nav data-member-links aria-label="My Account sections"></nav>
         </details>
-        <div class="im-account-tabs" role="tablist" aria-label="Member dashboard"><button type="button" id="accountTab" role="tab" aria-selected="true">My Account</button><button type="button" id="rewardsTab" role="tab" aria-selected="false">Rewards</button></div>
         <h2 id="accountSectionTitle">Account Summary</h2>
         <div id="memberSummary">
           <section class="account-section">
@@ -875,7 +874,7 @@
             </div>
           </section>
         </div>
-        <div id="memberRewards" role="tabpanel" aria-labelledby="rewardsTab" hidden></div>
+        <div id="memberRewards" aria-label="Collectors Rewards" hidden></div>
         <section id="wishlistSection" class="account-section" hidden>
           <h3>💙 Wishlist</h3>
           <div id="memberWishlist"></div>
@@ -1757,10 +1756,12 @@
 </script>
 <script>
 (function(){
- const summary=document.getElementById('memberSummary'), rewards=document.getElementById('memberRewards'), title=document.getElementById('accountSectionTitle'), accountTab=document.getElementById('accountTab'), rewardsTab=document.getElementById('rewardsTab');
- ['membershipLevel','trackRewardsSection','referralSection'].forEach(id=>{const el=document.getElementById(id);const section=id==='membershipLevel'?el?.closest('section.account-section'):el;if(section)rewards.appendChild(section)});
- function show(which){location.hash=which==='rewards'?'rewards':'summary';}
- accountTab.addEventListener('click',()=>show('account'));rewardsTab.addEventListener('click',()=>show('rewards'));
+ const rewards=document.getElementById('memberRewards');
+ ['membershipLevel','trackRewardsSection','referralSection'].forEach(id=>{
+   const el=document.getElementById(id);
+   const section=id==='membershipLevel'?el?.closest('section.account-section'):el;
+   if(section)rewards.appendChild(section);
+ });
 })();
 </script>
 </body>

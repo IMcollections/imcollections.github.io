@@ -1146,6 +1146,14 @@ font-size: 0 !important;
   autocomplete="cc-name"
 />
 
+  <div id="savedCardCheckout" hidden style="margin:14px 0;padding:14px;border:1px solid #ddd;border-radius:10px">
+    <strong style="display:block;margin-bottom:10px">Payment method</strong>
+    <label for="savedCardChoice">Choose a saved credit / debit card</label>
+    <select id="savedCardChoice" style="width:100%;margin:8px 0;padding:12px;border:1px solid #ccc;border-radius:7px">
+      <option value="">Enter a different card</option>
+    </select>
+    <p id="savedCardCheckoutNote" class="secure-note" role="status">Saved cards are available to signed-in members.</p>
+  </div>
   <div id="stripeCardFields" aria-label="Secure Stripe card details" style="border:1px solid #d6d6d6;border-radius:10px;padding:14px;margin:12px 0;">
     <strong style="display:block;margin-bottom:8px">Secure Stripe card entry</strong>
     <p id="stripePaymentHint" class="secure-note" role="status">The secure card number, expiration date, and CVC fields will load here only after Stripe successfully prepares a test payment. Complete checkout and tap PREPARE STRIPE TEST PAYMENT at the bottom.</p>
@@ -1378,6 +1386,40 @@ const supabaseClient =
     const stripe = Stripe("pk_test_51URrTfQyDeuXnUwQW3sXLObPGcW6hwfOHwT0baS9Za8g3PPeeaG7tB330wNhxTXeC5aFqghdXuL76pxW3q5IAEbS00Ymx0Ao5i");
     let stripeElements = null;
     let stripePaymentElement = null;
+    let stripeClientSecret = null;
+    let selectedSavedCardId = "";
+    async function refreshCheckoutSavedCards(){
+      const area=document.getElementById("savedCardCheckout");
+      const select=document.getElementById("savedCardChoice");
+      const note=document.getElementById("savedCardCheckoutNote");
+      if(!area||!select)return;
+      select.replaceChildren(new Option("Enter a different card",""));
+      selectedSavedCardId="";
+      try{
+        const {data:{session}}=await supabaseClient.auth.getSession();
+        if(!session){area.hidden=true;return;}
+        const response=await fetch(supabaseUrl+"/functions/v1/im-stripe-saved-cards",{
+          method:"POST",headers:{"Content-Type":"application/json","apikey":supabaseKey,"Authorization":"Bearer "+session.access_token},
+          body:JSON.stringify({action:"list"})
+        });
+        const result=await response.json();
+        if(!response.ok)throw Error(result.error||"Saved cards unavailable");
+        if(!result.cards?.length){area.hidden=true;return;}
+        for(const card of result.cards){
+          if(!/^pm_[A-Za-z0-9]+$/.test(card.id))continue;
+          select.add(new Option(card.brand+" •••• "+card.last4+" (expires "+card.expMonth+"/"+card.expYear+")",card.id));
+        }
+        area.hidden=false;
+        note.textContent="Select a saved card or enter a different card below. No payment is made until you confirm.";
+      }catch(e){area.hidden=true;note.textContent=e.message||"Saved cards unavailable";}
+    }
+    document.getElementById("savedCardChoice").addEventListener("change",event=>{
+      selectedSavedCardId=event.target.value;
+      const cardFields=document.getElementById("stripeCardFields");
+      if(stripeClientSecret)cardFields.hidden=Boolean(selectedSavedCardId);
+      document.getElementById("stripePaymentHint").textContent=selectedSavedCardId?"Saved card selected. Confirm your Stripe test payment below.":"Enter Stripe test card details, then confirm your test payment.";
+    });
+
     const checkoutCart =
       JSON.parse(
         localStorage.getItem("imCollectionsCart") || "[]"
@@ -1959,7 +2001,7 @@ function stripeCartSnapshot(delivery) {
   return JSON.stringify({items:checkoutCart.map(i=>({id:i.id,quantity:i.quantity,size:i.size,color:i.color})),
     shippingMethod:document.querySelector('input[name="shippingMethod"]:checked')?.value||"standard",
     promoCode:appliedPromoCode,useReferralRewards,
-    email:delivery.email,shippingAddress:delivery.shippingAddress});
+    email:delivery.email,shippingAddress:delivery.shippingAddress,savedPaymentMethodId:selectedSavedCardId});
 }
 let stripePreparedSnapshot = null;
 const payButton = document.getElementById("paymentButton");
@@ -1991,7 +2033,7 @@ payButton.addEventListener("click", async () => {
       const attemptId=crypto.randomUUID();
       const body={attemptId,...delivery,userAccessToken:session?.access_token||null,
         items:checkoutCart.map(i=>({id:i.id,quantity:i.quantity,size:i.size,color:i.color})),
-        shippingMethod,promoCode:appliedPromoCode,useReferralRewards};
+        shippingMethod,promoCode:appliedPromoCode,useReferralRewards,savedPaymentMethodId:selectedSavedCardId};
       // Quote must use the same cart, address, shipping and member context as the intent.
       // Quote uses Stripe Tax destination calculation; payments remain separately gated.
       const {data:quote, error:quoteError}=await supabaseClient.functions.invoke("stripe-sandbox-quote",{body});
@@ -2033,11 +2075,13 @@ payButton.addEventListener("click", async () => {
           data.amountCents !== displayedCents) {
         throw Error("Checkout amount does not match the server-approved Stripe test amount. No card form was opened. Please contact support.");
       }
+      stripeClientSecret=data.clientSecret;
       stripeElements=stripe.elements({clientSecret:data.clientSecret});
       // Let Stripe collect any billing address fields required by the selected card.
       // The cardholder name and email are also supplied at confirmation.
       stripePaymentElement=stripeElements.create("payment",{layout:"tabs",fields:{billingDetails:{name:"never",email:"never"}}});
       stripePaymentElement.mount("#stripePaymentElement");
+      document.getElementById("stripeCardFields").hidden=Boolean(selectedSavedCardId);
       stripeAttemptId=attemptId;
       stripePreparedSnapshot=stripeCartSnapshot(delivery);
       payButton.textContent="CONFIRM STRIPE TEST PAYMENT";
@@ -2049,17 +2093,24 @@ payButton.addEventListener("click", async () => {
     if (stripeCartSnapshot(delivery) !== stripePreparedSnapshot) throw Error("Cart, delivery address, email, or shipping changed after the Stripe quote. Do not confirm this payment. The existing attempt must be reviewed before starting a new quote.");
     const name=document.getElementById("cardholderName").value.trim();
     if (!name) throw Error("Enter the name on the card.");
-    const {error:submitError}=await stripeElements.submit();
-    if (submitError) throw Error(submitError.message);
+    if(!selectedSavedCardId){
+      const {error:submitError}=await stripeElements.submit();
+      if(submitError)throw Error(submitError.message);
+    }
     // Store the attempt before confirmation to prevent accidental double submissions.
     localStorage.setItem(attemptStorageKey,stripeAttemptId);
     stripeConfirmationPending=true;
     payButton.disabled=true;
     const url=new URL(location.href);
     url.searchParams.set("stripe_return","1");
-    const result=await stripe.confirmPayment({elements:stripeElements,
-      confirmParams:{return_url:url.toString(),payment_method_data:{billing_details:{name,email:delivery.email}}},
-      redirect:"if_required"});
+    const result=selectedSavedCardId
+      ? await stripe.confirmCardPayment(stripeClientSecret,{
+          payment_method:selectedSavedCardId,
+          return_url:url.toString()
+        })
+      : await stripe.confirmPayment({elements:stripeElements,
+          confirmParams:{return_url:url.toString(),payment_method_data:{billing_details:{name,email:delivery.email}}},
+          redirect:"if_required"});
     if (result.error) {
       // Status may be uncertain. Preserve the attempt ID for manual verification.
       throw Error((result.error.message||"Stripe confirmation failed")+". Verify this attempt before trying again.");
@@ -2904,6 +2955,8 @@ supabaseClient.auth.onAuthStateChange(() => {
   setTimeout(updateSaveCardEligibility, 0);
 });
 void updateSaveCardEligibility();
+void refreshCheckoutSavedCards();
+supabaseClient.auth.onAuthStateChange(()=>setTimeout(refreshCheckoutSavedCards,0));
 
 </script>
 </body>

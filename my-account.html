@@ -1736,7 +1736,7 @@
 <script>
 (function(){
  const rewards=document.getElementById('memberRewards');
- ['membershipLevel','trackRewardsSection','referralSection'].forEach(id=>{
+ ['referralSection','membershipLevel','trackRewardsSection'].forEach(id=>{
    const el=document.getElementById(id);
    const section=id==='membershipLevel'?el?.closest('section.account-section'):el;
    if(section)rewards.appendChild(section);

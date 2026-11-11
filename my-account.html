@@ -809,6 +809,20 @@
             <p>Points to unlock next reward: <strong id="nextRewardText">Earn points to unlock your next reward.</strong></p>
           </section>
 
+          <section class="account-section" id="communicationPreferencesSection">
+            <h3>Communication Preferences</h3>
+            <p>Choose which optional marketing messages you receive. Turning these off does not affect your membership, birthday rewards, or order notifications.</p>
+            <div style="display:flex;align-items:center;gap:10px;margin:14px 0">
+              <input type="checkbox" id="memberEmailMarketing" style="width:18px;height:18px;flex:none">
+              <label for="memberEmailMarketing" style="text-transform:none;font-weight:400;letter-spacing:normal">Promotional emails</label>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin:14px 0">
+              <input type="checkbox" id="memberSmsMarketing" style="width:18px;height:18px;flex:none">
+              <label for="memberSmsMarketing" style="text-transform:none;font-weight:400;letter-spacing:normal">Promotional text messages (SMS)</label>
+            </div>
+            <button type="button" id="saveMarketingPreferences">Save Preferences</button>
+            <p id="marketingPreferencesStatus" role="status" aria-live="polite"></p>
+          </section>
           <section class="account-section" id="trackRewardsSection">
             <h3>Track Rewards</h3>
             <p>See points earned from purchases and sign-up bonuses, point adjustments after refunds, and referral rewards earned or redeemed.</p>
@@ -1697,5 +1711,46 @@
       void loadCatalog();
     })();
     </script>
-  </body>
+  <script>
+  (function () {
+    const status = document.getElementById("marketingPreferencesStatus");
+    const email = document.getElementById("memberEmailMarketing");
+    const sms = document.getElementById("memberSmsMarketing");
+    const save = document.getElementById("saveMarketingPreferences");
+    async function getClientAndUser() {
+      const client = typeof supabaseClient !== "undefined" ? supabaseClient : null;
+      if (!client) throw new Error("Account connection unavailable.");
+      const {data, error} = await client.auth.getUser();
+      if (error || !data.user) throw new Error("Please sign in first.");
+      return {client, user:data.user};
+    }
+    async function load() {
+      try {
+        const {client,user}=await getClientAndUser();
+        const {data,error}=await client.from("member_marketing_preferences").select("email_opt_in,sms_opt_in").eq("user_id",user.id).maybeSingle();
+        if(error) throw error;
+        email.checked=!!data?.email_opt_in;
+        sms.checked=!!data?.sms_opt_in;
+        status.textContent="";
+      } catch(e) { status.textContent=e.message; }
+    }
+    save.addEventListener("click",async () => {
+      save.disabled=true; status.textContent="Saving…";
+      try {
+        const {client,user}=await getClientAndUser();
+        const {error}=await client.from("member_marketing_preferences").upsert({user_id:user.id,email_opt_in:email.checked,sms_opt_in:sms.checked,updated_at:new Date().toISOString()},{onConflict:"user_id"});
+        if(error) throw error;
+        status.textContent="Preferences saved.";
+      } catch(e) { status.textContent="Unable to save preferences: "+e.message; }
+      finally { save.disabled=false; }
+    });
+    const observer=new MutationObserver(() => {
+      const dashboard=document.getElementById("accountDashboard");
+      if(dashboard && getComputedStyle(dashboard).display!=="none") {load(); observer.disconnect();}
+    });
+    const dashboard=document.getElementById("accountDashboard");
+    if(dashboard) observer.observe(dashboard,{attributes:true,attributeFilter:["style"]});
+  })();
+</script>
+</body>
 </html>
